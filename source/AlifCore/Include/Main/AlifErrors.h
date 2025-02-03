@@ -8,6 +8,11 @@ void alifErr_setString(AlifObject*, const char*); // 11
 
 AlifObject* alifErr_occurred(void); // 15
 
+
+
+AlifIntT alifErr_exceptionMatches(AlifObject*); // 39
+
+
 AlifObject* alifException_getTraceback(AlifObject*); // 44
 
 
@@ -23,11 +28,13 @@ void alifException_setContext(AlifObject*, AlifObject*); // 52
 #define ALIFEXCEPTIONINSTANCE_CHECK(_x)                    \
     ALIFTYPE_FASTSUBCLASS(ALIF_TYPE(_x), ALIF_TPFLAGS_BASE_EXC_SUBCLASS)
 
-
+#define ALIFEXCEPTIONINSTANCE_CLASS(_x) ALIFOBJECT_CAST(ALIF_TYPE(_x))
 
 extern AlifObject* _alifExcBaseException_; // 76
 extern AlifObject* _alifExcException_; // 77
 
+
+extern AlifObject* _alifExcImportError_; // 93
 extern AlifObject* _alifExcIndexError_; // 97
 
 
@@ -74,4 +81,15 @@ public:
 	AlifObject* endOffset{};
 	AlifObject* text{};
 	AlifObject* printFileAndLine{};
+};
+
+
+
+class AlifImportErrorObject { // 35
+public:
+	ALIFEXCEPTION_HEAD;
+	AlifObject* msg{};
+	AlifObject* name{};
+	AlifObject* path{};
+	AlifObject* nameFrom{};
 };

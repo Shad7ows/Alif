@@ -118,7 +118,7 @@ static AlifIntT initialize_token(AlifParser* _p,
 
 static AlifIntT resize_tokensArr(AlifParser* _p) { // 218 
 	AlifIntT newSize = _p->size * 2;
-	AlifPToken** newTokens = (AlifPToken**)alifMem_dataRealloc(_p->tokens, newSize * sizeof(AlifPToken*));
+	AlifPToken** newTokens = (AlifPToken**)alifMem_dataRealloc(_p->tokens, (AlifUSizeT)newSize * sizeof(AlifPToken*));
 	if (newTokens == nullptr) {
 		//alifErr_noMemory();
 		return -1;
@@ -147,7 +147,7 @@ AlifIntT alifParserEngine_fillToken(AlifParser* _p) { // 240
 	//while (type == TYPEIGNORE) {
 	//	AlifSizeT len = newToken.endColOffset - newToken.colOffset;
 	//	char* tag = (char*)alifMem_dataAlloc(len + 1);
-	//	strncpy(tag, newToken.start, len);
+	//	strncpy(tag, newToken.start, (AlifUSizeT)len);
 	//	tag[len] = L'0';
 	//	if (!growableComment_arrayAdd(&_p->typeIgnoreComments, _p->tok->lineNo, tag)) {
 	//		//alifErr_noMemory();
@@ -176,7 +176,7 @@ AlifIntT alifParserEngine_fillToken(AlifParser* _p) { // 240
 	return initialize_token(_p, pT, &newToken, type);
 
 error:
-	//alifToken_free(&newToken);
+	_alifToken_free(&newToken);
 	return -1;
 }
 
@@ -273,7 +273,7 @@ AlifPToken* alifParserEngine_getLastNonWhitespaceToken(AlifParser* _p) { // 491
 
 AlifObject* alifParserEngine_newIdentifier(AlifParser* _p, const char* _s) { // 505
 	AlifInterpreter* interp{};
-	AlifObject* id = alifUStr_decodeUTF8(_s, strlen(_s), nullptr);
+	AlifObject* id = alifUStr_decodeUTF8(_s, (AlifSizeT)strlen(_s), nullptr);
 	if (!id) {
 		goto error;
 	}
@@ -424,7 +424,7 @@ ExprTy alifParserEngine_numberToken(AlifParser* _p) { // 684
 	if (_p->featureVersion < 6 and strchr(rawNum, L'_') != nullptr) {
 		_p->errorIndicator = 1;
 		//return RAISE_SYNTAX_ERROR("Underscores in numeric literals are only supported "
-		//	"in Alif 5 and greater");
+		//	"in Alif5"); //* todo
 		return nullptr; // temp
 	}
 
@@ -557,14 +557,14 @@ void* alifParserEngine_runParser(AlifParser* _p) { // 883
 		//	alifErr_clear();
 		//	return alifParserEngine_raiseError(_p, ALIFEXC_INCOMPLETEINPUTERROR, 0, "incomplete input");
 		//}
-		//if (alifErr_occurred() and !alifErr_exceptionMatches(_alifExcSyntaxError_)) {
-		//	return nullptr;
-		//}
+		if (alifErr_occurred() and !alifErr_exceptionMatches(_alifExcSyntaxError_)) {
+			return nullptr;
+		}
 		AlifPToken* lastToken = _p->tokens[_p->fill - 1];
 		//reset_parserStateForErrorPass(_p);
 		alifParserEngine_parse(_p);
 
-		//alifParserEngine_setSyntaxError(_p, lastToken);
+		_alifParserEngine_setSyntaxError(_p, lastToken);
 		return nullptr;
 	}
 
@@ -583,10 +583,10 @@ ModuleTy alifParser_astFromFile(FILE* _fp, AlifIntT _startRule,
 
 	TokenState* tokState = alifTokenizerInfo_fromFile(_fp, _enc, _ps1, _ps2);
 	if (tokState == nullptr) {
-		//if (alifErr_occurred()) {
-		//	alifParserEngine_raiseTokenizerInitError(_fn);
-		//	return nullptr;
-		//}
+		if (alifErr_occurred()) {
+			//alifParserEngine_raiseTokenizerInitError(_fn);
+			return nullptr;
+		}
 		return nullptr;
 	}
 	if (!tokState->fp or _ps1 != nullptr or _ps2 != nullptr

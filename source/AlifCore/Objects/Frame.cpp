@@ -29,10 +29,10 @@ AlifFrameObject* _alifFrame_makeAndSetFrameObject(AlifInterpreterFrame* _frame) 
 
 static void take_ownership(AlifFrameObject* _f, AlifInterpreterFrame* _frame) { // 49
 	AlifSizeT size = ((char*)_frame->stackPointer) - (char*)_frame;
-	ALIF_INCREF(_alifFrame_getCode(_frame));
 	memcpy((AlifInterpreterFrame*)_f->frameData, _frame, size);
 	_frame = (AlifInterpreterFrame*)_f->frameData;
 	_frame->stackPointer = (AlifStackRef*)(((char*)_frame) + size);
+	_frame->executable = alifStackRef_dup(_frame->executable);
 	_f->frame = _frame;
 	_frame->owner = FrameOwner::FRAME_OWNED_BY_FRAME_OBJECT;
 	if (_alifFrame_isIncomplete(_frame)) {
@@ -81,5 +81,5 @@ void _alifFrame_clearExceptCode(AlifInterpreterFrame* _frame) { // 105
 		ALIF_DECREF(f);
 	}
 	_alifFrame_clearLocals(_frame);
-	ALIF_DECREF(_frame->funcObj);
+	ALIFSTACKREF_CLEAR(_frame->funcObj);
 }

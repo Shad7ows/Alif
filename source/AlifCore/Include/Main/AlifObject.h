@@ -64,6 +64,12 @@ static inline uintptr_t alif_threadID(void) { // 173
 	threadID = __readfsdword(24);
 #elif defined(_MSC_VER) and defined(_M_ARM64)
 	threadID = __getReg(18);
+#elif defined(__MINGW32__) && defined(_M_X64)
+	tid = __readgsqword(48);
+#elif defined(__MINGW32__) && defined(_M_IX86)
+	tid = __readfsdword(24);
+#elif defined(__MINGW32__) && defined(_M_ARM64)
+	tid = __getReg(18);
 #elif defined(__i386__)
 	__asm__("movl %%gs:0, %0" : "=r" (threadID));  // 32-bit always uses GS
 #elif defined(__MACH__) and defined(__x86_64__)
@@ -119,10 +125,10 @@ alif_isOwnedByCurrentThread(AlifObject* ob) { // 232
 	return ob->threadID == alif_threadID();
 }
 
-static inline AlifTypeObject* alif_type(AlifObject* _ob) { // 250
+static inline AlifTypeObject* _alif_type(AlifObject* _ob) { // 250
 	return _ob->type;
 }
-#define ALIF_TYPE(_ob) alif_type(ALIFOBJECT_CAST(_ob))
+#define ALIF_TYPE(_ob) _alif_type(ALIFOBJECT_CAST(_ob))
 
 extern AlifTypeObject _alifLongType_; // 261
 extern AlifTypeObject _alifBoolType_; // 262

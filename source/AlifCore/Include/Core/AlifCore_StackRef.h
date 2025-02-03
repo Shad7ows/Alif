@@ -29,8 +29,8 @@ union AlifStackRef { // 52
  // 57
 #define ALIF_TAG_DEFERRED (1)
 
-#define ALIF_TAG_PTR      (0)
-#define ALIF_TAG_BITS     (1)
+#define ALIF_TAG_PTR      ((uintptr_t)0)
+#define ALIF_TAG_BITS     ((uintptr_t)1)
 
 static const AlifStackRef _alifStackRefNull_ = { .bits = 0 | ALIF_TAG_DEFERRED };
 
@@ -39,13 +39,15 @@ static const AlifStackRef _alifStackRefNull_ = { .bits = 0 | ALIF_TAG_DEFERRED }
 #define ALIFSTACKREF_TRUE AlifStackRef({.bits = ((uintptr_t)&_alifTrueClass_) | ALIF_TAG_DEFERRED }) // 72
 #define ALIFSTACKREF_FALSE AlifStackRef({.bits = ((uintptr_t)&_alifFalseClass_) | ALIF_TAG_DEFERRED }) // 78
 
+#define ALIFSTACKREF_NONE AlifStackRef({.bits = ((uintptr_t)&_alifNoneClass_) | ALIF_TAG_DEFERRED }) // 84
+
 #define ALIFSTACKREF_IS(_a, _b) (_a.bits == _b.bits) // 91
 
 
 #define ALIFSTACKREF_ISDEFERRED(ref) (((ref).bits & ALIF_TAG_BITS) == ALIF_TAG_DEFERRED) // 93
 
 static inline AlifObject* alifStackRef_asAlifObjectBorrow(AlifStackRef _stackRef) { // 99
-	AlifObject* cleared = ((AlifObject*)((_stackRef).bits & (~ALIF_TAG_BITS)));
+	AlifObject* cleared = ((AlifObject*)((_stackRef).bits & (~(uintptr_t)ALIF_TAG_BITS)));
 	return cleared;
 }
 
@@ -61,7 +63,7 @@ static inline AlifObject* alifStackRef_asAlifObjectSteal(AlifStackRef _stackRef)
 #define ALIFSTACKREF_TYPE(_stackref) ALIF_TYPE(alifStackRef_asAlifObjectBorrow(_stackref)) // 127
 
 static inline AlifStackRef _alifStackRef_fromAlifObjectSteal(AlifObject* _obj) { // 131
-	AlifIntT tag = (_obj == nullptr or ALIF_ISIMMORTAL(_obj)) ? (ALIF_TAG_DEFERRED) : ALIF_TAG_PTR;
+	AlifUIntT tag = (_obj == nullptr or ALIF_ISIMMORTAL(_obj)) ? (ALIF_TAG_DEFERRED) : ALIF_TAG_PTR;
 	return { .bits = ((uintptr_t)(_obj)) | tag };
 }
 #define ALIFSTACKREF_FROMALIFOBJECTSTEAL(_obj) _alifStackRef_fromAlifObjectSteal(ALIFOBJECT_CAST(_obj))
@@ -78,6 +80,15 @@ static inline AlifStackRef _alifStackRef_fromAlifObjectNew(AlifObject* _obj) { /
 #define ALIFSTACKREF_FROMALIFOBJECTNEW(_obj) _alifStackRef_fromAlifObjectNew(ALIFOBJECT_CAST(_obj))
 
 
+#define ALIFSTACKREF_CLEAR(_op) \
+    do { \
+        AlifStackRef *_tmp_op_ptr = &(_op); \
+        AlifStackRef _tmp_old_op = (*_tmp_op_ptr); \
+        if (!ALIFSTACKREF_ISNULL(_tmp_old_op)) { \
+            *_tmp_op_ptr = _alifStackRefNull_; \
+            ALIFSTACKREF_CLOSE(_tmp_old_op); \
+        } \
+    } while (0)
 
  // 193
 #define ALIFSTACKREF_CLOSE(_ref)                                        \
@@ -110,3 +121,5 @@ static inline AlifStackRef alifStackRef_dup(AlifStackRef _stackRef) { // 215
 	ALIF_INCREF(alifStackRef_asAlifObjectBorrow(_stackRef));
 	return _stackRef;
 }
+
+
