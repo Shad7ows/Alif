@@ -13,6 +13,7 @@ TARGET = $(BUILD_DIR)/alif
 SOURCES = 	$(wildcard $(SOURCE_DIR)/Alif/*.cpp)					\
 			$(wildcard $(SOURCE_DIR)/AlifCore/Objects/*.cpp)		\
 			$(wildcard $(SOURCE_DIR)/AlifCore/Objects/dtoa/*.cpp)	\
+			$(wildcard $(SOURCE_DIR)/Modules/*.cpp)	\
 
 INCLUDES =  -I$(SOURCE_DIR)/Alif									\
 			-I$(SOURCE_DIR)/AlifCore/Include/Core					\
@@ -20,6 +21,7 @@ INCLUDES =  -I$(SOURCE_DIR)/Alif									\
 			-I$(SOURCE_DIR)/AlifCore/Include/Main/Atomics			\
 			-I$(SOURCE_DIR)/AlifCore/Include/Main/mimalloc			\
 			-I$(SOURCE_DIR)/AlifCore/Include/Main/StringLib			\
+			-I$(SOURCE_DIR)/AlifCore/Include/Main/FrozenModules		\
 			-I$(SOURCE_DIR)/AlifCore/Objects/clinic					\
 
 # مرحلة إنشاء الملفات المطلوبة
@@ -30,6 +32,7 @@ $(BUILD_DIR):
 	mkdir -p $(OBJ_DIR)/Alif
 	mkdir -p $(OBJ_DIR)/AlifCore/Objects
 	mkdir -p $(OBJ_DIR)/AlifCore/Objects/dtoa
+	mkdir -p $(OBJ_DIR)/Modules
 endif
 
 # تقوم هذه التعليمة بأخذ كل ملفات المصدر المنتهية ب .cpp 

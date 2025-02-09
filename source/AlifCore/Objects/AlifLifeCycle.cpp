@@ -16,6 +16,11 @@
 
 
 
+#ifdef HAVE_SIGNAL_H
+#  include <signal.h>             // SIG_IGN
+#endif
+
+
 
 AlifDureRun _alifDureRun_ = ALIF_DURERUNSTATE_INIT(_alifDureRun_); // 103
 
@@ -439,7 +444,7 @@ static AlifIntT initInterpreter_main(AlifThread* _thread) { // 1156
 	AlifIntT status{};
 	AlifIntT isMainInterpreter = alif_isMainInterpreter(_thread->interpreter);
 	AlifInterpreter* interpreter = _thread->interpreter;
-	const AlifConfig* config_ = alifInterpreter_getConfig(interpreter);
+	const AlifConfig* config = alifInterpreter_getConfig(interpreter);
 
 	//if (!config_->installImportLib) {
 	//	if (isMainInterpreter) {
@@ -461,13 +466,17 @@ static AlifIntT initInterpreter_main(AlifThread* _thread) { // 1156
 	//status = alifUnicode_initEncoding(_thread);
 	//if (status < 1) return status;
 
-	//if (isMainInterpreter) {
-	//	if (config_->tracemalloc) {
-	//		if (alifTraceMalloc_start(config_->tracemalloc) < 0) {
-	//			return -1;
-	//		}
-	//	}
-	//}
+	if (isMainInterpreter) {
+		if (_alifSignal_init(config->installSignalHandlers) < 0) {
+			//return _ALIFSTATUS_ERR("can't initialize signals");
+		}
+
+		//if (config_->tracemalloc) {
+		//	if (alifTraceMalloc_start(config_->tracemalloc) < 0) {
+		//		return -1;
+		//	}
+		//}
+	}
 
 	//status = init_sysStream(_thread);
 	//if (status < 1) return status;
@@ -528,4 +537,37 @@ AlifIntT alif_initFromConfig(const AlifConfig* _config) { // 1383
 	}
 
 	return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AlifOSSigHandlerT alifOS_setSig(AlifIntT sig, AlifOSSigHandlerT handler) { // 3475
+#ifdef HAVE_SIGACTION
+	sigaction context, ocontext;
+	context.sa_handler = handler;
+	sigemptyset(&context.sa_mask);
+	context.sa_flags = SA_ONSTACK;
+	if (sigaction(sig, &context, &ocontext) == -1)
+		return SIG_ERR;
+	return ocontext.sa_handler;
+#else
+	AlifOSSigHandlerT oldhandler{};
+	oldhandler = signal(sig, handler);
+#ifdef HAVE_SIGINTERRUPT
+	siginterrupt(sig, 1);
+#endif
+	return oldhandler;
+#endif
 }
