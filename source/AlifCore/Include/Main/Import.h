@@ -20,7 +20,7 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject*, AlifObject*,
 /* --------------------------------------------------------------------------------------- */
 
 
-
+AlifObject* alifInit__imp(void); // 5
 
 class InitTable { // 7
 public:
@@ -30,3 +30,12 @@ public:
 
 
 extern class InitTable* _alifImportInitTable_; // 12
+
+
+class Frozen { // 15
+public:
+	const char* name{};                 /* ASCII encoded string */
+	const unsigned char* code{};
+	AlifIntT size{};
+	AlifIntT isPackage{};
+};

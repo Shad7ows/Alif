@@ -47,6 +47,8 @@ public:
 	wchar_t* runFilename{};
 	wchar_t* sysPath0{};
 
+	AlifIntT installImportLib{};
+
 	AlifIntT initMain{};
 };
 
@@ -58,8 +60,3 @@ void alifConfig_clear(AlifConfig*); // 241
 AlifIntT alifConfig_setString(AlifConfig*, wchar_t**, const wchar_t*);
 
 
-
-//typedef AlifInitConfig AlifInitConfig; // 281
-
-
-//AlifIntT alifInitConfig_setStrList(AlifInitConfig*, const char*, AlifUSizeT, char* const*); // 311

@@ -31,6 +31,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Frame.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Function.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_GenObject.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ImportDL.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Instruments.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Intrinsics.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Math.h" />
@@ -75,6 +76,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Mimalloc.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ModSupport.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ModuleObject.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Namespace.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Object.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ObjectAlloc.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ObjectDeferred.h" />
@@ -102,7 +104,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Token.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Traceback.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Tuple.h" />
-    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_TypeID.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_UniqueID.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_TypeObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_UnionObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_UStrObject.h" />
@@ -157,6 +159,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\Codecs.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FloatObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FrameObject.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\FrozenModules\Importlib._bootstrap.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FuncObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\GenericAliasObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\Helpers.h" />
@@ -167,6 +170,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\Lock.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\LongIntRepr.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\LongObject.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\Marshal.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\MethodObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\mimalloc\mimalloc.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\mimalloc\mimalloc\atomic.h" />
@@ -207,6 +211,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\Tokenizer.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\Traceback.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\TupleObject.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\TypeSlots.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\UStrObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\UStrTypeDB.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\WeakRefObject.h" />
@@ -276,6 +281,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\FormatterUStr.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Frame.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\FrameObject.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\Frozen.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\FuncObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Future.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\GCFreeThreading.cpp" />
@@ -286,6 +292,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\HashTable.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Helpers.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Import.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\ImportDL.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\InitConfig.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\InstructionSequence.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Instrumentation.cpp" />
@@ -294,9 +301,11 @@
     <ClCompile Include="..\source\AlifCore\Objects\ListObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Lock.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\LongObject.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\Marshal.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\MethodObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ModSupport.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ModuleObject.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\NamespaceObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ObjectStack.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\PathConfig.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\PosixModule.cpp" />
@@ -312,13 +321,14 @@
     <ClCompile Include="..\source\AlifCore\Objects\Traceback.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\TupleObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ParkingLot.cpp" />
-    <ClCompile Include="..\source\AlifCore\Objects\TypeID.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\UniqueID.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\TypeObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\UnionObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\UStrCppType.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\UStrObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\WeakRefObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\WinConsoleIO.cpp" />
+    <ClCompile Include="..\source\Modules\TimeModule.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

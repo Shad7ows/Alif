@@ -73,7 +73,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\TupleObject.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\AlifCore\Objects\TypeID.cpp">
+    <ClCompile Include="..\source\AlifCore\Objects\UniqueID.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="..\source\AlifCore\Objects\TypeObject.cpp">
@@ -304,6 +304,21 @@
     <ClCompile Include="..\source\AlifCore\Objects\PathConfig.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\Frozen.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\Marshal.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\NamespaceObject.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\ImportDL.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Modules\TimeModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -423,7 +438,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Time.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_TypeID.h">
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_UniqueID.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_UStrObject.h">
@@ -897,6 +912,21 @@
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_PathConfig.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\Marshal.h">
+      <Filter>Include\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_Namespace.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ImportDL.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\FrozenModules\Importlib._bootstrap.h">
+      <Filter>Include\Main\FrozenModules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\TypeSlots.h">
+      <Filter>Include\Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
@@ -925,6 +955,12 @@
     </Filter>
     <Filter Include="Objects\clinic">
       <UniqueIdentifier>{cc031cc4-6eb8-4646-aee7-345e533a37d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Main\FrozenModules">
+      <UniqueIdentifier>{7ede3554-5da9-4008-b770-938a0c3443dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{440aef4b-677e-44a2-a713-3eb813efa223}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

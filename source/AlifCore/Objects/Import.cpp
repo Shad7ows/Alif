@@ -5,9 +5,12 @@
 #include "AlifCore_Interpreter.h"
 #include "AlifCore_State.h"
 #include "AlifCore_Errors.h"
+#include "AlifCore_Namespace.h"
 #include "AlifCore_Object.h"
 
 
+#include "Marshal.h"
+#include "AlifCore_ImportDL.h"
 
 //* alif
 #include "AlifCore_Compile.h"
@@ -69,6 +72,12 @@ static inline AlifObject* get_modulesDict(AlifThread* tstate, bool fatal) { // 1
 	return modules;
 }
 
+
+AlifIntT _alifImport_setModuleString(const char* name, AlifObject* m) { // 187
+	AlifThread* thread = _alifThread_get();
+	AlifObject* modules = get_modulesDict(thread, true);
+	return alifMapping_setItemString(modules, name, m);
+}
 
 static AlifObject* import_getModule(AlifThread* _thread, AlifObject* _name) { // 195
 	AlifObject* modules = get_modulesDict(_thread, false);
@@ -139,6 +148,22 @@ AlifObject* alifImport_addModuleRef(const char* _name) { // 288
 	return module;
 }
 
+static void remove_module(AlifThread* _thread, AlifObject* _name) { // 357
+	//AlifObject* exc = _alifErr_getRaisedException(_thread);
+
+	AlifObject* modules = get_modulesDict(_thread, true);
+	if (ALIFDICT_CHECKEXACT(modules)) {
+		// Error is reported to the caller
+		(void)alifDict_pop(modules, _name, nullptr);
+	}
+	else if (ALIFMAPPING_DELITEM(modules, _name) < 0) {
+		//if (_alifErr_exceptionMatches(_thread, _alifExcKeyError_)) {
+		//	_alifErr_clear(_thread);
+		//}
+	}
+
+	//_alifErr_chainExceptions1(exc);
+}
 
 
 AlifSizeT alifImport_getNextModuleIndex() { // 381
@@ -169,11 +194,257 @@ const char* alifImport_resolveNameWithPackageContext(const char* name) { // 740
 	return name;
 }
 
+const char* _alifImport_swapPackageContext(const char* newcontext) { // 759
+#ifndef HAVE_THREAD_LOCAL
+	//alifThread_acquireLock(EXTENSIONS.mutex, WAIT_LOCK);
+#endif
+	const char* oldcontext = PKGCONTEXT;
+	PKGCONTEXT = newcontext;
+#ifndef HAVE_THREAD_LOCAL
+	//alifThread_releaseLock(EXTENSIONS.mutex);
+#endif
+	return oldcontext;
+}
+
+
+static AlifIntT exec_builtinOrDynamic(AlifObject* mod) { // 790
+	AlifModuleDef* def{};
+	void* state{};
+
+	if (!ALIFMODULE_CHECK(mod)) {
+		return 0;
+	}
+
+	def = alifModule_getDef(mod);
+	if (def == nullptr) {
+		return 0;
+	}
+
+	state = alifModule_getState(mod);
+	if (state) {
+		/* Already initialized; skip reload */
+		return 0;
+	}
+
+	return alifModule_execDef(mod, def);
+}
+
+
+static AlifThread* switchTo_mainInterpreter(AlifThread* _thread) { // 1523
+	if (alif_isMainInterpreter(_thread->interpreter)) {
+		return _thread;
+	}
+
+	//* todo
+	//AlifThread* main_tstate = _alifThread_newBound(
+	//	alifInterpreter_main(), _ALIFTHREADSTATE_WHENCE_EXEC);
+	//if (main_tstate == nullptr) {
+	//	return nullptr;
+	//}
+	//(void)alifThread_swap(main_tstate);
+	//return main_tstate;
+}
 
 
 
 
-/* the internal table */
+static AlifObject* import_runExtension(AlifThread* tstate, AlifModInitFunction p0,
+	AlifExtModuleLoaderInfo* info, AlifObject* spec, AlifObject* modules) { // 1919
+
+	AlifObject* mod = nullptr;
+	AlifModuleDef* def = nullptr;
+	//ExtensionsCacheValue* cached = nullptr;
+	const char* name_buf = ALIFBYTES_AS_STRING(info->nameEncoded);
+
+	bool switched = false;
+
+	AlifThread* main_tstate = switchTo_mainInterpreter(tstate);
+	if (main_tstate == nullptr) {
+		return nullptr;
+	}
+	else if (main_tstate != tstate) {
+		switched = true;
+	}
+
+	AlifExtModuleLoaderResult res{};
+	AlifIntT rc = _alifImport_runModInitFunc(p0, info, &res);
+	if (rc < 0) {
+		/* We discard res.def. */
+	}
+	else {
+		mod = res.module;
+		res.module = nullptr;
+		def = res.def;
+
+		if (res.kind == AlifExtModuleKind::Alif_Ext_Module_Kind_SINGLEPHASE) {
+			if (info->filename != nullptr) {
+				AlifObject* filename = nullptr;
+				if (switched) {
+					filename = _alifUStr_copy(info->filename);
+					if (filename == nullptr) {
+						return nullptr;
+					}
+				}
+				else {
+					filename = ALIF_NEWREF(info->filename);
+				}
+				AlifInterpreter* interp = _alifInterpreter_get();
+				alifUStr_internImmortal(interp, &filename);
+
+				if (alifModule_addObjectRef(mod, "__file__", filename) < 0) {
+					//alifErr_clear(); /* Not important enough to report */
+				}
+			}
+
+			//SinglephaseGlobalUpdate singlephase = {
+			//	.index = def->base.index,
+			//	.origin = info->origin,
+			//	.gil = ((AlifModuleObject*)mod)->gil,
+			//};
+			//if (def->size == -1) {
+			//	singlephase.dict = alifModule_getDict(mod);
+			//}
+			//else {
+			//	singlephase.m_init = p0;
+			//}
+			//cached = updateGlobalState_forExtension(
+			//	main_tstate, info->path, info->name, def, &singlephase);
+			//if (cached == nullptr) {
+			//	goto main_finally;
+			//}
+		}
+	}
+
+main_finally:
+	if (switched) {
+		//switchBackFrom_mainInterpreter(tstate, main_tstate, mod);
+		mod = nullptr;
+	}
+
+	/*****************************************************************/
+	/* At this point we are back to the interpreter we started with. */
+	/*****************************************************************/
+
+	if (rc < 0) {
+		//alifExtModuleLoader_resultApplyError(&res, name_buf);
+		goto error;
+	}
+
+	if (res.kind == AlifExtModuleKind::Alif_Ext_Module_Kind_MULTIPHASE) {
+		mod = ALIFMODULE_FROMDEFANDSPEC(def, spec);
+		if (mod == nullptr) {
+			goto error;
+		}
+	}
+	else {
+		//if (_alifImport_checkSubinterpIncompatibleExtensionAllowed(name_buf) < 0) {
+		//	goto error;
+		//}
+
+		//if (switched) {
+		//	mod = reload_singlephaseExtension(tstate, cached, info);
+		//	if (mod == nullptr) {
+		//		goto error;
+		//	}
+		//}
+		//else {
+		//	AlifObject* modules = get_modulesDict(tstate, true);
+		//	if (finish_singlephaseExtension(
+		//		tstate, mod, cached, info->name, modules) < 0)
+		//	{
+		//		goto error;
+		//	}
+		//}
+	}
+
+	_alifExtModule_loaderResultClear(&res);
+	return mod;
+
+error:
+	ALIF_XDECREF(mod);
+	_alifExtModule_loaderResultClear(&res);
+	return nullptr;
+}
+
+
+
+static AlifIntT is_builtin(AlifObject* _name) { // 2254
+	AlifIntT i{};
+	InitTable* inittab = INITTABLE;
+	for (i = 0; inittab[i].name != nullptr; i++) {
+		//if (alifUStr_equalToASCIIString(_name, inittab[i].name)) {
+		if (alifUStr_equalToUTF8(_name, inittab[i].name)) { //* alif
+			if (inittab[i].initFunc == nullptr)
+				return -1;
+			else
+				return 1;
+		}
+	}
+	return 0;
+}
+
+
+static AlifObject* create_builtin(AlifThread* _thread,
+	AlifObject* _name, AlifObject* _spec) { // 2270
+	AlifExtModuleLoaderInfo info{};
+	AlifObject* mod{}; //* alif
+	InitTable* found = nullptr; //* alif
+	AlifModInitFunction p0{}; //* alif
+
+
+	if (_alifExtModule_loaderInfoInitForBuiltin(&info, _name) < 0) {
+		return nullptr;
+	}
+
+	//ExtensionsCacheValue* cached = nullptr;
+	//AlifObject* mod = import_findExtension(_thread, &info, &cached);
+	//if (mod != nullptr) {
+	//	goto finally;
+	//}
+	/*else */if (_alifErr_occurred(_thread)) {
+		goto finally;
+	}
+
+	//if (cached != nullptr) {
+	//	_extensions_cacheDelete(info.path, info.name);
+	//}
+
+	
+	for (InitTable* p = INITTABLE; p->name != nullptr; p++) {
+		//if (alifUStr_equalToASCIIString(info.name, p->name)) {
+		if (alifUStr_equalToUTF8(info.name, p->name)) { //* alif
+			found = p;
+		}
+	}
+	if (found == nullptr) {
+		// not found
+		mod = ALIF_NEWREF(ALIF_NONE);
+		goto finally;
+	}
+
+	p0 = (AlifModInitFunction)found->initFunc;
+	if (p0 == nullptr) {
+		mod = import_addModule(_thread, info.name);
+		goto finally;
+	}
+
+	//_alifEval_enableGILTransient(_thread);
+
+	/* Now load it. */
+	mod = import_runExtension(
+		_thread, p0, &info, _spec, get_modulesDict(_thread, true));
+
+	//if (_alifImport_checkGILForModule(mod, info.name) < 0) {
+	//	ALIF_CLEAR(mod);
+	//	goto finally;
+	//}
+
+finally:
+	_alifExtModule_loaderInfoClear(&info);
+	return mod;
+}
+
+
 
 static AlifIntT initBuildin_modulesTable() { // 2419
 
@@ -213,6 +484,353 @@ AlifObject* _alifImport_getBuiltinModuleNames(void) { // 2445
 }
 
 
+static AlifObject* moduleDict_forExec(AlifThread* _thread, AlifObject* _name) { // 2580
+	AlifObject* m{}, * d{};
+
+	m = import_addModule(_thread, _name);
+	if (m == nullptr)
+		return nullptr;
+	/* If the module is being reloaded, we get the old module back
+	   and re-use its dict to exec the new code. */
+	d = alifModule_getDict(m);
+	AlifIntT r = alifDict_contains(d, &ALIF_ID(__builtins__));
+	if (r == 0) {
+		r = alifDict_setItem(d, &ALIF_ID(__builtins__), alifEval_getBuiltins());
+	}
+	if (r < 0) {
+		remove_module(_thread, _name);
+		ALIF_DECREF(m);
+		return nullptr;
+	}
+
+	ALIF_INCREF(d);
+	ALIF_DECREF(m);
+	return d;
+}
+
+static AlifObject* execCode_inModule(AlifThread* _thread, AlifObject* _name,
+	AlifObject* _moduleDict, AlifObject* _codeObject) { // 2606
+	AlifObject* v{}, * m{};
+
+	v = alifEval_evalCode(_codeObject, _moduleDict, _moduleDict);
+	if (v == nullptr) {
+		remove_module(_thread, _name);
+		return nullptr;
+	}
+	ALIF_DECREF(v);
+
+	m = import_getModule(_thread, _name);
+	if (m == nullptr and !_alifErr_occurred(_thread)) {
+		//_alifErr_format(_thread, _alifExcImportError_,
+		//	"Loaded module %R not found in sys.modules",
+		//	_name);
+	}
+
+	return m;
+}
+
+enum FrozenStatus { // 2820
+	Frozen_Okay,
+	Frozen_Bad_Name,
+	Frozen_Not_Found,
+	Frozen_Disabled,
+	Frozen_Excluded,
+
+	Frozen_Invalid,  
+};
+
+
+static const Frozen* lookup_frozen(const char* name) { // 2865
+	const Frozen* p{};
+	for (p = _alifImportFrozenBootstrap_; ; p++) {
+		if (p->name == nullptr) {
+			// We hit the end-of-list sentinel value.
+			break;
+		}
+		if (strcmp(name, p->name) == 0) {
+			return p;
+		}
+	}
+
+	// Prefer custom modules, if any.  Frozen stdlib modules can be
+	// disabled here by setting "code" to nullptr in the array entry.
+	//if (_alifImportFrozenModules_ != nullptr) { 
+	//	for (p = _alifImportFrozenModules_; ; p++) {
+	//		if (p->name == nullptr) {
+	//			break;
+	//		}
+	//		if (strcmp(name, p->name) == 0) {
+	//			return p;
+	//		}
+	//	}
+	//}
+	//// Frozen stdlib modules may be disabled.
+	//if (use_frozen()) {
+	//	for (p = _alifImportFrozenStdlib_; ; p++) {
+	//		if (p->name == nullptr) {
+	//			break;
+	//		}
+	//		if (strcmp(name, p->name) == 0) {
+	//			return p;
+	//		}
+	//	}
+	//	for (p = _alifImportFrozenTest_; ; p++) {
+	//		if (p->name == nullptr) {
+	//			break;
+	//		}
+	//		if (strcmp(name, p->name) == 0) {
+	//			return p;
+	//		}
+	//	}
+	//}
+	return nullptr;
+}
+
+
+class FrozenInfo { // 2913
+public:
+	AlifObject* nameobj{};
+	const char* data{};
+	AlifSizeT size{};
+	bool isPackage{};
+	bool isAlias{};
+	const char* origname{};
+};
+
+
+static FrozenStatus find_frozen(AlifObject* nameobj, FrozenInfo* info) { // 2922
+	if (info != nullptr) {
+		memset(info, 0, sizeof(*info));
+	}
+
+	if (nameobj == nullptr or nameobj == ALIF_NONE) {
+		return FrozenStatus::Frozen_Bad_Name;
+	}
+	const char* name = alifUStr_asUTF8(nameobj);
+	if (name == nullptr) {
+		//alifErr_clear();
+		return FrozenStatus::Frozen_Bad_Name;
+	}
+
+	const Frozen* p = lookup_frozen(name);
+	if (p == nullptr) {
+		return FrozenStatus::Frozen_Not_Found;
+	}
+	if (info != nullptr) {
+		info->nameobj = nameobj;  // borrowed
+		info->data = (const char*)p->code;
+		info->size = p->size;
+		info->isPackage = p->isPackage;
+		if (p->size < 0) {
+			// backward compatibility with negative size values
+			info->size = -(p->size);
+			info->isPackage = true;
+		}
+		info->origname = name;
+		//info->isAlias = resolve_moduleAlias(name, _alifImportFrozenAliases_,
+		//	&info->origname); //* todo
+	}
+	if (p->code == nullptr) {
+		/* It is frozen but marked as un-importable. */
+		return FrozenStatus::Frozen_Excluded;
+	}
+	if (p->code[0] == '\0' or p->size == 0) {
+		/* Does not contain executable code. */
+		return FrozenStatus::Frozen_Invalid;
+	}
+	return FrozenStatus::Frozen_Okay;
+}
+
+static AlifObject* unmarshal_frozenCode(AlifInterpreter* _interp,
+	FrozenInfo* _info) { // 2971
+	AlifObject* co = alifMarshal_readObjectFromString(_info->data, _info->size);
+	if (co == nullptr) {
+		/* Does not contain executable code. */
+		//alifErr_clear();
+		//set_frozenError(FROZEN_INVALID, _info->nameobj);
+		return nullptr;
+	}
+	if (!ALIFCODE_CHECK(co)) {
+		// We stick with TypeError for backward compatibility.
+		//alifErr_format(_alifExcTypeError_,
+		//	"frozen object %R is not a code object",
+		//	_info->nameobj);
+		ALIF_DECREF(co);
+		return nullptr;
+	}
+	return co;
+}
+
+AlifIntT alifImport_importFrozenModuleObject(AlifObject* name) { // 2998
+	AlifThread* tstate = _alifThread_get();
+	AlifObject* co{}, * m{}, * d = nullptr;
+	AlifIntT err{};
+
+	FrozenInfo info{};
+	FrozenStatus status = find_frozen(name, &info);
+	if (status == FrozenStatus::Frozen_Not_Found or status == FrozenStatus::Frozen_Disabled) {
+		return 0;
+	}
+	else if (status == FrozenStatus::Frozen_Bad_Name) {
+		return 0;
+	}
+	else if (status != FrozenStatus::Frozen_Okay) {
+		//set_frozenError(status, name);
+		return -1;
+	}
+	co = unmarshal_frozenCode(tstate->interpreter, &info);
+	if (co == nullptr) {
+		return -1;
+	}
+	if (info.isPackage) {
+		/* Set __path__ to the empty list */
+		AlifObject* l{};
+		m = import_addModule(tstate, name);
+		if (m == nullptr)
+			goto err_return;
+		d = alifModule_getDict(m);
+		l = alifList_new(0);
+		if (l == nullptr) {
+			ALIF_DECREF(m);
+			goto err_return;
+		}
+		err = alifDict_setItemString(d, "__path__", l);
+		ALIF_DECREF(l);
+		ALIF_DECREF(m);
+		if (err != 0)
+			goto err_return;
+	}
+	d = moduleDict_forExec(tstate, name);
+	if (d == nullptr) {
+		goto err_return;
+	}
+	m = execCode_inModule(tstate, name, d, co);
+	if (m == nullptr) {
+		goto err_return;
+	}
+	ALIF_DECREF(m);
+	/* Set __origname__ . */
+	AlifObject* origname;
+	if (info.origname) {
+		origname = alifUStr_fromString(info.origname);
+		if (origname == nullptr) {
+			goto err_return;
+		}
+	}
+	else {
+		origname = ALIF_NEWREF(ALIF_NONE);
+	}
+	err = alifDict_setItemString(d, "__origname__", origname);
+	ALIF_DECREF(origname);
+	if (err != 0) {
+		goto err_return;
+	}
+	ALIF_DECREF(d);
+	ALIF_DECREF(co);
+	return 1;
+
+err_return:
+	ALIF_XDECREF(d);
+	ALIF_DECREF(co);
+	return -1;
+}
+
+
+AlifIntT alifImport_importFrozenModule(const char* _name) { // 3074
+	AlifObject* nameobj{};
+	AlifIntT ret{};
+	nameobj = alifUStr_internFromString(_name);
+	if (nameobj == nullptr)
+		return -1;
+	ret = alifImport_importFrozenModuleObject(nameobj);
+	ALIF_DECREF(nameobj);
+	return ret;
+}
+
+
+static AlifObject* bootstrap_imp(AlifThread* _thread) { // 3096
+	AlifObject* spec{}; //* alif
+	AlifObject* mod{}; //* alif
+
+	AlifObject* name = alifUStr_fromString("_imp");
+	if (name == nullptr) {
+		return nullptr;
+	}
+
+	AlifObject* attrs = alif_buildValue("{sO}", "name", name);
+	if (attrs == nullptr) {
+		goto error;
+	}
+	spec = alifNamespace_new(attrs);
+	ALIF_DECREF(attrs);
+	if (spec == nullptr) {
+		goto error;
+	}
+
+	// Create the _imp module from its definition.
+	mod = create_builtin(_thread, name, spec);
+	ALIF_CLEAR(name);
+	ALIF_DECREF(spec);
+	if (mod == nullptr) {
+		goto error;
+	}
+
+	// Execute the _imp module: call imp_module_exec().
+	if (exec_builtinOrDynamic(mod) < 0) {
+		ALIF_DECREF(mod);
+		goto error;
+	}
+	return mod;
+
+error:
+	ALIF_XDECREF(name);
+	return nullptr;
+}
+
+
+static AlifIntT init_importLib(AlifThread* tstate, AlifObject* sysmod) { // 3150
+	AlifInterpreter* interp = tstate->interpreter;
+	//AlifIntT verbose = alifInterpreter_getConfig(interp)->verbose;
+
+	// Import _importlib through its frozen version, _frozen_importlib.
+	//if (verbose) {
+	//	alifSys_formatStderr("import _frozen_importlib # frozen\n");
+	//}
+	if (alifImport_importFrozenModule("_frozen_importlib") <= 0) {
+		return -1;
+	}
+
+	AlifObject* importlib = alifImport_addModuleRef("_frozen_importlib");
+	if (importlib == nullptr) {
+		return -1;
+	}
+	IMPORTLIB(interp) = importlib;
+
+	// Import the _imp module
+
+	AlifObject* impMod = bootstrap_imp(tstate);
+	if (impMod == nullptr) {
+		return -1;
+	}
+	if (_alifImport_setModuleString("_imp", impMod) < 0) {
+		ALIF_DECREF(impMod);
+		return -1;
+	}
+
+	// Install importlib as the implementation of import
+	//AlifObject* value = alifObject_callMethod(importlib, "_install",
+	//	"OO", sysmod, imp_mod); //* todo
+	//ALIF_DECREF(imp_mod);
+	//if (value == nullptr) {
+	//	return -1;
+	//}
+	//ALIF_DECREF(value);
+
+	return 0;
+}
+
+
+
 AlifIntT _alifImport_initDefaultImportFunc(AlifInterpreter* _interp) { // 3338
 	// Get the __import__ function
 	AlifObject* importFunc{};
@@ -238,13 +856,13 @@ static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) 
 
 	//AlifTimeT t1 = 0, accumulated_copy = accumulated;
 
-	AlifObject* sys_path = alifSys_getObject("path");
-	AlifObject* sys_meta_path = alifSys_getObject("meta_path");
-	AlifObject* sys_path_hooks = alifSys_getObject("path_hooks");
+	AlifObject* sysPath = alifSys_getObject("path");
+	AlifObject* sysMetaPath = alifSys_getObject("meta_path");
+	AlifObject* sysPathHooks = alifSys_getObject("path_hooks");
 	//if (_alifSys_audit(tstate, "import", "OOOOO",
-	//	abs_name, ALIF_NONE, sys_path ? sys_path : ALIF_NONE,
-	//	sys_meta_path ? sys_meta_path : ALIF_NONE,
-	//	sys_path_hooks ? sys_path_hooks : ALIF_NONE) < 0) {
+	//	abs_name, ALIF_NONE, sysPath ? sysPath : ALIF_NONE,
+	//	sysMetaPath ? sysMetaPath : ALIF_NONE,
+	//	sysPathHooks ? sysPathHooks : ALIF_NONE) < 0) {
 	//	return nullptr;
 	//}
 
@@ -264,8 +882,8 @@ static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) 
 //		accumulated = 0;
 //	}
 
-	//mod = alifObject_callMethodObjArgs(IMPORTLIB(interp), &ALIF_ID(_find_and_load),
-	//	abs_name, IMPORT_FUNC(interp), nullptr);
+	mod = alifObject_callMethodObjArgs(IMPORTLIB(interp), &ALIF_ID(_findAndLoad),
+		abs_name, IMPORT_FUNC(interp), nullptr);
 
 	//if (import_time) {
 	//	AlifTimeT t2;
@@ -314,7 +932,7 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	}
 
 	if (level > 0) {
-		//abs_name = resolve_name(tstate, name, globals, level);
+		//absName = resolve_name(tstate, name, globals, level);
 		if (absName == nullptr)
 			goto error;
 	}
@@ -457,9 +1075,61 @@ AlifIntT alifImport_init() { // 3954
 
 
 
+AlifIntT _alifImport_initCore(AlifThread* _thread,
+	AlifObject* _sysmod, AlifIntT _importLib) { // 4026
+	// XXX Initialize here: interp->modules and interp->importFunc.
+	// XXX Initialize here: sys.modules and sys.meta_path.
+
+	if (_importLib) {
+		if (init_importLib(_thread, _sysmod) < 0) {
+			return -1;
+		}
+	}
+
+	return 1;
+}
 
 
 
+
+static AlifMethodDef _impMethods_[] = { // 4788
+	//_IMP_EXTENSION_SUFFIXES_METHODDEF
+	//_IMP_LOCK_HELD_METHODDEF
+	//_IMP_ACQUIRE_LOCK_METHODDEF
+	//_IMP_RELEASE_LOCK_METHODDEF
+	//_IMP_FIND_FROZEN_METHODDEF
+	//_IMP_GET_FROZEN_OBJECT_METHODDEF
+	//_IMP_IS_FROZEN_PACKAGE_METHODDEF
+	//_IMP_CREATE_BUILTIN_METHODDEF
+	//_IMP_INIT_FROZEN_METHODDEF
+	//_IMP_IS_BUILTIN_METHODDEF
+	//_IMP_IS_FROZEN_METHODDEF
+	//_IMP__FROZEN_MODULE_NAMES_METHODDEF
+	//_IMP__OVERRIDE_FROZEN_MODULES_FOR_TESTS_METHODDEF
+	//_IMP__OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK_METHODDEF
+	//_IMP_CREATE_DYNAMIC_METHODDEF
+	//_IMP_EXEC_DYNAMIC_METHODDEF
+	//_IMP_EXEC_BUILTIN_METHODDEF
+	//_IMP__FIX_CO_FILENAME_METHODDEF
+	//_IMP_SOURCE_HASH_METHODDEF
+	{nullptr, nullptr}  /* sentinel */
+};
+
+
+
+static AlifModuleDef _impModule_ = { // 4838
+	.base = ALIFMODULEDEF_HEAD_INIT,
+	.name = "_imp",
+	.size = 0,
+	.methods = _impMethods_,
+	//.slots = _impSlots_,
+};
+
+
+//* alif
+AlifObject* alifInit__imp(void) { // 4847
+	return alifModuleDef_init(&_impModule_);
+}
 
 
 
@@ -737,6 +1407,34 @@ static AlifObject* load_sourceImpl(AlifObject* _absName) { // 3002 // import27.c
 		return nullptr;
 	}
 
+	if (is_builtin(_absName)) {
+		AlifThread* thread = _alifThread_get();
+
+		AlifObject* attrs = alif_buildValue("{sO}", "name", _absName);
+		if (attrs == nullptr) {
+			return nullptr;
+		}
+		AlifObject* spec = alifNamespace_new(attrs);
+		ALIF_DECREF(attrs);
+		if (spec == nullptr) {
+			return nullptr;
+		}
+
+		AlifObject* mod = create_builtin(thread, _absName, spec);
+		ALIF_DECREF(spec);
+		if (mod == nullptr) {
+			return nullptr;
+		}
+
+		if (exec_builtinOrDynamic(mod) < 0) {
+			ALIF_DECREF(mod);
+			return nullptr;
+		}
+
+		return mod;
+	}
+
+
 	if (get_absPath(name, pathname, MAXPATHLEN) < 0) {
 		printf("لم يستطع جلب المسار اثناء الاستيراد");
 		return nullptr;
@@ -756,3 +1454,8 @@ static AlifObject* load_sourceImpl(AlifObject* _absName) { // 3002 // import27.c
 
 	return m;
 }
+
+
+
+
+

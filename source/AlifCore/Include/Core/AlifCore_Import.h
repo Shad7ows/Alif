@@ -41,6 +41,8 @@ public:
 
 AlifSizeT alifImport_getNextModuleIndex(); // 129
 extern const char* alifImport_resolveNameWithPackageContext(const char*);
+extern const char* _alifImport_swapPackageContext(const char* newcontext); // 131
+
 
 extern AlifObject* alifImport_initModules(AlifInterpreter*); // 136
 
@@ -49,6 +51,19 @@ extern AlifIntT _alifImport_isDefaultImportFunc(AlifInterpreter*, AlifObject*); 
 
 extern AlifIntT alifImport_init(); // 161
 
-
+extern AlifIntT _alifImport_initCore(AlifThread*, AlifObject*, AlifIntT); // 165
 
 extern AlifObject* _alifImport_getBuiltinModuleNames(void); // 174
+
+
+class ModuleAlias { // 176
+public:
+	const char* name{};                 /* ASCII encoded string */
+	const char* orig{};                 /* ASCII encoded string */
+};
+
+
+extern const Frozen* _alifImportFrozenBootstrap_; // 182
+
+
+extern const ModuleAlias* _alifImportFrozenAliases_; // 186

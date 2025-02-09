@@ -733,6 +733,7 @@
 	INIT_ID(__subClassCheck__), \
 	INIT_ID(__typeParams__), \
 	INIT_ID(__weakRef__), \
+	INIT_ID(_findAndLoad), \
 	INIT_ID(_initializing), \
 	INIT_ID(_isTextEncoding), \
 	INIT_ID(Builtins), \
@@ -751,6 +752,7 @@
 	INIT_ID(NFields), \
 	INIT_ID(NSequenceFields), \
 	INIT_ID(Origin), \
+	INIT_ID(ReadInto), \
 	INIT_ID(Sep), \
 	INIT_ID(Stderr), \
 	INIT_ID(Stdin), \

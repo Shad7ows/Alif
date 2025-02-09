@@ -90,7 +90,7 @@ static const AlifConfigSpec _alifConfigSpec_[] = { // 95
 #ifdef _WINDOWS
 	SPEC(legacyWindowsStdio, BOOL, Read_Only, NO_SYS),
 #endif
-	SPEC(origArgv, WSTR_LIST, Read_Only, SYS_ATTR("orig_argv")),
+	SPEC(origArgv, WSTR_LIST, Read_Only, SYS_ATTR("origArgv")),
 	SPEC(parseArgv, BOOL, Read_Only, NO_SYS),
 	SPEC(programName, WSTR, Read_Only, NO_SYS),
 	SPEC(runCommand, WSTR_OPT, Read_Only, NO_SYS),
@@ -307,6 +307,7 @@ void alifConfig_initAlifConfig(AlifConfig* _config) { // 897
 	_config->interactive = 0;
 	_config->optimizationLevel = 0;
 	_config->bufferedStdio = 1;
+	_config->installImportLib = 1;
 	_config->initMain = 1;
 	_config->intMaxStrDigits = ALIF_LONG_DEFAULT_MAX_STR_DIGITS; // need review
 }
@@ -765,41 +766,6 @@ AlifIntT alifConfig_read(AlifConfig* _config) { // 3047
 }
 
 
-
-//struct AlifInitConfig { // 3427
-//public:
-//	//AlifPreConfig preConfig{};
-//	AlifConfig config{};
-//	InitTable* initTable{};
-//	AlifSizeT initTabSize{};
-//	AlifIntT status{};
-//	char* errMsg{};
-//};
-
-
-
-//AlifIntT alifInitConfig_setStrList(AlifInitConfig* _config, const char* _name,
-//	AlifUSizeT _length, char* const* _items) { // 3856
-//	void* rawMember{};
-//	const AlifConfigSpec* spec = initConfig_prepare(_config, _name, &rawMember);
-//	if (spec == nullptr) {
-//		return -1;
-//	}
-//
-//	if (spec->type != AlifConfigMemberType_::Alif_Config_Member_WSTR_LIST) {
-//		//initConfig_setError(config, "config option type is not strings list");
-//		return -1;
-//	}
-//	AlifWStringList* list = (AlifWStringList*)rawMember;
-//	if (_alifWideStringList_fromUTF8(_config, list, _length, _items) < 0) {
-//		return -1;
-//	}
-//
-//	if (strcmp(_name, "module_search_paths") == 0) {
-//		_config->config.moduleSearchPathsSet = 1;
-//	}
-//	return 0;
-//}
 
 
 

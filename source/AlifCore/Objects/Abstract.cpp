@@ -805,7 +805,7 @@ AlifSizeT alifNumber_asSizeT(AlifObject* _item, AlifObject* _err) { // 1455
 	AlifSizeT result{};
 	AlifObject* runErr{};
 	AlifObject* value = _alifNumber_index(_item);
-	AlifThread* tState = alifThread_get();
+	AlifThread* thread = alifThread_get();
 
 	if (value == nullptr)
 		return -1;
@@ -814,8 +814,8 @@ AlifSizeT alifNumber_asSizeT(AlifObject* _item, AlifObject* _err) { // 1455
 	if (result != -1)
 		goto finish;
 
-	tState = _alifThread_get();
-	//runErr = alifErr_occurred(tState);
+	thread = _alifThread_get();
+	runErr = _alifErr_occurred(thread);
 	if (!runErr) {
 		goto finish;
 	}
@@ -1266,6 +1266,24 @@ AlifSizeT alifMapping_size(AlifObject* _o) { // 2270
 	}
 	//type_error("object of type '%.200s' has no len()", _o);
 	return -1;
+}
+
+AlifIntT alifMapping_setItemString(AlifObject* o,
+	const char* key, AlifObject* value) { // 2337
+	AlifObject* okey{};
+	AlifIntT r{};
+
+	if (key == nullptr) {
+		null_error();
+		return -1;
+	}
+
+	okey = alifUStr_fromString(key);
+	if (okey == nullptr)
+		return -1;
+	r = alifObject_setItem(o, okey, value);
+	ALIF_DECREF(okey);
+	return r;
 }
 
 

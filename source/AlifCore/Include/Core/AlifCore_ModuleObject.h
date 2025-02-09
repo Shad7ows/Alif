@@ -22,7 +22,13 @@ public:
 };
 
 
+static inline AlifModuleDef* _alifModule_getDef(AlifObject* mod) { // 30
+	return ((AlifModuleObject*)mod)->def;
+}
 
+static inline void* _alifModule_getState(AlifObject* mod) { // 35
+	return ((AlifModuleObject*)mod)->state;
+}
 
 static inline AlifObject* _alifModule_getDict(AlifObject* mod) { // 40
 	AlifObject* dict = ((AlifModuleObject*)mod)->dict;
@@ -31,4 +37,4 @@ static inline AlifObject* _alifModule_getDict(AlifObject* mod) { // 40
 
 
 AlifObject* alifModule_getAttroImpl(AlifModuleObject*, AlifObject*, AlifIntT); // 48
-AlifObject* alifModule_getAttro(AlifModuleObject*, AlifObject*); // 49
+AlifObject* alifModule_getAttro(AlifObject*, AlifObject*); // 49

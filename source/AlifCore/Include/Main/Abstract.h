@@ -6,9 +6,11 @@ AlifObject* alifObject_callOneArg(AlifObject* , AlifObject* ); // 59
 
 AlifObject* alifObject_call(AlifObject*, AlifObject*, AlifObject*); // 201
 
+AlifObject* alifObject_callMethod(AlifObject*, const char*, const char*, ...); // 237
+
 AlifObject* alifObject_callFunctionObjArgs(AlifObject* _callable, ...); // 249
 
-
+AlifObject* alifObject_callMethodObjArgs(AlifObject*, AlifObject*, ...); // 260
 
  // 276
 #define ALIF_VECTORCALL_ARGUMENTS_OFFSET \
@@ -120,10 +122,13 @@ AlifIntT alifMapping_check(AlifObject*); // 806
 
 AlifSizeT alifMapping_size(AlifObject*); // 810
 
+#define ALIFMAPPING_DELITEM(_o, _k) alifObject_delItem(_o, _k) // 836
+
 AlifObject* alifMapping_keys(AlifObject*); // 867
 
 AlifIntT alifMapping_getOptionalItem(AlifObject*, AlifObject*, AlifObject**); // 895
 
+AlifIntT alifMapping_setItemString(AlifObject*, const char*, AlifObject*); // 903
 
 AlifIntT alifObject_isSubclass(AlifObject*, AlifObject*); // 910
 
