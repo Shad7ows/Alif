@@ -30,6 +30,19 @@ static inline TimeModuleState* get_timeState(AlifObject* module) { // 90
 	return (TimeModuleState*)state;
 }
 
+static AlifObject* _alifFloat_fromPyTime(AlifTimeT _t) { // 100
+	double d = alifTime_asSecondsDouble(_t);
+	return alifFloat_fromDouble(d);
+}
+
+
+static AlifObject* time_time(AlifObject* _self, AlifObject* _unused) { // 108
+	AlifTimeT t{};
+	if (alifTime_time(&t) < 0) {
+		return NULL;
+	}
+	return _alifFloat_fromPyTime(t);
+}
 
 static AlifObject* time_sleep(AlifObject* _self, AlifObject* _timeoutObj) { // 391
 	//if (alifSys_audit("time.sleep", "O", timeout_obj) < 0) {
@@ -123,6 +136,7 @@ static AlifIntT time_exec(AlifObject* module) { // 1942
 }
 
 static AlifMethodDef _timeMethods_[] = {
+	{"وقت", time_time, METHOD_NOARGS},
 	{"غفوة", time_sleep, METHOD_O},
 	{nullptr, nullptr}           /* sentinel */
 };

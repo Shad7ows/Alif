@@ -339,6 +339,19 @@ AlifIntT _alifTime_fromSecondsObject(AlifTimeT* _tp,
 }
 
 
+double alifTime_asSecondsDouble(AlifTimeT _ns) { // 641
+	volatile double d{};
+
+	if (_ns % SEC_TO_NS == 0) {
+		AlifTimeT secs = _ns / SEC_TO_NS;
+		d = (double)secs;
+	}
+	else {
+		d = (double)_ns;
+		d /= 1e9;
+	}
+	return d;
+}
 
 static AlifTimeT alifTime_divideRoundUp(const AlifTimeT t, const AlifTimeT k) { // 675
 	if (t >= 0) {
@@ -613,7 +626,13 @@ static AlifIntT alifGet_systemClock(AlifTimeT* tp, AlifClockInfoT* info, AlifInt
 	return 0;
 }
 
-
+AlifIntT alifTime_time(AlifTimeT* _result) { // 1016
+	if (alifGet_systemClock(_result, nullptr, 1) < 0) {
+		*_result = 0;
+		return -1;
+	}
+	return 0;
+}
 
 AlifIntT alifTime_timeRaw(AlifTimeT* _result) { // 1022
 	if (alifGet_systemClock(_result, nullptr, 0) < 0) {
