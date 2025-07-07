@@ -241,7 +241,7 @@ static AlifIntT random_init(RandomObject* _self, AlifObject* _args, AlifObject* 
 
 	if ((ALIF_IS_TYPE(_self, (AlifTypeObject*)state->randomType) or
 		ALIF_TYPE(_self)->init == ((AlifTypeObject*)state->randomType)->init) and
-		!_ALIFARG_NOKEYWORDS("Random", _kwDs)) {
+		!_ALIFARG_NOKEYWORDS("عشوائي", _kwDs)) {
 		return -1;
 	}
 
@@ -332,7 +332,7 @@ static void _random_free(void* _module) { // 666
 
 static class AlifModuleDef _randomModule_ = { // 671
 	ALIFMODULEDEF_HEAD_INIT,
-	"_random",
+	"عشوائي",
 	nullptr,
 	sizeof(RandomState),
 	nullptr,

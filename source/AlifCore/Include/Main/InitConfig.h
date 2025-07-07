@@ -15,6 +15,9 @@ AlifIntT alifWStringList_insert(AlifWStringList*, AlifSizeT, const wchar_t*);
 /* ----------------------------------- AlifConfig ------------------------------------ */
 class AlifConfig { // 134
 public:
+
+	wchar_t* fileSystemErrors{};
+
 	AlifIntT configInit{};
 
 	AlifIntT useEnvironment{};

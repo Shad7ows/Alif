@@ -3,7 +3,7 @@
 
 
 #define _RANDOM_RANDOM_RANDOM_METHODDEF    \
-    {"random", (AlifCPPFunction)random_RandomRandom, METHOD_NOARGS},
+    {"عشوائي", (AlifCPPFunction)random_RandomRandom, METHOD_NOARGS},
 
 static AlifObject* randomRandom_randomImpl(RandomObject* ); // 18
 

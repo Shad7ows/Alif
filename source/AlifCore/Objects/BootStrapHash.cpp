@@ -167,7 +167,7 @@ static AlifIntT dev_uRandom(char* _buffer, AlifSizeT _size, AlifIntT _raise) { /
 	AlifSizeT n{};
 
 	if (_raise) {
-		class _ALIF_STAT_CLASS st{};
+		AlifStatClass st{};
 		AlifIntT fStatResult{};
 
 		if (URANDOM_CACHE.fd >= 0) {
@@ -176,8 +176,8 @@ static AlifIntT dev_uRandom(char* _buffer, AlifSizeT _size, AlifIntT _raise) { /
 			ALIF_END_ALLOW_THREADS
 
 				if (fStatResult
-					or st.st_dev != URANDOM_CACHE.dev
-					or st.st_ino != URANDOM_CACHE.ino) {
+					or st.dev != URANDOM_CACHE.dev
+					or st.ino != URANDOM_CACHE.ino) {
 					URANDOM_CACHE.fd = -1;
 				}
 		}
@@ -205,8 +205,8 @@ static AlifIntT dev_uRandom(char* _buffer, AlifSizeT _size, AlifIntT _raise) { /
 				}
 				else {
 					URANDOM_CACHE.fd = fd;
-					URANDOM_CACHE.dev = st.st_dev;
-					URANDOM_CACHE.ino = st.st_ino;
+					URANDOM_CACHE.dev = st.dev;
+					URANDOM_CACHE.ino = st.ino;
 				}
 			}
 		}

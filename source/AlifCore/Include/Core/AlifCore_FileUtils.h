@@ -43,37 +43,37 @@ extern char* _alif_encodeLocaleRaw(const wchar_t*, AlifUSizeT*); // 59
 
 // 78
 #ifdef _WINDOWS
-class AlifStatStruct {
+class AlifStatClass {
 public:
 	uint64_t dev{};
 	uint64_t ino{};
 	unsigned short mode{};
-	AlifIntT nlink{};
+	AlifIntT nLink{};
 	AlifIntT uid{};
 	AlifIntT gid{};
-	unsigned long rdev{};
+	unsigned long rDev{};
 	__int64 size{};
-	time_t atime{};
-	AlifIntT atimeNSec{};
-	time_t mtime{};
-	AlifIntT mtimeNSec{};
-	time_t ctime{};
-	AlifIntT ctimeNSec{};
-	time_t birthtime{};
-	AlifIntT birthtimeNSec{};
+	time_t aTime{};
+	AlifIntT aTimeNsec{};
+	time_t mTime{};
+	AlifIntT mTimeNsec{};
+	time_t cTime{};
+	AlifIntT cTimeNsec{};
+	time_t birthTime{};
+	AlifIntT birthTimeNsec{};
 	unsigned long fileAttributes{};
 	unsigned long reparseTag{};
 	uint64_t inoHigh{};
 };
 #else
-	#define AlifStatStruct stat
+	#define AlifStatClass stat
 #endif
 
 
-AlifIntT _alif_fStat(AlifIntT , class _ALIF_STAT_CLASS* ); // 105
+AlifIntT _alif_fStat(AlifIntT , AlifStatClass* ); // 105
 
 
-AlifIntT _alifFStat_noRaise(AlifIntT, class _ALIF_STAT_CLASS*); // 110
+AlifIntT _alifFStat_noRaise(AlifIntT, AlifStatClass*); // 110
 
 AlifIntT _alif_open(
 	const char* ,

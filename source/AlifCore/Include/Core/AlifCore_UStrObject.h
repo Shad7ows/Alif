@@ -60,3 +60,23 @@ void alifUStr_internImmortal(AlifInterpreter*, AlifObject**); // 281
 
 
 extern void _alifUStr_internStatic(AlifInterpreter*, AlifObject**); // 285
+
+class AlifUStrFSCodec { // 302
+public:
+	char* encoding{};   // Filesystem encoding (encoded to UTF-8)
+	AlifIntT utf8{};         // encoding=="utf-8"?
+	char* errors{};     // Filesystem errors (encoded to UTF-8)
+	AlifErrorHandler_ errorHandler{};
+};
+
+class AlifUStrIDs {
+public:
+	AlifSizeT size{};
+	AlifObject** array{};
+};
+
+class AlifUStrState { // 314
+public:
+	AlifUStrFSCodec fsCodec{};
+	AlifUStrIDs IDs{};
+};

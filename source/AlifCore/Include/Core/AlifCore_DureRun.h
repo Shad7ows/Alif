@@ -18,13 +18,13 @@ public:
 	AlifArgParser* staticParsers{};
 };
 
-struct GILStateDureRunState { // 34
+class GILStateDureRunState { // 34
 public:
 	AlifIntT checkEnabled{};
 	AlifInterpreter* autoInterpreterState{};
 };
 
-typedef class AlifAuditHookEntry {
+class AlifAuditHookEntry {
 public:
 	AlifAuditHookEntry* next{};
 	AlifAuditHookFunction hookCFunction{};

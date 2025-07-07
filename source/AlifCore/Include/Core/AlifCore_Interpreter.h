@@ -18,6 +18,7 @@
 #include "AlifCore_Import.h"
 #include "AlifCore_Tuple.h"
 #include "AlifCore_TypeObject.h"
+#include "AlifCore_UStrObject.h"
 
 
 
@@ -126,6 +127,8 @@ public:
 	uint8_t activeCodeWatchers{};
 
 	//AlifObjectState objectState{};
+	AlifUStrState unicode{};
+
 	AlifLongState longState{};
 	DToAState dtoa{};
 	AlifFuncState funcState{};

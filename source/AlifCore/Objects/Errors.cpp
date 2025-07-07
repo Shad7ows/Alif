@@ -358,9 +358,9 @@ error:
 	ALIF_DECREF(value);
 	recursionDepth++;
 	if (recursionDepth == ALIF_NORMALIZE_RECURSION_LIMIT) {
-		_alifErr_setString(_tState, _alifExcRecursionError_,
-			"maximum recursion depth exceeded "
-			"while normalizing an exception");
+		//_alifErr_setString(_tState, _alifExcRecursionError_,
+			//"maximum recursion depth exceeded "
+			//"while normalizing an exception");
 	}
 	/* If the new exception doesn't set a traceback and the old
 	   exception had a traceback, use the old traceback for the
@@ -466,7 +466,7 @@ AlifObject* alifErr_setFromErrnoWithFileNameObjects(AlifObject* _exc, AlifObject
 	AlifObject* message{};
 	AlifObject* v{}, * args{};
 	AlifIntT i = errno;
-#ifdef MS_WINDOWS
+#ifdef _WINDOWS
 	WCHAR* sBuf = nullptr;
 #endif /* Unix/Windows */
 
@@ -475,7 +475,7 @@ AlifObject* alifErr_setFromErrnoWithFileNameObjects(AlifObject* _exc, AlifObject
 		return nullptr;
 #endif
 
-#ifndef MS_WINDOWS
+#ifndef _WINDOWS
 	if (i != 0) {
 		const char* s = strerror(i);
 		message = alifUStr_decodeLocale(s, "surrogateescape");
@@ -523,7 +523,7 @@ AlifObject* alifErr_setFromErrnoWithFileNameObjects(AlifObject* _exc, AlifObject
 
 	if (message == nullptr)
 	{
-#ifdef MS_WINDOWS
+#ifdef _WINDOWS
 		LocalFree(sBuf);
 #endif
 		return nullptr;
@@ -548,8 +548,8 @@ AlifObject* alifErr_setFromErrnoWithFileNameObjects(AlifObject* _exc, AlifObject
 			ALIF_DECREF(v);
 		}
 	}
-#ifdef MS_WINDOWS
-	LocalFree(s_buf);
+#ifdef _WINDOWS
+	LocalFree(sBuf);
 #endif
 	return nullptr;
 }
@@ -570,12 +570,11 @@ AlifObject* alifErr_setFromErrnoWithFilename(AlifObject* _exc, const char* _file
 }
 
 
-#ifdef MS_WINDOWS
-
 AlifObject* alifErr_setFromErrno(AlifObject* _exc) { // 906
 	return alifErr_setFromErrnoWithFileNameObjects(_exc, nullptr, nullptr);
 }
 
+#ifdef _WINDOWS // 911
 
 
 AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
@@ -669,11 +668,11 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilename(
 }
 
 AlifObject* alifErr_setFromWindowsErr(AlifIntT _iErr) { // 1019
-	return alifErr_setExcFromWindowsErrWithFilename(_alifExcOSError_,
+	return alifErr_setExcFromWindowsErrWithFilename(nullptr,
 		_iErr, nullptr);
 }
 
-#endif /* MS_WINDOWS */
+#endif /* _WINDOWS */
 
 
 static AlifObject* _alifErr_formatV(AlifThread* _thread, AlifObject* _exception,
