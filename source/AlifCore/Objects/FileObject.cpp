@@ -97,3 +97,12 @@ char* alifUniversal_newLineFGetsWithSize(char* _buf,
 	return _buf;
 
 }
+
+AlifIntT _alifFile_flush(AlifObject* _file) { // 534
+	AlifObject* tmp = alifObject_callMethodNoArgs(_file, &ALIF_ID(Flush));
+	if (tmp == nullptr) {
+		return -1;
+	}
+	ALIF_DECREF(tmp);
+	return 0;
+}

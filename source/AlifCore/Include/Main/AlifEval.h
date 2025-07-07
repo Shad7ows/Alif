@@ -10,6 +10,9 @@ AlifObject* alifEval_getGlobals(); // 21
 
 AlifIntT alif_makePendingCalls(); // 30
 
+void alif_setRecursionLimit(AlifIntT); // 57
+AlifIntT alif_getRecursionLimit(); // 58
+
 
 AlifThread* alifEval_saveThread(); // 111
 void alifEval_restoreThread(AlifThread*); // 112

@@ -46,26 +46,58 @@ extern AlifObject* _alifExcBaseExceptionGroup_; // 77
 extern AlifObject* _alifExcStopAsyncIteration_; // 80
 
 extern AlifObject* _alifExcStopIteration_; // 82
+extern AlifObject* _alifExcOSError_;
 
 extern AlifObject* _alifExcImportError_; // 93
 extern AlifObject* _alifExcIndexError_; // 97
 
 
+extern AlifObject* _alifExc_memoryError_;
 
 extern AlifObject* _alifExcOverflowError_; // 102
+extern AlifObject* _alifExcRuntimeError_; // 103
+
+extern AlifObject* _alifExcRecursionError_;
+extern AlifObject* _alifExcNotImplementedError_; // 107
 
 extern AlifObject* _alifExcSyntaxError_; // 108
 extern AlifObject* _alifExcIndentationError_; // 109
 extern AlifObject* _alifExcSystemError_; // 112
 extern AlifObject* _alifExcTypeError_; // 114
+extern AlifObject* _alifExcUStrDecodeError_; // 118
 
 extern AlifObject* _alifExcValueError_; // 120
+
+AlifObject* alifErr_setFromErrno(AlifObject*); // 168
+
+
+AlifObject* alifErr_setFromErrnoWithFileNameObjects(AlifObject* , AlifObject* , AlifObject*); // 172
 
 
 AlifObject* alifErr_format(AlifObject*, const char*, ...); // 180
 
 
+AlifObject* alifErr_setFromWindowsErr(AlifIntT);
+AlifObject* alifErr_setExcFromWindowsErrWithFilenameObject(
+	AlifObject*, AlifIntT, AlifObject*);
+AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
+	AlifObject*, AlifIntT, AlifObject*, AlifObject*);
 
+AlifObject* alifErr_setExcFromWindowsErrWithFilename(
+	AlifObject* ,
+	AlifIntT ,
+	const char*         /* decoded from the filesystem encoding */
+);
+
+
+AlifIntT alifOS_snPrintF(char* , AlifSizeT , const char* , ...)
+	ALIF_GCC_ATTRIBUTE((format(printf, 3, 4)));
+AlifIntT alifOS_vSnprintF(char* , AlifSizeT , const char* , va_list )
+	ALIF_GCC_ATTRIBUTE((format(printf, 3, 0)));
+
+void alifErr_writeUnraisable(AlifObject*); // 233
+
+AlifIntT alifErr_checkSignals(void); // 237
 
 
 

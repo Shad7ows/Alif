@@ -5,6 +5,8 @@
 
 
 AlifIntT alifTraceBack_here(AlifFrameObject*); // 9
+AlifIntT alifTraceBack_print(AlifObject*, AlifObject* ); // 10
+
 
  // 13
 extern AlifTypeObject _alifTraceBackType_;

@@ -422,3 +422,8 @@ AlifIntT _alifTraceBack_print(AlifObject* _v, const char* header, AlifObject* _f
 
 	return 0;
 }
+
+AlifIntT alifTraceBack_print(AlifObject* _v, AlifObject* _f) { // 746
+	const char* header = EXCEPTION_TB_HEADER;
+	return _alifTraceBack_print(_v, header, _f);
+}

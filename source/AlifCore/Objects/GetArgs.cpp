@@ -6,6 +6,7 @@
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_State.h"
 #include "AlifCore_Tuple.h"
+#include "AlifCore_Errors.h"
 
 
 #define FLAG_COMPAT 1 // 23
@@ -41,6 +42,8 @@ static const char* convert_item(AlifObject*, const char**, va_list*, AlifIntT,
 static AlifSizeT convert_buffer(AlifObject*, const void**, const char**); // 56
 static AlifIntT get_buffer(AlifObject*, AlifBuffer*, const char**); // 57
 
+static AlifIntT vGetArgsKeywords(AlifObject*, AlifObject*,
+	const char*, const char* const*, va_list*, AlifIntT); // 59
 
 static AlifIntT vGetArgsKeywordsFast_impl(AlifObject* const*, AlifSizeT,
 	AlifObject*, AlifObject*, AlifArgParser*, va_list*, AlifIntT); // 63
@@ -281,7 +284,45 @@ static AlifIntT vGetArgs1(AlifObject* _args, const char* _format,
 	return vGetArgs1_impl(_args, stack, nargs, _format, _pVa, _flags);
 }
 
+static void set_error(AlifSizeT _iArg, const char* _msg, AlifIntT* _levels, const char* _fName,
+	const char* _message) { // 398
+	char buf[512];
+	AlifIntT i{};
+	char* p = buf;
 
+	if (alifErr_occurred())
+		return;
+	else if (_message == nullptr) {
+		if (_fName != nullptr) {
+			alifOS_snPrintF(p, sizeof(buf), "%.200s() ", _fName);
+			p += strlen(p);
+		}
+		if (_iArg != 0) {
+			alifOS_snPrintF(p, sizeof(buf) - (p - buf),
+				"argument %zd", _iArg);
+			i = 0;
+			p += strlen(p);
+			while (i < 32 && _levels[i] > 0 && (AlifIntT)(p - buf) < 220) {
+				alifOS_snPrintF(p, sizeof(buf) - (p - buf),
+					", item %d", _levels[i] - 1);
+				p += strlen(p);
+				i++;
+			}
+		}
+		else {
+			alifOS_snPrintF(p, sizeof(buf) - (p - buf), "argument");
+			p += strlen(p);
+		}
+		alifOS_snPrintF(p, sizeof(buf) - (p - buf), " %.256s", _msg);
+		_message = buf;
+	}
+	if (_msg[0] == '(') {
+		alifErr_setString(_alifExcSystemError_, _message);
+	}
+	else {
+		alifErr_setString(_alifExcTypeError_, _message);
+	}
+}
 
 static const char* convert_tuple(AlifObject* _arg, const char** _pFormat,
 	va_list* _pVa, AlifIntT _flags, AlifIntT* _levels, char* _msgbuf,
@@ -1001,6 +1042,27 @@ static AlifIntT get_buffer(AlifObject* arg, AlifBuffer* view, const char** errms
 	return 0;
 }
 
+AlifIntT alifArg_parseTupleAndKeywords(AlifObject* _args,
+	AlifObject* _keywords,
+	const char* _format,
+	const char* const* _kwList, ...) { // 1280
+	AlifIntT retval{};
+	va_list va{};
+
+	if ((_args == nullptr or !ALIFTUPLE_CHECK(_args)) or
+		(_keywords != nullptr and !ALIFDICT_CHECK(_keywords)) or
+		_format == nullptr or
+		_kwList == nullptr)
+	{
+		//ALIFERR_BADINTERNALCALL();
+		return 0;
+	}
+
+	va_start(va, _kwList);
+	retval = vGetArgsKeywords(_args, _keywords, _format, _kwList, &va, 0);
+	va_end(va);
+	return retval;
+}
 
 
 AlifIntT _alifArg_parseStackAndKeywords(AlifObject* const* _args,
@@ -1015,9 +1077,286 @@ AlifIntT _alifArg_parseStackAndKeywords(AlifObject* const* _args,
 }
 
 
+static AlifObject* new_kwTuple(const char* const* , AlifIntT, AlifIntT );
+
 #define IS_END_OF_FORMAT(_c) (_c == '\0' or _c == ';' or _c == ':') // 1510
 
+static AlifIntT vGetArgsKeywords(AlifObject* _args, AlifObject* _kwargs, const char* _format,
+	const char* const* _kwList, va_list* _pVA, AlifIntT _flags) { // 1513
 
+	char msgBuf[512];
+	AlifIntT levels[32];
+	const char* fname{}, * msg{}, * customMsg{};
+	AlifIntT min = INT_MAX;
+	AlifIntT max = INT_MAX;
+	AlifIntT i{}, pos{}, len{};
+	AlifIntT skip = 0;
+	AlifSizeT nArgs{}, nkwArgs{};
+	FreeListEntryT staticEntries[STATIC_FREELIST_ENTRIES];
+	FreeListT freelist{};
+
+	freelist.entries = staticEntries;
+	freelist.first_available = 0;
+	freelist.entries_malloced = 0;
+
+	fname = strchr(_format, ':');
+	if (fname) {
+		fname++;
+		customMsg = nullptr;
+	}
+	else {
+		customMsg = strchr(_format, ';');
+		if (customMsg)
+			customMsg++;
+	}
+
+	for (pos = 0; _kwList[pos] and !*_kwList[pos]; pos++) {
+	}
+	for (len = pos; _kwList[len]; len++) {
+		if (!*_kwList[len]) {
+			alifErr_setString(_alifExcSystemError_,
+				"اسم معاملة الكلمة المفتاحية فارغة");
+			return clean_return(0, &freelist);
+		}
+	}
+
+	if (len > STATIC_FREELIST_ENTRIES) {
+		freelist.entries = (FreeListEntryT*)alifMem_objAlloc(len);
+		if (freelist.entries == nullptr) {
+			//alifErr_noMemory();
+			return 0;
+		}
+		freelist.entries_malloced = 1;
+	}
+
+	nArgs = ALIFTUPLE_GET_SIZE(_args);
+	nkwArgs = (_kwargs == nullptr) ? 0 : ALIFDICT_GET_SIZE(_kwargs);
+	if (nArgs + nkwArgs > len) {
+
+		alifErr_format(_alifExcTypeError_,
+			"%.200s%s takes at most %d %sargument%s (%zd given)",
+			(fname == nullptr) ? "function" : fname,
+			(fname == nullptr) ? "" : "()",
+			len,
+			(nArgs == 0) ? "keyword " : "",
+			(len == 1) ? "" : "s",
+			nArgs + nkwArgs);
+		return clean_return(0, &freelist);
+	}
+
+	for (i = 0; i < len; i++) {
+		if (*_format == '|') {
+			if (min != INT_MAX) {
+				alifErr_setString(_alifExcSystemError_,
+					"Invalid format string (| specified twice)");
+				return clean_return(0, &freelist);
+			}
+
+			min = i;
+			_format++;
+
+			if (max != INT_MAX) {
+				alifErr_setString(_alifExcSystemError_,
+					"Invalid format string ($ before |)");
+				return clean_return(0, &freelist);
+			}
+		}
+		if (*_format == '$') {
+			if (max != INT_MAX) {
+				alifErr_setString(_alifExcSystemError_,
+					"Invalid format string ($ specified twice)");
+				return clean_return(0, &freelist);
+			}
+
+			max = i;
+			_format++;
+
+			if (max < pos) {
+				alifErr_setString(_alifExcSystemError_,
+					"Empty parameter name after $");
+				return clean_return(0, &freelist);
+			}
+			if (skip) {
+				break;
+			}
+			if (max < nArgs) {
+				if (max == 0) {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s takes no positional arguments",
+						(fname == nullptr) ? "function" : fname,
+						(fname == nullptr) ? "" : "()");
+				}
+				else {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s takes %s %d positional argument%s"
+						" (%zd given)",
+						(fname == nullptr) ? "function" : fname,
+						(fname == nullptr) ? "" : "()",
+						(min != INT_MAX) ? "at most" : "exactly",
+						max,
+						max == 1 ? "" : "s",
+						nArgs);
+				}
+				return clean_return(0, &freelist);
+			}
+		}
+		if (IS_END_OF_FORMAT(*_format)) {
+			alifErr_format(_alifExcSystemError_,
+				"More keyword list entries (%d) than "
+				"format specifiers (%d)", len, i);
+			return clean_return(0, &freelist);
+		}
+		if (!skip) {
+			AlifObject* currentArg{};
+			if (i < nArgs) {
+				currentArg = ALIF_NEWREF(ALIFTUPLE_GET_ITEM(_args, i));
+			}
+			else if (nkwArgs and i >= pos) {
+				if (alifDict_getItemStringRef(_kwargs, _kwList[i], &currentArg) < 0) {
+					return clean_return(0, &freelist);
+				}
+				if (currentArg) {
+					--nkwArgs;
+				}
+			}
+			else {
+				currentArg = nullptr;
+			}
+
+			if (currentArg) {
+				msg = convert_item(currentArg, &_format, _pVA, _flags,
+					levels, msgBuf, sizeof(msgBuf), &freelist);
+				ALIF_DECREF(currentArg);
+				if (msg) {
+					set_error(i + 1, msg, levels, fname, customMsg);
+					return clean_return(0, &freelist);
+				}
+				continue;
+			}
+
+			if (i < min) {
+				if (i < pos) {
+					skip = 1;
+
+				}
+				else {
+					alifErr_format(_alifExcTypeError_, "%.200s%s missing required "
+						"argument '%s' (pos %d)",
+						(fname == nullptr) ? "function" : fname,
+						(fname == nullptr) ? "" : "()",
+						_kwList[i], i + 1);
+					return clean_return(0, &freelist);
+				}
+			}
+			if (!nkwArgs and !skip) {
+				return clean_return(1, &freelist);
+			}
+		}
+
+		msg = skip_item(&_format, _pVA, _flags);
+		if (msg) {
+			alifErr_format(_alifExcSystemError_, "%s: '%s'", msg,
+				_format);
+			return clean_return(0, &freelist);
+		}
+	}
+
+	if (skip) {
+		alifErr_format(_alifExcTypeError_,
+			"%.200s%s takes %s %d positional argument%s"
+			" (%zd given)",
+			(fname == nullptr) ? "function" : fname,
+			(fname == nullptr) ? "" : "()",
+			(ALIF_MIN(pos, min) < i) ? "at least" : "exactly",
+			ALIF_MIN(pos, min),
+			ALIF_MIN(pos, min) == 1 ? "" : "s",
+			nArgs);
+		return clean_return(0, &freelist);
+	}
+
+	if (!IS_END_OF_FORMAT(*_format) and (*_format != '|') and (*_format != '$')) {
+		alifErr_format(_alifExcSystemError_,
+			"more argument specifiers than keyword list entries "
+			"(remaining format:'%s')", _format);
+		return clean_return(0, &freelist);
+	}
+
+	if (nkwArgs > 0) {
+		AlifObject* key;
+		AlifSizeT j;
+		for (i = pos; i < nArgs; i++) {
+			AlifObject* currentArg{};
+			if (alifDict_getItemStringRef(_kwargs, _kwList[i], &currentArg) < 0) {
+				return clean_return(0, &freelist);
+			}
+			if (currentArg) {
+				ALIF_DECREF(currentArg);
+				/* arg present in tuple and in dict */
+				alifErr_format(_alifExcTypeError_,
+					"argument for %.200s%s given by name ('%s') "
+					"and position (%d)",
+					(fname == nullptr) ? "function" : fname,
+					(fname == nullptr) ? "" : "()",
+					_kwList[i], i + 1);
+				return clean_return(0, &freelist);
+			}
+		}
+		j = 0;
+		while (alifDict_next(_kwargs, &j, &key, nullptr)) {
+			AlifIntT match = 0;
+			if (!ALIFUSTR_CHECK(key)) {
+				alifErr_setString(_alifExcTypeError_,
+					"keywords must be strings");
+				return clean_return(0, &freelist);
+			}
+			for (i = pos; i < len; i++) {
+				if (alifUStr_equalToUTF8(key, _kwList[i])) {
+					match = 1;
+					break;
+				}
+			}
+			if (!match) {
+				AlifObject* _pykwtuple = new_kwTuple(_kwList, len, pos);
+				if (!_pykwtuple) {
+					return clean_return(0, &freelist);
+				}
+				AlifObject* alifKwList = alifSequence_list(_pykwtuple);
+				ALIF_DECREF(_pykwtuple);
+				if (!alifKwList) {
+					return clean_return(0, &freelist);
+				}
+				AlifObject* suggestionKeyword = _alif_calculateSuggestions(alifKwList, key);
+				ALIF_DECREF(alifKwList);
+
+				if (suggestionKeyword) {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s got an unexpected keyword argument '%S'."
+						" Did you mean '%S'?",
+						(fname == nullptr) ? "this function" : fname,
+						(fname == nullptr) ? "" : "()",
+						key,
+						suggestionKeyword);
+					ALIF_DECREF(suggestionKeyword);
+				}
+				else {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s got an unexpected keyword argument '%S'",
+						(fname == nullptr) ? "this function" : fname,
+						(fname == nullptr) ? "" : "()",
+						key);
+				}
+				return clean_return(0, &freelist);
+			}
+		}
+		alifErr_format(_alifExcTypeError_,
+			"invalid keyword argument for %.200s%s",
+			(fname == nullptr) ? "this function" : fname,
+			(fname == nullptr) ? "" : "()");
+		return clean_return(0, &freelist);
+	}
+
+	return clean_return(1, &freelist);
+}
 
 
 
@@ -1117,6 +1456,25 @@ static AlifIntT parse_format(const char* _format, AlifIntT _total,
 	return 0;
 }
 
+static AlifObject* new_kwTuple(const char* const* _keywords, AlifIntT _total, AlifIntT _pos) { // 1923
+	AlifIntT nkw = _total - _pos;
+	AlifObject* kwtuple = alifTuple_new(nkw);
+	if (kwtuple == nullptr) {
+		return nullptr;
+	}
+	_keywords += _pos;
+	for (AlifIntT i = 0; i < nkw; i++) {
+		AlifObject* str = alifUStr_fromString(_keywords[i]);
+		if (str == nullptr) {
+			ALIF_DECREF(kwtuple);
+			return nullptr;
+		}
+		AlifInterpreter* interp = alifInterpreter_get();
+		alifUStr_internImmortal(interp, &str);
+		ALIFTUPLE_SET_ITEM(kwtuple, i, str);
+	}
+	return kwtuple;
+}
 
 static AlifIntT _parser_init(void* _arg) { // 1944
 	AlifArgParser* parser = (AlifArgParser*)_arg;
@@ -1216,7 +1574,7 @@ static AlifIntT vGetArgsKeywordsFast_impl(AlifObject* const* args, AlifSizeT nar
 	va_list* p_va, AlifIntT flags) { // 2074
 	AlifObject* kwtuple{};
 	char msgbuf[512]{};
-	int levels[32]{};
+	AlifIntT levels[32]{};
 	const char* format{};
 	const char* msg{};
 	AlifObject* keyword{};
@@ -1502,7 +1860,7 @@ AlifObject* const* _alifArg_unpackKeywords(AlifObject* const* args, AlifSizeT na
 	}
 
 	/* copy keyword args using kwtuple to drive process */
-	for (i = ALIF_MAX((int)nargs, posonly); i < maxargs; i++) {
+	for (i = ALIF_MAX((AlifIntT)nargs, posonly); i < maxargs; i++) {
 		AlifObject* current_arg{};
 		if (nkwargs) {
 			keyword = ALIFTUPLE_GET_ITEM(kwtuple, i - posonly);
@@ -1720,14 +2078,14 @@ static const char* skip_item(const char** p_format,
 		 * (the type of the pointer is irrelevant)
 		 */
 
-	case 'b': /* byte -- very short int */
+	case 'b': /* byte -- very short AlifIntT */
 	case 'B': /* byte as bitfield */
-	case 'h': /* short int */
-	case 'H': /* short int as bitfield */
-	case 'i': /* int */
-	case 'I': /* int sized bitfield */
-	case 'l': /* long int */
-	case 'k': /* long int sized bitfield */
+	case 'h': /* short AlifIntT */
+	case 'H': /* short AlifIntT as bitfield */
+	case 'i': /* AlifIntT */
+	case 'I': /* AlifIntT sized bitfield */
+	case 'l': /* long AlifIntT */
+	case 'k': /* long AlifIntT sized bitfield */
 	case 'L': /* long long */
 	case 'K': /* long long sized bitfield */
 	case 'n': /* AlifSizeT */
@@ -1798,7 +2156,7 @@ static const char* skip_item(const char** p_format,
 			}
 		}
 		else if (*format == '&') {
-			typedef int (*converter)(AlifObject*, void*);
+			typedef AlifIntT (*converter)(AlifObject*, void*);
 			if (p_va != nullptr) {
 				(void)va_arg(*p_va, converter);
 				(void)va_arg(*p_va, void*);

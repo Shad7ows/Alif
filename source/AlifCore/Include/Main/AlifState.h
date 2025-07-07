@@ -18,6 +18,7 @@ AlifThread* alifThread_get(); // 60
 
 AlifObject* alifThreadState_getDict(); // 66
 
+AlifFrameObject* alifThreadState_getFrame(AlifThread* ); // 72
 
 
 
@@ -69,6 +70,7 @@ public:
 
 	AlifIntT state{};
 
+
 	class AlifInterpreterFrame* currentFrame{};
 
 	AlifIntT alifRecursionRemaining{};
@@ -79,6 +81,7 @@ public:
 
 	AlifIntT tracing{};
 
+	AlifObject* traceObj{};
 
 	AlifObject* currentException{};
 
@@ -117,6 +120,9 @@ extern void alifThread_detach(AlifThread*); // 157
 
 #define ALIFCPP_RECURSION_LIMIT 3000 // 214
 
+void alifThreadState_enterTracing(AlifThread*); // 247
+
+void alifThreadState_leaveTracing(AlifThread* ); // 251
 
 
 AlifInterpreter* alifInterpreter_head(); // 263

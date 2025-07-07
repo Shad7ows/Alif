@@ -17,6 +17,7 @@ extern AlifIntT _alifSignal_init(AlifIntT _installSignalHandlers); // 48
 extern AlifIntT alifGILState_init(AlifInterpreter*); // 63
 
 
+AlifIntT _alifOS_uRandomNonblock(void* , AlifSizeT); // 105
 
 
 

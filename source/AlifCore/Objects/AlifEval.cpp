@@ -71,7 +71,20 @@
 
 static AlifIntT get_exceptionHandler(AlifCodeObject*, AlifIntT, AlifIntT*, AlifIntT*, AlifIntT*); // 277
 
+AlifIntT alif_getRecursionLimit() { // 288
+	AlifInterpreter* interp = alifInterpreter_get();
+	return interp->eval.recursionLimit;
+}
 
+void alif_setRecursionLimit(AlifIntT _newLimit) { // 295
+	AlifInterpreter* interp = _alifInterpreter_get();
+	interp->eval.recursionLimit = _newLimit;
+	for (AlifThread* p = interp->threads.head; p != nullptr; p = p->next) {
+		AlifIntT depth = p->alifRecursionLimit - p->alifRecursionRemaining;
+		p->alifRecursionLimit = _newLimit;
+		p->alifRecursionRemaining = _newLimit - depth;
+	}
+}
 
 AlifIntT alif_checkRecursiveCall(AlifThread* _thread, const char* _where) { // 305
 #ifdef USE_STACKCHECK
@@ -2977,10 +2990,15 @@ Error:
 
 
 
+void alifThreadState_enterTracing(AlifThread* _tState) { // 2321
+	_tState->tracing++;
+}
 
 
 
-
+void alifThreadState_leaveTracing(AlifThread* _tState) { // 2328
+	_tState->tracing--;
+}
 
 
 AlifObject* _alifEval_getBuiltins(AlifThread* _thread) { // 2444

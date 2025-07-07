@@ -433,7 +433,9 @@ AlifObject* alif_buildValue(const char* _format, ...) { // 475
 	return retVal;
 }
 
-
+AlifObject* alif_vaBuildValue(const char* _format, va_list _va) { // 504
+	return va_buildValue(_format, _va);
+}
 
 
 static AlifObject* va_buildValue(const char* _format, va_list _va) { // 509

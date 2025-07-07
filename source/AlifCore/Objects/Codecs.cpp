@@ -301,3 +301,12 @@ AlifObject* _alifCodec_decodeText(AlifObject* _object,
 
 	return _alifCodec_decodeInternal(_object, decoder, _encoding, _errors);
 }
+
+
+AlifObject* alifCodec_strictErrors(AlifObject* _exc) { // 669
+	if (ALIFEXCEPTIONINSTANCE_CHECK(_exc))
+		alifErr_setObject(ALIFEXCEPTIONINSTANCE_CLASS(_exc), _exc);
+	else
+		alifErr_setString(_alifExcTypeError_, "codec must pass exception instance");
+	return NULL;
+}

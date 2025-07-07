@@ -32,7 +32,32 @@
 wchar_t* alif_decodeLocale(const char*, AlifUSizeT*); // 44
 
 
-
+#ifdef MS_WINDOWS // 78
+class AlifStatClass {
+public:
+	uint64_t dev{};
+	uint64_t ino{};
+	unsigned short mode{};
+	AlifIntT nLink{};
+	AlifIntT uid{};
+	AlifIntT gid{};
+	unsigned long rDev{};
+	__int64 size{};
+	time_t aTime{};
+	AlifIntT aTimeNsec{};
+	time_t mTime{};
+	AlifIntT mTimeNsec{};
+	time_t cTime{};
+	AlifIntT cTimeNsec{};
+	time_t birthTime{};
+	AlifIntT birthTimeNsec{};
+	unsigned long fileAttributes{};
+	unsigned long reparseTag{};
+	uint64_t inoHigh{};
+};
+#else
+#  define _ALIF_STAT_CLASS stat
+#endif
 
 
 

@@ -334,6 +334,21 @@
     <ClCompile Include="..\source\AlifCore\Objects\StructMember.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="MySnPrintF.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Suggestions.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Modules\_TypingModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Modules\_RandomModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\BootStrapHash.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -967,6 +982,12 @@
       <Filter>Objects\clinic</Filter>
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Objects\clinic\Traceback.cpp.h">
+      <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_EmscriptenSignal.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\_RandomModule.cpp.h">
       <Filter>Objects\clinic</Filter>
     </ClInclude>
   </ItemGroup>

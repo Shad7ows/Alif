@@ -2489,7 +2489,45 @@ AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 }
 
 
+static AlifObject* uStr_decodeLocale(const char* _str, AlifSizeT _len,
+	AlifErrorHandler_ _errors, AlifIntT _currentLocale)
+{
+	if (_str[_len] != '\0' || (size_t)_len != strlen(_str)) {
+		alifErr_setString(_alifExcValueError_, "embedded null byte");
+		return nullptr;
+	}
 
+	wchar_t* wStr{};
+	size_t wLen{};
+	const char* reason{};
+	AlifIntT res = alif_decodeLocaleEx(_str, &wStr, &wLen, &reason,
+		_currentLocale, _errors);
+	if (res != 0) {
+		if (res == -2) {
+			AlifObject* exc{};
+			exc = alifObject_callFunction(_alifExcUStrDecodeError_, "sy#nns",
+				"locale", _str, _len,
+				(AlifSizeT)wLen,
+				(AlifSizeT)(wLen + 1),
+				reason);
+			if (exc != nullptr) {
+				alifCodec_strictErrors(exc);
+				ALIF_DECREF(exc);
+			}
+		}
+		else if (res == -3) {
+			alifErr_setString(_alifExcValueError_, "unsupported error handler");
+		}
+		else {
+			//alifErr_noMemory();
+		}
+		return nullptr;
+	}
+
+	AlifObject* unicode = alifUStr_fromWideChar(wStr, wLen);
+	alifMem_dataFree(wStr);
+	return unicode;
+}
 
 //AlifObject* alifUStr_decodeFSDefault(const char* _s) { // 4029
 //	AlifSizeT size = (AlifSizeT)strlen(_s);
@@ -2524,7 +2562,11 @@ AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 //	}
 //}
 
-
+AlifObject* alifUStr_decodeLocale(const char* _str, const wchar_t* _errors) { // 4047
+	AlifSizeT size = (AlifSizeT)strlen(_str);
+	AlifErrorHandler_ error_handler = get_errorHandlerWide(_errors);
+	return uStr_decodeLocale(_str, size, error_handler, 1);
+}
 
 AlifIntT alifUStr_fsConverter(AlifObject* _arg, void* _addr) { // 4079
 	AlifObject* path = nullptr;

@@ -118,6 +118,7 @@ public:
 	StopTheWorldState stopTheWorld{};
 
 	AlifMemory* memory_{};
+	AlifObject* auditHooks{};
 
 
 	//AlifTypeWatchCallback typeWatchers[TYPE_MAX_WATCHERS]{};
