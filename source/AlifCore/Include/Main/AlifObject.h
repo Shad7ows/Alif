@@ -209,6 +209,7 @@ AlifObject* alifType_fromSpecWithBases(AlifTypeSpec*, AlifObject*); // 377
 
 
 AlifObject* alifType_fromModuleAndSpec(AlifObject*, AlifTypeSpec*, AlifObject*); // 383
+
 AlifObject* alifType_getQualName(AlifTypeObject*); // 389
 
 

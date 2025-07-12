@@ -187,6 +187,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\Opcode.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\OpcodeIDs.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\OSDefs.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\OSModule.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\PThreadStubs.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\RangeObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\RefCount.h" />
@@ -344,6 +345,8 @@
     <ClCompile Include="..\source\Modules\MathModule.cpp" />
     <ClCompile Include="..\source\Modules\SignalModule.cpp" />
     <ClCompile Include="..\source\Modules\TimeModule.cpp" />
+    <ClCompile Include="..\source\Modules\_io\FileIO.cpp" />
+    <ClCompile Include="..\source\Modules\_io\IOBase.cpp" />
     <ClCompile Include="..\source\Modules\_io\TextIO.cpp" />
     <ClCompile Include="..\source\Modules\_io\_IOModule.cpp" />
     <ClCompile Include="..\source\Modules\_RandomModule.cpp" />

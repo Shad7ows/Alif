@@ -16,10 +16,15 @@ AlifObject* alif_vaBuildValue(const char*, va_list); // 20
 AlifIntT alifModule_addObjectRef(AlifObject*, const char*, AlifObject*); // 26
 
 
+AlifIntT alifModule_add(AlifObject*, const char*, AlifObject*); // 31
 
+
+AlifIntT alifModule_addIntConstant(AlifObject*, const char*, long); // 39
 
 AlifIntT alifModule_addType(AlifObject*, AlifTypeObject*); // 44
 
+
+#define ALIFMODULE_ADDINTMACRO(_m, _c) alifModule_addIntConstant((_m), #_c, (_c)) // 47
 
 
 AlifIntT alifModule_addFunctions(AlifObject*, AlifMethodDef*); // 53

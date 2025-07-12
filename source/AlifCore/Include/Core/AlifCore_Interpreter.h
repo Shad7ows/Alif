@@ -19,6 +19,7 @@
 #include "AlifCore_Tuple.h"
 #include "AlifCore_TypeObject.h"
 #include "AlifCore_UStrObject.h"
+#include "AlifCore_Exceptions.h"
 
 
 
@@ -135,6 +136,7 @@ public:
 	AlifCodeState codeState{};
 
 	AlifDictState dictState{};
+	AlifExcState excState{};
 	AlifMemInterpFreeQueue memFreeQueue{};
 
 	TypesState types{};
