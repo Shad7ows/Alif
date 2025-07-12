@@ -408,6 +408,17 @@ AlifThread* alifThreadState_new(AlifInterpreter* _interpreter) { // 1622
 	return new_thread(_interpreter);
 }
 
+AlifFrameObject* alifThreadState_getFrame(AlifThread* _tState) { // 1940
+	AlifInterpreterFrame* f = _alifThreadState_getFrame(_tState);
+	if (f == nullptr) {
+		return nullptr;
+	}
+	AlifFrameObject* frame = _alifFrame_getFrameObject(f);
+	if (frame == nullptr) {
+		alifErr_clear();
+	}
+	return (AlifFrameObject*)ALIF_XNEWREF(frame);
+}
 
 AlifObject* _alifThreadState_getDict(AlifThread* _thread) { // 1941
 	if (_thread->dict == nullptr) {

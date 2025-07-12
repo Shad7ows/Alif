@@ -29,9 +29,13 @@
 #define ALIF_STATIC_CAST(_type, _expr) static_cast<_type>(_expr)
 #define ALIF_CAST(_type, _expr) ((_type)(_expr))
 
-
-
-
+// 62
+#if defined(ALIF_BUILD_CORE_BUILTIN) and !defined(ALIF_BUILD_CORE)
+#  define ALIF_BUILD_CORE
+#endif
+#if defined(ALIF_BUILD_CORE_MODULE) and !defined(ALIF_BUILD_CORE)
+#  define ALIF_BUILD_CORE
+#endif
 
 
 #ifndef ALIFLONG_BITS_IN_DIGIT
@@ -168,11 +172,22 @@ typedef AlifUSizeT AlifUHashT;
 
 
 
+#if (!defined(__GNUC__) or __GNUC__ < 2 or \
+     (__GNUC__ == 2 and __GNUC_MINOR__ < 7) )
+#define ALIF_GCC_ATTRIBUTE(_x)
+#else
+#define ALIF_GCC_ATTRIBUTE(_x) __attribute__(_x)
+#endif
 
 
 
-
-
+#ifndef ALIF_CXX_CONST
+#  ifdef __cplusplus
+#    define ALIF_CXX_CONST const
+#  else
+#    define ALIF_CXX_CONST
+#  endif
+#endif
 
 
 // 629

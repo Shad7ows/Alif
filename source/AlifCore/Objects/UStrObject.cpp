@@ -128,6 +128,9 @@ static inline void alifUStrWriter_initWithBuffer(AlifUStrWriter*, AlifObject*);
 #  define OVERALLOCATE_FACTOR 4
 #endif
 
+static AlifObject* unicode_decodeUTF8(const char* , AlifSizeT,
+	AlifErrorHandler_, const char* ,
+	AlifSizeT * ); // 200
 
 static AlifIntT uStr_decodeUTF8Writer(AlifUStrWriter*, const char*, AlifSizeT,
 	AlifErrorHandler_, const char*, AlifSizeT*); // 203
@@ -2529,45 +2532,45 @@ static AlifObject* uStr_decodeLocale(const char* _str, AlifSizeT _len,
 }
 
 
-//AlifObject* alifUStr_decodeFSDefault(const char* _s) { // 4029
-//	AlifSizeT size = (AlifSizeT)strlen(_s);
-//	return alifUStr_decodeFSDefaultAndSize(_s, size);
-//}
-//
-//AlifObject* alifUStr_decodeFSDefaultAndSize(const char* s, AlifSizeT size) { // 4035
-//	AlifInterpreter* interp = _alifInterpreter_get();
-//	AlifUStrFSCodec* fs_codec = &interp->unicode.fs_codec;
-//	if (fs_codec->utf8) {
-//		return uStr_decodeUTF8(s, size,
-//			fs_codec->error_handler,
-//			fs_codec->errors,
-//			nullptr);
-//	}
-//#ifndef _ALIF_FORCE_UTF8_FS_ENCODING
-//	else if (fs_codec->encoding) {
-//		return alifUStr_decode(s, size,
-//			fs_codec->encoding,
-//			fs_codec->errors);
-//	}
-//#endif
-//	else {
-//		const AlifConfig* config = alifInterpreter_getConfig(interp);
-//		const wchar_t* filesystem_errors = config->fileSystemErrors;
-//		AlifErrorHandler errors = get_error_handler_wide(filesystem_errors);
-//#ifdef _ALIF_FORCE_UTF8_FS_ENCODING
-//		return uStr_decodeUTF8(s, size, errors, nullptr, nullptr);
-//#else
-//		return uStr_decodeLocale(s, size, errors, 0);
-//#endif
-//	}
-//}
+AlifObject* alifUStr_decodeFSDefault(const char* _s) { // 4029
+	AlifSizeT size = (AlifSizeT)strlen(_s);
+	return alifUStr_decodeFSDefaultAndSize(_s, size);
+}
+
+AlifObject* alifUStr_decodeFSDefaultAndSize(const char* _s, AlifSizeT _size) { // 4035
+	AlifInterpreter* interp = _alifInterpreter_get();
+	AlifUStrFSCodec* fsCodec = &interp->unicode.fsCodec;
+	if (fsCodec->utf8) {
+		return unicode_decodeUTF8(_s, _size,
+			fsCodec->errorHandler,
+			fsCodec->errors,
+			nullptr);
+	}
+#ifndef _ALIF_FORCE_UTF8_FS_ENCODING
+	else if (fsCodec->encoding) {
+		return alifUStr_decode(_s, _size,
+			fsCodec->encoding,
+			fsCodec->errors);
+	}
+#endif
+	else {
+		const AlifConfig* config = alifInterpreter_getConfig(interp);
+		const wchar_t* fileSystemErrors = config->fileSystemErrors;
+		AlifErrorHandler_ errors = get_errorHandlerWide(fileSystemErrors);
+#ifdef _ALIF_FORCE_UTF8_FS_ENCODING
+		return unicode_decodeUTF8(_s, _size, errors, nullptr, nullptr);
+#else
+		return uStr_decodeLocale(_s, _size, errors, 0);
+#endif
+	}
+}
 
 
 
 AlifObject* alifUStr_decodeLocale(const char* _str, const char* _errors) { // 4047
 	AlifSizeT size = (AlifSizeT)strlen(_str);
-	AlifErrorHandler_ error_handler = alif_getErrorHandler(_errors);
-	return uStr_decodeLocale(_str, size, error_handler, 1);
+	AlifErrorHandler_ errorHandler = alif_getErrorHandler(_errors);
+	return uStr_decodeLocale(_str, size, errorHandler, 1);
 }
 
 

@@ -751,6 +751,16 @@ static AlifIntT syntaxError_init(AlifSyntaxErrorObject* self,
 	return 0;
 }
 
+AlifTypeObject _alifExcMemoryError_ = { // 3468
+	.objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0),
+	.name =  "خطا الذاكرة",
+	.basicSize = sizeof(AlifBaseExceptionObject),
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC,
+	.dictOffset = offsetof(AlifBaseExceptionObject, dict),
+};
+
+AlifObject* _alifExc_memoryError_ = (AlifObject*)&_alifExcMemoryError_; // 3480
+
 
 static AlifObject* my_basename(AlifObject* name) { // 2505
 	AlifSizeT i{}, size{}, offset{};

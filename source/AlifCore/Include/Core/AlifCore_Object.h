@@ -277,7 +277,6 @@ static inline AlifIntT _alifObject_isGC(AlifObject* obj) { // 739
 	return (_ALIFTYPE_IS_GC(type) and (type->isGC == nullptr or type->isGC(obj)));
 }
 
-
 static inline AlifHashT alifObject_hashFast(AlifObject* _op) { // 784 
 	if (ALIFUSTR_CHECKEXACT(_op)) {
 		AlifHashT hash = alifAtomic_loadSizeRelaxed(&ALIFASCIIOBJECT_CAST(_op)->hash);

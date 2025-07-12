@@ -14,7 +14,14 @@
 #  include <sys/types.h>
 #endif
 
-
+#if defined(__APPLE__ ) and defined(__has_builtin)
+#  if __has_builtin(__builtin_available)
+#    define HAVE_CLOCK_GETTIME_RUNTIME __builtin_available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
+#  endif
+#endif
+#ifndef HAVE_CLOCK_GETTIME_RUNTIME
+#  define HAVE_CLOCK_GETTIME_RUNTIME 1
+#endif
 
 static AlifIntT alif_sleep(AlifTimeT); // 74
 
@@ -22,6 +29,10 @@ static AlifIntT alif_sleep(AlifTimeT); // 74
 class TimeModuleState { // 77
 public:
 	AlifTypeObject* structTimeType{};
+#ifdef HAVE_CLOCK
+	// clock() frequency in hertz
+	AlifTimeFraction clockBase{};
+#endif
 };
 
 
@@ -44,6 +55,38 @@ static AlifObject* time_time(AlifObject* _self, AlifObject* _unused) { // 107
 	return _alifFloat_fromAlifTime(t);
 }
 
+
+#ifdef HAVE_CLOCK
+
+#ifndef CLOCKS_PER_SEC
+#  ifdef CLK_TCK
+#    define CLOCKS_PER_SEC CLK_TCK
+#  else
+#    define CLOCKS_PER_SEC 1000000
+#  endif
+#endif
+
+static AlifIntT alif_clock(TimeModuleState* _state, AlifTimeT* _tp, AlifClockInfoT* _info) { // 150
+	AlifTimeFraction* base = &_state->clockBase;
+
+	if (_info) {
+		_info->implementation = "clock()";
+		_info->resolution = alifTimeFraction_resolution(base);
+		_info->monotonic = 1;
+		_info->adjustable = 0;
+	}
+
+	clock_t ticks = clock();
+	if (ticks == (clock_t)-1) {
+		//alifErr_setString(_alifExcRuntimeError_,
+			//"the processor time used is not available "
+			//"or its value cannot be represented");
+		return -1;
+	}
+	*_tp = alifTimeFraction_mul(ticks, base);
+	return 0;
+}
+#endif 
 
 static AlifObject* time_sleep(AlifObject* _self, AlifObject* _timeoutObj) { // 391
 	//if (alifSys_audit("time.sleep", "O", timeout_obj) < 0) {
@@ -266,11 +309,133 @@ static AlifObject* time_localtimeDict(AlifObject* _module, AlifObject* _args) { 
 
 
  // 594
-#if defined(__linux__) && !defined(__GLIBC__)
-static const char* _utcString_ = nullptr;
-#endif
-
-
+//#if defined(__linux__) && !defined(__GLIBC__)
+//static const char* _utcString_ = nullptr;
+//#endif
+//
+//static AlifIntT alifProcess_time(TimeModuleState* state, AlifTimeT* tp,
+//	AlifClockInfoT* info) { // 1256
+//#if defined(MS_WINDOWS)
+//	HANDLE process{};
+//	FILETIME creationTime{}, exitTime{}, kernelTime{}, userTime{};
+//	ULARGE_INTEGER large{};
+//	AlifTimeT kTime{}, uTime{};
+//	BOOL ok{};
+//
+//	process = GetCurrentProcess();
+//	ok = GetProcessTimes(process, &creationTime, &exitTime,
+//		&kernelTime, &userTime);
+//	if (!ok) {
+//		//alifErr_setFromWindowsErr(0);
+//		return -1;
+//	}
+//
+//	if (info) {
+//		info->implementation = "GetProcessTimes()";
+//		info->resolution = 1e-7;
+//		info->monotonic = 1;
+//		info->adjustable = 0;
+//	}
+//
+//	large.u.LowPart = kernelTime.dwLowDateTime;
+//	large.u.HighPart = kernelTime.dwHighDateTime;
+//	kTime = large.QuadPart;
+//
+//	large.u.LowPart = userTime.dwLowDateTime;
+//	large.u.HighPart = userTime.dwHighDateTime;
+//	uTime = large.QuadPart;
+//
+//	*tp = (kTime + uTime) * 100;
+//	return 0;
+//#else
+//
+////#if defined(HAVE_CLOCK_GETTIME) \
+//    and (defined(CLOCK_PROCESS_CPUTIME_ID) || defined(CLOCK_PROF)) \
+//    and !defined(__wasi__) \
+//    and !defined(__NetBSD__)
+//	struct timespec ts;
+//
+//	if (HAVE_CLOCK_GETTIME_RUNTIME) {
+//
+//#ifdef CLOCK_PROF
+//		const clockid_t clk_id = CLOCK_PROF;
+//		const char* function = "clock_gettime(CLOCK_PROF)";
+//#else
+//		const clockid_t clk_id = CLOCK_PROCESS_CPUTIME_ID;
+//		const char* function = "clock_gettime(CLOCK_PROCESS_CPUTIME_ID)";
+//#endif
+//
+//		if (clock_getTime(clk_id, &ts) == 0) {
+//			if (info) {
+//				struct timespec res;
+//				info->implementation = function;
+//				info->monotonic = 1;
+//				info->adjustable = 0;
+//				if (clock_getRes(clk_id, &res)) {
+//					//alifErr_setFromErrno(_alifExcOSError_);
+//					return -1;
+//				}
+//				info->resolution = res.tv_sec + res.tv_nsec * 1e-9;
+//			}
+//
+//			if (alifTime_fromTimespec(tp, &ts) < 0) {
+//				return -1;
+//			}
+//			return 0;
+//		}
+//	}
+////#endif
+//
+//#if defined(HAVE_SYS_RESOURCE_H) && defined(HAVE_GETRUSAGE)
+//	struct rusage ru;
+//
+//	if (getrusage(RUSAGE_SELF, &ru) == 0) {
+//		AlifTimeT utime, stime;
+//
+//		if (info) {
+//			info->implementation = "getrusage(RUSAGE_SELF)";
+//			info->monotonic = 1;
+//			info->adjustable = 0;
+//			info->resolution = 1e-6;
+//		}
+//
+//		if (_PyTime_FromTimeval(&utime, &ru.ru_utime) < 0) {
+//			return -1;
+//		}
+//		if (_PyTime_FromTimeval(&stime, &ru.ru_stime) < 0) {
+//			return -1;
+//		}
+//
+//		AlifTimeT total = utime + stime;
+//		*tp = total;
+//		return 0;
+//	}
+//#endif
+//
+//	/* times() */
+//// gh-115714: Don't use times() on WASI.
+//#if defined(HAVE_TIMES) && !defined(__wasi__)
+//	int res = process_time_times(state, tp, info);
+//	if (res < 0) {
+//		return -1;
+//	}
+//	if (res == 1) {
+//		return 0;
+//	}
+//#endif
+//
+//	return alif_clock(state, tp, info);
+//#endif
+//}
+//
+//static AlifObject* time_process_time(AlifObject* _module, AlifObject* _unused) { // 1383
+//	TimeModuleState* state = get_timeState(_module);
+//	AlifTimeT t{};
+//	if (alifprocess_time(state, &t, NULL) < 0) {
+//		return NULL;
+//	}
+//	return alifFloat_fromPyTime(t);
+//}
 
 static AlifIntT get_tmArg(TimeModuleState* _state, AlifObject* _args,
 	struct tm* _p, const char* _format) { // 608

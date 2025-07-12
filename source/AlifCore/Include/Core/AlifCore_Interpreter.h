@@ -18,6 +18,7 @@
 #include "AlifCore_Import.h"
 #include "AlifCore_Tuple.h"
 #include "AlifCore_TypeObject.h"
+#include "AlifCore_UStrObject.h"
 #include "AlifCore_Exceptions.h"
 
 
@@ -119,6 +120,7 @@ public:
 	StopTheWorldState stopTheWorld{};
 
 	AlifMemory* memory_{};
+	AlifObject* auditHooks{};
 
 
 	//AlifTypeWatchCallback typeWatchers[TYPE_MAX_WATCHERS]{};
@@ -126,6 +128,8 @@ public:
 	uint8_t activeCodeWatchers{};
 
 	//AlifObjectState objectState{};
+	AlifUStrState unicode{};
+
 	AlifLongState longState{};
 	DToAState dtoa{};
 	AlifFuncState funcState{};

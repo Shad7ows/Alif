@@ -73,6 +73,7 @@ public:
         STRUCT_FOR_ID(__buildClass__)
         STRUCT_FOR_ID(__builtins__)
 		STRUCT_FOR_ID(__call__)
+	    STRUCT_FOR_ID(__cantrace__)
 		STRUCT_FOR_ID(__class__)
 		STRUCT_FOR_ID(__classCell__)
 		STRUCT_FOR_ID(__classDict__)
@@ -103,6 +104,7 @@ public:
 		STRUCT_FOR_ID(__prepare__)
 		STRUCT_FOR_ID(__qualname__)
 		STRUCT_FOR_ID(__setName__)
+		STRUCT_FOR_ID(__sizeof__)
 		STRUCT_FOR_ID(__slots__)
 		STRUCT_FOR_ID(__spec__)
 		STRUCT_FOR_ID(__staticAttributes__)
@@ -154,6 +156,7 @@ public:
      	STRUCT_FOR_ID(Stdout)
      	STRUCT_FOR_ID(TextIOWrapper)
      	STRUCT_FOR_ID(Top)
+		STRUCT_FOR_ID(Unraisablehook)
      	STRUCT_FOR_ID(Write)
     } identifiers;
 

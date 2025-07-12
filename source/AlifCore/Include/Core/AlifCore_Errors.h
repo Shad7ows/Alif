@@ -22,6 +22,7 @@ static inline AlifObject* _alifErr_occurred(AlifThread* _thread) { // 73
 	return (AlifObject*)ALIF_TYPE(_thread->currentException);
 }
 
+extern void _alifErr_fetch(AlifThread* , AlifObject** , AlifObject** , AlifObject** ); // 90
 
 extern AlifObject* _alifErr_getRaisedException(AlifThread*); // 96
 
@@ -38,3 +39,7 @@ AlifObject* _alifErr_format(AlifThread*, AlifObject*, const char*, ...); // 128
 
 
 extern AlifObject* _alifExc_createExceptionGroup(const char*, AlifObject*); // 151
+
+extern AlifIntT _alifErr_checkSignalsTstate(AlifThread*); // 159
+
+extern AlifObject* _alif_calculateSuggestions(AlifObject* , AlifObject* ); // 162

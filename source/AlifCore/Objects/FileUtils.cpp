@@ -8,21 +8,44 @@
 
 #include <stdlib.h>               // mbstowcs()
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>             // getcwd()
+#  include <unistd.h>             // getcwd()
 #endif
 
 #ifdef _WINDOWS
-#include <pathcch.h>
-extern int winerror_to_errno(int);
+#  include <malloc.h>
+#  include <windows.h>
+#  include <winioctl.h>             // FILE_DEVICE_* constants
+#  if defined(MS_WINDOWS_GAMES) and !defined(MS_WINDOWS_DESKTOP)
+#    define PATHCCH_ALLOW_LONG_PATHS 0x01
+#  else
+#    include <pathcch.h>            // PathCchCombineEx
+#  endif
+extern AlifIntT winerror_to_errno(AlifIntT);
 #endif
 
-// 36
+#ifdef HAVE_LANGINFO_H
+#  include <langinfo.h>           // nl_langinfo(CODESET)
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
+#ifdef HAVE_NON_UNICODE_WCHAR_T_REPRESENTATION
+#  include <iconv.h>              // iconv_open()
+#endif
+
 #ifdef HAVE_FCNTL_H
 #  include <fcntl.h>              // fcntl(F_GETFD)
 #endif
 
+#ifdef O_CLOEXEC
 
-#define MAX_UNICODE 0x10ffff // 53
+AlifIntT _alifOpenCloExecWorks_ = -1;
+#endif
+
+// The value must be the same in unicodeobject.c.
+#define MAX_UNICODE 0x10ffff
 
 // mbstowcs() and mbrtowc() errors
 static const AlifUSizeT _decodeError_ = ((size_t)-1); // 56
@@ -425,21 +448,21 @@ AlifIntT _alif_encodeLocaleEx(const wchar_t* _text, char** _str,
 #ifdef _WINDOWS
 static __int64 secs_between_epochs = 11644473600; /* Seconds between 1.1.1601 and 1.1.1970 */
 
-static void FILE_TIME_to_time_t_nsec(FILETIME* in_ptr, time_t* time_out, int* nsec_out) { // 1052
+static void FILE_TIME_to_time_t_nsec(FILETIME* in_ptr, time_t* time_out, AlifIntT* nsec_out) { // 1052
 	__int64 in;
 	memcpy(&in, in_ptr, sizeof(in));
-	*nsec_out = (int)(in % 10000000) * 100; /* FILETIME is in units of 100 nsec. */
+	*nsec_out = (AlifIntT)(in % 10000000) * 100; /* FILETIME is in units of 100 nsec. */
 	*time_out = ALIF_SAFE_DOWNCAST((in / 10000000) - secs_between_epochs, __int64, time_t);
 }
 
-static void LARGE_INTEGER_to_time_t_nsec(LARGE_INTEGER* in_ptr, time_t* time_out, int* nsec_out)
+static void LARGE_INTEGER_to_time_t_nsec(LARGE_INTEGER* in_ptr, time_t* time_out, AlifIntT* nsec_out)
 { // 1065
-	*nsec_out = (int)(in_ptr->QuadPart % 10000000) * 100; /* FILETIME is in units of 100 nsec. */
+	*nsec_out = (AlifIntT)(in_ptr->QuadPart % 10000000) * 100; /* FILETIME is in units of 100 nsec. */
 	*time_out = ALIF_SAFE_DOWNCAST((in_ptr->QuadPart / 10000000) - secs_between_epochs, __int64, time_t);
 }
 
-static int attributes_to_mode(DWORD attr) { // 1085
-	int m = 0;
+static AlifIntT attributes_to_mode(DWORD attr) { // 1085
+	AlifIntT m = 0;
 	if (attr & FILE_ATTRIBUTE_DIRECTORY)
 		m |= _S_IFDIR | 0111; /* IFEXEC for user,group,other */
 	else
@@ -461,25 +484,25 @@ typedef union {
 
 void _alifAttribute_dataToStat(BY_HANDLE_FILE_INFORMATION* info, ULONG reparse_tag,
 	FILE_BASIC_INFO* basic_info, FILE_ID_INFO* id_info,
-	class AlifStatStruct* result) { // 1110
+	AlifStatClass* result) { // 1110
 	memset(result, 0, sizeof(*result));
 	result->mode = attributes_to_mode(info->dwFileAttributes);
 	result->size = (((__int64)info->nFileSizeHigh) << 32) + info->nFileSizeLow;
 	result->dev = id_info ? id_info->VolumeSerialNumber : info->dwVolumeSerialNumber;
-	result->rdev = 0;
+	result->rDev = 0;
 	/* st_ctime is deprecated, but we preserve the legacy value in our caller, not here */
 	if (basic_info) {
-		LARGE_INTEGER_to_time_t_nsec(&basic_info->CreationTime, &result->birthtime, &result->birthtimeNSec);
-		LARGE_INTEGER_to_time_t_nsec(&basic_info->ChangeTime, &result->ctime, &result->ctimeNSec);
-		LARGE_INTEGER_to_time_t_nsec(&basic_info->LastWriteTime, &result->mtime, &result->mtimeNSec);
-		LARGE_INTEGER_to_time_t_nsec(&basic_info->LastAccessTime, &result->atime, &result->atimeNSec);
+		LARGE_INTEGER_to_time_t_nsec(&basic_info->CreationTime, &result->birthTime, &result->birthTimeNsec);
+		LARGE_INTEGER_to_time_t_nsec(&basic_info->ChangeTime, &result->cTime, &result->cTimeNsec);
+		LARGE_INTEGER_to_time_t_nsec(&basic_info->LastWriteTime, &result->mTime, &result->mTimeNsec);
+		LARGE_INTEGER_to_time_t_nsec(&basic_info->LastAccessTime, &result->aTime, &result->aTimeNsec);
 	}
 	else {
-		FILE_TIME_to_time_t_nsec(&info->ftCreationTime, &result->birthtime, &result->birthtimeNSec);
-		FILE_TIME_to_time_t_nsec(&info->ftLastWriteTime, &result->mtime, &result->mtimeNSec);
-		FILE_TIME_to_time_t_nsec(&info->ftLastAccessTime, &result->atime, &result->atimeNSec);
+		FILE_TIME_to_time_t_nsec(&info->ftCreationTime, &result->birthTime, &result->birthTimeNsec);
+		FILE_TIME_to_time_t_nsec(&info->ftLastWriteTime, &result->mTime, &result->mTimeNsec);
+		FILE_TIME_to_time_t_nsec(&info->ftLastAccessTime, &result->aTime, &result->aTimeNsec);
 	}
-	result->nlink = info->nNumberOfLinks;
+	result->nLink = info->nNumberOfLinks;
 
 	if (id_info) {
 		id_128_to_ino file_id;
@@ -492,7 +515,7 @@ void _alifAttribute_dataToStat(BY_HANDLE_FILE_INFORMATION* info, ULONG reparse_t
 	}
 
 	result->reparseTag = reparse_tag;
-	if (info->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT &&
+	if (info->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT and
 		reparse_tag == IO_REPARSE_TAG_SYMLINK) {
 		/* set the bits that make this a symlink */
 		result->mode = (result->mode & ~S_IFMT) | S_IFLNK;
@@ -505,22 +528,22 @@ void _alifAttribute_dataToStat(BY_HANDLE_FILE_INFORMATION* info, ULONG reparse_t
 #endif // 1221
 
 
-AlifIntT _alifFStat_noraise(AlifIntT fd, class AlifStatStruct* status) { // 1235
+AlifIntT _alifFStat_noRaise(AlifIntT _fd, AlifStatClass* _status) { // 1235
 #ifdef _WINDOWS
-	BY_HANDLE_FILE_INFORMATION info;
-	FILE_BASIC_INFO basicInfo;
-	FILE_ID_INFO idInfo;
+	BY_HANDLE_FILE_INFORMATION info{};
+	FILE_BASIC_INFO basicInfo{};
+	FILE_ID_INFO idInfo{};
 	FILE_ID_INFO* pIdInfo = &idInfo;
-	HANDLE h;
-	AlifIntT type;
+	HANDLE h{};
+	AlifIntT type{};
 
-	h = _alifGet_osfHandleNoRaise(fd);
+	h = _alifGet_osfHandleNoRaise(_fd);
 
 	if (h == INVALID_HANDLE_VALUE) {
 		SetLastError(ERROR_INVALID_HANDLE);
 		return -1;
 	}
-	memset(status, 0, sizeof(*status));
+	memset(_status, 0, sizeof(*_status));
 
 	type = GetFileType(h);
 	if (type == FILE_TYPE_UNKNOWN) {
@@ -534,13 +557,13 @@ AlifIntT _alifFStat_noraise(AlifIntT fd, class AlifStatStruct* status) { // 1235
 
 	if (type != FILE_TYPE_DISK) {
 		if (type == FILE_TYPE_CHAR)
-			status->mode = _S_IFCHR;
+			_status->mode = _S_IFCHR;
 		else if (type == FILE_TYPE_PIPE)
-			status->mode = _S_IFIFO;
+			_status->mode = _S_IFIFO;
 		return 0;
 	}
 
-	if (!GetFileInformationByHandle(h, &info) ||
+	if (!GetFileInformationByHandle(h, &info) or
 		!GetFileInformationByHandleEx(h, FileBasicInfo, &basicInfo, sizeof(basicInfo))) {
 		/* The Win32 error is already set, but we also set errno for
 		   callers who expect it */
@@ -550,10 +573,10 @@ AlifIntT _alifFStat_noraise(AlifIntT fd, class AlifStatStruct* status) { // 1235
 
 	if (!GetFileInformationByHandleEx(h, FileIdInfo, &idInfo, sizeof(idInfo))) {
 		/* Failed to get FileIdInfo, so do not pass it along */
-		pIdInfo = NULL;
+		pIdInfo = nullptr;
 	}
 
-	_alifAttribute_dataToStat(&info, 0, &basicInfo, pIdInfo, status);
+	_alifAttribute_dataToStat(&info, 0, &basicInfo, pIdInfo, _status);
 	return 0;
 #else
 	return fstat(fd, status);
@@ -561,11 +584,27 @@ AlifIntT _alifFStat_noraise(AlifIntT fd, class AlifStatStruct* status) { // 1235
 }
 
 
+AlifIntT _alif_fStat(AlifIntT _fd, AlifStatClass* _status) { // 1310
+	AlifIntT res{};
+	ALIF_BEGIN_ALLOW_THREADS
+		res = _alifFStat_noRaise(_fd, _status);
+	ALIF_END_ALLOW_THREADS
 
-AlifIntT _alif_wStat(const wchar_t* path, struct stat* buf) { // 1332
+		if (res != 0) {
+#ifdef _WINDOWS
+			alifErr_setFromWindowsErr(0);
+#else
+			//alifErr_setFromErrno(_alifExcOSError_);
+#endif
+			return -1;
+		}
+	return 0;
+}
+
+AlifIntT _alif_wStat(const wchar_t* path, class stat* buf) { // 1332
 	AlifIntT err{};
 #ifdef _WINDOWS
-	struct _stat wstatbuf;
+	class _stat wstatbuf;
 	err = _wstat(path, &wstatbuf);
 	if (!err) {
 		buf->st_mode = wstatbuf.st_mode;
@@ -584,11 +623,242 @@ AlifIntT _alif_wStat(const wchar_t* path, struct stat* buf) { // 1332
 }
 
 
+static AlifIntT get_inheritable(AlifIntT _fd, AlifIntT _raise) { // 1406
+#ifdef _WINDOWS
+	HANDLE handle{};
+	DWORD flags{};
+
+	handle = _alifGet_osfHandleNoRaise(_fd);
+	if (handle == INVALID_HANDLE_VALUE) {
+		if (_raise)
+			//alifErr_setFromErrno(_alifExcOSError_);
+		return -1;
+	}
+
+	if (!GetHandleInformation(handle, &flags)) {
+		if (_raise)
+			alifErr_setFromWindowsErr(0);
+		return -1;
+	}
+
+	return (flags & HANDLE_FLAG_INHERIT);
+#else
+	AlifIntT flags{};
+
+	flags = fcntl(fd, F_GETFD, 0);
+	if (flags == -1) {
+		if (raise)
+			//alifErr_setFromErrno(_alifExcOSError_);
+		return -1;
+	}
+	return !(flags & FD_CLOEXEC);
+#endif
+}
+
+/* Get the inheritable flag of the specified file descriptor.
+   Return 1 if the file descriptor can be inherited, 0 if it cannot,
+   raise an exception and return -1 on error. */
+AlifIntT _alifGet_inheritable(AlifIntT _fd) { // 1443
+	return get_inheritable(_fd, 1);
+}
+
+static AlifIntT set_inheritable(AlifIntT _fd, AlifIntT _inheritable, AlifIntT _raise, AlifIntT* _atomicFlagWorks) { // 1451
+	#ifdef _WINDOWS
+	HANDLE handle{};
+	DWORD flags{};
+	#else
+	#if defined(HAVE_SYS_IOCTL_H) and defined(FIOCLEX) and defined(FIONCLEX)
+	static AlifIntT ioctlWorks = -1;
+	AlifIntT request{};
+	AlifIntT err{};
+	#endif
+	AlifIntT flags{}, newFlags{};
+	AlifIntT res{};
+#endif
+
+
+	if (_atomicFlagWorks != nullptr and !_inheritable) {
+		if (*_atomicFlagWorks == -1) {
+			AlifIntT isInheritable = get_inheritable(_fd, _raise);
+			if (isInheritable == -1)
+				return -1;
+			*_atomicFlagWorks = !isInheritable;
+		}
+
+		if (*_atomicFlagWorks)
+			return 0;
+	}
+
+#ifdef _WINDOWS
+	handle = _alifGet_osfHandleNoRaise(_fd);
+	if (handle == INVALID_HANDLE_VALUE) {
+		if (_raise)
+			//alifErr_setFromErrno(_alifExcOSError_);
+		return -1;
+	}
+
+	if (_inheritable)
+		flags = HANDLE_FLAG_INHERIT;
+	else
+		flags = 0;
+
+	if (!SetHandleInformation(handle, HANDLE_FLAG_INHERIT, flags)) {
+		if (_raise)
+			alifErr_setFromWindowsErr(0);
+		return -1;
+	}
+	return 0;
+
+#else
+
+#if defined(HAVE_SYS_IOCTL_H) and defined(FIOCLEX) and defined(FIONCLEX)
+	if (_raise != 0 and alifAtomic_loadIntRelaxed(&ioctlWorks) != 0) {
+		/* fast-path: ioctl() only requires one syscall */
+		/* caveat: raise=0 is an indicator that we must be async-signal-safe
+		 * thus avoid using ioctl() so we skip the fast-path. */
+		if (_inheritable)
+			request = FIONCLEX;
+		else
+			request = FIOCLEX;
+		err = ioctl(_fd, request, nullptr);
+		if (!err) {
+			if (alifAtomic_loadIntRelaxed(&ioctlWorks) == -1) {
+				alifAtomic_storeIntRelaxed(&ioctlWorks, 1);
+			}
+			return 0;
+		}
+
+#ifdef O_PATH
+		if (errno == EBADF) {
+			// bpo-44849: On Linux and FreeBSD, ioctl(FIOCLEX) fails with EBADF
+			// on O_PATH file descriptors. Fall through to the fcntl()
+			// implementation.
+		}
+		else
+#endif
+			if (errno != ENOTTY and errno != EACCES) {
+				if (_raise)
+					//alifErr_setFromErrno(_alifExcOSError_);
+				return -1;
+			}
+			else {
+				/* Issue #22258: Here, ENOTTY means "Inappropriate ioctl for
+				   device". The ioctl is declared but not supported by the kernel.
+				   Remember that ioctl() doesn't work. It is the case on
+				   Illumos-based OS for example.
+
+				   Issue #27057: When SELinux policy disallows ioctl it will fail
+				   with EACCES. While FIOCLEX is safe operation it may be
+				   unavailable because ioctl was denied altogether.
+				   This can be the case on Android. */
+				alifAtomic_storeIntRelaxed(&ioctlWorks, 0);
+			}
+		/* fallback to fcntl() if ioctl() does not work */
+	}
+#endif
+
+	/* slow-path: fcntl() requires two syscalls */
+	flags = fcntl(_fd, F_GETFD);
+	if (flags < 0) {
+		if (_raise)
+			//alifErr_setFromErrno(_alifExcOSError_);
+		return -1;
+	}
+
+	if (_inheritable) {
+		newFlags = flags & ~FD_CLOEXEC;
+	}
+	else {
+		newFlags = flags | FD_CLOEXEC;
+	}
+
+	if (newFlags == flags) {
+		/* FD_CLOEXEC flag already set/cleared: nothing to do */
+		return 0;
+	}
+
+	res = fcntl(_fd, F_SETFD, newFlags);
+	if (res < 0) {
+		if (_raise)
+			//alifErr_setFromErrno(_alifExcOSError_);
+		return -1;
+	}
+	return 0;
+#endif
+}
+
+
 //AlifIntT _alif_setInheritable(AlifIntT fd,
 //	AlifIntT inheritable, AlifIntT* atomic_flag_works) { // 1604
 //	return set_inheritable(fd, inheritable, 1, atomic_flag_works);
 //}
 
+static AlifIntT _alif_openImpl(const char* _pathName, AlifIntT _flags, AlifIntT _gilHeld) { // 1620
+	AlifIntT fd{};
+	AlifIntT asyncErr = 0;
+#ifndef _WINDOWS
+	AlifIntT* atomicFlagWorks{};
+#endif
+
+#ifdef _WINDOWS
+	_flags |= O_NOINHERIT;
+#elif defined(O_CLOEXEC)
+	atomicFlagWorks = &alifOpenCloExecWorks;
+	_flags |= O_CLOEXEC;
+#else
+	atomicFlagWorks = nullptr;
+#endif
+
+	if (_gilHeld) {
+		AlifObject* pathNameObj = alifUStr_decodeFSDefault(_pathName);
+		if (pathNameObj == nullptr) {
+			return -1;
+		}
+		if (alifSys_audit("open", "OOi", pathNameObj, ALIF_NONE, _flags) < 0) {
+			ALIF_DECREF(pathNameObj);
+			return -1;
+		}
+
+		do {
+			ALIF_BEGIN_ALLOW_THREADS
+				fd = open(_pathName, _flags);
+			ALIF_END_ALLOW_THREADS
+		} while (fd < 0
+			and errno == EINTR and !(asyncErr = alifErr_checkSignals()));
+			if (asyncErr) {
+				ALIF_DECREF(pathNameObj);
+				return -1;
+			}
+			if (fd < 0) {
+				alifErr_setFromErrnoWithFileNameObjects(nullptr, pathNameObj, nullptr);
+				ALIF_DECREF(pathNameObj);
+				return -1;
+			}
+			ALIF_DECREF(pathNameObj);
+	}
+	else {
+		fd = open(_pathName, _flags);
+		if (fd < 0)
+			return -1;
+	}
+
+#ifndef _WINDOWS
+	if (set_inheritable(fd, 0, _gilHeld, atomicFlagWorks) < 0) {
+		close(fd);
+		return -1;
+	}
+#endif
+
+	return fd;
+}
+
+AlifIntT _alif_open(const char* _pathName, AlifIntT _flags) { // 1691
+	return _alif_openImpl(_pathName, _flags, 1);
+}
+
+AlifIntT _alifOpen_noRaise(const char* _pathName, AlifIntT _flags) { // 1705
+	return _alif_openImpl(_pathName, _flags, 0);
+}
 
 FILE* alif_fOpenObj(AlifObject* _path, const char* _mode) { // 1764
 	FILE* f{};
@@ -611,8 +881,8 @@ FILE* alif_fOpenObj(AlifObject* _path, const char* _mode) { // 1764
 		wmode, ALIF_ARRAY_LENGTH(wmode));
 
 	if (uSize == 0) {
-		//alifErr_setFromWindowsErr(0);
-		//alifMem_free(wpath);
+		alifErr_setFromWindowsErr(0);
+		alifMem_dataFree(wpath);
 		return nullptr;
 	}
 
@@ -647,14 +917,59 @@ FILE* alif_fOpenObj(AlifObject* _path, const char* _mode) { // 1764
 		return nullptr;
 	}
 
-	//if (set_inheritable(fileno(f), 0, 1, nullptr) < 0) {
-	//	fclose(f);
-	//	return nullptr;
-	//}
+	if (set_inheritable(fileno(f), 0, 1, nullptr) < 0) {
+		fclose(f);
+		return nullptr;
+	}
 	return f;
 }
 
+AlifSizeT _alif_read(AlifIntT _fd, void* _buf, AlifUSizeT _count) { // 1859
+	AlifSizeT n{};
+	AlifIntT err{};
+	AlifIntT asyncErr = 0;
 
+	if (_count > _ALIF_READ_MAX) {
+		_count = _ALIF_READ_MAX;
+	}
+
+	ALIF_BEGIN_SUPPRESS_IPH
+		do {
+			ALIF_BEGIN_ALLOW_THREADS
+				errno = 0;
+#ifdef _WINDOWS
+			_doserrno = 0;
+			n = read(_fd, _buf, (AlifIntT)_count);
+			// read() on a non-blocking empty pipe fails with EINVAL, which is
+			// mapped from the Windows error code ERROR_NO_DATA.
+			if (n < 0 && errno == EINVAL) {
+				if (_doserrno == ERROR_NO_DATA) {
+					errno = EAGAIN;
+				}
+			}
+#else
+			n = read(_fd, _buf, _count);
+#endif
+
+			err = errno;
+			ALIF_END_ALLOW_THREADS
+		} while (n < 0 and err == EINTR and
+			!(asyncErr = alifErr_checkSignals()));
+			ALIF_END_SUPPRESS_IPH
+
+				if (asyncErr) {
+
+					errno = err;
+					return -1;
+				}
+			if (n < 0) {
+				//alifErr_setFromErrno(_alifExcOSError_);
+				errno = err;
+				return -1;
+			}
+
+			return n;
+}
 
 #ifdef HAVE_READLINK
 
@@ -666,7 +981,7 @@ AlifIntT alif_wReadLink(const wchar_t* path, wchar_t* buf, AlifUSizeT buflen) { 
 	AlifSizeT res{};
 	AlifUSizeT r1{};
 
-	cpath = _alif_encodeLocaleRaw(path, NULL);
+	cpath = _alif_encodeLocaleRaw(path, nullptr);
 	if (cpath == nullptr) {
 		errno = EINVAL;
 		return -1;
@@ -823,7 +1138,7 @@ void _alif_skipRoot(const wchar_t* path, AlifSizeT size,
 		// Relative path, e.g.: 'foo'
 		*rootsize = 0;
 	}
-	else if (!IS_SEP(&path[1]) || IS_SEP(&path[2])) {
+	else if (!IS_SEP(&path[1]) or IS_SEP(&path[2])) {
 		// Absolute path, e.g.: '/foo', '///foo', '////foo', etc.
 		*rootsize = 1;
 	}
@@ -832,10 +1147,10 @@ void _alif_skipRoot(const wchar_t* path, AlifSizeT size,
 	}
 #undef IS_SEP
 #else
-	const wchar_t* pEnd = size >= 0 ? &path[size] : NULL;
+	const wchar_t* pEnd = size >= 0 ? &path[size] : nullptr;
 #define IS_END(x) (pEnd ? (x) == pEnd : !*(x))
-#define IS_SEP(x) (*(x) == SEP || *(x) == ALTSEP)
-#define SEP_OR_END(x) (IS_SEP(x) || IS_END(x))
+#define IS_SEP(x) (*(x) == SEP or *(x) == ALTSEP)
+#define SEP_OR_END(x) (IS_SEP(x) or IS_END(x))
 	if (IS_SEP(&path[0])) {
 		if (IS_SEP(&path[1])) {
 			// Device drives, e.g. \\.\device or \\?\device
@@ -910,13 +1225,13 @@ static AlifIntT join_relfile(wchar_t* buffer, AlifUSizeT bufsize,
 		return -1;
 	}
 #else
-	AlifUSizeT dirlen = wcslen(dirname);
-	AlifUSizeT rellen = wcslen(relfile);
-	AlifUSizeT maxlen = bufsize - 1;
-	if (maxlen > MAXPATHLEN || dirlen >= maxlen || rellen >= maxlen - dirlen) {
+	AlifUSizeT dirLen = wcslen(dirname);
+	AlifUSizeT relLen = wcslen(relfile);
+	AlifUSizeT maxLen = bufsize - 1;
+	if (maxLen > MAXPATHLEN or dirLen >= maxLen or relLen >= maxLen - dirLen) {
 		return -1;
 	}
-	if (dirlen == 0) {
+	if (dirLen == 0) {
 		// We do not add a leading separator.
 		wcscpy(buffer, relfile);
 	}
@@ -924,12 +1239,12 @@ static AlifIntT join_relfile(wchar_t* buffer, AlifUSizeT bufsize,
 		if (dirname != buffer) {
 			wcscpy(buffer, dirname);
 		}
-		AlifUSizeT relstart = dirlen;
-		if (dirlen > 1 && dirname[dirlen - 1] != SEP) {
-			buffer[dirlen] = SEP;
-			relstart += 1;
+		AlifUSizeT relStart = dirLen;
+		if (dirLen > 1 and dirname[dirLen - 1] != SEP) {
+			buffer[dirLen] = SEP;
+			relStart += 1;
 		}
-		wcscpy(&buffer[relstart], relfile);
+		wcscpy(&buffer[relStart], relfile);
 	}
 #endif
 	return 0;
@@ -947,7 +1262,7 @@ wchar_t* _alif_normPathAndSize(wchar_t* path,
 		*normsize = 0;
 		return path;
 	}
-	wchar_t* pEnd = size >= 0 ? &path[size] : NULL;
+	wchar_t* pEnd = size >= 0 ? &path[size] : nullptr;
 	wchar_t* p1 = path;     // sequentially scanned address in the path
 	wchar_t* p2 = path;     // destination of a scanned character to be ljusted
 	wchar_t* minP2 = path;  // the beginning of the destination range
@@ -955,13 +1270,13 @@ wchar_t* _alif_normPathAndSize(wchar_t* path,
 
 #define IS_END(x) (pEnd ? (x) == pEnd : !*(x))
 #ifdef ALTSEP
-#define IS_SEP(x) (*(x) == SEP || *(x) == ALTSEP)
+#define IS_SEP(x) (*(x) == SEP or *(x) == ALTSEP)
 #else
 #define IS_SEP(x) (*(x) == SEP)
 #endif
-#define SEP_OR_END(x) (IS_SEP(x) || IS_END(x))
+#define SEP_OR_END(x) (IS_SEP(x) or IS_END(x))
 
-	if (p1[0] == L'.' && IS_SEP(&p1[1])) {
+	if (p1[0] == L'.' and IS_SEP(&p1[1])) {
 		// Skip leading '.\'
 		path = &path[2];
 		while (IS_SEP(path)) {
@@ -973,7 +1288,7 @@ wchar_t* _alif_normPathAndSize(wchar_t* path,
 	else {
 		AlifSizeT drvsize, rootsize;
 		_alif_skipRoot(path, size, &drvsize, &rootsize);
-		if (drvsize || rootsize) {
+		if (drvsize or rootsize) {
 			// Skip past root and update minP2
 			p1 = &path[drvsize + rootsize];
 #ifndef ALTSEP
@@ -987,7 +1302,7 @@ wchar_t* _alif_normPathAndSize(wchar_t* path,
 #endif
 			minP2 = p2 - 1;
 			lastC = *minP2;
-#ifdef MS_WINDOWS
+#ifdef _WINDOWS
 			if (lastC != SEP) {
 				minP2++;
 			}
@@ -1005,14 +1320,14 @@ wchar_t* _alif_normPathAndSize(wchar_t* path,
 #endif
 		if (lastC == SEP) {
 			if (c == L'.') {
-				int sep_at_1 = SEP_OR_END(&p1[1]);
-				int sep_at_2 = !sep_at_1 && SEP_OR_END(&p1[2]);
-				if (sep_at_2 && p1[1] == L'.') {
+				AlifIntT sep_at_1 = SEP_OR_END(&p1[1]);
+				AlifIntT sep_at_2 = !sep_at_1 and SEP_OR_END(&p1[2]);
+				if (sep_at_2 and p1[1] == L'.') {
 					wchar_t* p3 = p2;
-					while (p3 != minP2 && *--p3 == SEP) {}
-					while (p3 != minP2 && *(p3 - 1) != SEP) { --p3; }
+					while (p3 != minP2 and *--p3 == SEP) {}
+					while (p3 != minP2 and *(p3 - 1) != SEP) { --p3; }
 					if (p2 == minP2
-						|| (p3[0] == L'.' && p3[1] == L'.' && IS_SEP(&p3[2])))
+						or (p3[0] == L'.' and p3[1] == L'.' and IS_SEP(&p3[2])))
 					{
 						// Previous segment is also ../, so append instead.
 						// Relative path does not absorb ../ at minP2 as well.
@@ -1047,7 +1362,7 @@ wchar_t* _alif_normPathAndSize(wchar_t* path,
 	}
 	*p2 = L'\0';
 	if (p2 != minP2) {
-		while (--p2 != minP2 && *p2 == SEP) {
+		while (--p2 != minP2 and *p2 == SEP) {
 			*p2 = L'\0';
 		}
 	}
@@ -1138,7 +1453,7 @@ AlifIntT _alif_dup(AlifIntT fd) { // 2651
 	ALIF_END_SUPPRESS_IPH
 	ALIF_END_ALLOW_THREADS
 	if (fd < 0) {
-		// alifErr_setFromErrno(_alifExcOSError_);
+		 //alifErr_setFromErrno(_alifExcOSError_);
 		return -1;
 	}
 
@@ -1150,7 +1465,7 @@ AlifIntT _alif_dup(AlifIntT fd) { // 2651
 	}
 #else
 	errno = ENOTSUP;
-	// alifErr_setFromErrno(_alifExcOSError_);
+	 //alifErr_setFromErrno(_alifExcOSError_);
 	return -1;
 #endif
 	return fd;
@@ -1192,7 +1507,7 @@ AlifIntT _alif_isValidFD(AlifIntT fd) { // 3059
         (defined(__wasm__) and !defined(__wasi__)))
 	return fcntl(fd, F_GETFD) >= 0;
 #elif defined(__linux__)
-	int fd2 = dup(fd);
+	AlifIntT fd2 = dup(fd);
 	if (fd2 >= 0) {
 		close(fd2);
 	}

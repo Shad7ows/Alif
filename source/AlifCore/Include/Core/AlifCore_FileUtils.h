@@ -28,41 +28,64 @@ AlifIntT _alif_encodeLocaleEx(const wchar_t*, char**,
 
 extern char* _alif_encodeLocaleRaw(const wchar_t*, AlifUSizeT*); // 59
 
+#if defined(MS_WINDOWS) or defined(__APPLE__)
+/* On Windows, the count parameter of read() is an int (bpo-9015, bpo-9611).
+   On macOS 10.13, read() and write() with more than INT_MAX bytes
+   fail with EINVAL (bpo-24658). */
+#   define _ALIF_READ_MAX  INT_MAX
+#   define _ALIF_WRITE_MAX INT_MAX
+#else
+
+#   define _ALIF_READ_MAX  ALIF_SIZET_MAX
+#   define _ALIF_WRITE_MAX ALIF_SIZET_MAX
+#endif
+
 
 // 78
 #ifdef _WINDOWS
-class AlifStatStruct {
+class AlifStatClass {
 public:
 	uint64_t dev{};
 	uint64_t ino{};
 	unsigned short mode{};
-	AlifIntT nlink{};
+	AlifIntT nLink{};
 	AlifIntT uid{};
 	AlifIntT gid{};
-	unsigned long rdev{};
+	unsigned long rDev{};
 	__int64 size{};
-	time_t atime{};
-	AlifIntT atimeNSec{};
-	time_t mtime{};
-	AlifIntT mtimeNSec{};
-	time_t ctime{};
-	AlifIntT ctimeNSec{};
-	time_t birthtime{};
-	AlifIntT birthtimeNSec{};
+	time_t aTime{};
+	AlifIntT aTimeNsec{};
+	time_t mTime{};
+	AlifIntT mTimeNsec{};
+	time_t cTime{};
+	AlifIntT cTimeNsec{};
+	time_t birthTime{};
+	AlifIntT birthTimeNsec{};
 	unsigned long fileAttributes{};
 	unsigned long reparseTag{};
 	uint64_t inoHigh{};
 };
 #else
-	#define AlifStatStruct stat
+	#define AlifStatClass stat
 #endif
 
 
-
-AlifIntT _alifFStat_noraise(AlifIntT, class AlifStatStruct*); // 110
-
+AlifIntT _alif_fStat(AlifIntT , AlifStatClass* ); // 105
 
 
+AlifIntT _alifFStat_noRaise(AlifIntT, AlifStatClass*); // 110
+
+AlifIntT _alif_open(
+	const char* ,
+	AlifIntT); // 120
+
+AlifIntT _alifOpen_noRaise(const char* , AlifIntT);// 125
+
+
+extern AlifSizeT _alif_read(
+	AlifIntT ,
+	void* ,
+	AlifUSizeT ); // 133
 #ifdef HAVE_READLINK
 extern int alif_wReadLink(const wchar_t*, wchar_t*, AlifUSizeT); // 151
 #endif
@@ -118,6 +141,7 @@ wchar_t* _alif_normPath(wchar_t*, AlifSizeT); // 280
 
 char* alifUniversal_newLineFGetsWithSize(char*, AlifIntT, FILE*, AlifObject*, AlifUSizeT*); // 321
 
+AlifIntT _alifFile_flush(AlifObject*); // 323
 
 
 AlifIntT _alif_isValidFD(AlifIntT); // 330

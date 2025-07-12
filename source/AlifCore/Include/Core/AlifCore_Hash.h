@@ -47,3 +47,18 @@ union AlifHashSecretT { // 45
 		AlifHashT hashSalt{};
 	} expat;
 };
+
+
+class AlifHashRunTimeState {
+public:
+	class {
+	public:
+#ifndef MS_WINDOWS
+		AlifIntT fd{};
+		dev_t dev{};
+		ino_t ino{};
+#else
+		AlifIntT notUsed{};
+#endif
+	}uRandomCache;
+};

@@ -10,5 +10,5 @@
 
 
 
-
+#define ALIF_TP_INIT 60
 #define ALIF_TP_METHODS 64

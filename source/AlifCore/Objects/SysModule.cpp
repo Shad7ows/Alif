@@ -78,7 +78,144 @@ AlifIntT _alifSys_setAttr(AlifObject* _key, AlifObject* _v) {
 	return sys_setObject(interp, _key, _v);
 }
 
+static AlifIntT should_audit(AlifInterpreter* _interp) { // 177
+	if (!_interp) {
+		return 0;
+	}
+	return (_interp->dureRun->auditHooks.head
+		or _interp->auditHooks
+		or 0);
+}
 
+static AlifIntT sys_auditTState(AlifThread* _ts, const char* _event,
+	const char* _argFormat, va_list _vArgs) { // 190
+
+	if (!_ts) {
+		return 0;
+	}
+
+	AlifInterpreter* is = _ts->interpreter;
+	if (!should_audit(is)) {
+		return 0;
+	}
+
+	AlifObject* eventName = nullptr;
+	AlifObject* eventArgs = nullptr;
+	AlifObject* hooks = nullptr;
+	AlifObject* hook = nullptr;
+	AlifIntT res = -1;
+	AlifAuditHookEntry* e{};
+	AlifIntT dtrace = 0;
+
+
+	AlifObject* exc = _alifErr_getRaisedException(_ts);
+
+	if (_argFormat and _argFormat[0]) {
+		eventArgs = alif_vaBuildValue(_argFormat, _vArgs);
+		if (eventArgs and !ALIFTUPLE_CHECK(eventArgs)) {
+			AlifObject* argTuple = alifTuple_pack(1, eventArgs);
+			ALIF_SETREF(eventArgs, argTuple);
+		}
+	}
+	else {
+		eventArgs = alifTuple_new(0);
+	}
+	if (!eventArgs) {
+		goto exit;
+	}
+
+	e = is->dureRun->auditHooks.head;
+	for (; e; e = e->next) {
+		if (e->hookCFunction(_event, eventArgs, e->userData) < 0) {
+			goto exit;
+		}
+	}
+
+	/* Dtrace USDT point */
+	if (dtrace) {
+		//alifDTrace_audit(_event, (void*)eventArgs);
+	}
+
+	/* Call interpreter hooks */
+	if (is->auditHooks) {
+		eventName = alifUStr_fromString(_event);
+		if (!eventName) {
+			goto exit;
+		}
+
+		hooks = alifObject_getIter(is->auditHooks);
+		if (!hooks) {
+			goto exit;
+		}
+
+		/* Disallow tracing in hooks unless explicitly enabled */
+		alifThreadState_enterTracing(_ts);
+		while ((hook = alifIter_next(hooks)) != nullptr) {
+			AlifObject* o;
+			AlifIntT canTrace = alifObject_getOptionalAttr(hook, &ALIF_ID(__cantrace__), &o);
+			if (o) {
+				canTrace = alifObject_isTrue(o);
+				ALIF_DECREF(o);
+			}
+			if (canTrace < 0) {
+				break;
+			}
+			if (canTrace) {
+				alifThreadState_leaveTracing(_ts);
+			}
+			AlifObject* args[2] = { eventName, eventArgs };
+			o = alifObject_vectorCallThread(_ts, hook, args, 2, nullptr);
+			if (canTrace) {
+				alifThreadState_enterTracing(_ts);
+			}
+			if (!o) {
+				break;
+			}
+			ALIF_DECREF(o);
+			ALIF_CLEAR(hook);
+		}
+		alifThreadState_leaveTracing(_ts);
+		if (_alifErr_occurred(_ts)) {
+			goto exit;
+		}
+	}
+
+	res = 0;
+
+exit:
+	ALIF_XDECREF(hook);
+	ALIF_XDECREF(hooks);
+	ALIF_XDECREF(eventName);
+	ALIF_XDECREF(eventArgs);
+
+	if (!res) {
+		_alifErr_setRaisedException(_ts, exc);
+	}
+	else {
+		ALIF_XDECREF(exc);
+	}
+
+	return res;
+}
+
+
+AlifIntT _alifSys_audit(AlifThread* _tState, const char* _event,
+	const char* _argFormat, ...) { // 318
+	va_list vArgs{};
+	va_start(vArgs, _argFormat);
+	AlifIntT res = sys_auditTState(_tState, _event, _argFormat, vArgs);
+	va_end(vArgs);
+	return res;
+}
+
+AlifIntT alifSys_audit(const char* _event, const char* _argFormat, ...) { // 329
+	AlifThread* tstate = alifThread_get();
+	va_list vArgs{};
+	va_start(vArgs, _argFormat);
+	AlifIntT res = sys_auditTState(tstate, _event, _argFormat, vArgs);
+	va_end(vArgs);
+	return res;
+}
 
 
 static AlifObject* sys_excepthookImpl(AlifObject* module, AlifObject* exctype,
@@ -89,9 +226,129 @@ static AlifObject* sys_excepthookImpl(AlifObject* module, AlifObject* exctype,
 
 
 
+static AlifObject* sys_exitImpl(AlifObject* _module, AlifObject* _status) { // 880
+	//alifErr_setObject(_alifExcSystemExit_, _status);
+	return nullptr;
+}
+
+static AlifObject* sys_getTraceImpl(AlifObject* _module) { // 1150
+	AlifThread* tState = _alifThread_get();
+	AlifObject* temp = tState->traceObj;
+
+	if (temp == nullptr)
+		temp = ALIF_NONE;
+	return ALIF_NEWREF(temp);
+}
+
+static AlifObject* sys_setRecursionLimitImpl(AlifObject* _module, AlifIntT _newLimit) { // 1298
+	AlifThread* tState = alifThread_get();
+
+	if (_newLimit < 1) {
+		_alifErr_setString(tState, _alifExcValueError_,
+			"recursion limit must be greater or equal than 1");
+		return nullptr;
+	}
+
+	AlifIntT depth = tState->alifRecursionLimit - tState->alifRecursionRemaining;
+	if (depth >= _newLimit) {
+		//_alifErr_format(tState, _alifExcRecursionError_,
+			//"cannot set the recursion limit to %i at "
+			//"the recursion depth %i: the limit is too low",
+			//_newLimit, depth);
+		return nullptr;
+	}
+
+	alif_setRecursionLimit(_newLimit);
+	return ALIF_NONE;
+}
+
+static AlifObject* sys_getRecursionLimitImpl(AlifObject* _module) { // 1558
+	return alifLong_fromLong(alif_getRecursionLimit());
+}
+
+AlifSizeT _alifSys_getSizeOf(AlifObject* _o) { // 1868
+	AlifObject* res = nullptr;
+	AlifObject* method{};
+	AlifSizeT size{};
+	AlifThread* tstate = alifThread_get();
+
+	/* Make sure the type is initialized. float gets initialized late */
+	if (alifType_ready(ALIF_TYPE(_o)) < 0) {
+		return (size_t)-1;
+	}
+
+	method = alifObject_lookupSpecial(_o, &ALIF_ID(__sizeof__));
+	if (method == nullptr) {
+		if (!_alifErr_occurred(tstate)) {
+			_alifErr_format(tstate, _alifExcTypeError_,
+				"Type %.100s doesn't define __sizeof__",
+				ALIF_TYPE(_o)->name);
+		}
+	}
+	else {
+		res = _alifObject_callNoArgs(method);
+		ALIF_DECREF(method);
+	}
+
+	if (res == nullptr)
+		return (size_t)-1;
+
+	size = alifLong_asSizeT(res);
+	ALIF_DECREF(res);
+	if (size == -1 and _alifErr_occurred(tstate))
+		return (size_t)-1;
+
+	if (size < 0) {
+		_alifErr_setString(tstate, _alifExcValueError_,
+			"__sizeof__() should return >= 0");
+		return (size_t)-1;
+	}
+
+	size_t presize = 0;
+	if (!ALIF_IS_TYPE(_o, &_alifTypeType_) or
+		alifType_hasFeature((AlifTypeObject*)_o, ALIF_TPFLAGS_HEAPTYPE))
+	{
+		/* Add the size of the pre-header if "o" is not a static type */
+		presize = alifType_preHeaderSize(ALIF_TYPE(_o));
+	}
+
+	return (size_t)size + presize;
+}
+
+
+static AlifObject* sys_getSizeOf(AlifObject* _self, AlifObject* _args, AlifObject* _kwds) { // 1919
+	static const char* kwList[] = { "object", "default", 0 };
+	AlifSizeT size{};
+	AlifObject* o{}, * dflt = nullptr;
+	AlifThread* tState = alifThread_get();
+
+	if (!alifArg_parseTupleAndKeywords(_args, _kwds, "O|O:getsizeof",
+		kwList, &o, &dflt)) {
+		return nullptr;
+	}
+
+	size = _alifSys_getSizeOf(o);
+
+	if (size == (size_t)-1 and _alifErr_occurred(tState)) {
+		//if (dflt != nullptr and _alifErr_exceptionMatches(tState, _alifExcTypeError_)) {
+			//_alifErr_clear(tState);
+			//return ALIF_NEWREF(dflt);
+		//}
+		//else
+			return nullptr;
+	}
+
+	return alifLong_fromSizeT(size);
+}
 
 static AlifMethodDef _sysMethods_[] = { // 2550
 	SYS_EXCEPTHOOK_METHODDEF,
+	SYS_EXIT_METHODDEF
+	{"حجم", ALIF_CPPFUNCTION_CAST(sys_getSizeOf),
+	 METHOD_VARARGS | METHOD_KEYWORDS},
+	SYS_GETTRACE_METHODDEF
+	SYS_SETRECURSIONLIMIT_METHODDEF
+	SYS_GETRECURSIONLIMIT_METHODDEF
 	{nullptr, nullptr}  // sentinel
 };
 

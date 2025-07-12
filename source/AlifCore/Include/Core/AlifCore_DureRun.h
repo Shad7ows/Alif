@@ -18,13 +18,18 @@ public:
 	AlifArgParser* staticParsers{};
 };
 
-struct GILStateDureRunState { // 34
+class GILStateDureRunState { // 34
 public:
 	AlifIntT checkEnabled{};
 	AlifInterpreter* autoInterpreterState{};
 };
 
-
+class AlifAuditHookEntry {
+public:
+	AlifAuditHookEntry* next{};
+	AlifAuditHookFunction hookCFunction{};
+	void* userData{};
+};
 
 
 class RefTracerDureRunState { // 198
@@ -56,6 +61,8 @@ public:
 	AlifIntT mainThreadID{};
 	AlifThread* mainThread{};
 
+	AlifHashRunTimeState alifHashState{};
+
 	AlifThreadDureRunState threads{};
 	SignalsDureRunState signals{};
 
@@ -76,6 +83,11 @@ public:
 	AlifRWMutex stopTheWorldMutex{};
 	StopTheWorldState stopTheWorld{};
 
+	class {
+	public:
+		AlifMutex mutex{};
+		AlifAuditHookEntry* head{};
+	} auditHooks;
 
 	AlifFloatRuntimeState floatState{};
 	TypesDureRunState types{};

@@ -2490,7 +2490,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 
 AlifObject* alifType_fromModuleAndSpec(AlifObject* _module,
 	AlifTypeSpec* _spec, AlifObject* _bases) { // 5110
-	return alifType_fromMetaclass(nullptr, _module, _spec, _bases);
+  return alifType_fromMetaclass(nullptr, _module, _spec, _bases);
 }
 
 AlifObject* alifType_fromSpecWithBases(AlifTypeSpec* _spec, AlifObject* _bases) { // 5116
@@ -2502,6 +2502,49 @@ AlifObject* alifType_getQualName(AlifTypeObject* type) { // 5134
 	return type_qualname(type, nullptr);
 }
 
+AlifObject* alifType_getModuleByDef(AlifTypeObject* _type, AlifModuleDef* _def) { // 5214
+
+	if (!_alifType_hasFeature(_type, ALIF_TPFLAGS_HEAPTYPE)) {
+
+		return nullptr;
+	}
+	else {
+		AlifHeapTypeObject* ht = (AlifHeapTypeObject*)_type;
+		AlifObject* module = ht->module_;
+		if (module and _alifModule_getDef(module) == _def) {
+			return module;
+		}
+	}
+
+	AlifObject* res = nullptr;
+	BEGIN_TYPE_LOCK();
+
+	AlifObject* mro = lookup_tpMro(_type);
+
+	AlifSizeT n = ALIFTUPLE_GET_SIZE(mro);
+	for (AlifSizeT i = 1; i < n; i++) {
+		AlifObject* super = ALIFTUPLE_GET_ITEM(mro, i);
+		if (!_alifType_hasFeature((AlifTypeObject*)super, ALIF_TPFLAGS_HEAPTYPE)) {
+			continue;
+		}
+
+		AlifHeapTypeObject* ht = (AlifHeapTypeObject*)super;
+		AlifObject* module = ht->module_;
+		if (module and _alifModule_getDef(module) == _def) {
+			res = module;
+			break;
+		}
+	}
+	END_TYPE_LOCK();
+
+	if (res == nullptr) {
+		alifErr_format(
+			_alifExcTypeError_,
+			"alifType_getModuleByDef: No superclass of '%s' has the given module",
+			_type->name);
+	}
+	return res;
+}
 
 void* alifObject_getItemData(AlifObject* _obj) { // 5276
 	if (!alifType_hasFeature(ALIF_TYPE(_obj), ALIF_TPFLAGS_ITEMS_AT_END)) {

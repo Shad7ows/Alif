@@ -21,6 +21,17 @@ static AlifObject* null_error(void) { // 27
 	return nullptr;
 }
 
+AlifObject* alifObject_type(AlifObject* _o) { // 41
+	AlifObject* v{};
+
+	if (_o == nullptr) {
+		return null_error();
+	}
+
+	v = (AlifObject*)ALIF_TYPE(_o);
+	return ALIF_NEWREF(v);
+}
+
 
 AlifSizeT alifObject_size(AlifObject* _o) { // 53
 	if (_o == nullptr) {
