@@ -2,7 +2,6 @@
 
 #include "AlifCore_Call.h"
 #include "AlifCore_Eval.h"
-#include "AlifCore_Call.h"
 #include "AlifCore_CriticalSection.h"
 #include "AlifCore_Frame.h"
 #include "AlifCore_Interpreter.h"
