@@ -893,7 +893,7 @@ static AlifIntT remove_redundantNopsAndPairs(BasicBlock* _entryBlock) { // 1112
 				AlifIntT opcode = instr->opcode;
 				bool is_redundant_pair = false;
 				if (opcode == POP_TOP) {
-					if (prev_opcode == LOAD_CONST) {
+					if (prev_opcode == LOAD_CONST or prev_opcode == LOAD_SMALL_INT) {
 						is_redundant_pair = true;
 					}
 					else if (prev_opcode == COPY and prev_oparg == 1) {
@@ -1016,10 +1016,18 @@ static bool jump_thread(BasicBlock* _bb, CFGInstr* _inst,
 	return false;
 }
 
+
+static AlifIntT loads_const(AlifIntT _opcode) { // 1267
+	return OPCODE_HAS_CONST(_opcode) or _opcode == LOAD_SMALL_INT;
+}
+
 static AlifObject* get_constValue(AlifIntT _opcode, AlifIntT _oparg, AlifObject* _coConsts) { // 1285
 	AlifObject* constant = nullptr;
 	if (_opcode == LOAD_CONST) {
 		constant = ALIFLIST_GET_ITEM(_coConsts, _oparg);
+	}
+	if (_opcode == LOAD_SMALL_INT) {
+		return alifLong_fromLong(_oparg);
 	}
 
 	if (constant == nullptr) {
@@ -1060,7 +1068,7 @@ static AlifIntT add_const(AlifObject* _newConst, AlifObject* _consts, AlifObject
 static AlifIntT foldTuple_onConstants(AlifObject* _constCache,
 	CFGInstr* _inst, AlifIntT _n, AlifObject* _consts) { // 1337
 	for (AlifIntT i = 0; i < _n; i++) {
-		if (!OPCODE_HAS_CONST(_inst[i].opcode)) {
+		if (!loads_const(_inst[i].opcode)) {
 			return SUCCESS;
 		}
 	}
@@ -1255,7 +1263,7 @@ static AlifIntT basicBlock_optimizeLoadConst(AlifObject* const_cache,
 			opcode = inst->opcode;
 			oparg = inst->oparg;
 		}
-		if (opcode != LOAD_CONST) {
+		if (opcode != LOAD_CONST and opcode != LOAD_SMALL_INT) {
 			continue;
 		}
 		AlifIntT nextop = i + 1 < bb->iused ? bb->instr[i + 1].opcode : 0;
@@ -1319,12 +1327,6 @@ static AlifIntT basicBlock_optimizeLoadConst(AlifObject* const_cache,
 			INSTR_SET_OP0(isInstr, NOP);
 			jumpInstr->opcode = invert ? POP_JUMP_IF_NOT_NONE
 				: POP_JUMP_IF_NONE;
-			break;
-		}
-		case RETURN_VALUE:
-		{
-			INSTR_SET_OP0(inst, NOP);
-			INSTR_SET_OP1(&bb->instr[++i], RETURN_CONST, oparg);
 			break;
 		}
 		case TO_BOOL:
@@ -1696,7 +1698,8 @@ static AlifIntT remove_unusedConsts(BasicBlock* _entryBlock, AlifObject* _consts
 	/* mark used consts */
 	for (BasicBlock* b = _entryBlock; b != nullptr; b = b->next) {
 		for (AlifIntT i = 0; i < b->iused; i++) {
-			if (OPCODE_HAS_CONST(b->instr[i].opcode)) {
+			AlifIntT opcode = b->instr[i].opcode;
+			if (OPCODE_HAS_CONST(opcode)) {
 				AlifIntT index = b->instr[i].oparg;
 				indexMap[index] = index;
 			}
@@ -1743,7 +1746,8 @@ static AlifIntT remove_unusedConsts(BasicBlock* _entryBlock, AlifObject* _consts
 
 	for (BasicBlock* b = _entryBlock; b != nullptr; b = b->next) {
 		for (AlifIntT i = 0; i < b->iused; i++) {
-			if (OPCODE_HAS_CONST(b->instr[i].opcode)) {
+			AlifIntT opcode = b->instr[i].opcode;
+			if (OPCODE_HAS_CONST(opcode)) {
 				AlifIntT index = b->instr[i].oparg;
 				b->instr[i].oparg = (AlifIntT)reverseIndexMap[index];
 			}

@@ -279,6 +279,14 @@ static AlifIntT codegen_addOpNoArg(InstrSequence* _seq,
 
 static AlifIntT codegen_addOpLoadConst(AlifCompiler* _c,
 	Location _loc, AlifObject* _o) {
+	if (ALIFLONG_CHECKEXACT(_o)) {
+		AlifIntT overflow{};
+		long val = alifLong_asLongAndOverflow(_o, &overflow);
+		if (!overflow and val >= 0 and val < 256 and val < ALIF_NSMALLPOSINTS) {
+			ADDOP_I(_c, _loc, LOAD_SMALL_INT, val);
+			return SUCCESS;
+		}
+	}
 	AlifSizeT arg = _alifCompiler_addConst(_c, _o);
 	if (arg < 0) {
 		return ERROR;
