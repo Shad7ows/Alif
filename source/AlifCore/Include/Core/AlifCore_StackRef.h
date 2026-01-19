@@ -70,6 +70,10 @@ static inline AlifStackRef alifStackRef_fromAlifObjectNew(AlifObject* _obj) { //
 #define ALIFSTACKREF_FROMALIFOBJECTNEW(_obj) alifStackRef_fromAlifObjectNew(ALIFOBJECT_CAST(_obj))
 
 
+static inline AlifStackRef alifStackRef_fromAlifObjectImmortal(AlifObject *_obj) { // 122
+	return { .bits = (uintptr_t)_obj | ALIF_TAG_DEFERRED };
+}
+#define ALIFSTACKREF_FROMALIFOBJECTIMMORTAL(_obj) alifStackRef_fromAlifObjectImmortal(ALIFOBJECT_CAST(_obj))
 
 
 // 126
@@ -94,7 +98,7 @@ static inline AlifStackRef alifStackRef_dup(AlifStackRef _stackRef) { // 135
 
 
 
-#define ALIFSTACKREF_IS(_a, _b) ((_a).bits == (_b).bits) // 185
+#define ALIFSTACKREF_IS(_a, _b) ((_a).bits == (_b).bits) // 195
 
 
 #define ALIFSTACKREF_ASALIFOBJECTNEW(_stackref) ALIF_NEWREF(alifStackRef_asAlifObjectBorrow(_stackref)) // 189

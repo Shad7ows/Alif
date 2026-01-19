@@ -122,7 +122,7 @@ AlifObject* alifObject_getItem(AlifObject* _o, AlifObject* _key) { // 150
 	if (ms and ms->item) {
 		if (alifIndex_check(_key)) {
 			AlifSizeT keyValue;
-			keyValue = alifNumber_asSizeT(_key, nullptr/*_alifExcIndexError_*/); // need review
+			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_); // need review
 			return alifSequence_getItem(_o, keyValue);
 		}
 		else {
@@ -902,10 +902,10 @@ AlifSizeT alifNumber_asSizeT(AlifObject* _item, AlifObject* _err) { // 1455
 		goto finish;
 	}
 
-	//if (!alifErr_givenExceptionMatches(runErr, _alifExcOverflowError_)) {
-	//	goto finish;
-	//}
-	//alifErr_clear(tState);
+	if (!alifErr_givenExceptionMatches(runErr, _alifExcOverflowError_)) {
+		goto finish;
+	}
+	_alifErr_clear(thread);
 
 	if (!_err) {
 		if (_alifLong_isNegative((AlifLongObject*)value))
@@ -914,9 +914,9 @@ AlifSizeT alifNumber_asSizeT(AlifObject* _item, AlifObject* _err) { // 1455
 			result = ALIF_SIZET_MAX;
 	}
 	else {
-		//alifErr_format(tState, err,
-			//"cannot fit '%.200s' into an index-sized integer",
-			//ALIF_TYPE(_item)->name);
+		_alifErr_format(thread, _err,
+			"cannot fit '%.200s' into an index-sized integer",
+			ALIF_TYPE(_item)->name);
 	}
 
 finish:

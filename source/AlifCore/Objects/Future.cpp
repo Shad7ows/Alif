@@ -48,13 +48,21 @@ static AlifIntT future_checkFeatures(AlifFutureFeatures* ff, StmtTy s, AlifObjec
 		else if (strcmp(feature, "braces") == 0) {
 			//alifErr_setString(_alifExcSyntaxError_,
 			//	"not a chance");
-			//alifErr_syntaxLocationObject(filename, s->lineNo, s->colOffset + 1);
+			//alifErr_rangedSyntaxLocationObject(filename,
+			//	name->lineNo,
+			//	name->colOffset + 1,
+			//	name->endLineNo,
+			//	name->endColOffset + 1);
 			return 0;
 		}
 		else {
 			//alifErr_format(_alifExcSyntaxError_,
 			//	UNDEFINED_FUTURE_FEATURE, feature);
-			//alifErr_syntaxLocationObject(filename, s->lineNo, s->colOffset + 1);
+			//alifErr_rangedSyntaxLocationObject(filename,
+			//	name->lineNo,
+			//	name->colOffset + 1,
+			//	name->endLineNo,
+			//	name->endColOffset + 1);
 			return 0;
 		}
 	}

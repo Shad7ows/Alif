@@ -565,19 +565,17 @@ static AlifIntT ast_typeInit(AlifObject* self, AlifObject* args, AlifObject* kw)
 	AlifSizeT i{}, numfields = 0;
 	AlifIntT res = -1;
 	AlifObject* key{}, * value{}, * fields{}, * attributes = nullptr, * remaining_fields = nullptr;
-	if (alifObject_getOptionalAttr((AlifObject*)ALIF_TYPE(self), state->_fields, &fields) < 0) {
+
+	fields = alifObject_getAttr((AlifObject*)ALIF_TYPE(self), state->_fields);
+	if (fields == nullptr) {
 		goto cleanup;
 	}
-	if (fields) {
-		numfields = alifSequence_size(fields);
-		if (numfields == -1) {
-			goto cleanup;
-		}
-		remaining_fields = alifSet_new(fields);
+
+	numfields = alifSequence_size(fields);
+	if (numfields == -1) {
+		goto cleanup;
 	}
-	else {
-		remaining_fields = alifSet_new(nullptr);
-	}
+	remaining_fields = alifSet_new(fields);
 	if (remaining_fields == nullptr) {
 		goto cleanup;
 	}

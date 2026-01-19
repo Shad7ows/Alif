@@ -11,6 +11,7 @@
 #include "AlifCore_Function.h"
 #include "AlifCore_Instruments.h"
 #include "AlifCore_Intrinsics.h"
+#include "AlifCore_Long.h"
 #include "AlifCore_ModuleObject.h"
 #include "AlifCore_Object.h"
 #include "AlifCore_OpcodeMetaData.h"
@@ -833,7 +834,7 @@ resume_frame:
 				_frame->instrPtr = nextInstr;
 				nextInstr += 4;
 				PREDICTED(TO_BOOL);
-				AlifCodeUnit* thisInstr = nextInstr - 4;
+				AlifCodeUnit* const thisInstr = nextInstr - 4;
 				AlifStackRef value{};
 				AlifStackRef res{};
 				// _SPECIALIZE_TO_BOOL
@@ -1101,7 +1102,7 @@ resume_frame:
 						if (newFrame == nullptr) {
 							goto error;
 						}
-						_frame->returnOffset = (uint16_t)(nextInstr - thisInstr);
+						_frame->returnOffset = 4;
 						DISPATCH_INLINED(newFrame);
 					}
 					/* Callable is not a normal Alif function */
@@ -1417,7 +1418,7 @@ resume_frame:
 						if (new_frame == nullptr) {
 							goto error;
 						}
-						_frame->returnOffset = 1 + INLINE_CACHE_ENTRIES_CALL_KW;
+						_frame->returnOffset = 4;
 						DISPATCH_INLINED(new_frame);
 					}
 					/* Callable is not a normal Alif function */
@@ -1897,6 +1898,7 @@ resume_frame:
 			TARGET(LOAD_CONST) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;
+				PREDICTED(LOAD_CONST);
 				AlifStackRef value{};
 				value = ALIFSTACKREF_FROMALIFOBJECTNEW(GETITEM(FRAME_CO_CONSTS, oparg));
 				stackPointer[0] = value;
@@ -2010,6 +2012,16 @@ resume_frame:
 				stackPointer += 1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(LOAD_SMALL_INT) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				AlifStackRef value{};
+				AlifObject *obj = (AlifObject *)&ALIFLONG_SMALL_INTS[ALIF_NSMALLNEGINTS + oparg];
+				value = ALIFSTACKREF_FROMALIFOBJECTIMMORTAL(obj);
+				stackPointer[0] = value;
+				stackPointer += 1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(MAKE_CELL) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;
@@ -2038,7 +2050,7 @@ resume_frame:
 				DISPATCH();
 			} // ------------------------------------------------------------ //
 			TARGET(POP_JUMP_IF_TRUE) {
-				AlifCodeUnit* thisInstr = _frame->instrPtr = nextInstr;
+				AlifCodeUnit* const thisInstr = _frame->instrPtr = nextInstr;
 				nextInstr += 2;
 				AlifStackRef cond{};
 				/* Skip 1 cache entry */
@@ -2049,34 +2061,6 @@ resume_frame:
 			#endif
 				JUMPBY(oparg * flag);
 				stackPointer += -1;
-				DISPATCH();
-			} // ------------------------------------------------------------ //
-			TARGET(RETURN_CONST) {
-				_frame->instrPtr = nextInstr;
-				nextInstr += 1;
-				AlifStackRef value{};
-				AlifStackRef retval{};
-				AlifStackRef res{};
-				// _LOAD_CONST
-				{
-					value = ALIFSTACKREF_FROMALIFOBJECTNEW(GETITEM(FRAME_CO_CONSTS, oparg));
-				}
-				// _RETURN_VALUE
-				{
-					retval = value;
-					AlifStackRef temp = retval;
-					_alifFrame_setStackPointer(_frame, stackPointer);
-					_alif_leaveRecursiveCallAlif(_thread);
-					AlifInterpreterFrame* dying = _frame;
-					_frame = _thread->currentFrame = dying->previous;
-					_alifEval_frameClearAndPop(_thread, dying);
-					stackPointer = _alifFrame_getStackPointer(_frame);
-					LOAD_IP(_frame->returnOffset);
-					res = temp;
-					//LLTRACE_RESUME_FRAME();
-				}
-				stackPointer[0] = res;
-				stackPointer += 1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
 			TARGET(SET_FUNCTION_ATTRIBUTE) {
