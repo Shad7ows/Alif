@@ -71,7 +71,7 @@
 
 ## الوثائق:
 يمكنك زيارة موقع ألف للإطلاع على الوثائق:
-[https://aliflang.org/Docs/](https://aliflang.org/Docs/)
+[https://aliflang.org/docs/](https://aliflang.org/docs/)
 
 ## مثال:
 هذا مثال للعبة إكس-أو مكتوبة بلغة ألف
