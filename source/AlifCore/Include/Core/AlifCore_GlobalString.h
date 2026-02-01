@@ -105,6 +105,7 @@ public:
 			STRUCT_FOR_ID(__getAttr__)
 			STRUCT_FOR_ID(__hash__)
 			STRUCT_FOR_ID(__initSubclass__)
+			STRUCT_FOR_ID(__instanceCheck__)
 			STRUCT_FOR_ID(__IOBaseClosed)
 			STRUCT_FOR_ID(__lengthHint__)
 			STRUCT_FOR_ID(__loader__)

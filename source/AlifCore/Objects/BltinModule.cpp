@@ -719,12 +719,26 @@ _readline_errors:
 }
 
 
+
+static AlifObject * builtin_isInstanceImpl(AlifObject *_module, AlifObject *_obj,
+	AlifObject *_classOrTuple) { // 2837
+	AlifIntT retval{};
+
+	retval = alifObject_isInstance(_obj, _classOrTuple);
+	if (retval < 0)
+		return nullptr;
+	return alifBool_fromLong(retval);
+}
+
+
+
 static AlifMethodDef _builtinMethods_[] = { // 3141
 	{"__buildClass__", ALIF_CPPFUNCTION_CAST(builtin___buildClass__),
 	 METHOD_FASTCALL | METHOD_KEYWORDS},
 	BUILTIN___IMPORT___METHODDEF,
 	BUILTIN_ANY_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,
+	BUILTIN_ISINSTANCE_METHODDEF,
 	BUILTIN_LEN_METHODDEF,
 	{"اقصى", ALIF_CPPFUNCTION_CAST(builtin_max), METHOD_FASTCALL | METHOD_KEYWORDS},
 	{"ادنى", ALIF_CPPFUNCTION_CAST(builtin_min), METHOD_FASTCALL | METHOD_KEYWORDS},

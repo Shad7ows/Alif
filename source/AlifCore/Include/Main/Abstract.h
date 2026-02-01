@@ -138,6 +138,8 @@ AlifIntT alifMapping_getOptionalItem(AlifObject*, AlifObject*, AlifObject**); //
 
 AlifIntT alifMapping_setItemString(AlifObject*, const char*, AlifObject*); // 903
 
+AlifIntT alifObject_isInstance(AlifObject*, AlifObject*); // 907
+
 AlifIntT alifObject_isSubclass(AlifObject*, AlifObject*); // 910
 
 /* ------------------------------------------------------------------------------------- */

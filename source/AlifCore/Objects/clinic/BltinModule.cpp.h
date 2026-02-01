@@ -209,3 +209,31 @@ skip_optional:
 exit:
 	return return_value;
 }
+
+
+
+
+
+
+
+#define BUILTIN_ISINSTANCE_METHODDEF    \
+    {"هل_نوع", ALIF_CPPFUNCTION_CAST(builtin_isInstance), METHOD_FASTCALL}
+
+static AlifObject * builtin_isInstanceImpl(AlifObject*, AlifObject*, AlifObject*);
+
+static AlifObject * builtin_isInstance(AlifObject *module, AlifObject *const *args,
+	AlifSizeT nargs) { // 1172
+	AlifObject *returnValue{};
+	AlifObject *obj{};
+	AlifObject *classOrTuple{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("هل_نوع", nargs, 2, 2)) {
+		goto exit;
+	}
+	obj = args[0];
+	classOrTuple = args[1];
+	returnValue = builtin_isInstanceImpl(module, obj, classOrTuple);
+
+exit:
+	return returnValue;
+}

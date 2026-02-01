@@ -219,13 +219,13 @@ AlifObject* alifObject_repr(AlifObject* _v) { // 662
 	if (_v == nullptr)
 		return alifUStr_fromString("<nullptr>"); //* alif
 	if (ALIF_TYPE(_v)->repr == nullptr)
-		return alifUStr_fromFormat("<%s object at %p>",
+		return alifUStr_fromFormat("<%s كائن في %p>",
 			ALIF_TYPE(_v)->name, _v);
 
 	AlifThread* thread = _alifThread_get();
 
 	if (_alif_enterRecursiveCallThread(thread,
-		" while getting the repr of an object")) {
+		" بينما يقوم بجلب دالة العرض التابعة للكائن")) {
 		return nullptr;
 	}
 	res = (*ALIF_TYPE(_v)->repr)(_v);

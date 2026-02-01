@@ -1468,12 +1468,158 @@ static AlifIntT check_class(AlifObject* cls, const char* error) { // 2583
 		/* Do not mask errors. */
 		AlifThread* tstate = _alifThread_get();
 		if (!_alifErr_occurred(tstate)) {
-			_alifErr_setString(tstate, nullptr /*_alifExcTypeError_*/, error);
+			_alifErr_setString(tstate, _alifExcTypeError_, error);
 		}
 		return 0;
 	}
 	ALIF_DECREF(bases);
 	return -1;
+}
+
+
+static AlifIntT abstract_isSubClass(AlifObject *_derived, AlifObject *_cls) { // 2532
+	AlifObject *bases = nullptr;
+	AlifSizeT i{}, n{};
+	AlifIntT r = 0;
+
+	while (1) {
+		if (_derived == _cls) {
+			ALIF_XDECREF(bases); /* See below comment */
+			return 1;
+		}
+		ALIF_XSETREF(bases, abstract_getBases(_derived));
+		if (bases == nullptr) {
+			if (alifErr_occurred())
+				return -1;
+			return 0;
+		}
+		n = ALIFTUPLE_GET_SIZE(bases);
+		if (n == 0) {
+			ALIF_DECREF(bases);
+			return 0;
+		}
+		/* Avoid recursivity in the single inheritance case */
+		if (n == 1) {
+			_derived = ALIFTUPLE_GET_ITEM(bases, 0);
+			continue;
+		}
+		break;
+	}
+	if (_alif_enterRecursiveCall(" في __isSubClass__")) {
+		ALIF_DECREF(bases);
+		return -1;
+	}
+	for (i = 0; i < n; i++) {
+		r = abstract_isSubClass(ALIFTUPLE_GET_ITEM(bases, i), _cls);
+		if (r != 0) {
+			break;
+		}
+	}
+	_alif_leaveRecursiveCall();
+	ALIF_DECREF(bases);
+	return r;
+}
+
+static AlifIntT object_isInstance(AlifObject *_inst, AlifObject *_cls) { // 2599
+	AlifObject *icls{};
+	AlifIntT retval{};
+	if (ALIFTYPE_CHECK(_cls)) {
+		retval = alifObject_typeCheck(_inst, (AlifTypeObject*)_cls);
+		if (retval == 0) {
+			retval = alifObject_getOptionalAttr(_inst, &ALIF_ID(__class__), &icls);
+			if (icls != nullptr) {
+				if (icls != (AlifObject *)(ALIF_TYPE(_inst)) and ALIFTYPE_CHECK(icls)) {
+					retval = alifType_isSubType(
+						(AlifTypeObject *)icls,
+						(AlifTypeObject *)_cls);
+				}
+				else {
+					retval = 0;
+				}
+				ALIF_DECREF(icls);
+			}
+		}
+	}
+	else {
+		if (!check_class(_cls,
+			"هل_نوع() معاملات 2 يجب أن تكون نوع, مترابطة من الانواع, او اتحاد"))
+			return -1;
+		retval = alifObject_getOptionalAttr(_inst, &ALIF_ID(__class__), &icls);
+		if (icls != nullptr) {
+			retval = abstract_isSubClass(icls, _cls);
+			ALIF_DECREF(icls);
+		}
+	}
+
+	return retval;
+}
+
+static AlifIntT objectRecursive_isInstance(AlifThread *_thread, AlifObject *_inst,
+	AlifObject *_cls) { // 2635
+	/* Quick test for an exact match */
+	if (ALIF_IS_TYPE(_inst, (AlifTypeObject *)_cls)) {
+		return 1;
+	}
+
+	/* We know what type's __instancecheck__ does. */
+	if (ALIFTYPE_CHECKEXACT(_cls)) {
+		return object_isInstance(_inst, _cls);
+	}
+
+	if (ALIFUNION_CHECK(_cls)) {
+		_cls = _alifUnion_args(_cls);
+	}
+
+	if (ALIFTUPLE_CHECK(_cls)) {
+		/* Not a general sequence -- that opens up the road to
+		recursion and stack overflow. */
+		if (_alif_enterRecursiveCallThread(_thread, " في __instancecheck__")) {
+			return -1;
+		}
+		AlifSizeT n = ALIFTUPLE_GET_SIZE(_cls);
+		AlifIntT r = 0;
+		for (AlifSizeT i = 0; i < n; ++i) {
+			AlifObject *item = ALIFTUPLE_GET_ITEM(_cls, i);
+			r = objectRecursive_isInstance(_thread, _inst, item);
+			if (r != 0) {
+				/* either found it, or got an error */
+				break;
+			}
+		}
+		_alif_leaveRecursiveCallThread(_thread);
+		return r;
+	}
+
+	AlifObject *checker = alifObject_lookupSpecial(_cls, &ALIF_ID(__instanceCheck__));
+	if (checker != nullptr) {
+		if (_alif_enterRecursiveCallThread(_thread, " في __instancecheck__")) {
+			ALIF_DECREF(checker);
+			return -1;
+		}
+
+		AlifObject *res = alifObject_callOneArg(checker, _inst);
+		_alif_leaveRecursiveCallThread(_thread);
+		ALIF_DECREF(checker);
+
+		if (res == nullptr) {
+			return -1;
+		}
+		AlifIntT ok = alifObject_isTrue(res);
+		ALIF_DECREF(res);
+
+		return ok;
+	}
+	else if (_alifErr_occurred(_thread)) {
+		return -1;
+	}
+
+	/* cls has no __instancecheck__() method */
+	return object_isInstance(_inst, _cls);
+}
+
+AlifIntT alifObject_isInstance(AlifObject *_inst, AlifObject *_cls) { // 2700
+	AlifThread* thread = _alifThread_get();
+	return objectRecursive_isInstance(thread, _inst, _cls);
 }
 
 
