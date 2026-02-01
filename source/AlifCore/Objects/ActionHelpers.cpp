@@ -688,13 +688,13 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 	case ListCompK:
 		return "مصفوفة ضمنية";
 	case SetCompK:
-		return "تشكيلة ضمنية";
+		return "مميزة ضمنية";
 	case DictCompK:
 		return "فهرس ضمني";
 	case DictK:
 		return "فهرس";
 	case SetK:
-		return "عرض تشكيلة";
+		return "عرض مميزة";
 	case JoinStrK:
 	case FormattedValK:
 		return "تعبير نص منسق";

@@ -327,6 +327,59 @@ static void set_dealloc(AlifObject* _self) { // 492
 	ALIF_TRASHCAN_END;
 }
 
+
+static AlifObject * setRepr_lockHeld(AlifSetObject *_so) { // 520
+	AlifObject *result=nullptr, *keys{}, * listrepr{}, * tmp{};
+	AlifIntT status = alif_reprEnter((AlifObject*)_so);
+
+	if (status != 0) {
+		if (status < 0)
+			return nullptr;
+		return alifUStr_fromFormat("%s(...)", ALIF_TYPE(_so)->name);
+	}
+
+	/* shortcut for the empty set */
+	if (!_so->used) {
+		alif_reprLeave((AlifObject*)_so);
+		return alifUStr_fromFormat("%s()", ALIF_TYPE(_so)->name);
+	}
+
+	keys = alifSequence_list((AlifObject *)_so);
+	if (keys == nullptr)
+		goto done;
+
+	/* repr(keys)[1:-1] */
+	listrepr = alifObject_repr(keys);
+	ALIF_DECREF(keys);
+	if (listrepr == nullptr)
+		goto done;
+	tmp = alifUStr_subString(listrepr, 1, ALIFUSTR_GET_LENGTH(listrepr)-1);
+	ALIF_DECREF(listrepr);
+	if (tmp == nullptr)
+		goto done;
+	listrepr = tmp;
+
+	if (!ALIFSET_CHECKEXACT(_so))
+		result = alifUStr_fromFormat("%s({%U})",
+			ALIF_TYPE(_so)->name,
+			listrepr);
+	else
+		result = alifUStr_fromFormat("{%U}", listrepr);
+	ALIF_DECREF(listrepr);
+done:
+	alif_reprLeave((AlifObject*)_so);
+	return result;
+}
+
+static AlifObject* set_repr(AlifObject *_self) { // 565
+	AlifSetObject *so = ALIFSET_CAST(_self);
+	AlifObject* result{};
+	ALIF_BEGIN_CRITICAL_SECTION(so);
+	result = setRepr_lockHeld(so);
+	ALIF_END_CRITICAL_SECTION();
+	return result;
+}
+
 static AlifSizeT set_len(AlifObject* _self) { // 571
 	AlifSetObject* so = ALIFSET_CAST(_self);
 	return alifAtomic_loadSizeRelaxed(&so->used);
@@ -653,7 +706,29 @@ static AlifObject* set_ior(AlifObject* _self, AlifObject* _other) { // 1331
 	return ALIF_NEWREF(so);
 }
 
+static AlifObject* set_vectorCall(AlifObject *type, AlifObject * const*args,
+	AlifUSizeT nargsf, AlifObject *kwnames) { // 2375
+	if (!_ALIFARG_NOKWNAMES("مميزة", kwnames)) {
+		return nullptr;
+	}
 
+	AlifSizeT nargs = ALIFVECTORCALL_NARGS(nargsf);
+	if (!_ALIFARG_CHECKPOSITIONAL("مميزة", nargs, 0, 1)) {
+		return nullptr;
+	}
+
+	if (nargs) {
+		return make_newSet(ALIFTYPE_CAST(type), args[0]);
+	}
+
+	return make_newSet(ALIFTYPE_CAST(type), nullptr);
+}
+
+
+static AlifSequenceMethods _setAsSequence_ = { // 2397
+	.length = set_len,
+	//.contains = set_contains,
+};
 
 static AlifNumberMethods _asNumber_ = { // 2411
 	.add_ = 0,
@@ -688,13 +763,14 @@ static AlifNumberMethods _asNumber_ = { // 2411
 };
 
 
-AlifTypeObject _alifSetType_ = { // 2449
+AlifTypeObject _alifSetType_ = { // 2473
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "مميزة",
 	.basicSize = sizeof(AlifSetObject),
 	.itemSize = 0,
 	.dealloc = set_dealloc,
 
+	.repr = set_repr,
 	.asNumber = &_asNumber_,
 
 
@@ -707,6 +783,7 @@ AlifTypeObject _alifSetType_ = { // 2449
 	.alloc = alifType_genericAlloc,
 	.new_ = set_new,
 	.free = alifObject_gcDel,
+	.vectorCall = set_vectorCall,
 };
 
 
