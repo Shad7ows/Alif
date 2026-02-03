@@ -295,9 +295,9 @@ static AlifMethodDef _randomMethods_[] = { // 577
 static AlifTypeSlot _randomTypeSlots_[] = { // 589
 	//{ALIF_TP_DOC, (void *)_randomDoc_},
 	{ALIF_TP_METHODS, _randomMethods_},
-	{ALIF_TP_NEW, alifType_genericNew},
-	{ALIF_TP_INIT, random_init},
-	{ALIF_TP_FREE, alifMem_objFree},
+	{ALIF_TP_NEW, (void*)alifType_genericNew},
+	{ALIF_TP_INIT, (void*)random_init},
+	{ALIF_TP_FREE, (void*)alifMem_objFree},
 	{0, 0},
 };
 
@@ -344,7 +344,7 @@ static AlifIntT random_exec(AlifObject *_module) { // 609
 
 
 static AlifModuleDefSlot __randomSlots_[] = { // 643
-	{ALIF_MOD_EXEC, random_exec},
+	{ALIF_MOD_EXEC, (void*)random_exec},
 	{ALIF_MOD_MULTIPLE_INTERPRETERS, ALIF_MOD_PER_INTERPRETER_GIL_SUPPORTED},
 	{ALIF_MOD_GIL, ALIF_MOD_GIL_NOT_USED},
 	{0, nullptr}
@@ -355,7 +355,7 @@ static AlifModuleDefSlot __randomSlots_[] = { // 643
 
 
 
-static AlifModuleDef __randomModule_ = { // 671
+AlifModuleDef __randomModule_ = { // 671
 	.base = ALIFMODULEDEF_HEAD_INIT,
 	.name = "عشوائي",
 	.size = sizeof(RandomState),
