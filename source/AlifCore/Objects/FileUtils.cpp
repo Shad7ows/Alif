@@ -636,6 +636,25 @@ AlifIntT _alif_wStat(const wchar_t* path, struct stat* buf) { // 1332
 }
 
 
+AlifIntT _alif_fStat(AlifIntT _fd, AlifStatStruct *_status) { // 1309
+	AlifIntT res{};
+
+	ALIF_BEGIN_ALLOW_THREADS
+	res = _alifFStat_noraise(_fd, _status);
+	ALIF_END_ALLOW_THREADS
+
+		if (res != 0) {
+		//#ifdef _WINDOWS
+		//	alifErr_setFromWindowsErr(0);
+		//#else
+		//	alifErr_setFromErrno(_alifExcOSError_);
+		//#endif
+			return -1;
+		}
+	return 0;
+}
+
+
 static AlifIntT get_inheritable(AlifIntT fd, AlifIntT raise) { // 1405
 #ifdef _WINDOWS
 	HANDLE handle;
@@ -784,6 +803,77 @@ static AlifIntT make_nonInheritable(AlifIntT _fd) { // 1582
 //	AlifIntT inheritable, AlifIntT* atomic_flag_works) { // 1604
 //	return set_inheritable(fd, inheritable, 1, atomic_flag_works);
 //}
+
+
+static AlifIntT _alif_openImpl(const char *pathname,
+	AlifIntT flags, AlifIntT gil_held) { // 1619
+	AlifIntT fd{};
+	AlifIntT async_err = 0;
+#ifndef _WINDOWS
+	AlifIntT *atomic_flag_works{};
+#endif
+
+#ifdef _WINDOWS
+	flags |= O_NOINHERIT;
+#elif defined(O_CLOEXEC)
+	atomic_flag_works = &_alifOpenCloExecWorks_;
+	flags |= O_CLOEXEC;
+#else
+	atomic_flag_works = nullptr;
+#endif
+
+	if (gil_held) {
+		AlifObject *pathname_obj = alifUStr_decodeFSDefault(pathname);
+		if (pathname_obj == nullptr) {
+			return -1;
+		}
+		//if (alifSys_audit("افتح", "OOi", pathname_obj, ALIF_NONE, flags) < 0) {
+		//	ALIF_DECREF(pathname_obj);
+		//	return -1;
+		//}
+
+		do {
+			ALIF_BEGIN_ALLOW_THREADS
+				fd = open(pathname, flags);
+			ALIF_END_ALLOW_THREADS
+		} while (fd < 0
+			and errno == EINTR /*and !(async_err = alifErr_checkSignals())*/);
+			if (async_err) {
+				ALIF_DECREF(pathname_obj);
+				return -1;
+			}
+			if (fd < 0) {
+				alifErr_setFromErrnoWithFilenameObjects(_alifExcOSError_, pathname_obj, NULL);
+				ALIF_DECREF(pathname_obj);
+				return -1;
+			}
+			ALIF_DECREF(pathname_obj);
+	}
+	else {
+		fd = open(pathname, flags);
+		if (fd < 0)
+			return -1;
+	}
+
+#ifndef _WINDOWS
+	if (set_inheritable(fd, 0, gil_held, atomic_flag_works) < 0) {
+		close(fd);
+		return -1;
+	}
+#endif
+
+	return fd;
+}
+
+
+AlifIntT _alif_open(const char *_pathName, AlifIntT _flags) { // 1690
+	return _alif_openImpl(_pathName, _flags, 1);
+}
+
+
+AlifIntT _alifOpen_noraise(const char *_pathName, AlifIntT _flags) { // 1704
+	return _alif_openImpl(_pathName, _flags, 0);
+}
 
 
 FILE* _alif_wfOpen(const wchar_t* _path, const wchar_t* _mode) { // 1716

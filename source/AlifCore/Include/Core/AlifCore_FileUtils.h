@@ -70,8 +70,12 @@ public:
 #endif
 
 
+AlifIntT _alif_fStat(AlifIntT, AlifStatStruct*); // 105
 
 AlifIntT _alifFStat_noraise(AlifIntT, class AlifStatStruct*); // 110
+
+AlifIntT _alif_open(const char*, AlifIntT); // 120
+AlifIntT _alifOpen_noraise(const char*, AlifIntT); // 125
 
 extern FILE* _alif_wfOpen(const wchar_t*, const wchar_t*); // 129
 

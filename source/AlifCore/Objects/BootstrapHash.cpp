@@ -51,7 +51,7 @@ static AlifIntT win32_urandom(unsigned char *_buffer, AlifSizeT _size,
 	return 0;
 }
 
-//#else /* !_WINDOWS */ // 73
+#else /* !_WINDOWS */ // 73
 
 
 
@@ -94,7 +94,7 @@ static AlifIntT dev_urandom(char *buffer,
 				fd = URANDOM_CACHE.fd;
 			}
 			else {
-				if (_alif_fstat(fd, &st)) {
+				if (_alif_fStat(fd, &st)) {
 					close(fd);
 					return -1;
 				}
