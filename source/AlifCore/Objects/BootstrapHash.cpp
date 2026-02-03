@@ -63,7 +63,7 @@ static AlifIntT dev_urandom(char *buffer,
 	AlifSizeT n{};
 
 	if (raise) {
-		AlifStatStruct st{};
+		class AlifStatStruct st{};
 		AlifIntT fstat_result{};
 
 		if (URANDOM_CACHE.fd >= 0) {
@@ -107,7 +107,7 @@ static AlifIntT dev_urandom(char *buffer,
 		}
 
 		do {
-			n = _alif_read(fd, buffer, (size_t)size);
+			n = _alif_read(fd, buffer, (AlifUSizeT)size);
 			if (n == -1)
 				return -1;
 			if (n == 0) {
@@ -130,7 +130,7 @@ static AlifIntT dev_urandom(char *buffer,
 		while (0 < size)
 		{
 			do {
-				n = read(fd, buffer, (size_t)size);
+				n = read(fd, buffer, (AlifUSizeT)size);
 			} while (n < 0 && errno == EINTR);
 
 			if (n <= 0) {
@@ -191,7 +191,7 @@ static AlifIntT alif_urandom(void *_buffer, AlifSizeT _size,
 	}
 #endif
 
-	return dev_urandom(_buffer, _size, _raise);
+	return dev_urandom((char*)_buffer, _size, _raise);
 #endif
 }
 

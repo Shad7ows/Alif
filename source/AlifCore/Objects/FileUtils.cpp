@@ -636,7 +636,7 @@ AlifIntT _alif_wStat(const wchar_t* path, struct stat* buf) { // 1332
 }
 
 
-AlifIntT _alif_fStat(AlifIntT _fd, AlifStatStruct *_status) { // 1309
+AlifIntT _alif_fStat(AlifIntT _fd, class AlifStatStruct *_status) { // 1309
 	AlifIntT res{};
 
 	ALIF_BEGIN_ALLOW_THREADS

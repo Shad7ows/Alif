@@ -70,7 +70,7 @@ public:
 #endif
 
 
-AlifIntT _alif_fStat(AlifIntT, AlifStatStruct*); // 105
+AlifIntT _alif_fStat(AlifIntT, class AlifStatStruct*); // 105
 
 AlifIntT _alifFStat_noraise(AlifIntT, class AlifStatStruct*); // 110
 
