@@ -281,7 +281,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\BiaseRefCount.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BoolObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BltinModule.cpp" />
-    <ClCompile Include="..\source\AlifCore\Objects\BootStrapHash.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\BootstrapHash.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Buffer.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ByteArrayObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BytesObject.cpp" />
