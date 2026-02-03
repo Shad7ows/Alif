@@ -852,6 +852,20 @@ static AlifObject* call_unboundNoArg(AlifIntT _unbound,
 	}
 }
 
+static AlifObject* vectorcall_method(AlifObject *_name,
+	AlifObject *const *_args, AlifSizeT _nargs) { // 2795
+	AlifThread* thread = _alifThread_get();
+	AlifIntT unbound{};
+	AlifObject *self = _args[0];
+	AlifObject *func = lookup_method(self, _name, &unbound);
+	if (func == nullptr) {
+		return nullptr;
+	}
+	AlifObject *retval = vectorcall_unbound(thread, unbound, func, _args, _nargs);
+	ALIF_DECREF(func);
+	return retval;
+}
+
 static AlifObject* vectorcall_maybe(AlifThread* _thread, AlifObject* _name,
 	AlifObject* const* _args, AlifSizeT _nargs) { // 2814
 	AlifIntT unbound{};
@@ -2939,7 +2953,9 @@ static AlifMethodDef _typeMethods_[] = { // 6182
 };
 
 
-
+static AlifNumberMethods _typeAsNumber_ = { // 6305
+	//.or_ = _alif_unionTypeOr, // Add __or__ function
+};
 
 AlifTypeObject _alifTypeType_ = { // 6195
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
@@ -2948,6 +2964,7 @@ AlifTypeObject _alifTypeType_ = { // 6195
 	.itemSize = sizeof(AlifMemberDef),
 	.dealloc = type_dealloc,
 	.vectorCallOffset = offsetof(AlifTypeObject, vectorCall),
+	.asNumber = &_typeAsNumber_,
 	.call = type_call,
 	.getAttro = alifType_getAttro,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
@@ -4104,6 +4121,17 @@ static AlifIntT add_tpNewWrapper(AlifTypeObject* _type) { // 9302
 	return r_;
 }
 
+
+// 9460
+#define SLOT0(_funcName, _dunder) \
+static AlifObject * \
+_funcName(AlifObject *self) \
+{ \
+    AlifObject* stack[1] = {self}; \
+    return vectorcall_method(&ALIF_STR(_dunder), stack, 1); \
+}
+
+
 static AlifIntT method_isOverloaded(AlifObject* _left,
 	AlifObject* _right, AlifObject* _name) { // 9463
 	AlifObject* a{}, * b{};
@@ -4183,10 +4211,21 @@ _funcName(AlifObject *self, AlifObject *other) \
 
 
 
-SLOT1BIN(slot_nbAdd, add_, __add__, __radd__) // 9669
+SLOT1BIN(slot_nbAdd, add_, __add__, __radd__) // 9684
 
 
-static AlifObject* slot_tpRepr(AlifObject* self) { // 9793
+
+
+
+
+
+
+SLOT0(slot_nbAbsolute, __abs__) // 9713
+
+
+
+
+static AlifObject* slot_tpRepr(AlifObject* self) { // 9808
 	AlifObject* func{}, * res{};
 	AlifIntT unbound{};
 
@@ -4202,7 +4241,8 @@ static AlifObject* slot_tpRepr(AlifObject* self) { // 9793
 }
 
 
-static AlifObject* slot_tpCall(AlifObject* self, AlifObject* args, AlifObject* kwds) { // 9740
+static AlifObject* slot_tpCall(AlifObject* self, AlifObject* args,
+	AlifObject* kwds) { // 9740
 	AlifThread* thread = _alifThread_get();
 	AlifIntT unbound{};
 
@@ -4296,6 +4336,9 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 #define ETSLOT(_name, _slot, _function, _wrapper, _doc) \
     {.name = #_name, .offset = offsetof(AlifHeapTypeObject, _slot), .function = (void *)(_function), .wrapper = _wrapper, \
      .doc = ALIFDOC_STR(_doc), .nameStrObj = &ALIF_STR(_name) }
+#define UNSLOT(_name, _slot, _function, _wrapper, _doc) \
+    ETSLOT(_name, number._slot, _function, _wrapper, \
+           #_name "(هذا, /)\n--\n\n" _doc)
 #define BINSLOT(_name, _slot, _function, _doc) \
     ETSLOT(_name, number._slot, _function, wrap_binaryFuncL, \
            nullptr)
@@ -4309,7 +4352,8 @@ static AlifTypeSlotDef _slotDefs_[] = { // 10416
 
 
 	BINSLOT(__add__, add_, slot_nbAdd, "+"),
-
+	UNSLOT(__abs__, absolute, slot_nbAbsolute, wrap_unaryFunc,
+		"مطلق(هذا)"),
 	{nullptr}
 };
 

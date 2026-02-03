@@ -191,7 +191,7 @@ static AlifIntT convert_toDouble(AlifObject** _v, double* _dbl) { // 322
 
 	if (ALIFLONG_CHECK(obj)) {
 		*_dbl = alifLong_asDouble(obj);
-		if (*_dbl == -1.0 /*and alifErr_occurred()*/) {
+		if (*_dbl == -1.0 and alifErr_occurred()) {
 			*_v = nullptr;
 			return -1;
 		}

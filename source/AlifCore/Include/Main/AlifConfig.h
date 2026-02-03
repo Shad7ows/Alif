@@ -220,6 +220,8 @@
 /* ------------------------------------- Public ------------------------------------- */
 
 
+#define HAVE_GETPID
+
 #define HAVE_SETVBUF
 
 #define FORCE_SWITCHING
@@ -233,3 +235,5 @@
 #define HAVE_SIGNAL_H 1
 
 #define HAVE_SYS_STAT_H 1
+
+#define HAVE_PROCESS_H 1

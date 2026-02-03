@@ -238,6 +238,7 @@
     <ClInclude Include="..\source\AlifCore\Objects\clinic\TypeObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\UStrObject.cpp.h" />
     <ClInclude Include="..\source\Modules\clinic\_abc.cpp.h" />
+    <ClInclude Include="..\source\Modules\clinic\_RandomModule.cpp.h" />
     <ClInclude Include="..\source\Modules\_io\clinic\BufferedIO.cpp.h" />
     <ClInclude Include="..\source\Modules\_io\clinic\FileIO.cpp.h" />
     <ClInclude Include="..\source\Modules\_io\clinic\IOBase.cpp.h" />
@@ -280,6 +281,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\BiaseRefCount.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BoolObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BltinModule.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\BootStrapHash.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Buffer.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ByteArrayObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BytesObject.cpp" />
@@ -369,6 +371,7 @@
     <ClCompile Include="..\source\Modules\_io\IOBase.cpp" />
     <ClCompile Include="..\source\Modules\_io\TextIO.cpp" />
     <ClCompile Include="..\source\Modules\_io\_IOModule.cpp" />
+    <ClCompile Include="..\source\Modules\_RandomModule.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="FreezeModule.vcxproj">

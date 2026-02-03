@@ -103,7 +103,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pathcch.lib;bcrypt.lib;// TODO: move them to AlifCore Project after convert it to dynamic library .dll project;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)$(Platform)\$(Configuration)\alif.exe" "$(SolutionDir)..\test\"</Command>
@@ -127,6 +127,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>pathcch.lib;bcrypt.lib;// TODO: move them to AlifCore Project after convert it to dynamic library .dll project;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)$(Platform)\$(Configuration)\alif.exe" "$(SolutionDir)..\test\"</Command>
@@ -147,7 +148,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pathcch.lib;bcrypt.lib;// TODO: move them to AlifCore Project after convert it to dynamic library .dll project;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -173,7 +174,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pathcch.lib;bcrypt.lib;// TODO: move them to AlifCore Project after convert it to dynamic library .dll project;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)$(Platform)\$(Configuration)\alif.exe" "$(SolutionDir)..\examples\"</Command>

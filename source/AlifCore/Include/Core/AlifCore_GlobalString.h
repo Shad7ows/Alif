@@ -70,6 +70,7 @@ public:
 			STRUCT_FOR_USTR(Sep, "الفاصل") //* alif
 			STRUCT_FOR_USTR(TextIOWrapper, "غلاف_النص") //* alif
 			STRUCT_FOR_USTR(Write, "اكتب") //* alif
+			STRUCT_FOR_USTR(__abs__, "__مطلق__") //* alif
 			STRUCT_FOR_USTR(__add__, "__اجمع__") //* alif
 			STRUCT_FOR_USTR(__call__, "__استدعاء__") //* alif
 			STRUCT_FOR_USTR(__init__, "__تهيئة__") //* alif
@@ -83,6 +84,7 @@ public:
 	public:
 		STRUCT_FOR_ID(CANCELLED)
 			STRUCT_FOR_ID(AlifRepr)
+			//STRUCT_FOR_ID(__abs__)
 			STRUCT_FOR_ID(__abstractMethods__)
 			STRUCT_FOR_ID(__annotate__)
 			STRUCT_FOR_ID(__bases__)

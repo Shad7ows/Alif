@@ -710,6 +710,7 @@
 	INIT_USTR(Sep, "الفاصل"), /* //* alif */	\
 	INIT_USTR(TextIOWrapper, "غلاف_النص"), /* //* alif */	\
 	INIT_USTR(Write, "اكتب"), /* //* alif */	\
+    INIT_USTR(__abs__, "__مطلق__"), /* //* alif */	\
     INIT_USTR(__add__, "__اجمع__"), /* //* alif */	\
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
@@ -722,6 +723,7 @@
 #define ALIF_STR_IDENTIFIERS_INIT { \
     INIT_ID(CANCELLED), \
     INIT_ID(AlifRepr), \
+    /*INIT_ID(__abs__),*/ \
     INIT_ID(__abstractMethods__), \
     INIT_ID(__annotate__), \
     INIT_ID(__bases__), \
