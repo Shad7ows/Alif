@@ -1,5 +1,8 @@
 #include "alif.h"
-
+#include "AlifCore_FileUtils.h"
+#include "AlifCore_InitConfig.h"
+#include "AlifCore_LifeCycle.h"
+#include "AlifCore_Runtime.h"
 
 
 #ifdef HAVE_UNISTD_H
@@ -48,7 +51,102 @@ static AlifIntT win32_urandom(unsigned char *_buffer, AlifSizeT _size,
 	return 0;
 }
 
-#else /* !_WINDOWS */
+//#else /* !_WINDOWS */ // 73
+
+
+
+#define URANDOM_CACHE (_alifRuntime_.alifHashState.urandomCache) // 271
+
+static AlifIntT dev_urandom(char *buffer,
+	AlifSizeT size, AlifIntT raise) { // 300
+	AlifIntT fd{};
+	AlifSizeT n{};
+
+	if (raise) {
+		AlifStatStruct st{};
+		AlifIntT fstat_result{};
+
+		if (URANDOM_CACHE.fd >= 0) {
+			ALIF_BEGIN_ALLOW_THREADS
+				fstat_result = _alifFStat_noraise(URANDOM_CACHE.fd, &st);
+			ALIF_END_ALLOW_THREADS
+
+				if (fstat_result
+					or st.st_dev != URANDOM_CACHE.st_dev
+					or st.st_ino != URANDOM_CACHE.st_ino) {
+					URANDOM_CACHE.fd = -1;
+				}
+		}
+		if (URANDOM_CACHE.fd >= 0)
+			fd = URANDOM_CACHE.fd;
+		else {
+			fd = _alif_open("/dev/urandom", O_RDONLY);
+			if (fd < 0) {
+				if (errno == ENOENT || errno == ENXIO ||
+					errno == ENODEV || errno == EACCES) {
+					//alifErr_setString(_alifExcNotImplementedError_,
+					//	"/dev/urandom (or equivalent) not found");
+				}
+				return -1;
+			}
+			if (URANDOM_CACHE.fd >= 0) {
+				close(fd);
+				fd = URANDOM_CACHE.fd;
+			}
+			else {
+				if (_alif_fstat(fd, &st)) {
+					close(fd);
+					return -1;
+				}
+				else {
+					URANDOM_CACHE.fd = fd;
+					URANDOM_CACHE.st_dev = st.st_dev;
+					URANDOM_CACHE.st_ino = st.st_ino;
+				}
+			}
+		}
+
+		do {
+			n = _alif_read(fd, buffer, (size_t)size);
+			if (n == -1)
+				return -1;
+			if (n == 0) {
+				alifErr_format(_alifExcRuntimeError_,
+					"Failed to read %zi bytes from /dev/urandom",
+					size);
+				return -1;
+			}
+
+			buffer += n;
+			size -= n;
+		} while (0 < size);
+	}
+	else {
+		fd = _alifOpen_noraise("/dev/urandom", O_RDONLY);
+		if (fd < 0) {
+			return -1;
+		}
+
+		while (0 < size)
+		{
+			do {
+				n = read(fd, buffer, (size_t)size);
+			} while (n < 0 && errno == EINTR);
+
+			if (n <= 0) {
+				/* stop on error or if read(size) returned 0 */
+				close(fd);
+				return -1;
+			}
+
+			buffer += n;
+			size -= n;
+		}
+		close(fd);
+	}
+	return 0;
+}
+
 
 
 #endif /* !_WINDOWS */ // 409

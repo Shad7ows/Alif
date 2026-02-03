@@ -47,3 +47,20 @@ union AlifHashSecretT { // 45
 		AlifHashT hashSalt{};
 	} expat;
 };
+
+
+
+
+class AlifHashRuntimeState { // 74
+public:
+	struct {
+	#ifndef _WINDOWS
+		AlifIntT fd{};
+		dev_t st_dev{};
+		ino_t st_ino{};
+	#else
+		// This is a placeholder so the struct isn't empty on Windows.
+		AlifIntT notUsed{};
+	#endif
+	} urandomCache;
+};
