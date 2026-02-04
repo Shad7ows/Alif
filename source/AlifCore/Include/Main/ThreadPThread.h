@@ -147,6 +147,20 @@ void alifThread_freeLock(AlifThreadTypeLock lock) { // 463
 }
 
 
+
+
+void alifThread_releaseLock(AlifThreadTypeLock _lock) { // 610
+	sem_t *thelock = (sem_t *)_lock;
+	AlifIntT status{}, error = 0;
+
+	(void) error; /* silence unused-but-set-variable warning */
+
+	status = sem_post(thelock);
+	CHECK_STATUS("sem_post");
+}
+
+
+
 #else /* USE_SEMAPHORES */ // 622
 
 AlifThreadTypeLock alifThread_allocateLock(void) { // 627

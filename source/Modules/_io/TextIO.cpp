@@ -808,7 +808,7 @@ static AlifIntT _textIOWrapper_writeFlush(TextIO* self) { // 1568
 
 	AlifObject* ret{};
 	do {
-		ret = alifObject_callMethodOneArg(self->buffer, &ALIF_ID(Write), b);
+		ret = alifObject_callMethodOneArg(self->buffer, &ALIF_STR(Write), b);
 	}
 	while (ret == nullptr and _alifIO_trapEintr());
 	ALIF_DECREF(b);

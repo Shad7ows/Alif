@@ -68,12 +68,39 @@ public:
 	AlifObject* weakRefList{};
 };
 
+//* todo
+static AlifIntT _enterBuffered_busy(Buffered *self) { // 289
+	AlifIntT relaxLocking{};
+	//AlifLockStatus st{};
+	//if (self->owner == alifThread_getThreadID()) {
+	//	alifErr_format(_alifExcRuntimeError_,
+	//		"reentrant call inside %R", self);
+	//	return 0;
+	//}
+	//AlifInterpreter *interp = _alifInterpreter_get();
+	//relaxLocking = _alif_isInterpreterFinalizing(interp);
+	//ALIF_BEGIN_ALLOW_THREADS
+	//if (!relaxLocking)
+	//	st = alifThread_acquireLock(self->lock, 1);
+	//else {
+	//	st = alifThread_acquireLockTimed(self->lock, (ALIF_TIMEOUT_T)1e6, 0);
+	//}
+	//ALIF_END_ALLOW_THREADS
+	//if (relaxLocking and st != AlifLockStatus_::Alif_Lock_Acquired) {
+	//	AlifObject *ascii = alifObject_ascii((AlifObject*)self);
+	//	_alif_fatalErrorFormat(__func__,
+	//		"could not acquire lock for %s at interpreter "
+	//		"shutdown, possibly due to daemon threads",
+	//		ascii ? alifUStr_asUTF8(ascii) : "<ascii(self) failed>");
+	//}
+	return 1;
+}
 
 // 324
 #define ENTER_BUFFERED(_self) \
     ( (alifThread_acquireLock(_self->lock, 0) ? \
        1 : _enterBuffered_busy(_self)) \
-     and (_self->owner = alifThread_getThreadIdent(), 1) )
+     and (_self->owner = alifThread_getThreadID(), 1) )
 
 #define LEAVE_BUFFERED(_self) \
     do { \
@@ -435,23 +462,23 @@ static AlifObject* _io_Buffered_read1Impl(Buffered* self, AlifSizeT n) { // 1018
 	res = alifBytes_fromStringAndSize(nullptr, n);
 	if (res == nullptr)
 		return nullptr;
-	//if (!ENTER_BUFFERED(self)) {
-	//	ALIF_DECREF(res);
-	//	return nullptr;
-	//}
+	if (!ENTER_BUFFERED(self)) {
+		ALIF_DECREF(res);
+		return nullptr;
+	}
 	/* Flush the write buffer if necessary */
-	//if (self->writable) {
-	//	AlifObject* r = buffered_flushAndRewindUnlocked(self);
-	//	if (r == nullptr) {
-	//		LEAVE_BUFFERED(self)
-	//		ALIF_DECREF(res);
-	//		return nullptr;
-	//	}
-	//	ALIF_DECREF(r);
-	//}
+	if (self->writable) {
+		AlifObject* r = buffered_flushAndRewindUnlocked(self);
+		if (r == nullptr) {
+			LEAVE_BUFFERED(self)
+			ALIF_DECREF(res);
+			return nullptr;
+		}
+		ALIF_DECREF(r);
+	}
 	_bufferedReader_resetBuf(self);
 	r = _bufferedReader_rawRead(self, ALIFBYTES_AS_STRING(res), n);
-	//LEAVE_BUFFERED(self)
+	LEAVE_BUFFERED(self)
 	if (r == -1) {
 		ALIF_DECREF(res);
 		return nullptr;
@@ -699,7 +726,7 @@ static AlifSizeT _bufferedWriter_rawWrite(Buffered* self, char* start, AlifSizeT
 		return -1;
 	do {
 		errno = 0;
-		res = alifObject_callMethodOneArg(self->raw, &ALIF_ID(Write), memobj);
+		res = alifObject_callMethodOneArg(self->raw, &ALIF_STR(Write), memobj);
 		errnum = errno;
 	}
 	while (res == nullptr and _alifIO_trapEintr());

@@ -207,7 +207,7 @@ static AlifObject* _ioFileIO_readall(FileIO* self, AlifObject* ALIF_UNUSED(ignor
 
 // 347
 #define _IO_FILEIO_WRITE_METHODDEF    \
-    {"Write", ALIF_CPPFUNCTION_CAST(_ioFileIO_write), METHOD_METHOD|METHOD_FASTCALL|METHOD_KEYWORDS},
+    {"اكتب", ALIF_CPPFUNCTION_CAST(_ioFileIO_write), METHOD_METHOD|METHOD_FASTCALL|METHOD_KEYWORDS},
 
 static AlifObject* _ioFileIO_writeImpl(FileIO*, AlifTypeObject*, AlifBuffer*);
 
@@ -223,7 +223,7 @@ static AlifObject* _ioFileIO_write(FileIO* self, AlifTypeObject* cls,
 	static const char* const _keywords[] = { "", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "write",
+		.fname = "اكتب",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE

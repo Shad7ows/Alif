@@ -197,7 +197,7 @@ public:
 			STRUCT_FOR_ID(TextIOWrapper)
 			STRUCT_FOR_ID(Top)
 			STRUCT_FOR_ID(Translate)
-			STRUCT_FOR_ID(Write)
+			//STRUCT_FOR_ID(Write)
 			STRUCT_FOR_ID(Writable)
 			STRUCT_FOR_ID(WriteThrough)
 	} identifiers;

@@ -45,7 +45,7 @@ static AlifObject* _io_openImpl(AlifObject* _module, AlifObject* _file, const ch
 	}
 
 	/* Decode mode */
-	//* alif
+	//* alif  //* todo
 	for (i = 0; i < strlen(_mode); i++) {
 		unsigned char c = (unsigned char)_mode[i];
 		if (c == 216 or c == 217) {
@@ -53,17 +53,26 @@ static AlifObject* _io_openImpl(AlifObject* _module, AlifObject* _file, const ch
 		}
 
 		switch (c) {
+		case 172: // 'ج' جديد
+			creating = 1;
+			break;
 		case 'x':
 			creating = 1;
 			break;
-		case 130: // 'ق'
+		case 130: // 'ق' قراءة
 			reading = 1;
 			break;
-		case 'r': //* todo
+		case 'r':
 			reading = 1;
+			break;
+		case 131: // 'ك' كتابة
+			writing = 1;
 			break;
 		case 'w':
 			writing = 1;
+			break;
+		case 182: // 'ض' إضافة
+			appending = 1;
 			break;
 		case 'a':
 			appending = 1;
@@ -84,49 +93,11 @@ static AlifObject* _io_openImpl(AlifObject* _module, AlifObject* _file, const ch
 		/* c must not be duplicated */
 		if (strchr(_mode + i + 1, c)) {
 invalid_mode:
-			alifErr_format(_alifExcValueError_, "invalid mode: '%s'", _mode);
+			alifErr_format(_alifExcValueError_, "مُدخل غير صحيح: '%s'", _mode);
 			goto error;
 		}
 	}
 	//* alif
-
-	//for (i = 0; i < strlen(_mode); i++) {
-	//	char c = _mode[i];
-
-	//	switch (c) {
-	//	case 'x':
-	//		creating = 1;
-	//		break;
-	//	case 'r':
-	//		reading = 1;
-	//		break;
-	//	case 'w':
-	//		writing = 1;
-	//		break;
-	//	case 'a':
-	//		appending = 1;
-	//		break;
-	//	case '+':
-	//		updating = 1;
-	//		break;
-	//	case 't':
-	//		text = 1;
-	//		break;
-	//	case 'b':
-	//		binary = 1;
-	//		break;
-	//	default:
-	//		goto invalid_mode;
-	//	}
-
-	//	/* c must not be duplicated */
-	//	if (strchr(_mode + i + 1, c)) {
-	//	invalid_mode:
-	//		alifErr_format(_alifExcValueError_, "invalid mode: '%s'", _mode);
-	//		goto error;
-	//	}
-
-	//}
 
 	m = rawmode;
 	if (creating)  *(m++) = 'x';
@@ -145,7 +116,7 @@ invalid_mode:
 
 	if (creating + reading + writing + appending > 1) {
 		alifErr_setString(_alifExcValueError_,
-			"must have exactly one of create/read/write/append mode");
+			"يجب أن يمتلك واحد فقط من هذه الخيارات جديد/قراءة/كتابة/إضافة");
 		goto error;
 	}
 

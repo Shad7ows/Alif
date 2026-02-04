@@ -385,7 +385,7 @@ exit:
 
 // 1085
 #define _IO_BUFFEREDWRITER_WRITE_METHODDEF    \
-    {"Write", (AlifCPPFunction)_ioBufferedWriter_write, METHOD_O},
+    {"اكتب", (AlifCPPFunction)_ioBufferedWriter_write, METHOD_O},
 
 static AlifObject* _ioBufferedWriter_writeImpl(Buffered*, AlifBuffer*);
 

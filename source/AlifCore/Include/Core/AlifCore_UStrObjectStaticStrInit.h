@@ -147,8 +147,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Top);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(Write);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(Write);
+	//_alifUStr_internStatic(interp, &string);
 
 	string = &ALIF_STR(AnonListComp);
 	_alifUStr_internStatic(interp, &string);

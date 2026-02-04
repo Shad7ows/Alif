@@ -836,7 +836,7 @@
 	INIT_ID(TextIOWrapper), \
 	INIT_ID(Top), \
 	INIT_ID(Translate), \
-	INIT_ID(Write), \
+	/*INIT_ID(Write),*/ \
 	INIT_ID(Writable), \
 	INIT_ID(WriteThrough), \
 }
