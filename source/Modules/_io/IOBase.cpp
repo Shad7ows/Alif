@@ -92,6 +92,21 @@ static AlifObject* _io_IOBase_seekableImpl(AlifObject* _self) { // 397
 	ALIF_RETURN_FALSE;
 }
 
+AlifObject* _alifIOBase_checkSeekable(AlifIOState* _state,
+	AlifObject* _self, AlifObject* _args) { // 404
+	AlifObject *res  = alifObject_callMethodNoArgs(_self, &ALIF_ID(Seekable));
+	if (res == nullptr)
+		return nullptr;
+	if (res != ALIF_TRUE) {
+		ALIF_CLEAR(res);
+		//ioBase_unsupported(state, "File or stream is not seekable.");
+		return nullptr;
+	}
+	if (_args == ALIF_TRUE) {
+		ALIF_DECREF(res);
+	}
+	return res;
+}
 
 static AlifObject* _io_IOBase_readableImpl(AlifObject* _self) { // 429
 	ALIF_RETURN_FALSE;

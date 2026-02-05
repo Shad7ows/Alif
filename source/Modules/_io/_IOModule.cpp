@@ -384,8 +384,8 @@ static AlifIntT iomodule_exec(AlifObject* m) { // 650
 		state->alifBufferedIOBaseType);
 	//ADD_TYPE(m, state->alifBufferedRWPairType, &_bufferedRWPairSpec_,
 	//	state->alifBufferedIOBaseType);
-	//ADD_TYPE(m, state->alifBufferedRandomType, &_bufferedRandomSpec_,
-	//	state->alifBufferedIOBaseType);
+	ADD_TYPE(m, state->alifBufferedRandomType, &_bufferedRandomSpec_,
+		state->alifBufferedIOBaseType);
 
 	// alifRawIOBaseType(alifIOBaseType) subclasses
 	ADD_TYPE(m, state->alifFileIOType, &_fileIOSpec_, state->alifRawIOBaseType);

@@ -795,7 +795,8 @@ error:
 
 
 
-static AlifObject* _ioBufferedWriter_writeImpl(Buffered* self, AlifBuffer* buffer) { // 2068
+static AlifObject* _ioBufferedWriter_writeImpl(Buffered* self,
+	AlifBuffer* buffer) { // 2068
 	AlifObject* res = nullptr;
 	AlifSizeT written{}, avail{}, remaining{};
 	AlifOffT offset{};
@@ -920,7 +921,40 @@ error:
 
 
 
+static AlifIntT _ioBufferedRandom___init__Impl(Buffered *self, AlifObject *raw,
+	AlifSizeT buffer_size) { // 2445
+	self->ok = 0;
+	self->detached = 0;
 
+	AlifIOState *state = findIOState_byDef(ALIF_TYPE(self));
+	if (_alifIOBase_checkSeekable(state, raw, ALIF_TRUE) == nullptr) {
+		return -1;
+	}
+	if (_alifIOBase_checkReadable(state, raw, ALIF_TRUE) == nullptr) {
+		return -1;
+	}
+	if (_alifIOBase_checkWritable(state, raw, ALIF_TRUE) == nullptr) {
+		return -1;
+	}
+
+	ALIF_INCREF(raw);
+	ALIF_XSETREF(self->raw, raw);
+	self->bufferSize = buffer_size;
+	self->readable = 1;
+	self->writable = 1;
+
+	if (_buffered_init(self) < 0)
+		return -1;
+	_bufferedReader_resetBuf(self);
+	_bufferedWriter_resetBuf(self);
+	self->pos = 0;
+
+	self->fastClosedChecks = (ALIF_IS_TYPE(self, state->alifBufferedRandomType) and
+		ALIF_IS_TYPE(raw, state->alifFileIOType));
+
+	self->ok = 1;
+	return 0;
+}
 
 
 #include "clinic/BufferedIO.cpp.h" // 2484
@@ -1055,4 +1089,84 @@ AlifTypeSpec _bufferedWriterSpec_ = { // 2627
 	.flags = (ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
 			  ALIF_TPFLAGS_IMMUTABLETYPE),
 	.slots = _bufferedWriterSlots_,
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static AlifMethodDef _bufferedRandomMethods_[] = { // 2686
+	/* BufferedIOMixin methods */
+	_IO__BUFFERED_CLOSE_METHODDEF
+	//_IO__BUFFERED_DETACH_METHODDEF
+	_IO__BUFFERED_SEEKABLE_METHODDEF
+	_IO__BUFFERED_READABLE_METHODDEF
+	_IO__BUFFERED_WRITABLE_METHODDEF
+	_IO__BUFFERED_FILENO_METHODDEF
+	//_IO__BUFFERED_ISATTY_METHODDEF
+	//_IO__BUFFERED__DEALLOC_WARN_METHODDEF
+
+	_IO__BUFFERED_FLUSH_METHODDEF
+
+	//_IO__BUFFERED_SEEK_METHODDEF
+	//_IO__BUFFERED_TELL_METHODDEF
+	//_IO__BUFFERED_TRUNCATE_METHODDEF
+	_IO__BUFFERED_READ_METHODDEF
+	_IO__BUFFERED_READ1_METHODDEF
+	//_IO__BUFFERED_READINTO_METHODDEF
+	//_IO__BUFFERED_READINTO1_METHODDEF
+	//_IO__BUFFERED_READLINE_METHODDEF
+	//_IO__BUFFERED_PEEK_METHODDEF
+	_IO_BUFFEREDWRITER_WRITE_METHODDEF
+	//_IO__BUFFERED___SIZEOF___METHODDEF
+
+	//{"__reduce__", _alifIOBase_cannotPickle, METHOD_NOARGS},
+	//{"__reduce_ex__", _alifIOBase_cannotPickle, METHOD_O},
+	{nullptr, nullptr}
+};
+
+static AlifMemberDef _bufferedRandomMembers_[] = { // 2716
+	{"raw", ALIF_T_OBJECT, offsetof(Buffered, raw), ALIF_READONLY},
+	{"_finalizing", ALIF_T_BOOL, offsetof(Buffered, finalizing), 0},
+	{"__weakListOffset__", ALIF_T_ALIFSIZET, offsetof(Buffered, weakRefList), ALIF_READONLY},
+	{"__dictOffset__", ALIF_T_ALIFSIZET, offsetof(Buffered, dict), ALIF_READONLY},
+	{nullptr}
+};
+
+static AlifGetSetDef _bufferedRandomGetSet_[] = {
+	_IO__BUFFERED_CLOSED_GETSETDEF
+	//_IO__BUFFERED_NAME_GETSETDEF
+	//_IO__BUFFERED_MODE_GETSETDEF
+	{nullptr}
+};
+
+static AlifTypeSlot _bufferedRandomSlots_[] = { // 2732
+	//{ALIF_TP_DEALLOC, buffered_dealloc},
+	//{ALIF_TP_REPR, buffered_repr},
+	//{ALIF_TP_DOC, (void *)_ioBufferedRandom___init____doc__},
+	{ALIF_TP_TRAVERSE, buffered_traverse},
+	//{ALIF_TP_CLEAR, buffered_clear},
+	//{ALIF_TP_ITERNEXT, buffered_iterNext},
+	{ALIF_TP_METHODS, _bufferedRandomMethods_},
+	{ALIF_TP_MEMBERS, _bufferedRandomMembers_},
+	{ALIF_TP_GETSET, _bufferedRandomGetSet_},
+	{ALIF_TP_INIT, _ioBufferedRandom___init__},
+	{0, nullptr},
+};
+
+AlifTypeSpec _bufferedRandomSpec_ = { // 2746
+	.name = "تبادل.عشوائي_مخزن",
+	.basicsize = sizeof(Buffered),
+	.flags = (ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
+		ALIF_TPFLAGS_IMMUTABLETYPE),
+	.slots = _bufferedRandomSlots_,
 };

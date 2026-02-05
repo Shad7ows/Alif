@@ -82,6 +82,17 @@ exit:
 
 
 
+// 457
+#define _IO_INCREMENTALNEWLINEDECODER_RESET_METHODDEF    \
+    {"Reset", (AlifCPPFunction)_ioIncrementalNewlineDecoder_reset, METHOD_NOARGS}
+
+static AlifObject* _ioIncrementalNewlineDecoder_resetImpl(NLDecoderObject*);
+
+static AlifObject* _ioIncrementalNewlineDecoder_reset(NLDecoderObject* self,
+	AlifObject *ALIF_UNUSED(ignored)) { // 463
+	return _ioIncrementalNewlineDecoder_resetImpl(self);
+}
+
 
 
 

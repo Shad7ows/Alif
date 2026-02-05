@@ -309,6 +309,19 @@ static AlifObject* _io_incrementalNewlineDecoderDecodeImpl(NLDecoderObject* _sel
 }
 
 
+
+static AlifObject* _ioIncrementalNewlineDecoder_resetImpl(NLDecoderObject* _self) { // 613
+	CHECK_INITIALIZED_DECODER(_self);
+
+	_self->seennl = 0;
+	_self->pendingcr = 0;
+	if (_self->decoder != ALIF_NONE)
+		return alifObject_callMethodNoArgs(_self->decoder, &ALIF_ID(Reset));
+	else
+		return ALIF_NONE;
+}
+
+
 /* TextIOWrapper */
 
 typedef AlifObject* (*EncodeFuncT)(AlifObject*, AlifObject*); // 655
@@ -1105,9 +1118,9 @@ static AlifObject* _ioTextIOWrapper_readImpl(TextIO* self, AlifSizeT n) { // 197
 	CHECK_ATTACHED(self);
 	CHECK_CLOSED(self);
 
-	//if (self->decoder == nullptr) {
-	//	return _unsupported(self->state, "not readable");
-	//}
+	if (self->decoder == nullptr) {
+		//return _unsupported(self->state, "not readable");
+	}
 
 	if (_textIOWrapper_writeFlush(self) < 0)
 		return nullptr;
@@ -1515,10 +1528,10 @@ static AlifObject* _ioTextIOWrapper_errorsGetImpl(TextIO* _self) {
 
 
 static AlifMethodDef _incrementalNewlineDecoderMethods_[] = {
-	//_IO_INCREMENTALNEWLINEDECODER_DECODE_METHODDEF
-	//_IO_INCREMENTALNEWLINEDECODER_GETSTATE_METHODDEF
-	//_IO_INCREMENTALNEWLINEDECODER_SETSTATE_METHODDEF
-	//_IO_INCREMENTALNEWLINEDECODER_RESET_METHODDEF
+	//_IO_INCREMENTALNEWLINEDECODER_DECODE_METHODDEF,
+	//_IO_INCREMENTALNEWLINEDECODER_GETSTATE_METHODDEF,
+	//_IO_INCREMENTALNEWLINEDECODER_SETSTATE_METHODDEF,
+	_IO_INCREMENTALNEWLINEDECODER_RESET_METHODDEF,
 	{nullptr}
 };
 
