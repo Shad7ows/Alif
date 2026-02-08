@@ -1153,13 +1153,13 @@ static AlifTypeSlot _bufferedRandomSlots_[] = { // 2732
 	//{ALIF_TP_DEALLOC, buffered_dealloc},
 	//{ALIF_TP_REPR, buffered_repr},
 	//{ALIF_TP_DOC, (void *)_ioBufferedRandom___init____doc__},
-	{ALIF_TP_TRAVERSE, buffered_traverse},
+	{ALIF_TP_TRAVERSE, (void*)buffered_traverse},
 	//{ALIF_TP_CLEAR, buffered_clear},
 	//{ALIF_TP_ITERNEXT, buffered_iterNext},
 	{ALIF_TP_METHODS, _bufferedRandomMethods_},
 	{ALIF_TP_MEMBERS, _bufferedRandomMembers_},
 	{ALIF_TP_GETSET, _bufferedRandomGetSet_},
-	{ALIF_TP_INIT, _ioBufferedRandom___init__},
+	{ALIF_TP_INIT, (void*)_ioBufferedRandom___init__},
 	{0, nullptr},
 };
 
