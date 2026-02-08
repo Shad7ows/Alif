@@ -269,7 +269,7 @@ static AlifTypeObject _excBaseException_ = { // 483
 	.basicSize = sizeof(AlifBaseExceptionObject),
 	//.dealloc = (Destructor)baseException_dealloc,
 	//.repr = (ReprFunc)baseException_repr,
-	//.str = (ReprFunc)baseException_str,
+	.str = (ReprFunc)baseException_str,
 	.getAttro = alifObject_genericGetAttr,
 	.setAttro = alifObject_genericSetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
@@ -872,7 +872,7 @@ static AlifMemberDef _syntaxErrorMembers_[] = { // 2573
 	{"text", ALIF_T_OBJECT, offsetof(AlifSyntaxErrorObject, text), 0},
 	{"endLineno", ALIF_T_OBJECT, offsetof(AlifSyntaxErrorObject, endLineno), 0},
 	{"endOffset", ALIF_T_OBJECT, offsetof(AlifSyntaxErrorObject, endOffset), 0},
-	{"printFileAndLine", ALIF_T_OBJECT,
+	{"PrintFileAndLine", ALIF_T_OBJECT,
 		offsetof(AlifSyntaxErrorObject, printFileAndLine), 0},
 	{nullptr}  /* Sentinel */
 };

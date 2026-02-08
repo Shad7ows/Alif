@@ -272,7 +272,7 @@ invalid_mode:
 error:
 	if (result != nullptr) {
 		AlifObject* exc = alifErr_getRaisedException();
-		AlifObject* close_result = alifObject_callMethodNoArgs(result, &ALIF_ID(Close));
+		AlifObject* close_result = alifObject_callMethodNoArgs(result, &ALIF_STR(Close));
 		_alifErr_chainExceptions1(exc);
 		ALIF_XDECREF(close_result);
 		ALIF_DECREF(result);

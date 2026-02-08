@@ -781,7 +781,7 @@
 	INIT_ID(Buffering), \
 	INIT_ID(buffersize), \
 	INIT_ID(Builtins), \
-	INIT_ID(Close), \
+	/*INIT_ID(Close),*/ \
 	INIT_ID(Closed), \
 	INIT_ID(CloseFD), \
 	INIT_ID(Code), \
@@ -818,6 +818,7 @@
 	INIT_ID(Origin), \
 	INIT_ID(Path), \
 	INIT_ID(Peek), \
+	INIT_ID(PrintFileAndLine), \
 	INIT_ID(Readable), \
 	INIT_ID(Read), \
 	INIT_ID(Read1), \
@@ -833,7 +834,7 @@
 	INIT_ID(Stdin), \
 	INIT_ID(Stdout), \
 	INIT_ID(strict), \
-	INIT_ID(TextIOWrapper), \
+	/*INIT_ID(TextIOWrapper),*/ \
 	INIT_ID(Top), \
 	INIT_ID(Translate), \
 	/*INIT_ID(Write),*/ \

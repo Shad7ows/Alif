@@ -89,7 +89,7 @@ AlifIntT alifFile_writeString(const char* _s, AlifObject* _f) { // 134
 		/* Should be caused by a pre-existing error */
 		if (!alifErr_occurred())
 			alifErr_setString(_alifExcSystemError_,
-				"null file for alifFile_writeString");
+				"ملف فارغ في alifFile_writeString");
 		return -1;
 	}
 	else if (!alifErr_occurred()) {
@@ -105,7 +105,56 @@ AlifIntT alifFile_writeString(const char* _s, AlifObject* _f) { // 134
 		return -1;
 }
 
+AlifIntT alifObject_asFileDescriptor(AlifObject* _o) { // 164
+	AlifIntT fd{};
+	AlifObject *meth{};
 
+	if (ALIFLONG_CHECK(_o)) {
+		if (ALIFBOOL_CHECK(_o)) {
+			//if (alifErr_warnEx(_alifExcRuntimeWarning_,
+			//	"نوع منطق تم استخدامه ك واصف ملف", 1))
+			//{
+			//	return -1;
+			//}
+		}
+		fd = alifLong_asInt(_o);
+	}
+	else if (alifObject_getOptionalAttr(_o, &ALIF_ID(Fileno), &meth) < 0) {
+		return -1;
+	}
+	else if (meth != nullptr) {
+		AlifObject *fno = _alifObject_callNoArgs(meth);
+		ALIF_DECREF(meth);
+		if (fno == nullptr)
+			return -1;
+
+		if (ALIFLONG_CHECK(fno)) {
+			fd = alifLong_asInt(fno);
+			ALIF_DECREF(fno);
+		}
+		else {
+			alifErr_setString(_alifExcTypeError_,
+				"fileno() قام بإرجاع نوع ليس-صحيح");
+			ALIF_DECREF(fno);
+			return -1;
+		}
+	}
+	else {
+		alifErr_setString(_alifExcTypeError_,
+			"المعاملات يجب أن تكون نوع صحيح, او تملك دالة fileno().");
+		return -1;
+	}
+
+	if (fd == -1 and alifErr_occurred())
+		return -1;
+	if (fd < 0) {
+		alifErr_format(_alifExcValueError_,
+			"واصف الملف لا يمكن أن يكون عدد صحيح سالب (%i)",
+			fd);
+		return -1;
+	}
+	return fd;
+}
 
 char* alifUniversal_newLineFGetsWithSize(char* _buf,
 	AlifIntT _n, FILE* _stream, AlifObject* _fObj, AlifUSizeT* _size) { // 228

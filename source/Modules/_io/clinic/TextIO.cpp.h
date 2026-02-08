@@ -119,7 +119,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 	static const char* const _keywords[] = { "Buffer", "Encoding", "Errors", "Newline", "LineBuffering", "write_through", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "TextIOWrapper",
+		.fname = "غلاف_النص",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
@@ -158,7 +158,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 			}
 		}
 		else {
-			//_alifArg_badArgument("TextIOWrapper", "argument 'encoding'", "str or None", fastargs[1]);
+			//_alifArg_badArgument("غلاف_النص", "argument 'encoding'", "str or None", fastargs[1]);
 			goto exit;
 		}
 		if (!--noptargs) {
@@ -187,7 +187,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 			}
 		}
 		else {
-			//_alifArg_badArgument("TextIOWrapper", "argument 'newline'", "str or None", fastargs[3]);
+			//_alifArg_badArgument("غلاف_النص", "argument 'newline'", "str or None", fastargs[3]);
 			goto exit;
 		}
 		if (!--noptargs) {

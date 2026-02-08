@@ -525,7 +525,8 @@ static AlifObject* binary_op1(AlifObject* _v, AlifObject* _w, const AlifIntT _op
 
 #define BINARY_OP1(_v, _w, _opSlot) binary_op1(_v, _w, _opSlot) // 980
 
-static AlifObject* binOp_typeError(AlifObject* _v, AlifObject* _w, const char* _opName) { // 985
+static AlifObject* binOp_typeError(AlifObject* _v, AlifObject* _w,
+	const char* _opName) { // 985
 	alifErr_format(_alifExcTypeError_,
 		"عملية غير مدعومة %.100s: "
 		"'%.100s' و '%.100s'",

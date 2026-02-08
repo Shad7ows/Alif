@@ -143,8 +143,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Stdout);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(TextIOWrapper);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(TextIOWrapper);
+	//_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Top);
 	_alifUStr_internStatic(interp, &string);
 	//string = &ALIF_ID(Write);

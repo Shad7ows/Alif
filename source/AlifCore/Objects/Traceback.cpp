@@ -12,11 +12,15 @@
 
 
 
+#include "OSDefs.h"
+
+
 
 #include "clinic/Traceback.cpp.h"
 
 
 
+extern char* _alifTokenizer_findEncodingFilename(AlifIntT, AlifObject*); // 34
 
 
 static AlifObject* tb_createRaw(AlifTracebackObject* next, AlifFrameObject* frame,
@@ -103,6 +107,20 @@ AlifIntT alifTraceBack_here(AlifFrameObject* _frame) { // 261
 }
 
 
+AlifIntT _alif_writeIndent(AlifIntT _indent, AlifObject* _f) { // 400
+	char buf[11] = "          ";
+	while (_indent > 0) {
+		if (_indent < 10) {
+			buf[_indent] = '\0';
+		}
+		if (alifFile_writeString(buf, _f) < 0) {
+			return -1;
+		}
+		_indent -= 10;
+	}
+	return 0;
+}
+
 
 static AlifIntT display_sourceLine(AlifObject* f, AlifObject* filename, AlifIntT lineno,
 	AlifIntT indent, AlifIntT* truncation, AlifObject** line) { // 417
@@ -110,146 +128,146 @@ static AlifIntT display_sourceLine(AlifObject* f, AlifObject* filename, AlifIntT
 	AlifIntT i{};
 	char* found_encoding{};
 	const char* encoding{};
-	AlifObject* io;
-	AlifObject* binary;
+	AlifObject* io{};
+	AlifObject* binary{};
 	AlifObject* fob = nullptr;
 	AlifObject* lineobj = nullptr;
 	AlifObject* res;
-	//char buf[MAXPATHLEN + 1]{};
+	char buf[MAXPATHLEN + 1]{};
 	AlifIntT kind{};
 	const void* data{};
 
 	/* open the file */
-//	if (filename == nullptr)
-//		return 0;
-//
-//	if (ALIFUSTR_READ_CHAR(filename, 0) == '<') {
-//		AlifSizeT len = ALIFUSTR_GET_LENGTH(filename);
-//		if (len > 0 and ALIFUSTR_READ_CHAR(filename, len - 1) == '>') {
-//			return 0;
-//		}
-//	}
-//
-//	io = alifImport_importModule("io");
-//	if (io == nullptr) {
-//		return -1;
-//	}
-//
-//	binary = _alifObject_callMethod(io, &ALIF_ID(Open), "Os", filename, "rb");
-//	if (binary == nullptr) {
-//		alifErr_clear();
-//
-//		binary = _alif_findSourceFile(filename, buf, sizeof(buf), io);
-//		if (binary == nullptr) {
-//			ALIF_DECREF(io);
-//			return -1;
-//		}
-//	}
-//
-//	/* use the right encoding to decode the file as unicode */
-//	fd = alifObject_asFileDescriptor(binary);
-//	if (fd < 0) {
-//		ALIF_DECREF(io);
-//		ALIF_DECREF(binary);
-//		return 0;
-//	}
-//	found_encoding = _alifTokenizer_findEncodingFilename(fd, filename);
-//	if (found_encoding == nullptr)
-//		alifErr_clear();
-//	encoding = (found_encoding != nullptr) ? found_encoding : "utf-8";
-//	/* Reset position */
-//	if (lseek(fd, 0, SEEK_SET) == (off_t)-1) {
-//		ALIF_DECREF(io);
-//		ALIF_DECREF(binary);
-//		alifMem_dataFree(found_encoding);
-//		return 0;
-//	}
-//	fob = _alifObject_callMethod(io, &ALIF_ID(TextIOWrapper),
-//		"Os", binary, encoding);
-//	ALIF_DECREF(io);
-//	alifMem_dataFree(found_encoding);
-//
-//	if (fob == nullptr) {
-//		alifErr_clear();
-//
-//		res = alifObject_callMethodNoArgs(binary, &ALIF_ID(Close));
-//		ALIF_DECREF(binary);
-//		if (res)
-//			ALIF_DECREF(res);
-//		else
-//			alifErr_clear();
-//		return 0;
-//	}
-//	ALIF_DECREF(binary);
-//
-//	/* get the line number lineno */
-//	for (i = 0; i < lineno; i++) {
-//		ALIF_XDECREF(lineobj);
-//		lineobj = alifFile_getLine(fob, -1);
-//		if (!lineobj) {
-//			alifErr_clear();
-//			break;
-//		}
-//	}
-//	res = alifObject_callMethodNoArgs(fob, &ALIF_ID(Close));
-//	if (res) {
-//		ALIF_DECREF(res);
-//	}
-//	else {
-//		alifErr_clear();
-//	}
-//	ALIF_DECREF(fob);
-//	if (!lineobj or !ALIFUSTR_CHECK(lineobj)) {
-//		ALIF_XDECREF(lineobj);
-//		return -1;
-//	}
-//
-//	if (line) {
-//		*line = ALIF_NEWREF(lineobj);
-//	}
-//
-//	/* remove the indentation of the line */
-//	kind = ALIFUSTR_KIND(lineobj);
-//	data = ALIFUSTR_DATA(lineobj);
-//	for (i = 0; i < ALIFUSTR_GET_LENGTH(lineobj); i++) {
-//		AlifUCS4 ch = ALIFUSTR_READ(kind, data, i);
-//		if (ch != ' ' && ch != '\t' && ch != '\014')
-//			break;
-//	}
-//	if (i) {
-//		AlifObject* truncated;
-//		truncated = alifUStr_subString(lineobj, i, ALIFUSTR_GET_LENGTH(lineobj));
-//		if (truncated) {
-//			ALIF_SETREF(lineobj, truncated);
-//		}
-//		else {
-//			alifErr_clear();
-//		}
-//	}
-//
-//	if (truncation != nullptr) {
-//		*truncation = i - indent;
-//	}
-//
-//	/* Write some spaces before the line */
-//	if (_alif_writeIndent(indent, f) < 0) {
-//		goto error;
-//	}
-//
-//	/* finally display the line */
-//	if (alifFile_writeObject(lineobj, f, ALIF_PRINT_RAW) < 0) {
-//		goto error;
-//	}
-//
-//	if (alifFile_writeString("\n", f) < 0) {
-//		goto error;
-//	}
-//
-//	ALIF_DECREF(lineobj);
+	if (filename == nullptr)
+		return 0;
+
+	if (ALIFUSTR_READ_CHAR(filename, 0) == '<') {
+		AlifSizeT len = ALIFUSTR_GET_LENGTH(filename);
+		if (len > 0 and ALIFUSTR_READ_CHAR(filename, len - 1) == '>') {
+			return 0;
+		}
+	}
+
+	io = alifImport_importModule("التبادل");
+	if (io == nullptr) {
+		return -1;
+	}
+
+	binary = _alifObject_callMethod(io, &ALIF_STR(Open), "Os", filename, "rb");
+	if (binary == nullptr) {
+		alifErr_clear();
+
+		//binary = _alif_findSourceFile(filename, buf, sizeof(buf), io);
+		if (binary == nullptr) {
+			ALIF_DECREF(io);
+			return -1;
+		}
+	}
+
+	/* use the right encoding to decode the file as unicode */
+	fd = alifObject_asFileDescriptor(binary);
+	if (fd < 0) {
+		ALIF_DECREF(io);
+		ALIF_DECREF(binary);
+		return 0;
+	}
+	found_encoding = _alifTokenizer_findEncodingFilename(fd, filename);
+	if (found_encoding == nullptr)
+		alifErr_clear();
+	encoding = (found_encoding != nullptr) ? found_encoding : "utf-8";
+	/* Reset position */
+	if (lseek(fd, 0, SEEK_SET) == (off_t)-1) {
+		ALIF_DECREF(io);
+		ALIF_DECREF(binary);
+		alifMem_dataFree(found_encoding);
+		return 0;
+	}
+	fob = _alifObject_callMethod(io, &ALIF_STR(TextIOWrapper),
+		"Os", binary, encoding);
+	ALIF_DECREF(io);
+	alifMem_dataFree(found_encoding);
+
+	if (fob == nullptr) {
+		alifErr_clear();
+
+		res = alifObject_callMethodNoArgs(binary, &ALIF_STR(Close));
+		ALIF_DECREF(binary);
+		if (res)
+			ALIF_DECREF(res);
+		else
+			alifErr_clear();
+		return 0;
+	}
+	ALIF_DECREF(binary);
+
+	/* get the line number lineno */
+	for (i = 0; i < lineno; i++) {
+		ALIF_XDECREF(lineobj);
+		lineobj = alifFile_getLine(fob, -1);
+		if (!lineobj) {
+			alifErr_clear();
+			break;
+		}
+	}
+	res = alifObject_callMethodNoArgs(fob, &ALIF_STR(Close));
+	if (res) {
+		ALIF_DECREF(res);
+	}
+	else {
+		alifErr_clear();
+	}
+	ALIF_DECREF(fob);
+	if (!lineobj or !ALIFUSTR_CHECK(lineobj)) {
+		ALIF_XDECREF(lineobj);
+		return -1;
+	}
+
+	if (line) {
+		*line = ALIF_NEWREF(lineobj);
+	}
+
+	/* remove the indentation of the line */
+	kind = ALIFUSTR_KIND(lineobj);
+	data = ALIFUSTR_DATA(lineobj);
+	for (i = 0; i < ALIFUSTR_GET_LENGTH(lineobj); i++) {
+		AlifUCS4 ch = ALIFUSTR_READ(kind, data, i);
+		if (ch != ' ' and ch != '\t' and ch != '\014')
+			break;
+	}
+	if (i) {
+		AlifObject* truncated;
+		truncated = alifUStr_subString(lineobj, i, ALIFUSTR_GET_LENGTH(lineobj));
+		if (truncated) {
+			ALIF_SETREF(lineobj, truncated);
+		}
+		else {
+			alifErr_clear();
+		}
+	}
+
+	if (truncation != nullptr) {
+		*truncation = i - indent;
+	}
+
+	/* Write some spaces before the line */
+	if (_alif_writeIndent(indent, f) < 0) {
+		goto error;
+	}
+
+	/* finally display the line */
+	if (alifFile_writeObject(lineobj, f, ALIF_PRINT_RAW) < 0) {
+		goto error;
+	}
+
+	if (alifFile_writeString("\n", f) < 0) {
+		goto error;
+	}
+
+	ALIF_DECREF(lineobj);
 	return 0;
-//error:
-//	ALIF_DECREF(lineobj);
-//	return -1;
+error:
+	ALIF_DECREF(lineobj);
+	return -1;
 }
 
 

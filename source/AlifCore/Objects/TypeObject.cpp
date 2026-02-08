@@ -421,7 +421,8 @@ void alifType_setVersion(AlifTypeObject* _tp, AlifUIntT _version) { // 1184
 
 #define MAX_VERSIONS_PER_CLASS 1000 // 1218
 
-static AlifIntT assign_versionTag(AlifInterpreter* interp, AlifTypeObject* type) { // 1220
+static AlifIntT assign_versionTag(AlifInterpreter* interp,
+	AlifTypeObject* type) { // 1220
 	if (type->versionTag != 0) {
 		return 1;
 	}
@@ -460,6 +461,30 @@ static AlifIntT assign_versionTag(AlifInterpreter* interp, AlifTypeObject* type)
 }
 
 
+static AlifIntT check_setSpecialTypeAttr(AlifTypeObject *type,
+	AlifObject *value, const char *name) { // 1284
+	if (_alifType_hasFeature(type, ALIF_TPFLAGS_IMMUTABLETYPE)) {
+		alifErr_format(_alifExcTypeError_,
+			"لا يمكن ضبط '%s' عنصر لنوع غير متغير '%s'",
+			name, type->name);
+		return 0;
+	}
+	if (!value) {
+		alifErr_format(_alifExcTypeError_,
+			"لا يمكن حذف '%s' عنصر لنوع غير متغير '%s'",
+			name, type->name);
+		return 0;
+	}
+
+	//if (alifSys_audit("object.__setattr__", "OsO",
+	//	type, name, value) < 0) {
+	//	return 0;
+	//}
+
+	return 1;
+}
+
+
 const char* _alifType_name(AlifTypeObject* _type) { // 1308
 	const char* s = strrchr(_type->name, '.');
 	if (s == nullptr) {
@@ -483,7 +508,51 @@ static AlifObject* type_qualname(AlifTypeObject* type, void* context) { // 1335
 }
 
 
-static AlifObject* type_abstractMethods(AlifTypeObject* type, void* context) { // 1491
+static AlifObject* type_module(AlifTypeObject *_type) { // 1396
+	AlifObject* mod{};
+	if (_type->flags & ALIF_TPFLAGS_HEAPTYPE) {
+		AlifObject *dict = lookup_tpDict(_type);
+		if (alifDict_getItemRef(dict, &ALIF_ID(__module__), &mod) == 0) {
+			alifErr_format(_alifExcAttributeError_, "__module__");
+		}
+	}
+	else {
+		const char *s = strrchr(_type->name, '.');
+		if (s != nullptr) {
+			mod = alifUStr_fromStringAndSize(
+				_type->name, (AlifSizeT)(s - _type->name));
+			if (mod != nullptr) {
+				AlifInterpreter* interp = _alifInterpreter_get();
+				alifUStr_internMortal(interp, &mod);
+			}
+		}
+		else {
+			mod = &ALIF_ID(Builtins);
+		}
+	}
+	return mod;
+}
+
+static AlifObject* type_getModule(AlifTypeObject* _type, void* _context) { // 1423
+	return type_module(_type);
+}
+
+static AlifIntT type_setModule(AlifTypeObject* type, AlifObject* value,
+	void* context) { // 1429
+	if (!check_setSpecialTypeAttr(type, value, "__module__"))
+		return -1;
+
+	alifType_modified(type);
+
+	AlifObject *dict = lookup_tpDict(type);
+	if (alifDict_pop(dict, &ALIF_ID(__firstLineno__), nullptr) < 0) {
+		return -1;
+	}
+	return alifDict_setItem(dict, &ALIF_ID(__module__), value);
+}
+
+static AlifObject* type_abstractMethods(AlifTypeObject* type,
+	void* context) { // 1491
 	AlifObject* mod = nullptr;
 	if (type == &_alifTypeType_) {
 		//alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
@@ -502,7 +571,23 @@ static AlifObject* type_abstractMethods(AlifTypeObject* type, void* context) { /
 static AlifIntT add_subClass(AlifTypeObject*, AlifTypeObject*); // 1569
 
 
-static AlifObject* type_call(AlifObject* _self, AlifObject* _args, AlifObject* _kwds) { // 2136
+
+static AlifGetSetDef _typeGetSets_[] = { // 2076
+	//{"__name__", (Getter)type_name, (Setter)type_setName, nullptr},
+	//{"__qualname__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
+	//{"__bases__", (Getter)type_getBases, (Setter)type_setBases, nullptr},
+	//{"__mro__", (Getter)type_getMro, nullptr, nullptr},
+	{"__module__", (Getter)type_getModule, (Setter)type_setModule, nullptr},
+	//{"__abstractmethods__", (Getter)type_abstractMethods,
+	//(Setter)type_setAbstractMethods, nullptr},
+	//{"__dict__",  (Getter)type_dict,  nullptr, nullptr},
+	{0}
+};
+
+
+
+static AlifObject* type_call(AlifObject* _self, AlifObject* _args,
+	AlifObject* _kwds) { // 2136
 	AlifTypeObject* type = (AlifTypeObject*)_self;
 	AlifObject* obj{};
 	AlifThread* thread = _alifThread_get();
@@ -838,7 +923,7 @@ static inline AlifObject* vectorcall_unbound(AlifThread* _thread, AlifIntT _unbo
 		nargsf = nargsf - 1 + ALIF_VECTORCALL_ARGUMENTS_OFFSET;
 	}
 	//EVAL_CALL_STAT_INC_IF_FUNCTION(EVAL_CALL_SLOT, _func);
-	return alifObject_vectorCallThread(_thread, _func, _args, nargsf, NULL);
+	return alifObject_vectorCallThread(_thread, _func, _args, nargsf, nullptr);
 }
 
 
@@ -2975,6 +3060,7 @@ AlifTypeObject _alifTypeType_ = { // 6195
 	.weakListOffset = offsetof(AlifTypeObject, weakList),
 
 	.methods = _typeMethods_,
+	.getSet = _typeGetSets_,
 	.dictOffset = offsetof(AlifTypeObject, dict),
 	.init = type_init,
 	.new_ = type_new,
