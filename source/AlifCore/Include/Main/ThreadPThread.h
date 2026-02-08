@@ -208,7 +208,24 @@ void alifThread_freeLock(AlifThreadTypeLock lock) { // 661
 }
 
 
+void alifThread_releaseLock(AlifThreadTypeLock _lock) { // 767
+	pthread_lock *thelock = (pthread_lock*)_lock;
+	AlifIntT status, error = 0;
 
+	(void) error; /* silence unused-but-set-variable warning */
+
+	status = pthread_mutex_lock( &thelock->mut );
+	CHECK_STATUS_PTHREAD("pthread_mutex_lock[3]");
+
+	thelock->locked = 0;
+
+	/* wake up someone (anyone, if any) waiting on the lock */
+	status = pthread_cond_signal( &thelock->lock_released );
+	CHECK_STATUS_PTHREAD("pthread_cond_signal");
+
+	status = pthread_mutex_unlock( &thelock->mut );
+	CHECK_STATUS_PTHREAD("pthread_mutex_unlock[3]");
+}
 
 #endif /* USE_SEMAPHORES */ // 788
 
