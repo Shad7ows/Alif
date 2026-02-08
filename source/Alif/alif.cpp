@@ -139,7 +139,7 @@ static AlifIntT alifMain_runCommand(wchar_t* _command) { // 231
 
 	cf = ALIFCOMPILERFLAGS_INIT;
 	cf.flags |= ALIFCF_IGNORE_COOKIE;
-	ret = _alifRun_simpleStringFlagsWithName(alifBytes_asString(bytes), "<string>", &cf);
+	ret = _alifRun_simpleStringFlagsWithName(alifBytes_asString(bytes), "<نص>", &cf);
 	ALIF_DECREF(bytes);
 	return (ret != 0);
 

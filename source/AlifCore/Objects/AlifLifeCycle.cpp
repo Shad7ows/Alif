@@ -919,7 +919,7 @@ static AlifStatus init_setBuiltinsOpen(void) { // 2709
 	goto done;
 
 error:
-	res = ALIFSTATUS_ERR("can't initialize io.open");
+	res = ALIFSTATUS_ERR("لم يستطع تهيئة التبادل.افتح");
 
 done:
 	ALIF_XDECREF(bimod);
@@ -940,7 +940,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	class AlifStatStruct sb;
 	if (_alifFStat_noraise(fileno(stdin), &sb) == 0 and
 		S_ISDIR(sb.st_mode)) {
-		return ALIFSTATUS_ERR("<stdin> is a directory, cannot continue");
+		return ALIFSTATUS_ERR("<stdin> عبارة عن مسار, لا يمكن الإستمرار");
 	}
 #endif
 

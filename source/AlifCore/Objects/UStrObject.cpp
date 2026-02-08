@@ -1981,7 +1981,7 @@ static const char* uStr_fromFormatArg(AlifUStrWriter* _writer,
 	//
 	default:
 invalid_format:
-		alifErr_format(_alifExcSystemError_, "invalid format string: %s", p);
+		alifErr_format(_alifExcSystemError_, "تنسيق نصي غير صحيح: %s", p);
 		return nullptr;
 	}
 
