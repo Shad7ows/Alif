@@ -69,12 +69,22 @@ static AlifIntT tb_getLineNo(AlifTracebackObject* tb) { // 110
 
 
 
+static void tb_dealloc(AlifTracebackObject *_tb) { // 182
+	alifObject_gcUnTrack(_tb);
+	ALIF_TRASHCAN_BEGIN(_tb, tb_dealloc)
+	ALIF_XDECREF(_tb->next);
+	ALIF_XDECREF(_tb->frame);
+	alifObject_gcDel(_tb);
+	ALIF_TRASHCAN_END
+}
+
+
 
 AlifTypeObject _alifTraceBackType_ = { // 209
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "تتبع",
 	.basicSize = sizeof(AlifTracebackObject),
-	//.dealloc = (Destructor)tb_dealloc,
+	.dealloc = (Destructor)tb_dealloc,
 	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC,
 	//.traverse = (TraverseProc)tb_traverse,
