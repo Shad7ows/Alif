@@ -437,7 +437,7 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 		AlifThread* thread = _alifThread_get();
 		_file = _alifSys_getAttr(thread, &ALIF_ID(Stdout));
 		if (_file == nullptr) {
-			//alifErr_setString(_alifExcRuntimeError_, "lost sys.stdout");
+			alifErr_setString(_alifExcRuntimeError_, "مفقود النظام.الإخراج");
 			return nullptr;
 		}
 
@@ -450,18 +450,18 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 		_sep = nullptr;
 	}
 	else if (_sep and !ALIFUSTR_CHECK(_sep)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"sep must be None or a string, not %.200s",
-		//	ALIF_TYPE(sep)->name);
+		alifErr_format(_alifExcTypeError_,
+			"الفاصلة يجب أن تكون عدم او نص, وليس %.200s",
+			ALIF_TYPE(_sep)->name);
 		return nullptr;
 	}
 	if (_end == ALIF_NONE) {
 		_end = nullptr;
 	}
 	else if (_end and !ALIFUSTR_CHECK(_end)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"end must be None or a string, not %.200s",
-		//	ALIF_TYPE(end)->name);
+		alifErr_format(_alifExcTypeError_,
+			"النهاية يجب أن تكون عدم او نص, وليس %.200s",
+			ALIF_TYPE(_end)->name);
 		return nullptr;
 	}
 
@@ -494,9 +494,9 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 	}
 
 	if (_flush) {
-		//if (_alifFile_flush(_file) < 0) {
-		//	return nullptr;
-		//}
+		if (_alifFile_flush(_file) < 0) {
+			return nullptr;
+		}
 	}
 
 	return ALIF_NONE;

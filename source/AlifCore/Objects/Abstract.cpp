@@ -11,13 +11,20 @@
 
 
 
+/* Shorthands to return certain errors */
+
+static AlifObject* type_error(const char* msg, AlifObject* obj) { // 18
+	alifErr_format(_alifExcTypeError_, msg, ALIF_TYPE(obj)->name);
+	return nullptr;
+}
+
 
 static AlifObject* null_error(void) { // 27
 	AlifThread* thread = _alifThread_get();
-	//if (!alifErr_occurred(thread)) {
-	//	alifErr_setString(thread, _alifExcSystemError_,
-	//		"null argument to internal routine");
-	//}
+	if (!_alifErr_occurred(thread)) {
+		_alifErr_setString(thread, _alifExcSystemError_,
+			"معامل عدم ضمن عملية إعتيادية داخلية");
+	}
 	return nullptr;
 }
 
@@ -548,7 +555,7 @@ static AlifObject* binary_op(AlifObject* _v, AlifObject* _w,
 
 
 static AlifObject* ternary_op(AlifObject* _v, AlifObject* _w, AlifObject* _z,
-	const AlifIntT _opSlot/*, const char* _opName */) { // 1016
+	const AlifIntT _opSlot, const char* _opName) { // 1016
 	AlifNumberMethods* mv = ALIF_TYPE(_v)->asNumber;
 	AlifNumberMethods* mw = ALIF_TYPE(_w)->asNumber;
 
@@ -611,23 +618,23 @@ static AlifObject* ternary_op(AlifObject* _v, AlifObject* _w, AlifObject* _z,
 	}
 
 	if (_z == ALIF_NONE) {
-		//alifErr_format(
-		//	_alifExcTypeError_,
-		//	"unsupported operand type(s) for %.100s: "
-		//	"'%.100s' and '%.100s'",
-		//	_opName,
-		//	ALIF_TYPE(_v)->name,
-		//	ALIF_TYPE(_w)->name);
+		alifErr_format(
+			_alifExcTypeError_,
+			"عملية غير مدعومة %.100s: "
+			"'%.100s' و '%.100s'",
+			_opName,
+			ALIF_TYPE(_v)->name,
+			ALIF_TYPE(_w)->name);
 	}
 	else {
-		//alifErr_format(
-		//	_alifExcTypeError_,
-		//	"unsupported operand type(s) for %.100s: "
-		//	"'%.100s', '%.100s', '%.100s'",
-		//	_opName,
-		//	ALIF_TYPE(_v)->name,
-		//	ALIF_TYPE(_w)->name,
-		//	ALIF_TYPE(_z)->name);
+		alifErr_format(
+			_alifExcTypeError_,
+			"عمليات غير مدعومة %.100s: "
+			"'%.100s', '%.100s', '%.100s'",
+			_opName,
+			ALIF_TYPE(_v)->name,
+			ALIF_TYPE(_w)->name,
+			ALIF_TYPE(_z)->name);
 	}
 	return nullptr;
 }
@@ -705,7 +712,7 @@ BINARY_FUNC(alifNumber_trueDivide, trueDivide, "/") // 1183
 BINARY_FUNC(alifNumber_remainder, remainder, "/*")
 
 AlifObject* alifNumber_power(AlifObject* _v, AlifObject* _w, AlifObject* _z) { // 1186
-	return ternary_op(_v, _w, _z, NB_SLOT(power));
+	return ternary_op(_v, _w, _z, NB_SLOT(power), "^ او اس()");
 }
 
 AlifObject* _alifNumber_powerNoMod(AlifObject* _lhs, AlifObject* _rhs) { // 1192
@@ -742,7 +749,7 @@ static AlifObject* binary_iop(AlifObject* _v, AlifObject* _w,
 
 static AlifObject* ternary_iOp(AlifObject* _v, AlifObject* _w,
 	AlifObject* _z, const AlifIntT _iopSlot,
-	const AlifIntT _opSlot/*, const char* _opName*/) { // 1258
+	const AlifIntT _opSlot, const char* _opName) { // 1258
 	AlifNumberMethods* mv = ALIF_TYPE(_v)->asNumber;
 	if (mv != nullptr) {
 		TernaryFunc slot = NB_TERNOP(mv, _iopSlot);
@@ -754,7 +761,7 @@ static AlifObject* ternary_iOp(AlifObject* _v, AlifObject* _w,
 			ALIF_DECREF(x);
 		}
 	}
-	return ternary_op(_v, _w, _z, _opSlot/*, _opName*/);
+	return ternary_op(_v, _w, _z, _opSlot, _opName);
 }
 
 // 1276
@@ -817,7 +824,7 @@ AlifObject* alifNumber_inPlaceMultiply(AlifObject* _v, AlifObject* _w) { // 1316
 }
 
 AlifObject* alifNumber_inPlacePower(AlifObject* _v, AlifObject* _w, AlifObject* _z) { // 1345
-	return ternary_iOp(_v, _w, _z, NB_SLOT(inplacePower), NB_SLOT(power));
+	return ternary_iOp(_v, _w, _z, NB_SLOT(inplacePower), NB_SLOT(power), "^=");
 }
 
 AlifObject* _alifNumber_inPlacePowerNoMod(AlifObject* _lhs, AlifObject* _rhs) { // 1352
@@ -841,11 +848,11 @@ AlifObject* _alifNumber_inPlacePowerNoMod(AlifObject* _lhs, AlifObject* _rhs) { 
         return nullptr; \
     }
 
-UNARY_FUNC(alifNumber_negative, negative, __neg__, "unary -")
-UNARY_FUNC(alifNumber_positive, positive, __pos__, "unary +")
-UNARY_FUNC(alifNumber_invert, invert, __invert__, "unary ~")
-UNARY_FUNC(alifNumber_absolute, absolute, __abs__, "abs()")
-UNARY_FUNC(alifNumber_sqrt, sqrt, __sqrt__, "sqrt()") //* alif
+UNARY_FUNC(alifNumber_negative, negative, __neg__, "إشارة -")
+UNARY_FUNC(alifNumber_positive, positive, __pos__, "إشارة +")
+UNARY_FUNC(alifNumber_invert, invert, __invert__, "إشارة ~")
+UNARY_FUNC(alifNumber_absolute, absolute, __abs__, "مطلق()")
+UNARY_FUNC(alifNumber_sqrt, sqrt, __sqrt__, "جذر()") //* alif
 
 
 AlifObject* _alifNumber_index(AlifObject* _item) { // 1397
@@ -858,8 +865,7 @@ AlifObject* _alifNumber_index(AlifObject* _item) { // 1397
 	}
 	if (!alifIndex_check(_item)) {
 		alifErr_format(_alifExcTypeError_,
-			"'%.200s' object cannot be interpreted "
-			"as an integer", ALIF_TYPE(_item)->name);
+			"'%.200s' الكائن ليس من نوع عدد صحيح ", ALIF_TYPE(_item)->name);
 		return nullptr;
 	}
 
@@ -1220,9 +1226,9 @@ AlifObject* alifSequence_fast(AlifObject* _v, const char* _m) { // 2098
 	it = alifObject_getIter(_v);
 	if (it == nullptr) {
 		AlifThread* thread = _alifThread_get();
-		//if (alifErr_exceptionMatches(thread, _alifExcTypeError_)) {
-		//	alifErr_setString(thread, _alifExcTypeError_, _m);
-		//}
+		if (_alifErr_exceptionMatches(thread, _alifExcTypeError_)) {
+			_alifErr_setString(thread, _alifExcTypeError_, _m);
+		}
 		return nullptr;
 	}
 
@@ -1233,7 +1239,8 @@ AlifObject* alifSequence_fast(AlifObject* _v, const char* _m) { // 2098
 }
 
 
-AlifIntT _alifSequence_iterSearch(AlifObject* seq, AlifObject* obj, AlifIntT operation) { // 2132
+AlifIntT _alifSequence_iterSearch(AlifObject* seq,
+	AlifObject* obj, AlifIntT operation) { // 2132
 	AlifSizeT n{};
 	AlifIntT wrapped{};
 	AlifObject* it{};  /* iter(seq) */
@@ -1245,17 +1252,17 @@ AlifIntT _alifSequence_iterSearch(AlifObject* seq, AlifObject* obj, AlifIntT ope
 
 	it = alifObject_getIter(seq);
 	if (it == nullptr) {
-		//if (alifErr_exceptionMatches(_alifExcTypeError_)) {
-		//	if (operation == ALIF_ITERSEARCH_CONTAINS) {
-		//		type_error(
-		//			"argument of type '%.200s' is not a container or iterable",
-		//			seq
-		//		);
-		//	}
-		//	else {
-		//		type_error("argument of type '%.200s' is not iterable", seq);
-		//	}
-		//}
+		if (alifErr_exceptionMatches(_alifExcTypeError_)) {
+			if (operation == ALIF_ITERSEARCH_CONTAINS) {
+				type_error(
+					"نوع المعامل '%.200s' ليس حاوية او تكرار",
+					seq
+				);
+			}
+			else {
+				type_error("نوع المعامل '%.200s' ليس تكرار", seq);
+			}
+		}
 		return -1;
 	}
 
@@ -1277,8 +1284,8 @@ AlifIntT _alifSequence_iterSearch(AlifObject* seq, AlifObject* obj, AlifIntT ope
 			switch (operation) {
 			case ALIF_ITERSEARCH_COUNT:
 				if (n == ALIF_SIZET_MAX) {
-					//alifErr_setString(_alifExcOverflowError_,
-					//	"count exceeds C integer size");
+					alifErr_setString(_alifExcOverflowError_,
+						"العد تجاوز حجم الرقم الصحيح في c++");
 					goto Fail;
 				}
 				++n;
@@ -1286,8 +1293,8 @@ AlifIntT _alifSequence_iterSearch(AlifObject* seq, AlifObject* obj, AlifIntT ope
 
 			case ALIF_ITERSEARCH_INDEX:
 				if (wrapped) {
-					//alifErr_setString(_alifExcOverflowError_,
-					//	"index exceeds C integer size");
+					alifErr_setString(_alifExcOverflowError_,
+						"العد تجاوز حجم الرقم الصحيح في c++");
 					goto Fail;
 				}
 				goto Done;

@@ -582,8 +582,8 @@ static AlifIntT ast_typeInit(AlifObject* self, AlifObject* args, AlifObject* kw)
 
 	res = 0; /* if no error occurs, this stays 0 to the end */
 	if (numfields < ALIFTUPLE_GET_SIZE(args)) {
-		alifErr_format(_alifExcTypeError_, "%.400s constructor takes at most "
-			"%zd positional argument%s",
+		alifErr_format(_alifExcTypeError_, "%.400s المعرف يحتاج على الأكثر "
+			"%zd معاملات مكانية%s",
 			_alifType_name(ALIF_TYPE(self)),
 			numfields, numfields == 1 ? "" : "s");
 		res = -1;

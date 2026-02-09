@@ -2789,9 +2789,9 @@ static AlifIntT initialize_locals(AlifThread* _thread, AlifFunctionObject* _func
 			AlifSizeT j{};
 
 			if (keyword == nullptr or !ALIFUSTR_CHECK(keyword)) {
-				//_alifErr_format(_thread, _alifExcTypeError_,
-				//	"%U() keywords must be strings",
-				//	_func->qualname);
+				_alifErr_format(_thread, _alifExcTypeError_,
+					"%U() الكلمات المفتاحية يجب أن تكون من نوع نص",
+					_func->qualname);
 				goto kw_fail;
 			}
 
