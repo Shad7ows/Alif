@@ -211,9 +211,9 @@ static AlifObject* make_gen(AlifTypeObject* type, AlifFunctionObject* func) { //
 		return nullptr;
 	}
 	gen->giFrameState = AlifFrameState_::Frame_Cleared;
-	gen->giWeakRefList = NULL;
-	gen->giExcState.excValue = NULL;
-	gen->giExcState.previousItem = NULL;
+	gen->giWeakRefList = nullptr;
+	gen->giExcState.excValue = nullptr;
+	gen->giExcState.previousItem = nullptr;
 	gen->giName = ALIF_NEWREF(func->name);
 	gen->giQualname = ALIF_NEWREF(func->qualname);
 	ALIFOBJECT_GC_TRACK(gen);

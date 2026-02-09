@@ -164,8 +164,8 @@ void _alifErr_setObject(AlifThread* _thread,
 	if (!isSubclass) {
 		_alifErr_clear(_thread);
 
-		AlifObject* fixed_value = _alifErr_createException(_exception, _value);
-		if (fixed_value == nullptr) {
+		AlifObject* fixedValue = _alifErr_createException(_exception, _value);
+		if (fixedValue == nullptr) {
 			AlifObject* exc = _alifErr_getRaisedException(_thread);
 
 			AlifObject* note = getNormalization_failureNote(_thread, _exception, _value);
@@ -177,7 +177,7 @@ void _alifErr_setObject(AlifThread* _thread,
 			_alifErr_setRaisedException(_thread, exc);
 			return;
 		}
-		ALIF_XSETREF(_value, fixed_value);
+		ALIF_XSETREF(_value, fixedValue);
 	}
 
 	excValue = _alifErr_getTopMostException(_thread)->excValue;

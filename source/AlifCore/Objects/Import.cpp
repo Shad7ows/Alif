@@ -1661,7 +1661,7 @@ AlifObject* alifImport_importModuleLevel(const char* name, AlifObject* globals,
 
 
 AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
-	AlifThread* tstate = _alifThread_get();
+	AlifThread* thread = _alifThread_get();
 	AlifObject* globals = nullptr;
 	AlifObject* import = nullptr;
 	AlifObject* builtins = nullptr;
@@ -1714,8 +1714,8 @@ AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
 		goto err;
 	ALIF_DECREF(r);
 
-	r = import_getModule(tstate, _moduleName);
-	if (r == nullptr and !_alifErr_occurred(tstate)) {
+	r = import_getModule(thread, _moduleName);
+	if (r == nullptr and !_alifErr_occurred(thread)) {
 		//_alifErr_setObject(tstate, _alifExcKeyError_, module_name);
 	}
 

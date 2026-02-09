@@ -932,7 +932,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	AlifObject* iomod = nullptr;
 	AlifObject* std = nullptr;
 	AlifIntT fd{};
-	AlifObject* encodingAttr;
+	AlifObject* encodingAttr{};
 	AlifStatus res = ALIFSTATUS_OK();
 	const AlifConfig* config = alifInterpreter_getConfig(_thread->interpreter);
 
