@@ -438,7 +438,7 @@ static AlifStatus alifCore_initTypes(AlifInterpreter* _interp) { // 718
 }
 
 
-static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 775
+static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 785
 
 	AlifObject* modules{};
 	AlifObject* builtinsDict{};
@@ -457,6 +457,11 @@ static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 775
 	if (builtinsDict == nullptr) goto error;
 	interp->builtins = ALIF_NEWREF(builtinsDict);
 
+
+
+	if (_alifBuiltins_addExceptions(biMod) < 0) {
+		return ALIFSTATUS_ERR("فشل في إضافة الأخطاء إلى فهرس الضمنيات");
+	}
 
 	interp->builtinsCopy = alifDict_copy(interp->builtins);
 	if (interp->builtinsCopy == nullptr) {

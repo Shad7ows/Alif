@@ -10,7 +10,12 @@
 
 
 
-
+/* Compatibility aliases */
+AlifObject *_alifExcEnvironmentError_ = nullptr;  // borrowed ref
+AlifObject *_alifExcIOError_ = nullptr;  // borrowed ref
+#ifdef _WINDOWS
+AlifObject *_alifExcWindowsError_ = nullptr;  // borrowed ref
+#endif
 
 static AlifExcState* get_excState(void) { // 28
 	AlifInterpreter* interp = _alifInterpreter_get();
@@ -159,7 +164,8 @@ static AlifObject* baseException_addNote(AlifObject* self, AlifObject* note) { /
 }
 
 
-static AlifIntT baseException_setTB(AlifBaseExceptionObject* self, AlifObject* tb, void* ALIF_UNUSED(ignored)) { // 319
+static AlifIntT baseException_setTB(AlifBaseExceptionObject* self,
+	AlifObject* tb, void* ALIF_UNUSED(ignored)) { // 319
 	if (tb == nullptr) {
 		alifErr_setString(_alifExcTypeError_, "__traceback__ may not be deleted");
 		return -1;
@@ -323,12 +329,12 @@ AlifObject* _alifExc ## EXCNAME ## _ = (AlifObject *)&_exc ## EXCNAME ## _
 
 
  // 567
-#define COMPLEXEXTENDSEXCEPTION(EXCBASE, EXCNAME, NAME, EXCSTORE, EXCNEW, \
+#define COMPLEXEXTENDSEXCEPTION(EXCBASE, EXCNAME, ALIFNAME, EXCSTORE, EXCNEW, \
                                 EXCMETHODS, EXCMEMBERS, EXCGETSET, \
                                 EXCSTR, EXCDOC) \
 static AlifTypeObject _exc ## EXCNAME ## _ = { \
     .objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0), \
-    .name = # NAME, \
+    .name = # ALIFNAME, \
     .basicSize = sizeof(Alif ## EXCNAME ## Object), \
     /*.dealloc = (Destructor)EXCSTORE ## _dealloc,*/ \
     .repr = (ReprFunc)EXCSTR, \
@@ -411,10 +417,25 @@ COMPLEXEXTENDSEXCEPTION(_excBaseException_, BaseExceptionGroup, خطأ_اساس_
 	"A combination of multiple unrelated exceptions.");
 
 
+static AlifObject* createException_groupClass(void) { // 1531
+	AlifExcState *state = get_excState();
+
+	AlifObject *bases = alifTuple_pack(
+		2, _alifExcBaseExceptionGroup_, _alifExcException_);
+	if (bases == nullptr) {
+		return nullptr;
+	}
+
+	state->alifExcExceptionGroup = alifErr_newException(
+		"builtins.ExceptionGroup", bases, nullptr);
+
+	ALIF_DECREF(bases);
+	return state->alifExcExceptionGroup;
+}
 
 
-
-AlifObject* _alifExc_createExceptionGroup(const char* _msgStr, AlifObject* _excs) { // 849
+AlifObject* _alifExc_createExceptionGroup(const char* _msgStr,
+	AlifObject* _excs) { // 849
 	AlifObject* msg = alifUStr_fromString(_msgStr);
 	if (!msg) {
 		return nullptr;
@@ -1047,5 +1068,49 @@ AlifIntT _alifExc_initTypes(AlifInterpreter* _interp) { // 3709
 			exc->vectorCall = baseException_vectorCall;
 		}
 	}
+	return 0;
+}
+
+
+
+/* Add exception types to the builtins module */
+AlifIntT _alifBuiltins_addExceptions(AlifObject *_bltinMod) { // 3828
+	AlifObject *mod_dict = alifModule_getDict(_bltinMod);
+	if (mod_dict == nullptr) {
+		return -1;
+	}
+
+	for (size_t i=0; i < ALIF_ARRAY_LENGTH(_staticExceptions_); i++) {
+		StaticException item = _staticExceptions_[i];
+
+		if (alifDict_setItemString(mod_dict, item.name, (AlifObject*)item.exc)) {
+			return -1;
+		}
+	}
+
+	AlifObject* alifExcExceptionGroup = createException_groupClass();
+	if (!alifExcExceptionGroup) {
+		return -1;
+	}
+	if (alifDict_setItemString(mod_dict, "ExceptionGroup", alifExcExceptionGroup)) {
+		return -1;
+	}
+
+#define INIT_ALIAS(_name, _type) \
+    do { \
+        _alifExc ## _name ## _ = _alifExc ## _type ## _; \
+        if (alifDict_setItemString(mod_dict, # _name, _alifExc ## _type ## _)) { \
+            return -1; \
+        } \
+    } while (0)
+
+	INIT_ALIAS(EnvironmentError, OSError);
+	INIT_ALIAS(IOError, OSError);
+#ifdef _WINDOWS
+	INIT_ALIAS(WindowsError, OSError);
+#endif
+
+#undef INIT_ALIAS
+
 	return 0;
 }

@@ -570,6 +570,59 @@ AlifObject* alifErr_format(AlifObject* _exception,
 
 
 
+AlifObject* alifErr_newException(const char* _name, AlifObject* _base,
+	AlifObject* _dict) { // 1231
+	AlifThread* thread = _alifThread_get();
+	AlifObject* moduleName = nullptr;
+	AlifObject* myDict = nullptr;
+	AlifObject* bases = nullptr;
+	AlifObject* result = nullptr;
+
+	const char *dot = strrchr(_name, '.');
+	if (dot == nullptr) {
+		_alifErr_setString(thread, _alifExcSystemError_,
+			"alifErr_newException: name must be module.class");
+		return nullptr;
+	}
+	if (_base == nullptr) {
+		_base = _alifExcException_;
+	}
+	if (_dict == nullptr) {
+		_dict = myDict = alifDict_new();
+		if (_dict == nullptr)
+			goto failure;
+	}
+
+	AlifIntT r; r = alifDict_contains(_dict, &ALIF_ID(__module__));
+	if (r < 0) {
+		goto failure;
+	}
+	if (r == 0) {
+		moduleName = alifUStr_fromStringAndSize(_name,
+			(AlifSizeT)(dot-_name));
+		if (moduleName == nullptr)
+			goto failure;
+		if (alifDict_setItem(_dict, &ALIF_ID(__module__), moduleName) != 0)
+			goto failure;
+	}
+	if (ALIFTUPLE_CHECK(_base)) {
+		bases = ALIF_NEWREF(_base);
+	} else {
+		bases = alifTuple_pack(1, _base);
+		if (bases == nullptr)
+			goto failure;
+	}
+	/* Create a real class. */
+	result = alifObject_callFunction((AlifObject*)&_alifTypeType_, "sOO",
+		dot+1, bases, _dict);
+failure:
+	ALIF_XDECREF(bases);
+	ALIF_XDECREF(myDict);
+	ALIF_XDECREF(moduleName);
+	return result;
+}
+
+
 void _alifErr_raiseSyntaxError(AlifObject* _msg, AlifObject* _filename, AlifIntT _lineno, AlifIntT _colOffset,
 	AlifIntT _endLineno, AlifIntT _endColOffset) { // 1856
 	AlifObject* text = alifErr_programTextObject(_filename, _lineno);

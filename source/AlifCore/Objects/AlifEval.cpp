@@ -2063,6 +2063,37 @@ resume_frame:
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(RERAISE) {
+				AlifCodeUnit* const this_instr = _frame->instrPtr = nextInstr;
+				(void)this_instr;
+				nextInstr += 1;
+				//INSTRUCTION_STATS(RERAISE);
+				AlifStackRef* values{};
+				AlifStackRef exc_st{};
+				exc_st = stackPointer[-1];
+				values = &stackPointer[-1 - oparg];
+				AlifObject *exc = alifStackRef_asAlifObjectSteal(exc_st);
+				if (oparg) {
+					AlifObject *lasti = alifStackRef_asAlifObjectBorrow(values[0]);
+					if (ALIFLONG_CHECK(lasti)) {
+						_frame->instrPtr = ALIFCODE_CODE(_alifFrame_getCode(_frame)) + alifLong_asLong(lasti);
+					}
+					else {
+						stackPointer += -1;
+						_alifFrame_setStackPointer(_frame, stackPointer);
+						_alifErr_setString(_thread, _alifExcSystemError_, "lasti ليس رقم صحيح");
+						stackPointer = _alifFrame_getStackPointer(_frame);
+						ALIF_DECREF(exc);
+						goto error;
+					}
+				}
+				stackPointer += -1;
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				_alifErr_setRaisedException(_thread, exc);
+				//monitor_reraise(_thread, _frame, this_instr);
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				goto exception_unwind;
+			} // ------------------------------------------------------------ //
 			TARGET(SET_FUNCTION_ATTRIBUTE) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;
