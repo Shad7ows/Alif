@@ -86,7 +86,24 @@ static AlifObject* baseException_vectorCall(AlifObject* type_obj, AlifObject* co
 	return (AlifObject*)self;
 }
 
+static AlifIntT baseException_clear(AlifBaseExceptionObject* _self) { // 115
+	ALIF_CLEAR(_self->dict);
+	ALIF_CLEAR(_self->args);
+	ALIF_CLEAR(_self->notes);
+	ALIF_CLEAR(_self->traceback);
+	ALIF_CLEAR(_self->cause);
+	ALIF_CLEAR(_self->context);
+	return 0;
+}
 
+
+static void baseException_dealloc(AlifBaseExceptionObject* _self) { // 127
+	alifObject_gcUnTrack(_self);
+	ALIF_TRASHCAN_BEGIN(_self, baseException_dealloc)
+		baseException_clear(_self);
+	ALIF_TYPE(_self)->free((AlifObject*)_self);
+	ALIF_TRASHCAN_END
+}
 
 static AlifObject* baseException_str(AlifBaseExceptionObject* _self) { // 152
 	switch (ALIFTUPLE_GET_SIZE(_self->args)) {
@@ -267,7 +284,7 @@ static AlifTypeObject _excBaseException_ = { // 483
 	.objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0),
 	.name = "استثناء_قاعدة",
 	.basicSize = sizeof(AlifBaseExceptionObject),
-	//.dealloc = (Destructor)baseException_dealloc,
+	.dealloc = (Destructor)baseException_dealloc,
 	//.repr = (ReprFunc)baseException_repr,
 	.str = (ReprFunc)baseException_str,
 	.getAttro = alifObject_genericGetAttr,
@@ -275,7 +292,7 @@ static AlifTypeObject _excBaseException_ = { // 483
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
 		ALIF_TPFLAGS_BASE_EXC_SUBCLASS,
 	//.traverse = (TraverseProc)baseException_traverse,
-	//(Inquiry)baseException_clear,
+	.clear = (Inquiry)baseException_clear,
 	//.methods = baseException_methods,
 	//.members = baseException_members,
 	.getSet = _baseExceptionGetSet_,
@@ -293,10 +310,10 @@ static AlifTypeObject _exc ## EXCNAME ## _ = { \
     .objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0), \
     .name = # ALIFNAME, \
     .basicSize = sizeof(AlifBaseExceptionObject), \
-    /*.dealloc = (Destructor)baseException_dealloc,*/ \
+    .dealloc = (Destructor)baseException_dealloc, \
     .flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC, \
     /*.traverse = (TraverseProc)baseException_traverse,*/ \
-    /*.clear = (Inquiry)baseException_clear,*/	\
+    .clear = (Inquiry)baseException_clear,	\
 	.base = &EXCBASE, \
     .dictOffset = offsetof(AlifBaseExceptionObject, dict), \
     .init = (InitProc)baseException_init,	\

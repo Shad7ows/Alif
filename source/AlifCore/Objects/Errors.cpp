@@ -34,7 +34,7 @@ static AlifObject* _alifErr_createException(AlifObject* _exceptionType,
 	}
 
 	if (exc != nullptr and !ALIFEXCEPTIONINSTANCE_CHECK(exc)) {
-		alifErr_format(nullptr /*_alifExcTypeError_*/,
+		alifErr_format(_alifExcTypeError_,
 			"calling %R should have returned an instance of "
 			"BaseException, not %s",
 			_exceptionType, ALIF_TYPE(exc)->name);
@@ -146,10 +146,10 @@ void _alifErr_setObject(AlifThread* _thread,
 
 	if (_exception != nullptr and
 		not ALIFEXCEPTIONCLASS_CHECK(_exception)) {
-		//_alifErr_format(_thread, _alifExcSystemError_,
-		//	"_alifErr_setObject: "
-		//	"exception %R is not a BaseException subclass",
-		//	_exception);
+		_alifErr_format(_thread, _alifExcSystemError_,
+			"_alifErr_setObject: "
+			"exception %R is not a BaseException subclass",
+			_exception);
 		return;
 	}
 	/* Normalize the exception */
@@ -184,7 +184,7 @@ void _alifErr_setObject(AlifThread* _thread,
 	if (excValue != nullptr and excValue != ALIF_NONE) {
 		ALIF_INCREF(excValue);
 		if (excValue != _value) {
-			AlifObject* o_ = excValue, * context;
+			AlifObject* o_ = excValue, * context{};
 			AlifObject* slowObj = o_;
 			AlifIntT slowUpdateToggle = 0;
 			while ((context = alifException_getContext(o_))) {
