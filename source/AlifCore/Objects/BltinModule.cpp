@@ -647,7 +647,7 @@ static AlifObject* builtin_inputImpl(AlifObject* module, AlifObject* prompt) { /
 			promptstr = ALIFBYTES_AS_STRING(po);
 			if ((AlifSizeT)strlen(promptstr) != ALIFBYTES_GET_SIZE(po)) {
 				alifErr_setString(_alifExcValueError_,
-					"input: prompt string cannot contain null characters");
+					"ادخل: النص المدخل لا يمكن أن يحتوي على حروف فارغة");
 				goto _readline_errors;
 			}
 		}
@@ -670,8 +670,8 @@ static AlifObject* builtin_inputImpl(AlifObject* module, AlifObject* prompt) { /
 		}
 		else {
 			if (len > ALIF_SIZET_MAX) {
-				//alifErr_setString(_alifExcOverflowError_,
-				//	"input: input too long");
+				alifErr_setString(_alifExcOverflowError_,
+					"ادخل: النص المدخل طويل جداً");
 				result = nullptr;
 			}
 			else {

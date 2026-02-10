@@ -273,7 +273,7 @@ char* alifOS_stdioReadline(FILE* sys_stdin,
 		if (incr > INT_MAX) {
 			alifMem_dataFree(p);
 			alifEval_restoreThread(tstate);
-			//alifErr_setString(_alifExcOverflowError_, "input line too long");
+			alifErr_setString(_alifExcOverflowError_, "السطر المدخل طويل جداً");
 			alifEval_saveThread();
 			return nullptr;
 		}

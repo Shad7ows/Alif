@@ -97,11 +97,14 @@ double alifTimeFraction_resolution(const AlifTimeFraction* _frac) { // 96
 
 
 static void alifTime_timeTOverflow() { // 103
-	//alifErr_setString(_alifExcOverflowError_,
-	//	"timestamp out of range for platform time_t");
+	alifErr_setString(_alifExcOverflowError_,
+		"الطابع الزمني خارج نطاق النظام الأساسي time_t");
 }
 
-
+static void alifTime_overflow(void) { // 111
+	alifErr_setString(_alifExcOverflowError_,
+		"الطابع الزمني كبير جداً ولا يمكن تحويله إلى AlifTimeT");
+}
 
 static inline AlifIntT alifTime_add(AlifTimeT* _t1, AlifTimeT _t2) { // 120
 	if (_t2 > 0 and *_t1 > ALIFTIME_MAX - _t2) {
@@ -189,9 +192,9 @@ time_t _alifLong_asTimeT(AlifObject* _obj) { // 209
 #   error "unsupported time_t size"
 #endif
 	if (val == -1 and alifErr_occurred()) {
-		//if (alifErr_exceptionMatches(_alifExcOverflowError_)) {
-		//	alifTime_timeTOverflow();
-		//}
+		if (alifErr_exceptionMatches(_alifExcOverflowError_)) {
+			alifTime_timeTOverflow();
+		}
 		return -1;
 	}
 	return (time_t)val;
@@ -332,7 +335,7 @@ static AlifIntT alifTime_fromTimeSpec(AlifTimeT* tp, const struct timespec* ts,
 	*tp = t;
 
 	if (raise_exc and (res1 < 0 or res2 < 0)) {
-		//alifTime_overflow();
+		alifTime_overflow();
 		return -1;
 	}
 	return 0;
@@ -370,7 +373,7 @@ static AlifIntT alifTime_fromObject(AlifTimeT* tp,
 		double d{};
 		d = alifFloat_asDouble(obj);
 		if (isnan(d)) {
-			//alifErr_setString(_alifExcValueError_, "Invalid value NaN (not a number)");
+			alifErr_setString(_alifExcValueError_, "قيمة غير متوقعة (ليست عدد)");
 			return -1;
 		}
 		return alifTime_fromDouble(tp, d, round, unit_to_ns);
@@ -378,9 +381,9 @@ static AlifIntT alifTime_fromObject(AlifTimeT* tp,
 	else {
 		long long sec = alifLong_asLongLong(obj);
 		if (sec == -1 and alifErr_occurred()) {
-			//if (alifErr_exceptionMatches(_alifExcOverflowError_)) {
-			//	alifTime_overflow();
-			//}
+			if (alifErr_exceptionMatches(_alifExcOverflowError_)) {
+				alifTime_overflow();
+			}
 			return -1;
 		}
 
@@ -388,7 +391,7 @@ static AlifIntT alifTime_fromObject(AlifTimeT* tp,
 			"AlifTimeT is smaller than long long");
 		AlifTimeT ns = (AlifTimeT)sec;
 		if (alifTime_mul(&ns, unit_to_ns) < 0) {
-			//alifTime_overflow();
+			alifTime_overflow();
 			return -1;
 		}
 

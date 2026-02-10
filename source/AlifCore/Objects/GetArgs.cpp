@@ -391,16 +391,16 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'b': { /* unsigned byte -- very short AlifIntT */
 		unsigned char* p_ = va_arg(*_pVa, unsigned char*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		if (iVal < 0) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"unsigned byte integer is less than minimum");
+			alifErr_setString(_alifExcOverflowError_,
+				"بايت العدد الصحيح الذي لا يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal > UCHAR_MAX) {
-			//alifErr_setString(_alifExcoverflowError_,
-				//"unsigned byte integer is greater than maximum");
+			alifErr_setString(_alifExcOverflowError_,
+				"بايت العدد الصحيح الذي لا يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -411,7 +411,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'B': {
 		unsigned char* p_ = va_arg(*_pVa, unsigned char*);
 		unsigned long iVal = alifLong_asUnsignedLongMask(_arg);
-		if (iVal == (unsigned long)-1 /*and alifErr_occurred()*/)
+		if (iVal == (unsigned long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = (unsigned char)iVal;
@@ -421,16 +421,16 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'h': {
 		short* p_ = va_arg(*_pVa, short*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		if (iVal < SHRT_MIN) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed short integer is less than minimum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح القصير الذي يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal > SHRT_MAX) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed short integer is greater than maximum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح القصير الذي يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -441,7 +441,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'H': {
 		unsigned short* p_ = va_arg(*_pVa, unsigned short*);
 		unsigned long iVal = alifLong_asUnsignedLongMask(_arg);
-		if (iVal == (unsigned long)-1 /*and alifErr_occurred()*/)
+		if (iVal == (unsigned long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = (unsigned short)iVal;
@@ -451,16 +451,16 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'i': {/* signed AlifIntT */
 		AlifIntT* p_ = va_arg(*_pVa, AlifIntT*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		if (iVal > INT_MAX) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed integer is greater than maximum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح الذي يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal < INT_MIN) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed integer is less than minimum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح الذي يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -471,7 +471,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'I': {
 		unsigned int* p_ = va_arg(*_pVa, unsigned int*);
 		unsigned long iVal = alifLong_asUnsignedLongMask(_arg);
-		if (iVal == (unsigned long)-1 /*and alifErr_occurred()*/)
+		if (iVal == (unsigned long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = (unsigned int)iVal;

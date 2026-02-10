@@ -407,8 +407,8 @@ static char* backSlash_replace(AlifBytesWriter* _writer, char* _str,
 			incr = 2 + 8;
 		}
 		if (size > ALIF_SIZET_MAX - incr) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"encoded result is too long for a Alif string");
+			alifErr_setString(_alifExcOverflowError_,
+				"النتائج المرمزة طويلة جداً ولا يمكن تخزينها في نوع نصوص ألف");
 			return nullptr;
 		}
 		size += incr;
@@ -479,8 +479,8 @@ static char* xmlCharRef_replace(AlifBytesWriter* _writer, char* _str,
 			incr = 2 + 7 + 1;
 		}
 		if (size > ALIF_SIZET_MAX - incr) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"encoded result is too long for a Alif string");
+			alifErr_setString(_alifExcOverflowError_,
+				"النتائج المرمزة طويلة جداً ولا يمكن تخزينها في نوع نصوص ألف");
 			return nullptr;
 		}
 		size += incr;
@@ -1715,8 +1715,8 @@ static const char* uStr_fromFormatArg(AlifUStrWriter* _writer,
 	{
 		AlifIntT ordinal = va_arg(*_vargs, AlifIntT);
 		if (ordinal < 0 or ordinal > MAX_UNICODE) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"character argument not in range(0x110000)");
+			alifErr_setString(_alifExcOverflowError_,
+				"معامل محرف ليس في المدى(0x110000)");
 			return nullptr;
 		}
 		if (alifUStrWriter_writeCharInline(_writer, ordinal) < 0)
@@ -4879,8 +4879,8 @@ AlifObject* alifUStr_joinArray(AlifObject* _separator,
 			addSZ += sepLen;
 		}
 		if (addSZ > (AlifUSizeT)(ALIF_SIZET_MAX - sz_)) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"join() result is too long for a Alif string");
+			alifErr_setString(_alifExcOverflowError_,
+				"نتائج ضم() طويلة جداً ولا يمكن تخزينها في نوع نصوص ألف");
 			goto onError;
 		}
 		sz_ += addSZ;
@@ -5295,8 +5295,8 @@ static AlifObject* replace(AlifObject* _self, AlifObject* _str1,
 		/* new_size = ALIFUSTR_GET_LENGTH(self) + n * (ALIFUSTR_GET_LENGTH(str2) -
 		   ALIFUSTR_GET_LENGTH(str1)); */
 		if (len1 < len2 and len2 - len1 >(ALIF_SIZET_MAX - slen) / n) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"replace string is too long");
+			alifErr_setString(_alifExcOverflowError_,
+				"إستبدال نص طويل جداً");
 			goto error;
 		}
 		new_size = slen + n * (len2 - len1);
@@ -5305,8 +5305,8 @@ static AlifObject* replace(AlifObject* _self, AlifObject* _str1,
 			goto done;
 		}
 		if (new_size > (ALIF_SIZET_MAX / rkind)) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"replace string is too long");
+			alifErr_setString(_alifExcOverflowError_,
+				"إستبدال نص طويل جداً");
 			goto error;
 		}
 		u = alifUStr_new(new_size, maxchar);
@@ -5725,8 +5725,8 @@ AlifObject* alifUStr_concat(AlifObject* _left, AlifObject* _right) { // 11295
 	leftLen = ALIFUSTR_GET_LENGTH(_left);
 	rightLen = ALIFUSTR_GET_LENGTH(_right);
 	if (leftLen > ALIF_SIZET_MAX - rightLen) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"strings are too large to concat");
+		alifErr_setString(_alifExcOverflowError_,
+			"النص طويل جداً ولا يمكن ضمه مع بعضه");
 		return nullptr;
 	}
 	newLen = leftLen + rightLen;
@@ -5776,8 +5776,8 @@ void alifUStr_append(AlifObject** _pLeft, AlifObject* _right) { // 11344
 	leftLen = ALIFUSTR_GET_LENGTH(left);
 	rightLen = ALIFUSTR_GET_LENGTH(_right);
 	if (leftLen > ALIF_SIZET_MAX - rightLen) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"strings are too large to concat");
+		alifErr_setString(_alifExcOverflowError_,
+			"النص طويل جداً ولا يمكن ضمه مع بعضه");
 		goto error;
 	}
 	newLen = leftLen + rightLen;
@@ -5963,8 +5963,8 @@ static AlifObject* uStr_repr(AlifObject* _UStr) { // 12621
 				incr = 10; /* \uHHHHHHHH */
 		}
 		if (osize > ALIF_SIZET_MAX - incr) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"string is too long to generate repr");
+			alifErr_setString(_alifExcOverflowError_,
+				"النص طويل جداً ولا يمكن طباعته او إنشاء عرض له");
 			return nullptr;
 		}
 		osize += incr;

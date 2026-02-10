@@ -673,15 +673,14 @@ AlifObject* alifNumber_add(AlifObject* _v, AlifObject* _w) { // 1124
 static AlifObject* sequence_repeat(SizeArgFunc _repeatFunc, AlifObject* _seq, AlifObject* _n) { // 1143
 	AlifSizeT count{};
 	if (alifIndex_check(_n)) {
-		count = alifNumber_asSizeT(_n, nullptr /*_alifExcOverflowError_*/);
-		if (count == -1 /*and alifErr_occurred()*/) {
+		count = alifNumber_asSizeT(_n, _alifExcOverflowError_);
+		if (count == -1 and alifErr_occurred()) {
 			return nullptr;
 		}
 	}
 	else {
-		//return type_error("can't multiply sequence by "
-		//	"non-int of type '%.200s'", _n);
-		return nullptr; //* alif
+		return type_error("لا يمكن ضرب التسلسل "
+			"بعدد غير صحيح من النوع '%.200s'", _n);
 	}
 	AlifObject* res = (*_repeatFunc)(_seq, count);
 	return res;

@@ -878,7 +878,7 @@ AlifIntT alifFloat_pack8(double _x, char* _data, AlifIntT _le) { // 2236
 
 Overflow:
 		alifErr_setString(_alifExcOverflowError_,
-			"float too large to pack with d format");
+			"العدد العشري كبير جداً ولا يمكن تغليفه في تنسيق d (عشري مضاعف)");
 		return -1;
 	}
 	else {

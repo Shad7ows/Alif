@@ -254,8 +254,8 @@ AlifIntT _alifCode_validate(AlifCodeConstructor* _con) { // 392
 	}
 
 	if (ALIFBYTES_GET_SIZE(_con->code) > INT_MAX) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"code: code larger than INT_MAX");
+		alifErr_setString(_alifExcOverflowError_,
+			"شيفرة: حجم الشيفرة أكبر من قيمة INT_MAX");
 		return -1;
 	}
 	if (ALIFBYTES_GET_SIZE(_con->code) % sizeof(AlifCodeUnit) != 0 or

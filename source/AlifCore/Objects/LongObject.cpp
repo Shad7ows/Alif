@@ -94,8 +94,8 @@ static AlifLongObject* long_normalize(AlifLongObject* _v) { // 114
 AlifLongObject* alifLong_new(AlifSizeT _size) { // 139
 	AlifLongObject* result{};
 	if (_size > (AlifSizeT)MAX_LONG_DIGITS) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"too many digits in integer");
+		alifErr_setString(_alifExcOverflowError_,
+			"إنشاء عدد صحيح مع تمرير الكثير من الأرقام");
 		return nullptr;
 	}
 	/* Fast operations for single digit integers (including zero)
@@ -309,13 +309,13 @@ AlifObject* alifLong_fromDouble(double _dVal) { // 382
 	AlifIntT i{}, ndig{}, expo{}, neg{};
 	neg = 0;
 	if (isinf(_dVal)) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"cannot convert float infinity to integer");
+		alifErr_setString(_alifExcOverflowError_,
+			"لا يمكن تحويل عدد عشري لا نهائي إلى عدد صحيح");
 		return nullptr;
 	}
 	if (isnan(_dVal)) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"cannot convert float NaN to integer");
+		alifErr_setString(_alifExcValueError_,
+			"لا يمكن تحويل عدد عشري (ليس عدد) لعدد صحيح");
 		return nullptr;
 	}
 	if (_dVal < 0.0) {
@@ -425,7 +425,7 @@ long alifLong_asLong(AlifObject* _obj) { // 540
 	long result = alifLong_asLongAndOverflow(_obj, &overflow);
 	if (overflow) {
 		alifErr_setString(_alifExcOverflowError_,
-			"alif AlifIntT too large to convert to Cpp long");
+			"نوع العدد الصحيح الخاص بلغة ألف كبير جداً ولا يمكن تحويله لـ cpp long");
 	}
 	return result;
 }
@@ -437,7 +437,7 @@ AlifIntT alifLong_asInt(AlifObject* _obj) { // 557
 		/* XXX: could be cute and give a different
 		   message for overflow == -1 */
 		alifErr_setString(_alifExcOverflowError_,
-			"Alif AlifIntT too large to convert to Cpp AlifIntT");
+			"نوع العدد الصحيح الخاص بلغة ألف كبير جداً ولا يمكن تحويله لـ cpp int");
 		return -1;
 	}
 	return (AlifIntT)result;
@@ -455,7 +455,7 @@ AlifSizeT alifLong_asSizeT(AlifObject* _vv) { // 575
 		return -1;
 	}
 	if (!ALIFLONG_CHECK(_vv)) {
-		//alifErr_setString(_alifExcTypeError_, "an integer is required");
+		alifErr_setString(_alifExcTypeError_, "يتطلب وجود عدد صحيح");
 		return -1;
 	}
 
@@ -481,8 +481,8 @@ AlifSizeT alifLong_asSizeT(AlifObject* _vv) { // 575
 	/* else overflow */
 
 overflow:
-	//alifErr_setString(_alifExcOverflowError_,
-	//	"alif AlifIntT too large to convert to CPP AlifUSizeT");
+	alifErr_setString(_alifExcOverflowError_,
+		"نوع العدد الصحيح الخاص بلغة ألف كبير جداً ولا يمكن تحويله لـ cpp ssize_t");
 	return -1;
 }
 
@@ -497,7 +497,7 @@ unsigned long alifLong_asUnsignedLong(AlifObject* vv) { // 639
 		return (unsigned long)-1;
 	}
 	if (!ALIFLONG_CHECK(vv)) {
-		alifErr_setString(_alifExcTypeError_, "an integer is required");
+		alifErr_setString(_alifExcTypeError_, "يتطلب وجود عدد صحيح");
 		return (unsigned long)-1;
 	}
 
@@ -515,8 +515,8 @@ unsigned long alifLong_asUnsignedLong(AlifObject* vv) { // 639
 	#endif
 	}
 	if (_alifLong_isNegative(v)) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"can't convert negative value to unsigned int");
+		alifErr_setString(_alifExcOverflowError_,
+			"لا يمكن تحويل قيمة سالبة لعدد صحيح بدون إشارة");
 		return (unsigned long)-1;
 	}
 	i = alifLong_digitCount(v);
@@ -530,9 +530,9 @@ unsigned long alifLong_asUnsignedLong(AlifObject* vv) { // 639
 	}
 	return x;
 overflow:
-	//alifErr_setString(_alifExcOverflowError_,
-	//	"Alif int too large to convert "
-	//	"to C unsigned long");
+	alifErr_setString(_alifExcOverflowError_,
+		"نوع العدد الصحيح الخاص بلغة ألف كبير جداً ولا يمكن تحويله "
+		"لـ cpp unsigned long");
 	return (unsigned long)-1;
 }
 
@@ -674,8 +674,8 @@ AlifObject* _alifLong_fromByteArray(const unsigned char* _bytes, AlifUSizeT _n,
 	   ALIFLONG_SHIFT bits, so it's the ceiling of the quotient. */
 	   /* catch overflow before it happens */
 	if (numsignificantbytes > (ALIF_SIZET_MAX - ALIFLONG_SHIFT) / 8) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"byte array too long to convert to int");
+		alifErr_setString(_alifExcOverflowError_,
+			"مصفوفة-بايت طويلة جداً ولا يمكن تحويلها إلى نوع عدد صحيح");
 		return nullptr;
 	}
 	ndigits = (numsignificantbytes * 8 + ALIFLONG_SHIFT - 1) / ALIFLONG_SHIFT;
@@ -747,8 +747,8 @@ AlifIntT _alifLong_asByteArray(AlifLongObject* _v,
 	if (_alifLong_isNegative(_v)) {
 		if (!_isSigned) {
 			if (_withExceptions) {
-				//alifErr_setString(_alifExcOverflowError_,
-					//"can't convert negative int to unsigned");
+				alifErr_setString(_alifExcOverflowError_,
+					"لا يمكن تحويل عدد صحيح سالب إلى عدد صحيح بدون إشارة");
 			}
 			return -1;
 		}
@@ -1243,7 +1243,7 @@ unsigned long long alifLong_asUnsignedLongLong(AlifObject* vv) { // 1540
 		return (unsigned long long) - 1;
 	}
 	if (!ALIFLONG_CHECK(vv)) {
-		alifErr_setString(_alifExcTypeError_, "an integer is required");
+		alifErr_setString(_alifExcTypeError_, "يتطلب وجود عدد صحيح");
 		return (unsigned long long) - 1;
 	}
 
@@ -1254,9 +1254,9 @@ unsigned long long alifLong_asUnsignedLongLong(AlifObject* vv) { // 1540
 		AlifUSizeT tmp = (AlifUSizeT)alifLong_compactValue(v);
 		bytes = (unsigned long long)tmp;
 		if (bytes != tmp) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"Alif int too large to convert "
-			//	"to C unsigned long long");
+			alifErr_setString(_alifExcOverflowError_,
+				"نوع العدد الصحيح الخاص بلغة ألف كبير جداً "
+				"ولا يمكن تحويله لـ cpp unsigned long long");
 			res = -1;
 		}
 	#else
@@ -1722,8 +1722,8 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
 		AlifSizeT size_a_in_bits{};
 		/* Ensure overflow doesn't occur during computation of sz. */
 		if (size_a > (ALIF_SIZET_MAX - 3) / ALIFLONG_SHIFT) {
-			//alifErr_setString(_alifExcOverflowError_,
-			//	"int too large to format");
+			alifErr_setString(_alifExcOverflowError_,
+				"لا يمكن تنسيق العدد الصحيح لأنه كبير جداً");
 			return -1;
 		}
 		size_a_in_bits = (size_a - 1) * ALIFLONG_SHIFT +
@@ -1991,9 +1991,9 @@ static AlifIntT long_fromNonBinaryBase(const char* _start,
 
 	double fsize_z = (double)_digits * log_base_BASE[_base] + 1.0;
 	if (fsize_z > (double)MAX_LONG_DIGITS) {
-		/* The same exception as in _alifLong_New(). */
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"too many digits in integer");
+		/* The same exception as in _alifLong_new(). */
+		alifErr_setString(_alifExcOverflowError_,
+			"إنشاء عدد صحيح مع تمرير الكثير من الأرقام");
 		*_res = nullptr;
 		return 0;
 	}
@@ -2589,7 +2589,7 @@ double alifLong_asDouble(AlifObject* _v) { // 3526
 		return -1.0;
 	}
 	if (!ALIFLONG_CHECK(_v)) {
-		//alifErr_setString(_alifExcTypeError_, "an integer is required");
+		alifErr_setString(_alifExcTypeError_, "يتطلب وجود عدد صحيح");
 		return -1.0;
 	}
 	if (alifLong_isCompact((AlifLongObject*)_v)) {
@@ -2601,8 +2601,8 @@ double alifLong_asDouble(AlifObject* _v) { // 3526
 	}
 	x = _alifLong_frexp((AlifLongObject*)_v, &exponent);
 	if (exponent > DBL_MAX_EXP) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"AlifIntT too large to convert to float");
+		alifErr_setString(_alifExcOverflowError_,
+			"العدد الصحيح كبير جداً ولا يمكن تحويله إلى عدد عشري");
 		return -1.0;
 	}
 	return ldexp(x, (AlifIntT)exponent);
@@ -3339,8 +3339,8 @@ static AlifObject* long_trueDivide(AlifObject* _v, AlifObject* _w) { // 4512
 		digit rem_{};
 		if (aSize >= ALIF_SIZET_MAX - 1 - shiftDigits) {
 
-			//alifErr_setString(_alifExcOverflowError_,
-				//"intermediate overflow during division");
+			alifErr_setString(_alifExcOverflowError_,
+				"التجاوز المتوسط أثناء القسمة");
 			goto error;
 		}
 		x_ = alifLong_new(aSize + shiftDigits + 1);
@@ -3414,8 +3414,8 @@ underflow_or_zero:
 	return alifFloat_fromDouble(negate ? -0.0 : 0.0);
 
 overflow:
-	//alifErr_setString(_alifExcOverflowError_,
-		//"integer division result too large for a float");
+	alifErr_setString(_alifExcOverflowError_,
+		"نتيجة قسمة عدد صحيح أكبر بكثير من القيمة التي يمكن أن يخزنها عدد عشري");
 error:
 	return nullptr;
 }
@@ -3865,10 +3865,10 @@ static AlifObject* long_rShift(AlifObject* _a, AlifObject* _b) { // 5294
 		return alifLong_fromLong(0);
 	}
 	if (alifLong_asInt64(_b, &shiftBy) < 0) {
-		//if (!alifErr_exceptionMatches(_alifExcOverflowError_)) {
-		//	return nullptr;
-		//}
-		//alifErr_clear();
+		if (!alifErr_exceptionMatches(_alifExcOverflowError_)) {
+			return nullptr;
+		}
+		alifErr_clear();
 		if (_alifLong_isNegative((AlifLongObject*)_a)) {
 			return alifLong_fromLong(-1);
 		}
@@ -3953,10 +3953,10 @@ static AlifObject* long_lShiftMethod(AlifObject* _aa, AlifObject* _bb) { // 5419
 
 	int64_t shiftBy{};
 	if (alifLong_asInt64(_bb, &shiftBy) < 0) {
-		//if (alifErr_exceptionMatches(_alifExcOverflowError_)) {
-		//	alifErr_setString(_alifExcOverflowError_,
-		//		"too many digits in integer");
-		//}
+		if (alifErr_exceptionMatches(_alifExcOverflowError_)) {
+			alifErr_setString(_alifExcOverflowError_,
+				"إنشاء عدد صحيح مع تمرير الكثير من الأرقام");
+		}
 		return nullptr;
 	}
 	return long_lShiftInt64(a, shiftBy);
@@ -3969,8 +3969,8 @@ static AlifObject* long_lShiftInt64(AlifLongObject* _a, int64_t _shiftby) { // 5
 	}
 #if ALIF_SIZET_MAX <= INT64_MAX / ALIFLONG_SHIFT
 	if (_shiftby > (int64_t)ALIF_SIZET_MAX * ALIFLONG_SHIFT) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"too many digits in integer");
+		alifErr_setString(_alifExcOverflowError_,
+			"إنشاء عدد صحيح مع تمرير الكثير من الأرقام");
 		return nullptr;
 	}
 #endif

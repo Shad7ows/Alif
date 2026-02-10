@@ -37,8 +37,8 @@ static AlifObject* alifBytes_fromSize(AlifSizeT _size, AlifIntT _useCalloc) { //
 	}
 
 	if ((AlifUSizeT)_size > (AlifUSizeT)ALIF_SIZET_MAX - ALIFBYTESOBJECT_SIZE) {
-		//alifErr_SetString(_alifExcOverflowError_,
-		//	"byte string is too large");
+		alifErr_setString(_alifExcOverflowError_,
+			"نص نوع بايت كبير جداً");
 		return nullptr;
 	}
 
@@ -93,8 +93,8 @@ AlifObject* alifBytes_fromString(const char* _str) { // 139
 
 	size = strlen(_str);
 	if (size > ALIF_SIZET_MAX - ALIFBYTESOBJECT_SIZE) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"byte string is too long");
+		alifErr_setString(_alifExcOverflowError_,
+			"نص نوع بايت طويل جداً");
 		return nullptr;
 	}
 

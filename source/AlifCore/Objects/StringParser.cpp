@@ -168,7 +168,7 @@ AlifObject* alifParserEngine_parseString(AlifParser* _p, AlifPToken* _t) { // 19
 	len = strlen(s);
 
 	if (len > INT_MAX) {
-		//alifErr_setString(_alifExcOverflowError_, "string to parse is too long");
+		alifErr_setString(_alifExcOverflowError_, "النص الممرر للتحليل طويل جداً");
 		return nullptr;
 	}
 	if (s[--len] != quote) {

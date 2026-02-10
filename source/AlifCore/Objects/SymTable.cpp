@@ -1942,8 +1942,8 @@ AlifObject* alif_mangle(AlifObject* _privateObj, AlifObject* _ident) { // 3090
 	}
 
 	if (nLen + (pLen - iPriv) >= ALIF_SIZET_MAX - 1) {
-		//alifErr_setString(_alifExcOverflowError_,
-			//"private identifier too large to be mangled");
+		alifErr_setString(_alifExcOverflowError_,
+			"متغير خاص كبير جدًا بحيث لا يمكن تشويهه");
 		return nullptr;
 	}
 

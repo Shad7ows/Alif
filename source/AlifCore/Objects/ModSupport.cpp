@@ -295,8 +295,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 			return alifLong_fromUnsignedLong(n);
 		}
 
-		//case 'L':
-		//	return alifLong_fromLongLong((long long)va_arg(*_pVa, long long));
+		case 'L':
+			return alifLong_fromLongLong((long long)va_arg(*_pVa, long long));
 
 		case 'K':
 			return alifLong_fromUnsignedLongLong((long long)va_arg(*_pVa, unsigned long long));
@@ -363,8 +363,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 				if (n < 0) {
 					AlifUSizeT m = strlen(str);
 					if (m > ALIF_SIZET_MAX) {
-						//alifErr_setString(_alifExcOverflowError_,
-						//	"string too long for Alif string");
+						alifErr_setString(_alifExcOverflowError_,
+							"النص طويل جداً ولا يتسع في نوع نصوص ألف");
 						return nullptr;
 					}
 					n = (AlifSizeT)m;
@@ -392,8 +392,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 				if (n < 0) {
 					AlifUSizeT m = strlen(str);
 					if (m > ALIF_SIZET_MAX) {
-						//alifErr_setString(_alifExcOverflowError_,
-						//	"string too long for Alif bytes");
+						alifErr_setString(_alifExcOverflowError_,
+							"النص طويل جداً ولا يتسع في نوع بايتات ألف");
 						return nullptr;
 					}
 					n = (AlifSizeT)m;

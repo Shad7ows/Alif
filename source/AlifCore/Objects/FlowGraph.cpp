@@ -1031,8 +1031,8 @@ static AlifObject* get_constValue(AlifIntT _opcode, AlifIntT _oparg, AlifObject*
 	}
 
 	if (constant == nullptr) {
-		//alifErr_setString(_alifExcSystemError_,
-			//"Internal error: failed to get value of a constant");
+		alifErr_setString(_alifExcSystemError_,
+			"خطأ داخلي: فشل في الحصول على قيمة المتغير الثابت");
 		return nullptr;
 	}
 	return ALIF_NEWREF(constant);
@@ -1052,7 +1052,7 @@ static AlifIntT add_const(AlifObject* _newConst, AlifObject* _consts, AlifObject
 	}
 	if (index == ALIFLIST_GET_SIZE(_consts)) {
 		if ((AlifUSizeT)index >= (AlifUSizeT)INT_MAX - 1) {
-			//alifErr_setString(_alifExcOverflowError_, "too many constants");
+			alifErr_setString(_alifExcOverflowError_, "الكثير من القيم الثابتة");
 			ALIF_DECREF(_newConst);
 			return -1;
 		}

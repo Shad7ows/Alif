@@ -141,7 +141,8 @@ static AlifObject* long_lcm(AlifObject* _a, AlifObject* _b) { // 774
 	return ab;
 }
 
-static AlifObject* math_lcm(AlifObject* _module, AlifObject* const* _args, AlifSizeT _nArgs) { // 802
+static AlifObject* math_lcm(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nArgs) { // 802
 	AlifObject* res{}, * x{};
 	AlifSizeT i{};
 
@@ -179,6 +180,25 @@ static AlifObject* math_lcm(AlifObject* _module, AlifObject* const* _args, AlifS
 	return res;
 }
 
+
+static AlifIntT is_error(double x) { // 853
+	AlifIntT result = 1;     /* presumption of guilt */
+	if (errno == EDOM)
+		alifErr_setString(_alifExcValueError_, "خطأ في النطاق الرياضي");
+
+	else if (errno == ERANGE) {
+		if (fabs(x) < 1.5)
+			result = 0;
+		else
+			alifErr_setString(_alifExcOverflowError_,
+				"خطأ في المدى الرياضي");
+	}
+	//else
+	//	/* Unexpected math error */
+	//	alifErr_setFromErrno(_alifExcValueError_);
+	return result;
+}
+
 static AlifObject* math_1(AlifObject* _arg,
 	double (*_func) (double), AlifIntT _canOverFlow) { // 924
 
@@ -189,22 +209,22 @@ static AlifObject* math_1(AlifObject* _arg,
 	errno = 0;
 	r = (*_func)(x);
 	if (isnan(r) and !isnan(x)) {
-		//alifErr_setString(_alifExcValueError_,
-			//"math domain error"); /* invalid arg */
+		alifErr_setString(_alifExcValueError_,
+			"خطأ في النطاق الرياضي"); /* invalid arg */
 		return nullptr;
 	}
 	if (isinf(r) and isfinite(x)) {
-		//if (_canOverFlow)
-			//alifErr_setString(_alifExcOverflowError_,
-				//"math range error"); /* overflow */
-		//else
-			//alifErr_setString(_alifExcValueError_,
-				//"math domain error"); /* singularity */
-		//return nullptr;
+		if (_canOverFlow)
+			alifErr_setString(_alifExcOverflowError_,
+				"خطأ في المدى الرياضي"); /* overflow */
+		else
+			alifErr_setString(_alifExcValueError_,
+				"خطأ في النطاق الرياضي"); /* singularity */
+		return nullptr;
 	}
-	//if (isfinite(r) and errno and is_error(r))
+	if (isfinite(r) and errno and is_error(r))
 		/* this branch unnecessary on most platforms */
-		//return nullptr;
+		return nullptr;
 
 	return alifFloat_fromDouble(r);
 }
@@ -381,14 +401,14 @@ static AlifObject* math_factorial(AlifObject* _module, AlifObject* _arg) { // 19
 		return nullptr;
 	}
 	else if (overflow == 1) {
-		//alifErr_format(_alifExcOverflowError_,
-			//"factorial() argument should not exceed %ld",
-			//LONG_MAX);
+		alifErr_format(_alifExcOverflowError_,
+			"معاملات الدالة factorial() يجب أن لا تتجاوز %ld",
+			LONG_MAX);
 		return nullptr;
 	}
 	else if (overflow == -1 or x < 0) {
-		//alifErr_setString(_alifExcValueError_,
-			//"factorial() not defined for negative values");
+		alifErr_setString(_alifExcValueError_,
+			"الدالة factorial() ليست معرفة للقيم السالبة");
 		return nullptr;
 	}
 
@@ -415,17 +435,17 @@ static AlifObject* logHelper(AlifObject* _arg, double (*_func)(double)) { // 218
 		/* Negative or zero inputs give a ValueError. */
 		if (!_alifLong_isPositive((AlifLongObject*)_arg)) {
 			//alifErr_setString(_alifExcValueError_,
-				//"math domain error");
+				//"خطأ في النطاق الرياضي");
 			return nullptr;
 		}
 
 		x = alifLong_asDouble(_arg);
 		if (x == -1.0 and alifErr_occurred()) {
-			//if (!alifErr_exceptionMatches(_alifExcOverflowError_))
-				//return nullptr;
+			if (!alifErr_exceptionMatches(_alifExcOverflowError_))
+				return nullptr;
 			/* Here the conversion to double overflowed, but it's possible
 			   to compute the log anyway.  Clear the exception and continue. */
-			//alifErr_clear();
+			alifErr_clear();
 			x = _alifLong_frexp((AlifLongObject*)_arg, &e);
 			/* Value is ~= x * 2^e, so the log ~= log(x) + log(2) * e. */
 			result = _func(x) + _func(2.0) * e;

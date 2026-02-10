@@ -2156,8 +2156,8 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 	char name[MAXPATHLEN + 1]{};
 
 	if (strlen(_subname) > MAXPATHLEN) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"module name is too long");
+		alifErr_setString(_alifExcOverflowError_,
+			"اسم المكتبة كبير جداً");
 		return nullptr;
 	}
 	strcpy(name, _subname);
