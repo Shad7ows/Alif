@@ -25,12 +25,12 @@ static AlifObject* stopIteration_error(AlifThread* tstate, AlifObject* exc) { //
 	AlifInterpreterFrame* frame = tstate->currentFrame;
 	const char* msg = nullptr;
 	if (alifErr_givenExceptionMatches(exc, _alifExcStopIteration_)) {
-		msg = "generator raised StopIteration";
+		msg = "المولد اطلق خطأ_توقف_التكرار";
 		if (_alifFrame_getCode(frame)->flags & CO_ASYNC_GENERATOR) {
-			msg = "async generator raised StopIteration";
+			msg = "المولد المتزامن اطلق خطأ_توقف_التكرار";
 		}
 		else if (_alifFrame_getCode(frame)->flags & CO_COROUTINE) {
-			msg = "coroutine raised StopIteration";
+			msg = "الإجراء الفرعي اطلق خطأ_توقف_التكرار";
 		}
 	}
 	else if ((_alifFrame_getCode(frame)->flags & CO_ASYNC_GENERATOR) and
@@ -38,7 +38,7 @@ static AlifObject* stopIteration_error(AlifThread* tstate, AlifObject* exc) { //
 		/* code in `gen` raised a StopAsyncIteration error:
 		raise a RuntimeError.
 		*/
-		msg = "async generator raised StopAsyncIteration";
+		msg = "المولد المتزامن اطلق خطأ_توقف_التكرار_المتزامن";
 	}
 	if (msg != nullptr) {
 		AlifObject* message = _alifUStr_fromASCII(msg, strlen(msg));

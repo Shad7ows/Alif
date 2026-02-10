@@ -892,10 +892,10 @@ error:
 	ALIF_XDECREF(text);
 	ALIF_XDECREF(raw);
 
-	//if (alifErr_exceptionMatches(_alifExcOSError_) and !_alif_isValidFD(fd)) {
-	//	alifErr_clear();
-	//	return ALIF_NONE;
-	//}
+	if (alifErr_exceptionMatches(_alifExcOSError_) and !_alif_isValidFD(fd)) {
+		alifErr_clear();
+		return ALIF_NONE;
+	}
 	return nullptr;
 }
 

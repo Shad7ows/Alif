@@ -629,8 +629,8 @@ static AlifIntT _ioTextIOWrapper___init__Impl(TextIO* _self, AlifObject* _buffer
 			goto error;
 	}
 	else {
-		//alifErr_setString(_alifExcOSError_,
-			//"could not determine default encoding");
+		alifErr_setString(_alifExcOSError_,
+			"لم يستطع تحديد ترميز إفتراضي");
 		goto error;
 	}
 

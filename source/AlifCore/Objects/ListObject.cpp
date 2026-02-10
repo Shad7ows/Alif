@@ -231,7 +231,7 @@ AlifObject* alifList_getItem(AlifObject* _op, AlifSizeT _i) { // 365
 		return nullptr;
 	}
 	if (!valid_index(_i, ALIF_SIZE(_op))) {
-		//alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
+		alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
 		return nullptr;
 	}
 	return ((AlifListObject*)_op)->item[_i];
@@ -240,12 +240,12 @@ AlifObject* alifList_getItem(AlifObject* _op, AlifSizeT _i) { // 365
 
 AlifObject* alifList_getItemRef(AlifObject* op, AlifSizeT i) { // 380
 	if (!ALIFLIST_CHECK(op)) {
-		//alifErr_setString(_alifExcTypeError_, "expected a list");
+		alifErr_setString(_alifExcTypeError_, "يتوقع العمل على مصفوفة");
 		return nullptr;
 	}
 	AlifObject* item = listGet_itemRef((AlifListObject*)op, i);
 	if (item == nullptr) {
-		//alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
+		alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
 		return nullptr;
 	}
 	return item;
@@ -266,7 +266,7 @@ AlifIntT alifList_setItem(AlifObject* _op, AlifSizeT _i,
 	if (!valid_index(_i, ALIF_SIZE(self))) {
 		ALIF_XDECREF(_newitem);
 		alifErr_setString(_alifExcIndexError_,
-			"list assignment index out of range");
+			"مؤشر إسناد المصفوفة خارج النطاق");
 		ret = -1;
 		goto end;
 	}
@@ -450,13 +450,13 @@ static AlifIntT list_contains(AlifObject* _aa, AlifObject* _el) { // 594
 static AlifObject* list_item(AlifObject* _aa, AlifSizeT _i) { // 613
 	AlifListObject* a = (AlifListObject*)_aa;
 	if (!valid_index(_i, ALIFLIST_GET_SIZE(a))) {
-		//alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
+		alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
 		return nullptr;
 	}
 	AlifObject* item{};
 	item = listGet_itemRef(a, _i);
 	if (item == nullptr) {
-		//alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
+		alifErr_setObject(_alifExcIndexError_, &ALIF_STR(ListErr));
 		return nullptr;
 	}
 	return item;
@@ -770,8 +770,8 @@ static AlifObject* list_inplaceRepeat(AlifObject* _self, AlifSizeT n) { // 999
 
 static AlifIntT listAssItem_lockHeld(AlifListObject* a, AlifSizeT i, AlifObject* v) { // 1015
 	if (!valid_index(i, ALIF_SIZE(a))) {
-		//alifErr_setString(_alifExcIndexError_,
-		//	"list assignment index out of range");
+		alifErr_setString(_alifExcIndexError_,
+			"مؤشر إسناد المصفوفة خارج النطاق");
 		return -1;
 	}
 	AlifObject* tmp = a->item[i];
@@ -879,12 +879,12 @@ static AlifIntT listExtendIter_lockHeld(AlifListObject* _self, AlifObject* _iter
 	for (;;) {
 		AlifObject* item = iternext(it);
 		if (item == nullptr) {
-			//if (alifErr_occurred()) {
-			//	if (alifErr_exceptionMatches(_alifExcStopIteration_))
-			//		alifErr_clear();
-			//	else
-			//		goto error;
-			//}
+			if (alifErr_occurred()) {
+				if (alifErr_exceptionMatches(_alifExcStopIteration_))
+					alifErr_clear();
+				else
+					goto error;
+			}
 			break;
 		}
 

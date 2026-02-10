@@ -468,7 +468,7 @@ AlifIntT alifObject_setAttrString(AlifObject* _v,
 	return res_;
 }
 
-AlifIntT alifObject_setAttributeErrorContext(AlifObject* _v, AlifObject* _name) { // 1177
+AlifIntT _alifObject_setAttributeErrorContext(AlifObject* _v, AlifObject* _name) { // 1177
 	if (!alifErr_exceptionMatches(_alifExcAttributeError_)) {
 		return 0;
 	}
@@ -510,13 +510,13 @@ AlifObject* alifObject_getAttr(AlifObject* _v, AlifObject* _name) { // 1204
 		result = (*tp_->getAttr)(_v, (char*)nameStr);
 	}
 	else {
-		//alifErr_format(_alifExcAttributeError_,
-			//"'%.100s' object has no attribute '%U'",
-			//tp->name, _name);
+		alifErr_format(_alifExcAttributeError_,
+			"الكائن '%.100s' لا يملك هذه الخاصية '%U'",
+			tp_->name, _name);
 	}
 
 	if (result == nullptr) {
-		alifObject_setAttributeErrorContext(_v, _name);
+		_alifObject_setAttributeErrorContext(_v, _name);
 	}
 	return result;
 }
@@ -579,9 +579,9 @@ AlifIntT alifObject_getOptionalAttr(AlifObject* _v,
 	if (*_result != nullptr) {
 		return 1;
 	}
-	//if (!alifErr_exceptionMatches(_alifExcAttributeError_)) {
-		//return -1;
-	//}
+	if (!alifErr_exceptionMatches(_alifExcAttributeError_)) {
+		return -1;
+	}
 	alifErr_clear();
 	return 0;
 }
@@ -758,11 +758,11 @@ AlifIntT _alifObject_getMethod(AlifObject* _obj,
 		return 0;
 	}
 
-	//alifErr_format(_alifExcAttributeError_,
-	//	"'%.100s' object has no attribute '%U'",
-	//	tp->name, name);
+	alifErr_format(_alifExcAttributeError_,
+		"الكائن '%.100s' لا يملك هذه الخاصية '%U'",
+		tp->name, _name);
 
-	//_alifObject_setAttributeErrorContext(obj, name);
+	_alifObject_setAttributeErrorContext(_obj, _name);
 	return 0;
 }
 
@@ -866,10 +866,10 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 
 	if (!_suppress) {
 		alifErr_format(_alifExcAttributeError_,
-			"'%.100s' الكائن لا يملك هذا المتغير '%U'",
+			"الكائن'%.100s' لا يملك هذه الخاصية '%U'",
 			tp->name, _name);
 
-		alifObject_setAttributeErrorContext(_obj, _name);
+		_alifObject_setAttributeErrorContext(_obj, _name);
 	}
 done:
 	ALIF_XDECREF(descr);
@@ -929,22 +929,22 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 		if (dictptr == nullptr) {
 			if (descr == nullptr) {
 				if (tp->setAttro == alifObject_genericSetAttr) {
-					//alifErr_format(_alifExcAttributeError_,
-					//	"'%.100s' object has no attribute '%U' and no "
-					//	"__dict__ for setting new attributes",
-					//	tp->name, name);
+					alifErr_format(_alifExcAttributeError_,
+						"الكائن '%.100s' لا يملك هذه الخاصية '%U' ولا يملك "
+						"__فهرس__ لإضافة خاصية جديدة",
+						tp->name, _name);
 				}
 				else {
-					//alifErr_format(_alifExcAttributeError_,
-					//	"'%.100s' object has no attribute '%U'",
-					//	tp->name, name);
+					alifErr_format(_alifExcAttributeError_,
+						"الكائن '%.100s' لا يملك هذه الخاصية '%U'",
+						tp->name, _name);
 				}
-				//alifObject_setAttributeErrorContext(_obj, _name);
+				_alifObject_setAttributeErrorContext(_obj, _name);
 			}
 			else {
-				//alifErr_format(_alifExcAttributeError_,
-				//	"'%.100s' object attribute '%U' is read-only",
-				//	tp->name, name);
+				alifErr_format(_alifExcAttributeError_,
+					"خاصية الكائن '%.100s' '%U' للقراءة-فقط",
+					tp->name, _name);
 			}
 			goto done;
 		}
@@ -963,9 +963,9 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 error_check:
 	//if (res < 0 and alifErr_exceptionMatches(_alifExcKeyError_)) {
 	//	alifErr_format(_alifExcAttributeError_,
-	//		"'%.100s' object has no attribute '%U'",
-	//		tp->name, name);
-	//	_alifObject_setAttributeErrorContext(obj, name);
+	//		"الكائن '%.100s' لا يملك الخاصية '%U'",
+	//		tp->name, _name);
+	//	_alifObject_setAttributeErrorContext(_obj, _name);
 	//}
 done:
 	ALIF_XDECREF(descr);

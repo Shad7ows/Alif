@@ -555,12 +555,12 @@ static AlifObject* type_abstractMethods(AlifTypeObject* type,
 	void* context) { // 1491
 	AlifObject* mod = nullptr;
 	if (type == &_alifTypeType_) {
-		//alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
+		alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
 	}
 	else {
 		AlifObject* dict = lookup_tpDict(type);
 		if (alifDict_getItemRef(dict, &ALIF_ID(__abstractMethods__), &mod) == 0) {
-			//alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
+			alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
 		}
 	}
 	return mod;
@@ -903,13 +903,13 @@ static AlifObject* lookup_maybeMethod(AlifObject* _self, AlifObject* _attr, Alif
 	return res;
 }
 
-static AlifObject* lookup_method(AlifObject* _self, AlifObject* _attr, AlifIntT* _unbound) { // 2760
+static AlifObject* lookup_method(AlifObject* _self, AlifObject* _attr,
+	AlifIntT* _unbound) { // 2760
 	AlifObject* res_ = lookup_maybeMethod(_self, _attr, _unbound);
 	if (res_ == nullptr
-		//and !alifErr_occurred()
+		and !alifErr_occurred()
 		) {
-		//alifErr_setObject(_alifExcAttributeError_, _attr);
-		return nullptr; // temp
+		alifErr_setObject(_alifExcAttributeError_, _attr);
 	}
 	return res_;
 }
@@ -2912,9 +2912,9 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 	AlifObject* res{};
 
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExctypeError_,
-			//"attribute name must be string, not '%.200s'",
-			//ALIF_TYPE(name)->name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
 
@@ -2968,9 +2968,9 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 	}
 
 	if (_suppressMissingAttribute == nullptr) {
-		//alfiErr_format(_alifExcAttributeError_,
-			//"type object '%.100s' has no attribute '%U'",
-			//type->name, _name);
+		alifErr_format(_alifExcAttributeError_,
+			"كائن النوع '%.100s' لا يملك الخاصية '%U'",
+			_type->name, _name);
 	}
 	else {
 		// signal the caller we have not set an _alifExcAttributeError_ and gave up

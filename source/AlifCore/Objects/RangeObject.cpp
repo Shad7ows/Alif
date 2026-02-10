@@ -97,13 +97,13 @@ static AlifObject* range_fromArray(AlifTypeObject* type,
 		step = _alifLong_getOne();
 		break;
 	case 0:
-		//alifErr_setString(_alifExcTypeError_,
-		//	"range expected at least 1 argument, got 0");
+		alifErr_setString(_alifExcTypeError_,
+			"مدى تحتاج على الأقل معامل واحد, ولكن لم يتم تمرير أي معامل");
 		return nullptr;
 	default:
-		//alifErr_format(_alifExcTypeError_,
-		//	"range expected at most 3 arguments, got %zd",
-		//	num_args);
+		alifErr_format(_alifExcTypeError_,
+			"مدى تتوقع تمرير 3 معاملات كحد أقصى , ولكن تم تمرير %zd",
+			num_args);
 		return nullptr;
 	}
 	obj = make_rangeObject(type, start, stop, step);

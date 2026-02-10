@@ -3470,8 +3470,8 @@ AlifObject* alifObject_genericGetDict(AlifObject* _obj, void* _context) { // 720
 	else {
 		AlifObject** dictptr = alifObject_computedDictPointer(_obj);
 		if (dictptr == nullptr) {
-			//alifErr_setString(_alifExcAttributeError_,
-			//	"This object has no __dict__");
+			alifErr_setString(_alifExcAttributeError_,
+				"هذا الكائن لا يحتوي __فهرس__");
 			return nullptr;
 		}
 

@@ -697,8 +697,8 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 	}
 	if (!modName or !ALIFUSTR_CHECK(modName)) {
 		ALIF_XDECREF(modName);
-		//alifErr_format(_alifExcAttributeError_,
-			//"module has no attribute '%U'", _name);
+		alifErr_format(_alifExcAttributeError_,
+			"الوحدة لا تملك الخاصية '%U'", _name);
 		return nullptr;
 	}
 	AlifObject* spec{};
@@ -707,9 +707,9 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 		return nullptr;
 	}
 	if (spec == nullptr) {
-		//alifErr_format(_alifExcAttributeError_,
-			//"module '%U' has no attribute '%U'",
-			//modName, _name);
+		alifErr_format(_alifExcAttributeError_,
+			"الوحدة '%U' لا تملك هذه الخاصية '%U'",
+			modName, _name);
 		ALIF_DECREF(modName);
 		return nullptr;
 	}
@@ -735,12 +735,12 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 	}
 
 	if (isPossiblyShadowingStdLib) {
-		//alifErr_format(_alifExcAttributeError_,
-		//	"module '%U' has no attribute '%U' "
-		//	"(consider renaming '%U' since it has the same "
-		//	"name as the standard library module named '%U' "
-		//  "and prevents importing that standard library module)",
-		//	modName, name, origin, modName);
+		alifErr_format(_alifExcAttributeError_,
+			"الوحدة '%U' لا تحتوي على الخاصية '%U' "
+			"(يُنصح بإعادة تسمية '%U' لأنها تحمل نفس "
+			"اسم الوحدة النمطية للمكتبة القياسية المسماة '%U' "
+		  "وتمنع استيراد تلك المكتبة القياسية)",
+			modName, _name, origin, modName);
 	}
 	else {
 		AlifIntT rc_ = _alifModuleSpec_isInitializing(spec);
@@ -749,39 +749,39 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 		}
 		else if (rc_ > 0) {
 			if (isPossiblyShadowing) {
-				//alifErr_format(_alifExcAttributeError_,
-				//		"module '%U' has no attribute '%U' "
-				//			"(consider renaming '%U' if it has the same name "
-				//			"as a library you intended to import)",
-				//			modName, name, origin);
+				alifErr_format(_alifExcAttributeError_,
+						"الوحدة '%U' لا تحتوي على الخاصية '%U' "
+							"(يُنصح بإعادة تسمية '%U' إذا كانت تحمل نفس الاسم "
+							"المكتبة التي تحاول استيرادها)",
+							modName, _name, origin);
 			}
 			else if (origin) {
-				//alifErr_format(_alifExcAttributeError_,
-				//"partially initialized "
-				//	"module '%U' from '%U' has no attribute '%U' "
-				//	"(most likely due to a circular import)",
-				//	modName, origin, name);
+				alifErr_format(_alifExcAttributeError_,
+				"مهيئ بشكل جزئي "
+					"الوحدة '%U' من '%U' لا تملك الخاصية '%U' "
+					"(على الأرجح بسبب استيراد دائري)",
+					modName, origin, _name);
 			}
 			else {
-				//	alifErr_format(_alifExcAttributeError_,
-					//"partially initialized "
-						//"module '%U' has no attribute '%U' "
-						//"(most likely due to a circular import)",
-						//modName, name);
+					alifErr_format(_alifExcAttributeError_,
+					"مهيئ بشكل جزئي "
+						"الوحدة '%U' لا تملك الخاصية '%U' "
+						"(على الأرجح بسبب استيراد دائري)",
+						modName, _name);
 			}
 		}
 		else {
 			//rc_ = _alifModuleSpec_isUninitializedSubModule(spec, _name);
 			if (rc_ > 0) {
-				//alifErr_format(_alifExcAttributeError_,
-				//"cannot access submodule '%U' of module '%U' "
-				//	"(most likely due to a circular import)",
-				//	_name, modName);
+				alifErr_format(_alifExcAttributeError_,
+				"لا يمكن الوصول إلى الوحدة الفرعية '%U' من الوحدة '%U' "
+					"(على الأرجح بسبب استيراد دائري)",
+					_name, modName);
 			}
 			else if (rc_ == 0) {
-				//alifErr_format(_alifExcAttributeError_,
-				//"module '%U' has no attribute '%U'",
-				//	modName, _name);
+				alifErr_format(_alifExcAttributeError_,
+				"الوحدة '%U' لا تملك الخاصية '%U'",
+					modName, _name);
 			}
 		}
 	}

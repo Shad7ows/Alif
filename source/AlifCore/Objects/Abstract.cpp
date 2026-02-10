@@ -139,13 +139,12 @@ AlifObject* alifObject_getItem(AlifObject* _o, AlifObject* _key) { // 150
 	if (ms and ms->item) {
 		if (alifIndex_check(_key)) {
 			AlifSizeT keyValue;
-			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_); // need review
+			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_);
 			return alifSequence_getItem(_o, keyValue);
 		}
 		else {
-			//return type_error("sequence index must "
-			//	"be integer, not '%.200s'", _key);
-			return nullptr; // temp
+			return type_error("مؤشر التكرار يجب "
+				"أن يكون عدد صحيح, وليس '%.200s'", _key);
 		}
 	}
 
@@ -210,19 +209,19 @@ AlifIntT alifObject_setItem(AlifObject* _o,
 	if (ALIF_TYPE(_o)->asSequence) {
 		if (alifIndex_check(_key)) {
 			AlifSizeT keyValue{};
-			keyValue = alifNumber_asSizeT(_key, nullptr/*_alifExcIndexError_*/); // need review
-			if (keyValue == -1 /*and alifErr_occurred()*/)
+			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_);
+			if (keyValue == -1 and alifErr_occurred())
 				return -1;
 			return alifSequence_setItem(_o, keyValue, _value);
 		}
 		else if (ALIF_TYPE(_o)->asSequence->assItem) {
-			//type_error("sequence index must be "
-			//	"integer, not '%.200s'", _key);
+			type_error("مؤشر التكرار يجب "
+				"أن يكون عدد صحيح, وليس '%.200s'", _key);
 			return -1;
 		}
 	}
 
-	//type_error("'%.200s' object does not support item assignment", _o);
+	type_error("الكائن '%.200s' لا يدعم إسناد العنصر", _o);
 	return -1;
 }
 
@@ -248,13 +247,13 @@ AlifIntT alifObject_delItem(AlifObject* _o, AlifObject* _key) { // 256
 			return alifSequence_delItem(_o, keyValue);
 		}
 		else if (ALIF_TYPE(_o)->asSequence->assItem) {
-			//type_error("sequence index must be "
-			//	"integer, not '%.200s'", key);
+			type_error("مؤشر التكرار يجب "
+				"أن يكون عدد صحيح, وليس '%.200s'", _key);
 			return -1;
 		}
 	}
 
-	//type_error("'%.200s' object does not support item deletion", o);
+	type_error("الكائن '%.200s' لا يدعم حذف العنصر", _o);
 	return -1;
 }
 

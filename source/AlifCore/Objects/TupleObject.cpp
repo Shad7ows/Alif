@@ -69,7 +69,7 @@ AlifObject* alifTuple_getItem(AlifObject* _op, AlifSizeT _i) { // 96
 		return nullptr;
 	}
 	if (_i < 0 or _i >= ALIF_SIZE(_op)) {
-		//alifErr_setString(_alifExcIndexError_, "tuple index out of range");
+		alifErr_setString(_alifExcIndexError_, "مؤشر المترابطة خارج النطاق");
 		return nullptr;
 	}
 	return ((AlifTupleObject*)_op)->item[_i];
@@ -249,7 +249,7 @@ static AlifSizeT tuple_length(AlifObject* self) { // 346
 static AlifObject* tuple_item(AlifObject* _op, AlifSizeT _i) { // 364
 	AlifTupleObject* a = ALIFTUPLE_CAST(_op);
 	if (_i < 0 or _i >= ALIF_SIZE(a)) {
-		alifErr_setString(_alifExcIndexError_, "tuple index out of range");
+		alifErr_setString(_alifExcIndexError_, "مؤشر المترابطة خارج النطاق");
 		return nullptr;
 	}
 	return ALIF_NEWREF(a->item[_i]);

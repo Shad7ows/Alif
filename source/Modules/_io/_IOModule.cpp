@@ -40,7 +40,7 @@ static AlifObject* _io_openImpl(AlifObject* _module, AlifObject* _file, const ch
 	if (!isNumber and
 		!ALIFUSTR_CHECK(pathOrFD) and
 		!ALIFBYTES_CHECK(pathOrFD)) {
-		alifErr_format(_alifExcTypeError_, "invalid file: %R", _file);
+		alifErr_format(_alifExcTypeError_, "ملف غير مجدي: %R", _file);
 		goto error;
 	}
 

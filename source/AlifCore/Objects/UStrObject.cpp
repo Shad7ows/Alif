@@ -893,15 +893,15 @@ AlifSizeT alifUStr_copyCharacters(AlifObject* _to, AlifSizeT _toStart,
 	}
 
 	if ((AlifUSizeT)_fromStart > (AlifUSizeT)ALIFUSTR_GET_LENGTH(_from)) {
-		//alifErr_setString(_alifExcIndexError_, "string index out of range");
+		alifErr_setString(_alifExcIndexError_, "مؤشر النص خارج النطاق");
 		return -1;
 	}
 	if ((AlifUSizeT)_toStart > (AlifUSizeT)ALIFUSTR_GET_LENGTH(_to)) {
-		//alifErr_setString(_alifExcIndexError_, "string index out of range");
+		alifErr_setString(_alifExcIndexError_, "مؤشر النص خارج النطاق");
 		return -1;
 	}
 	if (_howMany < 0) {
-		//alifErr_setString(_alifExcSystemError_, "how_many cannot be negative");
+		alifErr_setString(_alifExcSystemError_, "_howMany لا يمكن أن تكون سالبة");
 		return -1;
 	}
 	_howMany = ALIF_MIN(ALIFUSTR_GET_LENGTH(_from) - _fromStart, _howMany);
@@ -4287,14 +4287,14 @@ static AlifObject* uStr_encodeCallErrorhandler(const char* errors,
 		return nullptr;
 	}
 	if (!ALIFUSTR_CHECK(resunicode) and !ALIFBYTES_CHECK(resunicode)) {
-		//alifErr_setString(_alifExcTypeError_, &argparse[3]);
+		alifErr_setString(_alifExcTypeError_, &argparse[3]);
 		ALIF_DECREF(restuple);
 		return nullptr;
 	}
 	if (*newpos < 0)
 		*newpos = len + *newpos;
 	if (*newpos<0 || *newpos>len) {
-		//alifErr_format(_alifExcIndexError_, "position %zd from error handler out of bounds", *newpos);
+		alifErr_format(_alifExcIndexError_, "موقع %zd من معالج الأخطاء أصبح خارج الحد", *newpos);
 		ALIF_DECREF(restuple);
 		return nullptr;
 	}
@@ -4973,13 +4973,13 @@ AlifSizeT alifUStr_fill(AlifObject* _unicode, AlifSizeT _start,
 		return -1;
 
 	if (_start < 0) {
-		//alifErr_setString(_alifExcIndexError_, "string index out of range");
+		alifErr_setString(_alifExcIndexError_, "مؤشر النص خارج النطاق");
 		return -1;
 	}
 	if (_fillChar > ALIFUSTR_MAX_CHAR_VALUE(_unicode)) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"fill character is bigger than "
-		//	"the string maximum character");
+		alifErr_setString(_alifExcValueError_,
+			"الحروف المحشورة اكبر من "
+			"الحد الأقصى لعدد حروف النص");
 		return -1;
 	}
 

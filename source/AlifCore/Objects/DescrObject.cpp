@@ -18,6 +18,13 @@
 
 
 
+static AlifObject* descr_name(AlifDescrObject *descr) { // 32
+	if (descr->name != nullptr and ALIFUSTR_CHECK(descr->name))
+		return descr->name;
+	return nullptr;
+}
+
+
 static AlifIntT descr_check(AlifDescrObject* descr, AlifObject* obj) { // 78
 	if (!ALIFOBJECT_TYPECHECK(obj, descr->type)) {
 		//alifErr_format(_alifExcTypeError_,
@@ -129,10 +136,10 @@ static AlifObject* getset_get(AlifObject* self, AlifObject* obj, AlifObject* typ
 	if (descr->getSet->get != nullptr)
 		return DESCR_GET_TRAMPOLINE_CALL(
 			descr->getSet->get, obj, descr->getSet->closure);
-	//alifErr_format(_alifExcAttributeError_,
-	//	"attribute '%V' of '%.100s' objects is not readable",
-	//	descr_name((AlifDescrObject*)descr), "?",
-	//	ALIFDESCR_TYPE(descr)->name);
+	alifErr_format(_alifExcAttributeError_,
+		"الخاصية '%V' للكائن '%.100s' غير قابلة للقراءة",
+		descr_name((AlifDescrObject*)descr), "?",
+		ALIFDESCR_TYPE(descr)->name);
 	return nullptr;
 }
 
@@ -141,9 +148,9 @@ static AlifIntT descr_setCheck(AlifDescrObject* descr,
 	AlifObject* obj, AlifObject* value) { // 215
 	if (!ALIFOBJECT_TYPECHECK(obj, descr->type)) {
 		alifErr_format(_alifExcTypeError_,
-			"descriptor '%V' for '%.100s' objects "
-			"doesn't apply to a '%.100s' object",
-			/*descr_name(descr),*/ "?",
+			"الواصف '%V' للكائنات '%.100s' "
+			"لا يمكن تطبيقه على الكائن '%.100s'",
+			descr_name(descr), "?",
 			descr->type->name,
 			ALIF_TYPE(obj)->name);
 		return -1;
@@ -170,10 +177,10 @@ static AlifIntT getset_set(AlifObject* self, AlifObject* obj, AlifObject* value)
 			descr->getSet->set, obj, value,
 			descr->getSet->closure);
 	}
-	//alifErr_format(_alifExcAttributeError_,
-	//	"attribute '%V' of '%.100s' objects is not writable",
-	//	descr_name((AlifDescrObject*)descr), "?",
-	//	ALIFDESCR_TYPE(descr)->name);
+	alifErr_format(_alifExcAttributeError_,
+		"الخاصية '%V' للكائن '%.100s' غير قابلة للكتابة",
+		descr_name((AlifDescrObject*)descr), "?",
+		ALIFDESCR_TYPE(descr)->name);
 	return -1;
 }
 

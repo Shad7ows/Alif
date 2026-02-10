@@ -188,18 +188,18 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 		if (max == 0) {
 			if (_compatArgs == nullptr)
 				return 1;
-			//alifErr_format(_alifExcTypeError_,
-			//	"%.200s%s takes no arguments",
-			//	fname == nullptr ? "function" : fname,
-			//	fname == nullptr ? "" : "()");
+			alifErr_format(_alifExcTypeError_,
+				"%.200s%s لا يحتاج تمرير أي معاملات",
+				fname == nullptr ? "الدالة " : fname,
+				fname == nullptr ? "" : "()");
 			return clean_return(0, &freelist);
 		}
 		else if (min == 1 and max == 1) {
 			if (_compatArgs == nullptr) {
-				//alifErr_format(_alifExcTypeError_,
-				//	"%.200s%s takes at least one argument",
-				//	fname == nullptr ? "function" : fname,
-				//	fname == nullptr ? "" : "()");
+				alifErr_format(_alifExcTypeError_,
+					"%.200s%s يحتاج على الأقل تمرير معامل واحد",
+					fname == nullptr ? "دالة" : fname,
+					fname == nullptr ? "" : "()");
 				return clean_return(0, &freelist);
 			}
 			msg = convert_item(_compatArgs, &_format, _pVa, _flags, levels,

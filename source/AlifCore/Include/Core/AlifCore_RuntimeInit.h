@@ -697,6 +697,7 @@
     INIT_STR(TypeParams, ".type_params"),	\
     INIT_STR(True, "صح"), /* //* alif */	\
     INIT_STR(False, "خطأ"), /* //* alif */	\
+    INIT_STR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
     INIT_STR(Name, "name"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\

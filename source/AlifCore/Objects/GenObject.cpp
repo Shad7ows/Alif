@@ -174,7 +174,7 @@ AlifIntT _alifGen_setStopIterationValue(AlifObject* _value) { // 627
 
 static AlifObject* gen_repr(AlifObject* self) { // 684
 	AlifGenObject* gen = ALIFGEN_CAST(self);
-	return alifUStr_fromFormat("<generator object %S at %p>",
+	return alifUStr_fromFormat("<كائن مولد %S في %p>",
 		gen->giQualname, gen);
 }
 

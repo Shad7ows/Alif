@@ -179,9 +179,9 @@ static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { 
 				goto fail;
 			}
 			if (!ALIFBYTES_CHECK(readahead)) {
-				//alifErr_format(_alifExcOSError_,
-				//	"peek() should have returned a bytes object, "
-				//	"not '%.200s'", ALIF_TYPE(readahead)->name);
+				alifErr_format(_alifExcOSError_,
+					"اختلس() يجب أن تقوم بإرجاع كائن من نوع بايت, "
+					"وليس '%.200s'", ALIF_TYPE(readahead)->name);
 				ALIF_DECREF(readahead);
 				goto fail;
 			}
@@ -219,9 +219,9 @@ static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { 
 			goto fail;
 		}
 		if (!ALIFBYTES_CHECK(b)) {
-			//alifErr_format(_alifExcOSError_,
-			//	"read() should have returned a bytes object, "
-			//	"not '%.200s'", ALIF_TYPE(b)->name);
+			alifErr_format(_alifExcOSError_,
+				"اقرا() يجب أن تقوم بإرجاع كائن من نوع بايت, "
+				"وليس '%.200s'", ALIF_TYPE(b)->name);
 			ALIF_DECREF(b);
 			goto fail;
 		}

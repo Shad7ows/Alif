@@ -89,7 +89,7 @@ static AlifObject* getPath_absPath(AlifObject* ALIF_UNUSED(self), AlifObject* _a
 			alifMem_dataFree((void*)abs);
 		}
 		else {
-			alifErr_setString(_alifExcOSError_, "failed to make path absolute");
+			alifErr_setString(_alifExcOSError_, "فشلت عملية تحويل المسار إلى مسار مطلق");
 		}
 		alifMem_dataFree((void*)path);
 	}
@@ -456,7 +456,7 @@ static AlifObject* getPath_realPath(AlifObject* ALIF_UNUSED(self), AlifObject* a
 		nlink++;
 		/* 40 is the Linux kernel 4.2 limit */
 		if (nlink >= 40) {
-			alifErr_setString(_alifExcOSError_, "maximum number of symbolic links reached");
+			alifErr_setString(_alifExcOSError_, "تم الوصول إلى الحد الأقصى من الروابط الرمزية");
 			break;
 		}
 	}

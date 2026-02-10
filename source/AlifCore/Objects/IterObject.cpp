@@ -47,8 +47,8 @@ static AlifObject* iter_iterNext(AlifObject* iterator) { // 48
 	if (seq == nullptr)
 		return nullptr;
 	if (it->index == ALIF_SIZET_MAX) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"iter index too large");
+		alifErr_setString(_alifExcOverflowError_,
+			"مؤشر التكرار كبير جداً");
 		return nullptr;
 	}
 
@@ -57,13 +57,13 @@ static AlifObject* iter_iterNext(AlifObject* iterator) { // 48
 		it->index++;
 		return result;
 	}
-	//if (alifErr_exceptionMatches(_alifExcIndexError_) or
-	//	alifErr_exceptionMatches(_alifExcStopIteration_))
-	//{
-	//	alifErr_clear();
-	//	it->seq = nullptr;
-	//	ALIF_DECREF(seq);
-	//}
+	if (alifErr_exceptionMatches(_alifExcIndexError_) or
+		alifErr_exceptionMatches(_alifExcStopIteration_))
+	{
+		alifErr_clear();
+		it->seq = nullptr;
+		ALIF_DECREF(seq);
+	}
 	return nullptr;
 }
 

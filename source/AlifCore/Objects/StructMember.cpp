@@ -19,9 +19,9 @@
 static inline AlifObject* member_getObject(const char* addr, const char* obj_addr, AlifMemberDef* l) { // 11
 	AlifObject* v = (AlifObject*)alifAtomic_loadPtr(&(*(AlifObject**)addr)); //* alif
 	if (v == nullptr) {
-		//alifErr_format(_alifExcAttributeError_,
-		//	"'%T' object has no attribute '%s'",
-		//	(AlifObject*)obj_addr, l->name);
+		alifErr_format(_alifExcAttributeError_,
+			"الكائن '%T' لا يملك الخاصية '%s'",
+			(AlifObject*)obj_addr, l->name);
 	}
 	return v;
 }
@@ -131,14 +131,14 @@ AlifIntT alifMember_setOne(char* addr, AlifMemberDef* l, AlifObject* v) { // 129
 
 	if ((l->flags & ALIF_READONLY))
 	{
-		//alifErr_setString(_alifExcAttributeError_, "readonly attribute");
+		alifErr_setString(_alifExcAttributeError_, "خاصية للقراءة-فقط");
 		return -1;
 	}
 	if (v == nullptr) {
 		if (l->type == ALIF_T_OBJECT_EX) {
 			/* Check if the attribute is set. */
 			if (*(AlifObject**)addr == nullptr) {
-				//alifErr_setString(_alifExcAttributeError_, l->name);
+				alifErr_setString(_alifExcAttributeError_, l->name);
 				return -1;
 			}
 		}

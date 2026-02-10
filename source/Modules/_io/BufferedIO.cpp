@@ -560,8 +560,8 @@ static AlifSizeT _bufferedReader_rawRead(Buffered* self, char* start, AlifSizeT 
 
 	if (n < 0 or n > len) {
 		alifErr_format(_alifExcOSError_,
-			"raw readinto() returned invalid length %zd "
-			"(should have been between 0 and %zd)", n, len);
+			"اقرا_في() الخام تقوم بإرجاع طول غير صحيح %zd "
+			"(يجب أن تكون بين 0 و %zd)", n, len);
 		return -1;
 	}
 	if (n > 0 and self->absPos != -1)
@@ -742,8 +742,8 @@ static AlifSizeT _bufferedWriter_rawWrite(Buffered* self, char* start, AlifSizeT
 	ALIF_DECREF(res);
 	if (n < 0 or n > len) {
 		alifErr_format(_alifExcOSError_,
-			"raw write() returned invalid length %zd "
-			"(should have been between 0 and %zd)", n, len);
+			"اكتب() الخام تقوم بإرجاع طول غير صحيح %zd "
+			"(يجب أن تكون بين 0 و %zd)", n, len);
 		return -1;
 	}
 	if (n > 0 and self->absPos != -1)
