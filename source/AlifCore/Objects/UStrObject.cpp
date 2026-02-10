@@ -6883,7 +6883,7 @@ static AlifIntT init_fsCodec(AlifInterpreter* _interp) { // 16021
 	AlifErrorHandler_ error_handler{};
 	error_handler = get_errorHandlerWide(config->fileSystemErrors);
 	if (error_handler == AlifErrorHandler_::Alif_Error_Unknown) {
-		//alifErr_setString(_alifExcRuntimeError_, "unknown filesystem error handler");
+		alifErr_setString(_alifExcRuntimeError_, "خطأ غير معروف في معالج أخطاء ملف-النظام");
 		return -1;
 	}
 

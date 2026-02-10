@@ -498,8 +498,8 @@ static AlifObject* setIter_iterNext(AlifObject* _self) { // 839
 	AlifSizeT soUsed = alifAtomic_loadSize(&so->used);
 	AlifSizeT siUsed = alifAtomic_loadSize(&si->used);
 	if (siUsed != soUsed) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"Set changed size during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير حجم المميزة اثناء التكرار");
 		si->used = -1;
 		return nullptr;
 	}

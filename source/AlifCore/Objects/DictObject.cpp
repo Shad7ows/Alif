@@ -2100,8 +2100,8 @@ static AlifIntT dict_dictMerge(AlifInterpreter* interp, AlifDictObject* mp, Alif
 			return -1;
 
 		if (orig_size != other->keys->nentries) {
-			//alifErr_setString(_alifExcRuntimeError_,
-			//	"dict mutated during update");
+			alifErr_setString(_alifExcRuntimeError_,
+				"إجراء تغيير على الفهرس أثناء تحديثه");
 			return -1;
 		}
 	}
@@ -2702,8 +2702,8 @@ static AlifIntT dictIter_iterNextItemLockHeld(AlifDictObject* d, AlifObject* sel
 	AlifSizeT i{};
 
 	if (di->used != d->used) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"dictionary changed size during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير حجم الفهرس اثناء التكرار عليه");
 		di->used = -1; /* Make this state sticky */
 		return -1;
 	}
@@ -2744,8 +2744,8 @@ static AlifIntT dictIter_iterNextItemLockHeld(AlifDictObject* d, AlifObject* sel
 	}
 	// We found an element, but did not expect it
 	if (di->len == 0) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"dictionary keys changed during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير مفاتيح الفهرس اثناء التكرار عليه");
 		goto fail;
 	}
 	di->pos = i + 1;
@@ -2794,8 +2794,8 @@ static AlifIntT dictIter_iterNextThreadSafe(AlifDictObject* _d, AlifObject* _sel
 	AlifDictKeysObject* k{};
 
 	if (di->used != alifAtomic_loadSizeRelaxed(&_d->used)) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"dictionary changed size during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير حجم الفهرس اثناء التكرار عليه");
 		di->used = -1; /* Make this state sticky */
 		return -1;
 	}
@@ -2869,8 +2869,8 @@ static AlifIntT dictIter_iterNextThreadSafe(AlifDictObject* _d, AlifObject* _sel
 	return 0;
 
 concurrent_modification:
-	//alifErr_setString(_alifExcRuntimeError_,
-	//	"dictionary keys changed during iteration");
+	alifErr_setString(_alifExcRuntimeError_,
+		"تم تغيير مفاتيح الفهرس اثناء التكرار عليه");
 
 fail:
 	di->dict = nullptr;

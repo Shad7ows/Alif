@@ -289,7 +289,7 @@ AlifIntT alifInterpreter_setRunningMain(AlifInterpreter* _interp) { // 1056
 	ALIF_ENSURETHREADNOTNULL(tstate);
 	if (tstate->interpreter != _interp) {
 		alifErr_setString(_alifExcRuntimeError_,
-			"current tstate has wrong interpreter");
+			"الخيط الحالي او القناة الحالية 'thread' يحتوي على المفسر الخاطئ");
 		return -1;
 	}
 	set_mainThread(_interp, tstate);
@@ -318,7 +318,7 @@ AlifIntT alifInterpreter_failIfRunningMain(AlifInterpreter* _interp) { // 1105
 
 int64_t alifInterpreter_getID(AlifInterpreter* _interp) { // 1226
 	if (_interp == nullptr) {
-		alifErr_setString(_alifExcRuntimeError_, "no interpreter provided");
+		alifErr_setString(_alifExcRuntimeError_, "متغير المفسر فارغ");
 		return -1;
 	}
 	return _interp->id_;

@@ -272,8 +272,8 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 				goto error;
 		break;
 	case ModK_::FunctionK:
-		//alifErr_setString(_alifExcRuntimeError_,
-			//"this compiler does not handle FunctionTypes");
+		alifErr_setString(_alifExcRuntimeError_,
+			"هذا المترجم لا يستطيع معالجة FunctionK");
 		goto error;
 	}
 	if (!symtable_exitBlock(st_)) {
@@ -282,10 +282,10 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	}
 	/* Check that the recursion depth counting balanced correctly */
 	if (st_->recursionDepth != startingRecursionDepth) {
-		//alifErr_format(_alifExcsystemError_,
+		//alifErr_format(_alifExcSystemError_,
 			//"symtable analysis recursion depth mismatch (before=%d, after=%d)",
 			//startingRecursionDepth, st_->recursionDepth);
-		//alifSymtable_free(st_);
+		alifSymtable_free(st_);
 		return nullptr;
 	}
 	if (symtable_analyze(st_)) {
@@ -375,7 +375,7 @@ static AlifIntT error_atDirective(SymTableEntry* _ste, AlifObject* _name) { // 5
 		}
 	}
 	//alifErr_setString(_alifExcRuntimeError_,
-		//"BUG: internal directive bookkeeping broken");
+	//	"BUG: internal directive bookkeeping broken");
 	return 0;
 }
 

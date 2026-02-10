@@ -186,10 +186,9 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 	cell = alifEval_vector(thread, (AlifFunctionObject*)func, ns, nullptr, 0, nullptr);
 	if (cell != nullptr) {
 		if (bases != orig_bases) {
-			//if (alifMapping_setItemString(ns, "__origBases__", orig_bases) < 0) {
-			//	goto error;
-			//}
-			printf("تعليق : BltinModule.cpp - builtin___buildClass__"); //* alif
+			if (alifMapping_setItemString(ns, "__origBases__", orig_bases) < 0) {
+				goto error;
+			}
 		}
 		AlifObject* margs[3] = { name, bases, ns };
 		cls = alifObject_vectorCallDict(meta, margs, 3, mkw);
@@ -197,15 +196,15 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 			AlifObject* cell_cls = ALIFCELL_GET(cell);
 			if (cell_cls != cls) {
 				if (cell_cls == nullptr) {
-					//const char* msg =
-					//	"__class__ not set defining %.200R as %.200R. "
-					//	"Was __classCell__ propagated to type.__new__?";
-					//alifErr_format(_alifExcRuntimeError_, msg, name, cls);
+					const char* msg =
+						"__صنف__ غير محدد تعريف %.200R كـ %.200R. "
+						"هل تم نقل __خلية_صنف__ إلى نوع.__جديد__؟";
+					alifErr_format(_alifExcRuntimeError_, msg, name, cls);
 				}
 				else {
-					//const char* msg =
-					//	"__class__ set to %.200R defining %.200R as %.200R";
-					//alifErr_format(_alifExcTypeError_, msg, cell_cls, name, cls);
+					const char* msg =
+						"__صنف__ مضبوط على %.200R مع تعريف %.200R على أنه %.200R";
+					alifErr_format(_alifExcTypeError_, msg, cell_cls, name, cls);
 				}
 				ALIF_SETREF(cls, nullptr);
 				goto error;

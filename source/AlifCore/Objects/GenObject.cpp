@@ -96,9 +96,9 @@ static AlifSendResult gen_sendEx2(AlifGenObject* gen, AlifObject* arg,
 	}
 	if (FRAME_STATE_FINISHED(gen->giFrameState)) {
 		if (ALIFCORO_CHECKEXACT(gen) && !closing) {
-			//alifErr_setString(
-			//	_alifExcRuntimeError_,
-			//	"cannot reuse already awaited coroutine");
+			alifErr_setString(
+				_alifExcRuntimeError_,
+				"لا يمكن إعادة الإستخدام لأن إجراء فرعي ينتظر بالفعل");
 		}
 		else if (arg and !exc) {
 			*presult = ALIF_NEWREF(ALIF_NONE);

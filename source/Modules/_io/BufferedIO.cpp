@@ -334,7 +334,7 @@ static AlifIntT _buffered_init(Buffered* self) { // 822
 		alifThread_freeLock(self->lock);
 	self->lock = alifThread_allocateLock();
 	if (self->lock == nullptr) {
-		//alifErr_setString(_alifExcRuntimeError_, "can't allocate read lock");
+		alifErr_setString(_alifExcRuntimeError_, "لم يستطع حجز قفل القراءة");
 		return -1;
 	}
 	self->owner = 0;

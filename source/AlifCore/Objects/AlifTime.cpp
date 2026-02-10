@@ -732,7 +732,7 @@ static AlifIntT alifWin_perfCounterFrequency(AlifTimeFraction* _base,
 	if (alifTimeFraction_set(_base, SEC_TO_NS, denom) < 0) {
 		if (_raiseExc) {
 			alifErr_setString(_alifExcRuntimeError_,
-				"invalid QueryPerformanceFrequency");
+				"غير صحيح QueryPerformanceFrequency");
 		}
 		return -1;
 	}
@@ -788,7 +788,7 @@ static AlifIntT alifMach_timeBaseInfo(AlifTimeFraction* base, AlifIntT raise_exc
 	if (alifTimeFraction_set(base, numer, denom) < 0) {
 		if (raise_exc) {
 			alifErr_setString(_alifExcRuntimeError_,
-				"invalid mach_timebase_info");
+				"غير صحيح mach_timebase_info");
 		}
 		return -1;
 	}

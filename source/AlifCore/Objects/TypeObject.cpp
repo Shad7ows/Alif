@@ -2368,7 +2368,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 	for (slot = spec->slots; slot->slot; slot++) {
 		if (slot->slot < 0
 			or (AlifUSizeT)slot->slot >= ALIF_ARRAY_LENGTH(_alifSlotOffsets_)) {
-			//alifErr_setString(_alifExcRuntimeError_, "invalid slot offset");
+			alifErr_setString(_alifExcRuntimeError_, "إزاحة الخانة غير صالحة");
 			goto finally;
 		}
 		switch (slot->slot) {
@@ -4900,8 +4900,8 @@ static AlifTypeObject* super_check(AlifTypeObject* type, AlifObject* obj) { // 1
 static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObject* co,
 	AlifTypeObject** type_p, AlifObject** obj_p) { // 11460
 	if (co->argCount == 0) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"super(): no arguments");
+		alifErr_setString(_alifExcRuntimeError_,
+			"اصل(): بدون تمرير معاملات");
 		return -1;
 	}
 
@@ -4913,8 +4913,8 @@ static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObje
 		}
 	}
 	if (firstarg == nullptr) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"super(): arg[0] deleted");
+		alifErr_setString(_alifExcRuntimeError_,
+			"اصل(): المعامل[0] محذوف");
 		return -1;
 	}
 
@@ -4926,28 +4926,28 @@ static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObje
 		if (_alifUStr_equal(name, &ALIF_ID(__class__))) {
 			AlifObject* cell = alifStackRef_asAlifObjectBorrow(_alifFrame_getLocalsArray(cframe)[i]);
 			if (cell == nullptr or !ALIFCELL_CHECK(cell)) {
-				//alifErr_setString(_alifExcRuntimeError_,
-				//	"super(): bad __class__ cell");
+				alifErr_setString(_alifExcRuntimeError_,
+					"اصل(): خلية __صنف__ غير فعالة");
 				return -1;
 			}
 			type = (AlifTypeObject*)ALIFCELL_GET(cell);
 			if (type == nullptr) {
-				//alifErr_setString(_alifExcRuntimeError_,
-				//	"super(): empty __class__ cell");
+				alifErr_setString(_alifExcRuntimeError_,
+					"اصل(): خلية __صنف__ فارغة");
 				return -1;
 			}
 			if (!ALIFTYPE_CHECK(type)) {
-				//alifErr_format(_alifExcRuntimeError_,
-				//	"super(): __class__ is not a type (%s)",
-				//	ALIF_TYPE(type)->name);
+				alifErr_format(_alifExcRuntimeError_,
+					"اصل(): __صنف__ ليس نوع (%s)",
+					ALIF_TYPE(type)->name);
 				return -1;
 			}
 			break;
 		}
 	}
 	if (type == nullptr) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"super(): __class__ cell not found");
+		alifErr_setString(_alifExcRuntimeError_,
+			"اصل(): خلية __صنف__ غير موجودة");
 		return -1;
 	}
 
@@ -4984,8 +4984,8 @@ static inline AlifIntT super_initImpl(AlifObject* self,
 		AlifThread* tstate = _alifThread_get();
 		AlifInterpreterFrame* frame = _alifThreadState_getFrame(tstate);
 		if (frame == nullptr) {
-			//alifErr_setString(_alifExcRuntimeError_,
-			//	"اصل(): no current frame");
+			alifErr_setString(_alifExcRuntimeError_,
+				"اصل(): الإطار الحالي مفقود");
 			return -1;
 		}
 		AlifIntT res = super_initWithoutArgs(frame, _alifFrame_getCode(frame), &type, &obj);

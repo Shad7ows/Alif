@@ -112,7 +112,7 @@ static AlifIntT dev_urandom(char *buffer,
 				return -1;
 			if (n == 0) {
 				alifErr_format(_alifExcRuntimeError_,
-					"Failed to read %zi bytes from /dev/urandom",
+					"فشل في قراءة %zi بايت من /dev/urandom",
 					size);
 				return -1;
 			}
@@ -131,7 +131,7 @@ static AlifIntT dev_urandom(char *buffer,
 		{
 			do {
 				n = read(fd, buffer, (AlifUSizeT)size);
-			} while (n < 0 && errno == EINTR);
+			} while (n < 0 and errno == EINTR);
 
 			if (n <= 0) {
 				/* stop on error or if read(size) returned 0 */

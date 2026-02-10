@@ -324,8 +324,8 @@ char* alifOS_readline(FILE* sys_stdin,
 
 	AlifThread* thread = _alifThread_get();
 	if (alifAtomic_loadPtrRelaxed(&_alifOSReadlineThread_) == thread) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"can't re-enter readline");
+		alifErr_setString(_alifExcRuntimeError_,
+			"لا يستطيع إعادة الدخول إلى readline");
 		return nullptr;
 	}
 

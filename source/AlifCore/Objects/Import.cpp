@@ -60,9 +60,9 @@ static inline AlifObject* get_modulesDict(AlifThread* tstate, bool fatal) { // 1
 	AlifObject* modules = MODULES(tstate->interpreter);
 	if (modules == nullptr) {
 		if (fatal) {
-			//alif_fatalError("interpreter has no modules dictionary");
+			alif_fatalError("المفسر لا يحتوي على فهرس مكتبات");
 		}
-		//alifErr_setString(tstate, _alifExcRuntimeError_, "unable to get sys.modules");
+		_alifErr_setString(tstate, _alifExcRuntimeError_, "لم يتمكن من الحصول على النظام.مكتبات");
 		return nullptr;
 	}
 	return modules;
@@ -2193,8 +2193,8 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 	}
 
 	if (_path == nullptr or !ALIFLIST_CHECK(_path)) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"sys.path must be a list of directory names");
+		alifErr_setString(_alifExcRuntimeError_,
+			"النظام.المسار يجب أن يكون اسماء مصفوفة او فهرس");
 		return nullptr;
 	}
 
