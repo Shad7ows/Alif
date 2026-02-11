@@ -23,7 +23,7 @@ static AlifObject* null_error(void) { // 27
 	AlifThread* thread = _alifThread_get();
 	if (!_alifErr_occurred(thread)) {
 		_alifErr_setString(thread, _alifExcSystemError_,
-			"معامل عدم ضمن عملية إعتيادية داخلية");
+			"معامل عدم ضمن إجراء داخلي");
 	}
 	return nullptr;
 }
@@ -415,9 +415,9 @@ AlifObject* alifObject_format(AlifObject* _obj, AlifObject* _formatSpec) { // 83
 	AlifObject* result = nullptr;
 
 	if (_formatSpec != nullptr and !ALIFUSTR_CHECK(_formatSpec)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"Format specifier must be a string, not %.200s",
-		//	ALIF_TYPE(_formatSpec)->name);
+		alifErr_format(_alifExcSystemError_,
+			"محدد التنسيق يجب أن يكون نص, وليس %.200s",
+			ALIF_TYPE(_formatSpec)->name);
 		return nullptr;
 	}
 

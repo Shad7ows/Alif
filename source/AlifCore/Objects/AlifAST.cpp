@@ -4633,7 +4633,7 @@ AlifObject* alifAST_mod2obj(ModuleTy _t) { // 18130
 	/* Check that the recursion depth counting balanced correctly */
 	if (result and vstate.recursionDepth != startingRecursionDepth) {
 		alifErr_format(_alifExcSystemError_,
-			"AST constructor recursion depth mismatch (before=%d, after=%d)",
+			"يوجد عدم تطابق عمق التكرار في منشئ AST (قبل=%d, بعد=%d)",
 			startingRecursionDepth, vstate.recursionDepth);
 		return nullptr;
 	}

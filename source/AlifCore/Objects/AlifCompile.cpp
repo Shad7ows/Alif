@@ -128,7 +128,7 @@ static AlifIntT compiler_setup(AlifCompiler* _c, ModuleTy _mod, AlifObject* _fil
 	_c->st = alifSymtable_build(_mod, _filename, &_c->future);
 	if (_c->st == nullptr) {
 		if (!alifErr_occurred()) {
-			//alifErr_setString(_alifExcSystemError_, "no symtable");
+			alifErr_setString(_alifExcSystemError_, "لا يوجد جدول اسماء");
 		}
 		return ERROR;
 	}
@@ -799,9 +799,9 @@ static AlifIntT compiler_codegen(AlifCompiler* _c, ModuleTy _mod) {
 		break;
 	}
 	default: {
-		//alifErr_format(_alifExcSystemError_,
-		//	"module kind %d should not be possible",
-		//	_mod->type);
+		alifErr_format(_alifExcSystemError_,
+			"نوع الوحدة %d غير صحيح",
+			_mod->type);
 		return ERROR;
 	}
 	}

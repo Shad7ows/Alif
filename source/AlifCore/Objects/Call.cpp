@@ -13,10 +13,10 @@
 
 
 static AlifObject* null_error(AlifThread* _tstate) { // 13
-	//if (!alifErr_occurred(_tstate)) {
-		//alifErr_setString(_tstate, _alifExcSystemError_,
-			//"null argument to internal routine");
-	//}
+	if (!_alifErr_occurred(_tstate)) {
+		_alifErr_setString(_tstate, _alifExcSystemError_,
+			"معامل عدم ضمن إجراء داخلي");
+	}
 	return nullptr;
 }
 
@@ -24,32 +24,32 @@ AlifObject* _alif_checkFunctionResult(AlifThread* _thread,
 	AlifObject* _callable, AlifObject* _result, const wchar_t* _where) { // 24
 
 	if (_result == nullptr) {
-		//if (!alifErr_occurred(_thread)) {
-		//	if (_callable)
-		//		alifErr_format(_thread, alifExcSystemError,
-		//			"%R returned nullptr without setting an exception", _callable);
-		//	else
-		//		alifErr_format(_thread, alifExcSystemError,
-		//			"%s returned nullptr without setting an exception", _where);
-		//	return nullptr;
-		//}
+		if (!_alifErr_occurred(_thread)) {
+			if (_callable)
+				_alifErr_format(_thread, _alifExcSystemError_,
+					"%R قام بالإرجاع بدون ضبط خلل", _callable);
+			else
+				_alifErr_format(_thread, _alifExcSystemError_,
+					"%s قام بالإرجاع بدون ضبط خلل", _where);
+			return nullptr;
+		}
 	}
 	else {
-		//if (alifErr_occurred(_thread)) {
-		//	ALIF_DECREF(_result);
+		if (_alifErr_occurred(_thread)) {
+			ALIF_DECREF(_result);
 
-		//	if (_callable) {
-		//		alifErr_formatFromCauseThread(
-		//			_thread, alifExcSystemError,
-		//			"%R returned a result with an exception set", _callable);
-		//	}
-		//	else {
-		//		alifErr_formatFromCauseTstate(
-		//			_thread, alifExcSystemError,
-		//			"%s returned a result with an exception set", _where);
-		//	}
-		//	return nullptr;
-		//}
+			//if (_callable) {
+			//	alifErr_formatFromCauseThread(
+			//		_thread, _alifExcSystemError_,
+			//		"%R returned a result with an exception set", _callable);
+			//}
+			//else {
+			//	alifErr_formatFromCauseThread(
+			//		_thread, _alifExcSystemError_,
+			//		"%s returned a result with an exception set", _where);
+			//}
+			return nullptr;
+		}
 	}
 	return _result;
 }

@@ -80,8 +80,8 @@ static AlifIntT check_end(const char** _pFormat, char _endChar) { // 91
 	const char* f = *_pFormat;
 	while (*f != _endChar) {
 		if (*f != ' ' and *f != '\t' and *f != ',' and *f != ':') {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"Unmatched paren in format");
+			alifErr_setString(_alifExcSystemError_,
+				"نهايات غير متطابقة في التنسيق");
 			return 0;
 		}
 		f++;
@@ -99,9 +99,9 @@ static void do_ignore(const char** _pFormat,
 	va_list* _pVa, char _endChar, AlifSizeT _n) { // 110
 	AlifObject* v = alifTuple_new(_n);
 	for (AlifSizeT i = 0; i < _n; i++) {
-		//AlifObject* exc = alifErr_getRaisedException();
+		AlifObject* exc = alifErr_getRaisedException();
 		AlifObject* w = do_mkValue(_pFormat, _pVa);
-		//alifErr_setRaisedException(exc);
+		alifErr_setRaisedException(exc);
 		if (w != nullptr) {
 			if (v != nullptr) {
 				ALIFTUPLE_SET_ITEM(v, i, w);

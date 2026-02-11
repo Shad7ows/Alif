@@ -752,7 +752,7 @@ static AlifObject* runEval_codeObj(AlifThread* _thread, AlifCodeObject* _co,
 	//_alifRuntime_.signals.unhandledKeyboardInterrupt = 0;
 
 	if (!_globals or !ALIFDICT_CHECK(_globals)) {
-		//alifErr_setString(_alifExcSystemError_, "globals must be a real dict");
+		alifErr_setString(_alifExcSystemError_, "globals يجب أن تكون من نوع فهرس");
 		return nullptr;
 	}
 	AlifIntT hasBuiltins = alifDict_containsString(_globals, "__builtins__");

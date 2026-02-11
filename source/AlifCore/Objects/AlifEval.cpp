@@ -654,10 +654,10 @@ resume_frame:
 				AlifObject* l = LOCALS();
 				if (l == nullptr) {
 					_alifFrame_setStackPointer(_frame, stackPointer);
-					//_alifErr_setString(_thread, _alifExcSystemError_,
-					//	"no locals found");
+					_alifErr_setString(_thread, _alifExcSystemError_,
+						"قيمة local فارغة");
 					stackPointer = _alifFrame_getStackPointer(_frame);
-					//if (true) goto error;
+					if (true) goto error;
 				}
 				locals = ALIFSTACKREF_FROMALIFOBJECTNEW(l);
 				stackPointer[0] = locals;
@@ -1606,8 +1606,8 @@ resume_frame:
 				AlifIntT err{};
 				if (ns == nullptr) {
 					_alifFrame_setStackPointer(_frame, stackPointer);
-					//_alifErr_format(_thread, _alifExcSystemError_,
-					//	"no locals when deleting %R", name);
+					_alifErr_format(_thread, _alifExcSystemError_,
+						"قيمة locals اصبحت فارغة عند حذف %R", name);
 					stackPointer = _alifFrame_getStackPointer(_frame);
 					goto error;
 				}
@@ -3587,8 +3587,8 @@ AlifObject* _alifEval_loadName(AlifThread* _thread,
 
 	AlifObject* value{};
 	if (_frame->locals == nullptr) {
-		//_alifErr_setString(_thread, _alifExcSystemError_,
-		//	"no locals found");
+		_alifErr_setString(_thread, _alifExcSystemError_,
+			"متغير locals فارغ");
 		return nullptr;
 	}
 	if (alifMapping_getOptionalItem(_frame->locals, _name, &value) < 0) {

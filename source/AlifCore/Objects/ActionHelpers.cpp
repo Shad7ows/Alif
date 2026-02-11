@@ -721,9 +721,9 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 	case NamedExprK:
 		return "تعبير اسمي";
 	default:
-		//alifErr_format(_alifExcSystemError_,
-		//	"unexpected expression in assignment %d (line %d)",
-		//	e->type, e->lineNo);
+		alifErr_format(_alifExcSystemError_,
+			"تعبير غير متوقع في الإسناد %d (السطر %d)",
+			_e->type, _e->lineNo);
 		return nullptr;
 	}
 }
