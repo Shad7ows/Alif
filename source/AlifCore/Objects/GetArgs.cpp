@@ -210,25 +210,25 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 			return clean_return(0, &freelist);
 		}
 		else {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"old style getargs format uses new features");
+			alifErr_setString(_alifExcSystemError_,
+				"تنسيق قديم لجلب المعاملات يستخدم مميزات حديثة");
 			return clean_return(0, &freelist);
 		}
 	}
 
 	if (_nargs < min or max < _nargs) {
-		//if (message == nullptr)
-			//alifErr_format(_alifExcTypeError_,
-			//	"%.150s%s takes %s %d argument%s (%zd given)",
-			//	fname == nullptr ? "function" : fname,
-			//	fname == nullptr ? "" : "()",
-			//	min == max ? "exactly"
-			//	: _nargs < min ? "at least" : "at most",
-			//	_nargs < min ? min : max,
-			//	(_nargs < min ? min : max) == 1 ? "" : "s",
-			//	_nargs);
-		//else
-			//alifErr_setString(_alifExcTypeError_, message);
+		if (message == nullptr)
+			alifErr_format(_alifExcTypeError_,
+				"%.150s%s تحتاج %s %d معامل%s (%zd المعطى)",
+				fname == nullptr ? "دالة" : fname,
+				fname == nullptr ? "" : "()",
+				min == max ? "بالتحديد"
+				: _nargs < min ? "على الأقل" : "على الأكثر",
+				_nargs < min ? min : max,
+				(_nargs < min ? min : max) == 1 ? "" : "s",
+				_nargs);
+		else
+			alifErr_setString(_alifExcTypeError_, message);
 		return clean_return(0, &freelist);
 	}
 
@@ -247,8 +247,8 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 	if (*_format != '\0' and !ALIF_ISALPHA(*_format) and
 		*_format != '(' and
 		*_format != '|' and *_format != ':' and *_format != ';') {
-		//alifErr_format(_alifExcSystemError_,
-		//	"bad format string: %.200s", formatsave);
+		alifErr_format(_alifExcSystemError_,
+			"تنسيق نصي غير مناسب: %.200s", formatsave);
 		return clean_return(0, &freelist);
 	}
 
@@ -264,8 +264,8 @@ static AlifIntT vGetArgs1(AlifObject* _args, const char* _format,
 	if (!(_flags & FLAG_COMPAT)) {
 
 		if (!ALIFTUPLE_CHECK(_args)) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"new style getargs format but argument is not a tuple");
+			alifErr_setString(_alifExcSystemError_,
+				"تنسيق جديد لجلب المعاملات ولكن المعامل ليس مترابطة");
 			return 0;
 		}
 
@@ -1019,8 +1019,8 @@ static AlifIntT scan_keywords(const char* const* _keywords,
 
 	for (; _keywords[i]; i++) {
 		if (!*_keywords[i]) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"Empty keyword parameter name");
+			alifErr_setString(_alifExcSystemError_,
+				"اسم كلمة مفتاحية فارغ");
 			return -1;
 		}
 	}
@@ -1049,13 +1049,13 @@ static AlifIntT parse_format(const char* _format, AlifIntT _total,
 	for (AlifIntT i = 0; i < _total; i++) {
 		if (*_format == '|') {
 			if (min != INT_MAX) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Invalid format string (| specified twice)");
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير مناسب (| محددة مرتين)");
 				return -1;
 			}
 			if (max != INT_MAX) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Invalid format string ($ before |)");
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير مناسب ($ قبل |)");
 				return -1;
 			}
 			min = i;
@@ -1063,39 +1063,39 @@ static AlifIntT parse_format(const char* _format, AlifIntT _total,
 		}
 		if (*_format == '$') {
 			if (max != INT_MAX) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Invalid format string ($ specified twice)");
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير مناسب ($ محددة مرتين)");
 				return -1;
 			}
 			if (i < _npos) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Empty parameter name after $");
+				alifErr_setString(_alifExcSystemError_,
+					"اسم معامل فارغ بعد $");
 				return -1;
 			}
 			max = i;
 			_format++;
 		}
 		if (IS_END_OF_FORMAT(*_format)) {
-			//alifErr_format(_alifExcSystemError_,
-			//	"More keyword list entries (%d) than "
-			//	"format specifiers (%d)", _total, i);
+			alifErr_format(_alifExcSystemError_,
+				"مصفوفة كلمات مفتاحية مدخلة (%d) اكثر من "
+				"محددات التنسيق (%d)", _total, i);
 			return -1;
 		}
 
-		//const char* msg = skipitem(&_format, nullptr, 0);
-		//if (msg) {
-		//	//alifErr_format(_alifExcSystemError_, "%s: '%s'", msg,
-		//	//	_format);
-		//	return -1;
-		//}
+		const char* msg = skip_item(&_format, nullptr, 0);
+		if (msg) {
+			alifErr_format(_alifExcSystemError_, "%s: '%s'", msg,
+				_format);
+			return -1;
+		}
 	}
 	min = ALIF_MIN(min, _total);
 	max = ALIF_MIN(max, _total);
 
 	if (!IS_END_OF_FORMAT(*_format) and (*_format != '|') and (*_format != '$')) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"more argument specifiers than keyword list entries "
-		//	"(remaining format:'%s')", _format);
+		alifErr_format(_alifExcSystemError_,
+			"محددات معاملات اكثر من مصفوفة الكلمات المفتاحية المدخلة "
+			"(النسق المتبقي:'%s')", _format);
 		return -1;
 	}
 
@@ -1897,8 +1897,8 @@ AlifIntT alifArg_unpackTuple(AlifObject* args,
 	va_list vargs{};
 
 	if (!ALIFTUPLE_CHECK(args)) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"alifArg_unpackTuple() argument list is not a tuple");
+		alifErr_setString(_alifExcSystemError_,
+			"alifArg_unpackTuple() مصفوفة معاملات ليست من نوع مترابطة");
 		return 0;
 	}
 	stack = ALIFTUPLE_ITEMS(args);

@@ -64,8 +64,8 @@ static AlifObject* alifBytes_fromSize(AlifSizeT _size, AlifIntT _useCalloc) { //
 AlifObject* alifBytes_fromStringAndSize(const char* _str, AlifSizeT _size) { // 111
 	AlifBytesObject* op{};
 	if (_size < 0) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Negative size passed to alifBytes_fromStringAndSize");
+		alifErr_setString(_alifExcSystemError_,
+			"تم تمرير حجم بالقيمة السالبة لـ alifBytes_fromStringAndSize");
 		return nullptr;
 	}
 	if (_size == 1 and _str != nullptr) {

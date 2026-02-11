@@ -2954,8 +2954,8 @@ static AlifIntT unaryop(UnaryOp_ _op) {
 	case UnaryOp_::Sqrt: //* alif
 		return UNARY_SQRT;
 	default:
-		//alifErr_format(_alifExcSystemError_,
-		//	"unary op %d should not be possible", _op);
+		alifErr_format(_alifExcSystemError_,
+			"عملية احادية %d يجب أن لا يكون مسموح بها", _op);
 		return 0;
 	}
 }
@@ -3004,8 +3004,8 @@ static AlifIntT addop_binary(AlifCompiler* _c, Location _loc,
 		oparg = _inplace ? NB_INPLACE_FLOOR_DIVIDE : NB_FLOOR_DIVIDE;
 		break;
 	default:
-		//alifErr_format(_alifExcSystemError_, "%s op %d should not be possible",
-		//	_inplace ? "inplace" : "binary", _binop);
+		alifErr_format(_alifExcSystemError_, "%s عملية %d يجب أن لا يكون مسموح بها",
+			_inplace ? "inplace" : "binary", _binop);
 		return ERROR;
 	}
 	ADDOP_I(_c, _loc, BINARY_OP, oparg);
@@ -3889,8 +3889,8 @@ static AlifIntT codegen_formattedValue(AlifCompiler* _c, ExprTy _e) {
 		case 'r': oparg = FVC_REPR;  break;
 		case 'a': oparg = FVC_ASCII; break;
 		default:
-			//alifErr_format(_alifExcSystemError_,
-			//	"Unrecognized conversion character %d", conversion);
+			alifErr_format(_alifExcSystemError_,
+				"لا يمكن التعرف على طريقة التحويل %d", conversion);
 			return ERROR;
 		}
 		ADDOP_I(_c, loc, CONVERT_VALUE, oparg);
@@ -4542,8 +4542,8 @@ static AlifIntT codegen_comprehension(AlifCompiler* _c, ExprTy _e, AlifIntT _typ
 			op = BUILD_MAP;
 			break;
 		default:
-			//alifErr_format(_alifExcSystemError_,
-			//	"unknown comprehension type %d", type);
+			alifErr_format(_alifExcSystemError_,
+				"نوع حاوية ضمنية غير معروف %d", _type);
 			goto error_in_scope;
 		}
 
@@ -5074,9 +5074,9 @@ static AlifIntT codegen_augAssign(AlifCompiler* _c, StmtTy _s) {
 		RETURN_IF_ERROR(codegen_nameOp(_c, loc, e->V.name.name, ExprContext_::Load));
 		break;
 	default:
-		//alifErr_format(_alifExcSystemError_,
-		//	"invalid node type (%d) for augmented assignment",
-		//	e->type);
+		alifErr_format(_alifExcSystemError_,
+			"نوع عقدة غير صحيح (%d) في الإسناد الرجعي",
+			e->type);
 		return ERROR;
 	}
 

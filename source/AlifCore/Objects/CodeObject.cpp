@@ -59,8 +59,8 @@ static AlifIntT intern_strings(AlifObject* _tuple) { // 137
 	for (i = ALIFTUPLE_GET_SIZE(_tuple); --i >= 0; ) {
 		AlifObject* v = ALIFTUPLE_GET_ITEM(_tuple, i);
 		if (v == nullptr or !ALIFUSTR_CHECKEXACT(v)) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"non-string found in code slot");
+			alifErr_setString(_alifExcSystemError_,
+				"تم العثور على نوع غير-نصي في خانة الشيفرة");
 			return -1;
 		}
 		alifUStr_internImmortal(interp, &ALIFTUPLE_ITEMS(_tuple)[i]);

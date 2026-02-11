@@ -500,8 +500,8 @@ AlifObject* alifDescr_newMethod(AlifTypeObject* type, AlifMethodDef* method) { /
 		vectorcall = method_vectorCallFastCallKeywordsMethod;
 		break;
 	default:
-		//alifErr_format(_alifExcSystemError_,
-		//	"%s() method: bad call flags", method->name);
+		alifErr_format(_alifExcSystemError_,
+			"الدالة %s(): استدعاء أعلام غير صحيحة", method->name);
 		return nullptr;
 	}
 
@@ -533,9 +533,9 @@ AlifObject* alifDescr_newMember(AlifTypeObject* _type, AlifMemberDef* _member) {
 	AlifMemberDescrObject* descr{};
 
 	if (_member->flags & ALIF_RELATIVE_OFFSET) {
-		//alifErr_setString(
-		//	_alifExcSystemError_,
-		//	"alifDescr_newMember used with ALIF_RELATIVE_OFFSET");
+		alifErr_setString(
+			_alifExcSystemError_,
+			"alifDescr_newMember مستخدم مع ALIF_RELATIVE_OFFSET");
 		return nullptr;
 	}
 	descr = (AlifMemberDescrObject*)descr_new(&_alifMemberDescrType_,

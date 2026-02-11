@@ -2197,8 +2197,8 @@ resume_frame:
 				AlifIntT err{};
 				if (ns == nullptr) {
 					_alifFrame_setStackPointer(_frame, stackPointer);
-					//_alifErr_format(_thread, _alifExcSystemError_,
-					//	"no locals found when storing %R", name);
+					_alifErr_format(_thread, _alifExcSystemError_,
+						"متغير locals اصبح فارغ عند تخزين %R", name);
 					stackPointer = _alifFrame_getStackPointer(_frame);
 					ALIFSTACKREF_CLOSE(v);
 					if (true) goto pop_1_error;

@@ -805,7 +805,7 @@ AlifIntT alifFloat_pack8(double _x, char* _data, AlifIntT _le) { // 2236
 			e = 0;
 		else {
 			alifErr_setString(_alifExcSystemError_,
-				"frexp() result out of range");
+				"frexp() النتيجة خارج النطاق");
 			return -1;
 		}
 

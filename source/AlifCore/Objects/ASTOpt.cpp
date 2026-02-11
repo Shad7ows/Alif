@@ -993,9 +993,9 @@ AlifIntT alifAST_optimize(ModuleTy _mod, AlifASTMem* _astMem,
 
 	/* Check that the recursion depth counting balanced correctly */
 	if (ret and state.recursionDepth != startingRecursionDepth) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"AST optimizer recursion depth mismatch (before=%d, after=%d)",
-		//	startingRecursionDepth, state.recursionDepth);
+		alifErr_format(_alifExcSystemError_,
+			"يوجد عدم تطابق عمق التكرار في محسن AST (قبل=%d, بعد=%d)",
+			startingRecursionDepth, state.recursionDepth);
 		return 0;
 	}
 

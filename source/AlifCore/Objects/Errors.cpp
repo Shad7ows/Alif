@@ -148,7 +148,7 @@ void _alifErr_setObject(AlifThread* _thread,
 		not ALIFEXCEPTIONCLASS_CHECK(_exception)) {
 		_alifErr_format(_thread, _alifExcSystemError_,
 			"_alifErr_setObject: "
-			"exception %R is not a BaseException subclass",
+			"الخطأ %R ليس صنف فرعي من خطأ_اساس",
 			_exception);
 		return;
 	}
@@ -581,7 +581,7 @@ AlifObject* alifErr_newException(const char* _name, AlifObject* _base,
 	const char *dot = strrchr(_name, '.');
 	if (dot == nullptr) {
 		_alifErr_setString(thread, _alifExcSystemError_,
-			"alifErr_newException: name must be module.class");
+			"alifErr_newException: متغير الاسم يجب أن يكون وحدة.صنف");
 		return nullptr;
 	}
 	if (_base == nullptr) {

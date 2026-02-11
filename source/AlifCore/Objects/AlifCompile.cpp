@@ -833,14 +833,14 @@ AlifIntT _alifCompiler_getRefType(AlifCompiler* _c, AlifObject* _name) {
 	SymTableEntry* ste = _c->u_->ste;
 	AlifIntT scope = alifST_getScope(ste, _name);
 	if (scope == 0) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"alifST_getScope(name=%R) failed: "
-		//	"unknown scope in unit %S (%R); "
-		//	"symbols: %R; locals: %R; "
-		//	"globals: %R",
-		//	_name, _c->u_->metadata.name, ste->id,
-		//	ste->symbols, _c->u_->metadata.varnames,
-		//	_c->u_->metadata.names);
+		alifErr_format(_alifExcSystemError_,
+			"alifST_getScope(الاسم=%R) فشل: "
+			"نطاق غير معروف في الوحدة %S (%R); "
+			"الاسماء: %R; الاسماء-المحلية: %R; "
+			"الاسماء-العامة: %R",
+			_name, _c->u_->metadata.name, ste->id,
+			ste->symbols, _c->u_->metadata.varnames,
+			_c->u_->metadata.names);
 		return ERROR;
 	}
 	return scope;

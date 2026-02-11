@@ -614,14 +614,14 @@ static AlifIntT calculate_stackDepth(CFGBuilder* _g) { // 803
 			AlifIntT effect = stack_effect(instr_->opcode, instr_->oparg, 0);
 			if (effect == ALIF_INVALID_STACK_EFFECT) {
 				alifErr_format(_alifExcSystemError_,
-					"Invalid stack effect for opcode=%d, arg=%i",
+					"تأثير المراكم غير مناسب الرمز=%d, المعامل=%i",
 					instr_->opcode, instr_->oparg);
 				goto error;
 			}
 			AlifIntT newDepth = depth + effect;
 			if (newDepth < 0) {
 				alifErr_format(_alifExcValueError_,
-					"Invalid CFG, stack underflow");
+					"CFG غير مناسب , قيمة المكدس منخفضة");
 				goto error;
 			}
 			if (newDepth > maxDepth) {
@@ -631,7 +631,7 @@ static AlifIntT calculate_stackDepth(CFGBuilder* _g) { // 803
 				effect = stack_effect(instr_->opcode, instr_->oparg, 1);
 				if (effect == ALIF_INVALID_STACK_EFFECT) {
 					alifErr_format(_alifExcSystemError_,
-						"Invalid stack effect for opcode=%d, arg=%i",
+						"تأثير المراكم غير مناسب الرمز=%d, المعامل=%i",
 						instr_->opcode, instr_->oparg);
 					goto error;
 				}
@@ -926,7 +926,7 @@ static AlifIntT remove_redundantJumps(CFGBuilder* _g) { // 1156
 		if (IS_UNCONDITIONAL_JUMP_OPCODE(last->opcode)) {
 			BasicBlock* jumpTarget = next_nonemptyBlock(last->target);
 			if (jumpTarget == nullptr) {
-				//alifErr_setString(_alifExcSystemError_, "jump with nullptr target");
+				alifErr_setString(_alifExcSystemError_, "قفز إلى وجهة ذات قيمة فارغة");
 				return ERROR;
 			}
 			BasicBlock* next = next_nonemptyBlock(b->next);
