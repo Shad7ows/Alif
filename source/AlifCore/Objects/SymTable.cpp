@@ -398,9 +398,9 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 	AlifIntT contains{};
 	if (_flags & DEF_GLOBAL) {
 		if (_flags & DEF_NONLOCAL) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"name '%U' is nonlocal and global",
-				//_name);
+			alifErr_format(_alifExcSyntaxError_,
+				"الاسم '%U' كـ نطاق و عام",
+				_name);
 			return error_atDirective(_ste, _name);
 		}
 		SET_SCOPE(_scopes, _name, GLOBAL_EXPLICIT);
@@ -412,8 +412,8 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 	}
 	if (_flags & DEF_NONLOCAL) {
 		if (!_bound) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"nonlocal declaration not allowed at module level");
+			alifErr_format(_alifExcSyntaxError_,
+				"تعريف 'النطاق' غير مسموح على مستوى المكتبات");
 			return error_atDirective(_ste, _name);
 		}
 		contains = alifSet_contains(_bound, _name);
@@ -421,9 +421,9 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 			return 0;
 		}
 		if (!contains) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"no binding for nonlocal '%U' found",
-				//name);
+			alifErr_format(_alifExcSyntaxError_,
+				"لا يوجد ربط لـ 'النطاق' '%U'",
+				_name);
 
 			return error_atDirective(_ste, _name);
 		}
@@ -432,9 +432,9 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 			return 0;
 		}
 		if (contains) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"nonlocal binding not allowed for type parameter '%U'",
-				//name);
+			alifErr_format(_alifExcSyntaxError_,
+				"لا يُسمح بربط 'النطاق' لمعلمة من النوع '%U'",
+				_name);
 			return error_atDirective(_ste, _name);
 		}
 		SET_SCOPE(_scopes, _name, FREE);
@@ -1880,8 +1880,8 @@ static AlifIntT symtable_handleComprehension(AlifSymTable* st, ExprTy e,
 		!IS_ASYNC_DEF(st) and
 		st->cur->comprehension == AlifComprehensionType::No_Comprehension and
 		!allows_topLevelAwait(st)) {
-		//alifErr_setString(_alifExcSyntaxError_, "asynchronous comprehension outside of "
-		//	"an asynchronous function");
+		alifErr_setString(_alifExcSyntaxError_, "الحاويات الضمنية المتزامنة خارج "
+			"الدالة المتزامنة");
 		//SET_ERROR_LOCATION(st->fileName, LOCATION(e));
 		return 0;
 	}

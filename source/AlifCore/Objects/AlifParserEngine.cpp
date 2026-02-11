@@ -447,27 +447,25 @@ ExprTy alifParserEngine_numberToken(AlifParser* _p) { // 684
 
 	if (_p->featureVersion < 6 and strchr(rawNum, L'_') != nullptr) {
 		_p->errorIndicator = 1;
-		//return RAISE_SYNTAX_ERROR("Underscores in numeric literals are only supported "
-		//	"in Alif5"); //* todo
-		return nullptr; // temp
+		return (ExprTy)RAISE_SYNTAX_ERROR("فقط الشحطة السفلية '_' مسموحة في الأرقام");
 	}
 
 	AlifObject* num = parse_number(rawNum);
 	if (num == nullptr) {
 		_p->errorIndicator = 1;
-		//AlifThread* tstate = _alifThread_get();
-		//if (tstate->currentException != nullptr and
-		//	ALIF_TYPE(tstate->currentException) == (AlifTypeObject*)_alifExcValueError_) {
-		//	AlifObject* exc = alifErr_getRaisedException();
-		//	RAISE_ERROR_KNOWN_LOCATION(
-		//		_p, _alifExcSyntaxError_,
-		//		tok->lineNo, -1 /* col_offset */,
-		//		tok->endLineNo, -1 /* end_col_offset */,
-		//		"%S - Consider hexadecimal for huge integer literals "
-		//		"to avoid decimal conversion limits.",
-		//		exc);
-			//ALIF_DECREF(exc);
-		//}
+		AlifThread* tstate = _alifThread_get();
+		if (tstate->currentException != nullptr and
+			ALIF_TYPE(tstate->currentException) == (AlifTypeObject*)_alifExcValueError_) {
+			AlifObject* exc = alifErr_getRaisedException();
+			_raiseError_knownLocation(
+				_p, _alifExcSyntaxError_,
+				tok->lineNo, -1 /* colOffset */,
+				tok->endLineNo, -1 /* endColOffset */,
+				"%S - ضع في اعتبارك استخدام النظام السداسي عشري للأعداد الصحيحة الضخمة "
+				"لتجنب حدود التحويل العشري.",
+				exc);
+			ALIF_DECREF(exc);
+		}
 		return nullptr;
 	}
 
@@ -589,7 +587,7 @@ void* alifParserEngine_runParser(AlifParser* _p) { // 883
 	if (res == nullptr) {
 		//if ((_p->flags & ALIFPARSE_ALLOW_INCOMPLETE_INPUT) and is_endOfSource(_p)) {
 		//	alifErr_clear();
-		//	return alifParserEngine_raiseError(_p, ALIFEXC_INCOMPLETEINPUTERROR, 0, "incomplete input");
+		//	return _alifParserEngine_raiseError(_p, ALIFEXC_INCOMPLETEINPUTERROR, 0, "incomplete input");
 		//}
 		if (alifErr_occurred() and !alifErr_exceptionMatches(_alifExcSyntaxError_)) {
 			return nullptr;

@@ -73,9 +73,9 @@ AlifIntT _alifParserEngine_tokenizerError(AlifParser* p) { // 61
 		msg = "خطأ في المحلل غير معروف";
 	}
 
-	//RAISE_ERROR_KNOWN_LOCATION(p, errtype, p->tok->lineNo,
-	//	col_offset >= 0 ? col_offset : 0,
-	//	p->tok->lineNo, -1, msg);
+	_raiseError_knownLocation(p, errtype, p->tok->lineNo,
+		col_offset >= 0 ? col_offset : 0,
+		p->tok->lineNo, -1, msg);
 	return -1;
 }
 
