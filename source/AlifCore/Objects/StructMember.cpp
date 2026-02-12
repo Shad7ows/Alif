@@ -33,7 +33,7 @@ AlifObject* alifMember_getOne(const char* obj_addr, AlifMemberDef* l) { // 23
 	if (l->flags & ALIF_RELATIVE_OFFSET) {
 		alifErr_setString(
 			_alifExcSystemError_,
-			"alifMember_getOne used with ALIF_RELATIVE_OFFSET");
+			"alifMember_getOne تستخدم مع ALIF_RELATIVE_OFFSET");
 		return nullptr;
 	}
 
@@ -109,7 +109,7 @@ AlifObject* alifMember_getOne(const char* obj_addr, AlifMemberDef* l) { // 23
 		v = ALIF_NEWREF(ALIF_NONE);
 		break;
 	default:
-		alifErr_setString(_alifExcSystemError_, "bad memberdescr type");
+		alifErr_setString(_alifExcSystemError_, "نوع memberdescr غير مناسب");
 		v = nullptr;
 	}
 	return v;
@@ -122,7 +122,7 @@ AlifIntT alifMember_setOne(char* addr, AlifMemberDef* l, AlifObject* v) { // 129
 	if (l->flags & ALIF_RELATIVE_OFFSET) {
 		alifErr_setString(
 			_alifExcSystemError_,
-			"alifMember_setOne used with ALIF_RELATIVE_OFFSET");
+			"alifMember_setOne مستخدم مع ALIF_RELATIVE_OFFSET");
 		return -1;
 	}
 
@@ -339,7 +339,7 @@ AlifIntT alifMember_setOne(char* addr, AlifMemberDef* l, AlifObject* v) { // 129
 	}
 	default:
 		alifErr_format(_alifExcSystemError_,
-			"bad memberdescr type for %s", l->name);
+			"نوع memberdescr غير مناسب لـ %s", l->name);
 		return -1;
 	}
 	return 0;

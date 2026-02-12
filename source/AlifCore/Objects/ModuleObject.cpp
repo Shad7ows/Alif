@@ -223,10 +223,10 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 	//}
 
 	if (_def->size < 0) {
-		//alifErr_format(
-		//	_alifExcSystemError_,
-		//	"module %s: size may not be negative for multi-phase initialization",
-		//	name);
+		alifErr_format(
+			_alifExcSystemError_,
+			"الوحدة %s: الحجم يجب أن لا يكون ذو قيمة سالبة للتهيئة متعددة المراحل",
+			name);
 		goto error;
 	}
 
@@ -234,10 +234,10 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 		switch (curSlot->slot) {
 		case ALIF_MOD_CREATE:
 			if (create) {
-				//alifErr_format(
-				//	_alifExcSystemError_,
-				//	"module %s has multiple create slots",
-				//	name);
+				alifErr_format(
+					_alifExcSystemError_,
+					"الوحدة %s لديها عدة خانات إنشاء",
+					name);
 				goto error;
 			}
 			create = (AlifObject * (*)(AlifObject*, AlifModuleDef*))curSlot->value; //* alif
@@ -248,10 +248,10 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 			break;
 		case ALIF_MOD_MULTIPLE_INTERPRETERS:
 			if (has_multiple_interpreters_slot) {
-				//alifErr_format(
-				//	_alifExcSystemError_,
-				//	"module %s has more than one 'multiple interpreters' slots",
-				//	name);
+				alifErr_format(
+					_alifExcSystemError_,
+					"الوحدة %s تمتلك أكثر من خانة 'مفسرات متعددة'",
+					name);
 				goto error;
 			}
 			multiple_interpreters = curSlot->value;
@@ -259,20 +259,21 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 			break;
 		case ALIF_MOD_GIL:
 			if (has_gil_slot) {
-				//alifErr_format(
-				//	_alifExcSystemError_,
-				//	"module %s has more than one 'gil' slot",
-				//	name);
+				alifErr_format(
+					_alifExcSystemError_,
+					"الوحدة %s تمتلك أكثر من خانة 'قفل عام'"
+					"(ميزة ملغاة - راجع فريق ألف)",
+					name);
 				goto error;
 			}
 			gil_slot = curSlot->value;
 			has_gil_slot = 1;
 			break;
 		default:
-			//alifErr_format(
-			//	_alifExcSystemError_,
-			//	"module %s uses unknown slot ID %i",
-			//	name, cur_slot->slot);
+			alifErr_format(
+				_alifExcSystemError_,
+				"الوحدة %s تستخدم رقم تعريف خانة غير معروفة %i",
+				name, curSlot->slot);
 			goto error;
 		}
 	}
@@ -299,10 +300,10 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 		m = create(_spec, _def);
 		if (m == nullptr) {
 			if (!alifErr_occurred()) {
-				//alifErr_format(
-				//	_alifExcSystemError_,
-				//	"creation of module %s failed without setting an exception",
-				//	name);
+				alifErr_format(
+					_alifExcSystemError_,
+					"فشل إنشاء الوحدة %s بدون ضبط خطأ",
+					name);
 			}
 			goto error;
 		}
@@ -330,18 +331,18 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 	}
 	else {
 		if (_def->size > 0 or _def->traverse or _def->clear or _def->free) {
-			//alifErr_format(
-			//	_alifExcSystemError_,
-			//	"module %s is not a module object, but requests module state",
-			//	name);
+			alifErr_format(
+				_alifExcSystemError_,
+				"الوحدة %s ليست كائن وحدة, ولكن تقوم بطلب حالة الوحدة",
+				name);
 			goto error;
 		}
 		if (has_execution_slots) {
-			//alifErr_format(
-			//	_alifExcSystemError_,
-			//	"module %s specifies execution slots, but did not create "
-			//	"a ModuleType instance",
-			//	name);
+			alifErr_format(
+				_alifExcSystemError_,
+				"الوحدة %s تحدد خانات التنفيذ, ولكنها لم تنشئ "
+				"نسخة لـ ModuleType",
+				name);
 			goto error;
 		}
 	}
@@ -423,10 +424,10 @@ AlifIntT alifModule_execDef(AlifObject* _module, AlifModuleDef* _def) { // 460
 			ret = ((AlifIntT(*)(AlifObject*))curSlot->value)(_module);
 			if (ret != 0) {
 				if (!alifErr_occurred()) {
-					//alifErr_format(
-					//	_alifExcSystemError_,
-					//	"execution of module %s failed without setting an exception",
-					//	name);
+					alifErr_format(
+						_alifExcSystemError_,
+						"فشل تنفيذ الوحدة %s بدون ضبط خطأ",
+						name);
 				}
 				return -1;
 			}
@@ -443,10 +444,10 @@ AlifIntT alifModule_execDef(AlifObject* _module, AlifModuleDef* _def) { // 460
 			/* handled in alifModule_fromDefAndSpec2 */
 			break;
 		default:
-			//alifErr_format(
-			//	_alifExcSystemError_,
-			//	"module %s initialized with unknown slot %i",
-			//	name, curSlot->slot);
+			alifErr_format(
+				_alifExcSystemError_,
+				"الوحدة %s تمت تهيئتها بخانة غير معروفة %i",
+				name, curSlot->slot);
 			return -1;
 		}
 	}
@@ -502,9 +503,9 @@ AlifObject* alifModule_getNameObject(AlifObject* _mod) { // 561
 	return name;
 
 error:
-	//if (!alifErr_occurred()) {
-	//	alifErr_setString(_alifExcSystemError_, "nameless module");
-	//}
+	if (!alifErr_occurred()) {
+		alifErr_setString(_alifExcSystemError_, "وحدة بدون اسم");
+	}
 	return nullptr;
 }
 
@@ -542,7 +543,7 @@ AlifObject* alifModule_getFilenameObject(AlifObject* _mod) { // 602
 
 error:
 	if (!alifErr_occurred()) {
-		//alifErr_setString(_alifExcSystemError_, "module filename missing");
+		alifErr_setString(_alifExcSystemError_, "اسم ملف الوحدة مفقود");
 	}
 	return nullptr;
 }

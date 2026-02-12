@@ -34,8 +34,8 @@ static AlifSizeT count_format(const char* _format, char _endchar) { // 39
 		switch (*_format) {
 		case '\0':
 			/* Premature end */
-			//alifErr_setString(_alifExcSystemError_,
-			//	"unmatched paren in format");
+			alifErr_setString(_alifExcSystemError_,
+				"قوس غير مطابق في التنسيق");
 			return -1;
 		case '(':
 		case '[':
@@ -125,8 +125,8 @@ static AlifObject* do_mkDict(const char** _pFormat,
 	AlifSizeT i{};
 	if (_n < 0) return nullptr;
 	if (_n % 2) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Bad dict format");
+		alifErr_setString(_alifExcSystemError_,
+			"تنسيق فهرس غير مناسب");
 		do_ignore(_pFormat, _pVa, _endChar, _n);
 		return nullptr;
 	}
@@ -420,9 +420,9 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 					if (*(*_pFormat - 1) != 'N')
 						ALIF_INCREF(v);
 				}
-				//else if (!alifErr_occurred())
-				//	alifErr_setString(_alifExcSystemError_,
-				//		"nullptr object passed to alif_buildValue");
+				else if (!alifErr_occurred())
+					alifErr_setString(_alifExcSystemError_,
+						"تم تمرير كائن فارغ لـ alif_buildValue");
 				return v;
 			}
 
@@ -433,8 +433,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 			break;
 
 		default:
-			//alifErr_setString(_alifExcSystemError_,
-			//	"bad format char passed to alif_buildValue");
+			alifErr_setString(_alifExcSystemError_,
+				"تم تمرير حرف للتنسيق غير مناسب alif_buildValue");
 			return nullptr;
 
 		}
@@ -536,9 +536,9 @@ AlifIntT alifModule_addObjectRef(AlifObject* _mod,
 	}
 	if (!_value) {
 		if (!alifErr_occurred()) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"alifModule_addObjectRef() must be called "
-			//	"with an exception raised if value is NULL");
+			alifErr_setString(_alifExcSystemError_,
+				"alifModule_addObjectRef() يجب أن تستدعى "
+				"مع إصدار خطأ اذا كانت قيمة المتغير value عدم");
 		}
 		return -1;
 	}
@@ -546,8 +546,8 @@ AlifIntT alifModule_addObjectRef(AlifObject* _mod,
 	AlifObject* dict = alifModule_getDict(_mod);
 	if (dict == nullptr) {
 		/* Internal error -- modules must have a dict! */
-		//alifErr_format(_alifExcSystemError_, "module '%s' has no __dict__",
-		//	alifModule_getName(mod));
+		alifErr_format(_alifExcSystemError_, "الوحدة '%s' لا تملك __فهرس__",
+			alifModule_getName(_mod));
 		return -1;
 	}
 	return alifDict_setItemString(dict, _name, _value);

@@ -425,7 +425,7 @@ static AlifIntT check_cfg(CFGBuilder* _g) { // 605
 			AlifIntT opcode = b_->instr[i].opcode;
 			if (IS_TERMINATOR_OPCODE(opcode)) {
 				if (i != b_->iused - 1) {
-					//alifErr_setString(_alifExcSystemError_, "malformed control flow graph.");
+					alifErr_setString(_alifExcSystemError_, "يوجد عيب في الرسم البياني للتحكم بالتدفق cfg.");
 					return ERROR;
 				}
 			}

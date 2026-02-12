@@ -1961,8 +1961,8 @@ AlifObject* _alifImport_fixupExtension(const char* _name) { // 546
 	AlifObject* name = alifUStr_fromString(_name); //* alif
 	mod = alifDict_getItemWithError(modules, name);
 	if (mod == nullptr or !ALIFMODULE_CHECK(mod)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"_alifImport_fixupExtension: module %.200s not loaded", name);
+		alifErr_format(_alifExcSystemError_,
+			"_alifImport_fixupExtension: لم يتم تحميل المكتبة %.200s", name);
 		return nullptr;
 	}
 	dict = alifModule_getDict(mod);
@@ -2758,9 +2758,9 @@ static AlifObject* get_parent(AlifObject* globals, char* buf,
 			//ALIF_DECREF(err_msg);
 		}
 		else {
-			//alifErr_format(_alifExcSystemError_,
-			//	"Parent module '%.200s' not loaded, "
-			//	"cannot perform relative import", buf);
+			alifErr_format(_alifExcSystemError_,
+				"المكتبة الأصل '%.200s' لم يتم تحميلها, "
+				"لا يمكن إجراء استيراد نسبي", buf);
 		}
 	}
 	return parent;

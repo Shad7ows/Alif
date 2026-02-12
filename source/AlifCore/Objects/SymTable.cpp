@@ -282,9 +282,9 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	}
 	/* Check that the recursion depth counting balanced correctly */
 	if (st_->recursionDepth != startingRecursionDepth) {
-		//alifErr_format(_alifExcSystemError_,
-			//"symtable analysis recursion depth mismatch (before=%d, after=%d)",
-			//startingRecursionDepth, st_->recursionDepth);
+		alifErr_format(_alifExcSystemError_,
+			"يوجد عدم تطابق في عمق التكرار لجدول الاسماء (قبل=%d, بعد=%d)",
+			startingRecursionDepth, st_->recursionDepth);
 		alifSymtable_free(st_);
 		return nullptr;
 	}
@@ -335,9 +335,9 @@ long _alifST_getSymbol(SymTableEntry* _ste, AlifObject* _name) { // 527
 	long symbol = alifLong_asLong(v_);
 	ALIF_DECREF(v_);
 	if (symbol < 0) {
-		//if (!alifErr_occurred()) {
-			//alifErr_setString(_alifExcSystemError_, "invalid symbol");
-		//}
+		if (!alifErr_occurred()) {
+			alifErr_setString(_alifExcSystemError_, "اسم غير صحيح");
+		}
 		return -1;
 	}
 	return symbol;

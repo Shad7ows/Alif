@@ -772,8 +772,8 @@ AlifObject* alifUStr_new(AlifSizeT _size, AlifUCS4 _maxChar) { // 1282
 
 static AlifIntT uStr_checkModifiable(AlifObject* _unicode) { // 1378
 	if (!uStr_modifiable(_unicode)) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Cannot modify a string currently used");
+		alifErr_setString(_alifExcSystemError_,
+			"لا يمكن التعديل على النص المستخدم في الوقت الحالي");
 		return -1;
 	}
 	return 0;
@@ -906,10 +906,10 @@ AlifSizeT alifUStr_copyCharacters(AlifObject* _to, AlifSizeT _toStart,
 	}
 	_howMany = ALIF_MIN(ALIFUSTR_GET_LENGTH(_from) - _fromStart, _howMany);
 	if (_toStart + _howMany > ALIFUSTR_GET_LENGTH(_to)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"Cannot write %zi characters at %zi "
-		//	"in a string of %zi characters",
-		//	_howMany, _toStart, ALIFUSTR_GET_LENGTH(_to));
+		alifErr_format(_alifExcSystemError_,
+			"لم يستطع كتابة %zi حرف/احرف في %zi "
+			"في نص من %zi حرف/احرف",
+			_howMany, _toStart, ALIFUSTR_GET_LENGTH(_to));
 		return -1;
 	}
 
@@ -922,8 +922,8 @@ AlifSizeT alifUStr_copyCharacters(AlifObject* _to, AlifSizeT _toStart,
 	err = copy_characters(_to, _toStart, _from, _fromStart, _howMany, 1);
 	if (err) {
 		//alifErr_format(_alifExcSystemError_,
-		//	"Cannot copy %s characters "
-		//	"into a string of %s characters",
+		//	"لا يمكن نسخ %s حرف/احرف "
+		//	"في نص من %s حرف/احرف",
 		//	unicode_kindName(_from),
 		//	unicode_kindName(_to));
 		return -1;
@@ -1214,16 +1214,16 @@ AlifIntT alifUStrWriter_writeWideChar(AlifUStrWriter* pub_writer,
 
 AlifObject* alifUStr_fromStringAndSize(const char* _u, AlifSizeT _size) { // 2065
 	if (_size < 0) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Negative size passed to alifUStr_fromStringAndSize");
+		alifErr_setString(_alifExcSystemError_,
+			"تم تمرير قيمة سالبة لـ alifUStr_fromStringAndSize");
 		return nullptr;
 	}
 	if (_u != nullptr) {
 		return alifUStr_decodeUTF8Stateful(_u, _size, nullptr, nullptr);
 	}
 	if (_size > 0) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"nullptr string with positive size with nullptr passed to alifUStr_fromStringAndSize");
+		alifErr_setString(_alifExcSystemError_,
+			"تم تمرير نص فارغ مع قيمة موجبة مع عدم لـ alifUStr_fromStringAndSize");
 		return nullptr;
 	}
 	return uStr_getEmpty();
@@ -1330,7 +1330,7 @@ AlifObject* alifUStr_fromKindAndData(AlifIntT _kind,
 	case AlifUStrKind_::AlifUStr_4Byte_Kind:
 		return _alifUStr_fromUCS4((const AlifUCS4*)_buffer, _size);
 	default:
-		//alifErr_setString(_alifExcSystemError_, "invalid kind");
+		alifErr_setString(_alifExcSystemError_, "نوع غير صحيح");
 		return nullptr;
 	}
 }

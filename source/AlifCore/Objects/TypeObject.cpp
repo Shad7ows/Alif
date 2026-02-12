@@ -1953,9 +1953,9 @@ static AlifIntT typeNew_setAttrs(const TypeNewCtx* _ctx, AlifTypeObject* _type) 
 static AlifIntT typeNew_getSlots(TypeNewCtx* _ctx, AlifObject* _dict) { // 4297
 	AlifObject* slots = alifDict_getItemWithError(_dict, &ALIF_ID(__slots__));
 	if (slots == nullptr) {
-		//if (alifErr_occurred()) {
-		//	return -1;
-		//}
+		if (alifErr_occurred()) {
+			return -1;
+		}
 		_ctx->slots = nullptr;
 		_ctx->nslot = 0;
 		return 0;
@@ -2282,7 +2282,7 @@ inline static AlifObject* get_basesTuple(AlifObject* bases_in, AlifTypeSpec* spe
 		if (ALIFTUPLE_CHECK(bases)) {
 			return ALIF_NEWREF(bases);
 		}
-		//alifErr_setString(_alifExcSystemError_, "ALIF_TP_BASES is not a tuple");
+		alifErr_setString(_alifExcSystemError_, "ALIF_TP_BASES ليس مترابطة");
 		return nullptr;
 	}
 	if (ALIFTUPLE_CHECK(bases_in)) {
@@ -2325,10 +2325,10 @@ static inline AlifIntT specialOffset_fromMember(
 		return 0;
 	}
 	if (_memb->type != ALIF_T_ALIFSIZET) {
-		//alifErr_format(
-		//	_alifExcSystemError_,
-		//	"type of %s must be ALIF_T_ALIFSIZET",
-		//	memb->name);
+		alifErr_format(
+			_alifExcSystemError_,
+			"نوع %s يجب أ نيكون ALIF_T_ALIFSIZET",
+			_memb->name);
 		return -1;
 	}
 	if (_memb->flags == ALIF_READONLY) {
@@ -2339,10 +2339,10 @@ static inline AlifIntT specialOffset_fromMember(
 		*_dest = _memb->offset + _typeDataOffset;
 		return 0;
 	}
-	//alifErr_format(
-	//	_alifExcSystemError_,
-	//	"flags for %s must be ALIF_READONLY or (ALIF_READONLY | ALIF_RELATIVE_OFFSET)",
-	//	memb->name);
+	alifErr_format(
+		_alifExcSystemError_,
+		"أعلام %s يجب أن تكون ALIF_READONLY او (ALIF_READONLY | ALIF_RELATIVE_OFFSET)",
+		_memb->name);
 	return -1;
 }
 
@@ -2376,7 +2376,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 			if (nmembers != 0) {
 				alifErr_setString(
 					_alifExcSystemError_,
-					"Multiple ALIF_TP_MEMBERS slots are not supported.");
+					"خانات ALIF_TP_MEMBERS غير مدعومة.");
 				goto finally;
 			}
 			for (const AlifMemberDef* memb = (AlifMemberDef*)slot->pfunc; memb->name != nullptr; memb++) {
@@ -2385,13 +2385,13 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 					if (spec->basicsize > 0) {
 						alifErr_setString(
 							_alifExcSystemError_,
-							"With ALIF_RELATIVE_OFFSET, basicsize must be negative.");
+							"مع ALIF_RELATIVE_OFFSET, basicsize يجب أن يكون قيمة سالبة.");
 						goto finally;
 					}
 					if (memb->offset < 0 or memb->offset >= -spec->basicsize) {
 						alifErr_setString(
 							_alifExcSystemError_,
-							"Member offset out of range (0..-basicsize)");
+							"العضو offset خارج النطاق (0..-basicsize)");
 						goto finally;
 					}
 				}
@@ -2408,9 +2408,9 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 			break;
 		case ALIF_TP_DOC:
 			if (tp_doc != nullptr) {
-				//_alifErr_setString(
-				//	_alifExcSystemError_,
-				//	"Multiple ALIF_TP_DOC slots are not supported.");
+				alifErr_setString(
+					_alifExcSystemError_,
+					"خانات ALIF_TP_DOC غير مدعومة.");
 				goto finally;
 			}
 			if (slot->pfunc == nullptr) {
@@ -2433,8 +2433,8 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 	/* Prepare the type name and qualname */
 
 	if (spec->name == nullptr) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Type spec does not define the name field.");
+		alifErr_setString(_alifExcSystemError_,
+			"نوع spec لا يُعرِف مجال الاسم.");
 		goto finally;
 	}
 
@@ -2515,9 +2515,9 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 		/* Inheriting variable-sized types is limited */
 		if (base->itemSize
 			and !((base->flags | spec->flags) & ALIF_TPFLAGS_ITEMS_AT_END)) {
-			//alifErr_setString(
-			//	_alifExcSystemError_,
-			//	"Cannot extend variable-size class without ALIF_TPFLAGS_ITEMS_AT_END.");
+			alifErr_setString(
+				_alifExcSystemError_,
+				"لا يمكن زيادة حجم متغير الصنف بدون ALIF_TPFLAGS_ITEMS_AT_END.");
 			goto finally;
 		}
 	}
@@ -3595,8 +3595,8 @@ static AlifIntT add_tpNewWrapper(AlifTypeObject*); // 7898
 
 static AlifIntT typeReady_preChecks(AlifTypeObject* _type) { // 7902
 	if (_type->name == nullptr) {
-		//alifErr_format(_alifExcSystemError_,
-			//"Type does not define the tp_name field.");
+		alifErr_format(_alifExcSystemError_,
+			"type لا يُعرِف مجال الاسم.");
 		return -1;
 	}
 	return 0;
@@ -3878,10 +3878,10 @@ static AlifIntT typeReady_managedDict(AlifTypeObject* _type) { // 8322
 		return 0;
 	}
 	if (!(_type->flags & ALIF_TPFLAGS_HEAPTYPE)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"type %s has the ALIF_TPFLAGS_MANAGED_DICT flag "
-		//	"but not ALIF_TPFLAGS_HEAPTYPE flag",
-		//	type->name);
+		alifErr_format(_alifExcSystemError_,
+			"نوع %s يملك علم ALIF_TPFLAGS_MANAGED_DICT "
+			"وليس علم ALIF_TPFLAGS_HEAPTYPE",
+			_type->name);
 		return -1;
 	}
 	AlifHeapTypeObject* et = (AlifHeapTypeObject*)_type;
@@ -3901,25 +3901,25 @@ static AlifIntT typeReady_managedDict(AlifTypeObject* _type) { // 8322
 static AlifIntT typeReady_postChecks(AlifTypeObject* type) { // 8349
 	if (type->flags & ALIF_TPFLAGS_HAVE_GC
 		and type->traverse == nullptr) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"type %s has the ALIF_TPFLAGS_HAVE_GC flag "
-		//	"but has no traverse function", type->name);
+		alifErr_format(_alifExcSystemError_,
+			"نوع %s يملك علم ALIF_TPFLAGS_HAVE_GC "
+			"ولكن لا يملك دالة عبور", type->name);
 		return -1;
 	}
 	if (type->flags & ALIF_TPFLAGS_MANAGED_DICT) {
 		if (type->dictOffset != -1) {
-			//alifErr_format(_alifExcSystemError_,
-			//	"type %s has the ALIF_TPFLAGS_MANAGED_DICT flag "
-			//	"but tp_dictoffset is set to incompatible value",
-			//	type->name);
+			alifErr_format(_alifExcSystemError_,
+				"نوع %s يملك علم ALIF_TPFLAGS_MANAGED_DICT "
+				"ولكن dictOffset مضبوط ك قيمة غير متوافقة",
+				type->name);
 			return -1;
 		}
 	}
 	else if (type->dictOffset < (AlifSizeT)sizeof(AlifObject)) {
 		if (type->dictOffset + type->basicSize <= 0) {
-			//alifErr_format(_alifExcSystemError_,
-			//	"type %s has a dictOffset that is too small",
-			//	type->name);
+			alifErr_format(_alifExcSystemError_,
+				"نوع %s يملك dictOffset ذو قيمة صغيرة جدا",
+				type->name);
 		}
 	}
 	return 0;
@@ -4072,14 +4072,14 @@ static AlifIntT add_subClass(AlifTypeObject* _base, AlifTypeObject* _type) { // 
 static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8748
 	if (!ALIFTUPLE_CHECKEXACT(_ob)) {
 		alifErr_setString(_alifExcSystemError_,
-			"alifArg_unpackTuple() argument list is not a tuple");
+			"alifArg_unpackTuple() سلسلة المعاملات ليست مترابطة");
 		return 0;
 	}
 	if (_n == ALIFTUPLE_GET_SIZE(_ob))
 		return 1;
 	alifErr_format(
 		_alifExcTypeError_,
-		"expected %d argument%s, got %zd", _n, _n == 1 ? "" : "s", ALIFTUPLE_GET_SIZE(_ob));
+		"متوقع %d معامل%s, ولكن %zd", _n, _n == 1 ? "" : "s", ALIFTUPLE_GET_SIZE(_ob));
 	return 0;
 }
 
@@ -4126,8 +4126,8 @@ static AlifObject* tpNew_wrapper(AlifObject* _self,
 	AlifObject* arg0{}, * res{};
 
 	if (_self == nullptr or !ALIFTYPE_CHECK(_self)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"__new__() called with non-type 'self'");
+		alifErr_format(_alifExcSystemError_,
+			"__جديد__() مستدعى مع ليس-نوع 'هذا'");
 		return nullptr;
 	}
 	AlifTypeObject* type = (AlifTypeObject*)_self;
