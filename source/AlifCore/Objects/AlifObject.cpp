@@ -278,7 +278,7 @@ AlifObject* alifObject_str(AlifObject* _v) { // 711
 
 	AlifThread* thread = _alifThread_get();
 
-	if (_alif_enterRecursiveCallThread(thread, " while getting the str of an object")) {
+	if (_alif_enterRecursiveCallThread(thread, " أثناء الحصول على نص الكائن")) {
 		return nullptr;
 	}
 	res_ = (*ALIF_TYPE(_v)->str)(_v);
@@ -288,9 +288,9 @@ AlifObject* alifObject_str(AlifObject* _v) { // 711
 		return nullptr;
 	}
 	if (!ALIFUSTR_CHECK(res_)) {
-		//_alifErr_format(tstate, _alifExcTypeError_,
-			//"__str__ returned non-string (type %.200s)",
-			//ALIF_TYPE(res_)->name);
+		_alifErr_format(thread, _alifExcTypeError_,
+			"__نص__ يجب أن يرجع نوع نص (النوع %.200s)",
+			ALIF_TYPE(res_)->name);
 		ALIF_DECREF(res_);
 		return nullptr;
 	}
@@ -424,8 +424,8 @@ AlifIntT alifObject_richCompareBool(AlifObject* _v,
 }
 
 AlifHashT alifObject_hashNotImplemented(AlifObject* _v) { // 1059
-	//alifErrFormat(_alifExcTypeError_, "unhashable type: '%.200s'",
-	//	ALIF_TYPE(_v)->name);
+	alifErr_format(_alifExcTypeError_, "نوع غير قابل للترميز التجزيئي: '%.200s'",
+		ALIF_TYPE(_v)->name);
 	return -1;
 }
 
@@ -494,9 +494,9 @@ restore:
 AlifObject* alifObject_getAttr(AlifObject* _v, AlifObject* _name) { // 1204
 	AlifTypeObject* tp_ = ALIF_TYPE(_v);
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExcTypeError_,
-			//"attribute name must be string, not '%.200s'",
-			//ALIF_TYPE(_name)->_name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
 
@@ -528,9 +528,9 @@ AlifIntT alifObject_getOptionalAttr(AlifObject* _v,
 	AlifTypeObject* tp_ = ALIF_TYPE(_v);
 
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExcTypeError_,
-			//"attribute name must be string, not '%.200s'",
-			//ALIF_TYPE(_name)->name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		*_result = nullptr;
 		return -1;
 	}
@@ -603,9 +603,9 @@ AlifIntT alifObject_setAttr(AlifObject* _v,
 	AlifIntT err{};
 
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExcTypeError_,
-			//"attribute name must be string, not '%.200s'",
-			//ALIF_TYPE(_name)->name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		return -1;
 	}
 	ALIF_INCREF(_name);
@@ -629,16 +629,16 @@ AlifIntT alifObject_setAttr(AlifObject* _v,
 	}
 	ALIF_DECREF(_name);
 	if (tp_->getAttr == nullptr and tp_->getAttro == nullptr) {
-		//alfiErr_format(_alifExcTypeError_,
-			//"'%.100s' object has no attributes "
-			//"(%s .%U)", tp_->name,
-			//_value == nullptr ? "del" : "assign to", _name);
+		alifErr_format(_alifExcTypeError_,
+			"'%.100s' كائن لا يملك الخواص "
+			"(%s .%U)", tp_->name,
+			_value == nullptr ? "احذف" : "اسناد إلى", _name);
 	}
 	else {
-		//alifErr_format(_alifExcTypeError_,
-			//"'%.100s' object has only read-only attributes "
-			//"(%s .%U)", tp_->name,
-			//_value == nullptr ? "del" : "assign to", _name);
+		alifErr_format(_alifExcTypeError_,
+			"'%.100s' كائن يملك خواص للقراءة فقط "
+			"(%s .%U)", tp_->name,
+			_value == nullptr ? "احذف" : "اسناد إلى", _name);
 	}
 	return -1;
 }
