@@ -230,6 +230,20 @@ AlifObject* alifObject_repr(AlifObject* _v) { // 662
 	}
 	res = (*ALIF_TYPE(_v)->repr)(_v);
 
+
+	_alif_leaveRecursiveCallThread(thread);
+
+	if (res == nullptr) {
+		return nullptr;
+	}
+	if (!ALIFUSTR_CHECK(res)) {
+		_alifErr_format(thread, _alifExcTypeError_,
+			"__عرض__ يجب أن ترجع نوع نص (النوع %.200s)",
+			ALIF_TYPE(res)->name);
+		ALIF_DECREF(res);
+		return nullptr;
+	}
+
 	//* alif
 	/*
 		تمت إضافة هذه السطر لضمان تحويل النصوص الثابتة مثل صح وخطأ إلى
@@ -241,18 +255,6 @@ AlifObject* alifObject_repr(AlifObject* _v) { // 662
 	res = alifUStr_fromString(alifUStr_asUTF8(res)); //* review //* todo
 	//* alif
 
-	_alif_leaveRecursiveCallThread(thread);
-
-	if (res == nullptr) {
-		return nullptr;
-	}
-	if (!ALIFUSTR_CHECK(res)) {
-		//alifErr_format(thread, _alifExcTypeError_,
-		//	"__repr__ returned non-string (type %.200s)",
-		//	ALIF_TYPE(res)->name);
-		ALIF_DECREF(res);
-		return nullptr;
-	}
 	return res;
 }
 

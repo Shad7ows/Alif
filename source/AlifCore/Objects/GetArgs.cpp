@@ -225,7 +225,7 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 				min == max ? "بالتحديد"
 				: _nargs < min ? "على الأقل" : "على الأكثر",
 				_nargs < min ? min : max,
-				(_nargs < min ? min : max) == 1 ? "" : "s",
+				/*(_nargs < min ? min : max) == 1 ? "" : "s",*/
 				_nargs);
 		else
 			alifErr_setString(_alifExcTypeError_, message);

@@ -4079,7 +4079,7 @@ static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8748
 		return 1;
 	alifErr_format(
 		_alifExcTypeError_,
-		"متوقع %d معامل%s, ولكن %zd", _n, _n == 1 ? "" : "s", ALIFTUPLE_GET_SIZE(_ob));
+		"متوقع %d معامل%s, ولكن %zd", _n, /*_n == 1 ? "" : "s",*/ ALIFTUPLE_GET_SIZE(_ob));
 	return 0;
 }
 

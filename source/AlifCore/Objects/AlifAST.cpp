@@ -585,7 +585,7 @@ static AlifIntT ast_typeInit(AlifObject* self, AlifObject* args, AlifObject* kw)
 		alifErr_format(_alifExcTypeError_, "%.400s المعرف يحتاج على الأكثر "
 			"%zd معاملات مكانية%s",
 			_alifType_name(ALIF_TYPE(self)),
-			numfields, numfields == 1 ? "" : "s");
+			numfields/*, numfields == 1 ? "" : "s"*/);
 		res = -1;
 		goto cleanup;
 	}
@@ -623,7 +623,7 @@ static AlifIntT ast_typeInit(AlifObject* self, AlifObject* args, AlifObject* kw)
 				}
 				if (p == 0) {
 					alifErr_format(_alifExcTypeError_,
-						"%.400s got multiple values for argument '%U'",
+						"%.400s حصل على قيم متعددة للمعامل '%U'",
 						ALIF_TYPE(self)->name, key);
 					res = -1;
 					goto cleanup;
