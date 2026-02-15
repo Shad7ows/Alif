@@ -1717,8 +1717,8 @@ StmtTy alifAST_expr(ExprTy _val,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7321
 	StmtTy p{};
 	if (!_val) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'value' is required for Expr");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'value' مطلوب لـ Expr");
 		return nullptr;
 	}
 	p = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -1738,8 +1738,8 @@ ExprTy alifAST_constant(AlifObject* _val, AlifObject* _type,
 
 	ExprTy p{};
 	if (!_val) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'value' is required for Constant");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'value' مطلوب لـ Constant");
 		return nullptr;
 	}
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -1760,13 +1760,13 @@ StmtTy alifAST_asyncFunctionDef(AlifObject* _name, Arguments* _args,
 
 	StmtTy p_{};
 	if (!_name) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'name' is required for AsyncFunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ AsyncFunctionDef");
 		return nullptr;
 	}
 	if (!_args) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'args' is required for AsyncFunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'args' مطلوب لـ AsyncFunctionDef");
 		return nullptr;
 	}
 	p_ = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p_));
@@ -1790,13 +1790,13 @@ StmtTy alifAST_functionDef(AlifObject* _name, Arguments* _args,
 
 	StmtTy p_{};
 	if (!_name) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'name' is required for FunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ FunctionDef");
 		return nullptr;
 	}
 	if (!_args) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'args' is required for FunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'args' مطلوب لـ FunctionDef");
 		return nullptr;
 	}
 	p_ = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p_));
@@ -1859,8 +1859,8 @@ StmtTy alifAST_classDef(AlifObject* _name, ASDLExprSeq* _bases,
 
 	StmtTy p_{};
 	if (!_name) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'name' is required for ClassDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ ClassDef");
 		return nullptr;
 	}
 	p_ = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p_));
@@ -2412,7 +2412,7 @@ ExprTy alifAST_generatorExp(ExprTy _elt, ASDLComprehensionSeq* _generators, Alif
 	ExprTy p{};
 	if (!_elt) {
 		alifErr_setString(_alifExcValueError_,
-			"field 'elt' is required for GeneratorExp");
+			"الحقل 'elt' مطلوب لـ GeneratorExp");
 		return nullptr;
 	}
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));

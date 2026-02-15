@@ -202,18 +202,18 @@ AlifObject* alifVectorCall_call(AlifObject* _callable,
 
 	AlifSizeT offset = ALIF_TYPE(_callable)->vectorCallOffset;
 	if (offset <= 0) {
-		//_alifErr_format(tstate, _alifExcTypeError_,
-		//	"'%.200s' object does not support vectorcall",
-		//	ALIF_TYPE(_callable)->name);
+		_alifErr_format(tstate, _alifExcTypeError_,
+			"الكائن '%.200s' لا يدعم vectorCall",
+			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
 
 	VectorCallFunc func{};
 	memcpy(&func, (char*)_callable + offset, sizeof(func));
 	if (func == nullptr) {
-		//_alifErr_format(tstate, _alifExcTypeError_,
-		//	"'%.200s' object does not support vectorcall",
-		//	ALIF_TYPE(_callable)->name);
+		_alifErr_format(tstate, _alifExcTypeError_,
+			"الكائن '%.200s' لا يدعم vectorCall",
+			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
 
@@ -293,7 +293,7 @@ AlifObject* alifObject_callObject(AlifObject* _callable, AlifObject* _args) { //
 	}
 	if (!ALIFTUPLE_CHECK(_args)) {
 		_alifErr_setString(thread, _alifExcTypeError_,
-			"argument list must be a tuple");
+			"مصفوفة المعاملات يجب أن تكون مترابطة");
 		return nullptr;
 	}
 	return _alifObject_call(thread, _callable, _args, nullptr);
@@ -399,9 +399,9 @@ AlifObject* alifObject_callFunction(AlifObject* _callable, const char* _format, 
 
 static AlifObject* call_method(AlifThread* _tstate, AlifObject* _callable, const char* _format, va_list _va) { // 616
 	if (!alifCallable_check(_callable)) {
-		//alifErr_format(tstate, _alifExcTypeError_,
-			//"attribute of type '%.200s' is not callable",
-			//ALIF_TYPE(callable)->name);
+		_alifErr_format(_tstate, _alifExcTypeError_,
+			"الخاصية من نوع '%.200s' غير قابلة للإستدعاء",
+			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
 
@@ -614,17 +614,17 @@ AlifObject* const* _alifStack_unpackDict(AlifThread* _thread,
 	AlifObject** kwstack = stack + _nargs;
 	AlifSizeT pos = 0, i = 0;
 	AlifObject* key{}, * value{};
-	unsigned long keys_are_strings = ALIF_TPFLAGS_UNICODE_SUBCLASS;
+	unsigned long keysAreStrings = ALIF_TPFLAGS_UNICODE_SUBCLASS;
 	while (alifDict_next(_kwargs, &pos, &key, &value)) {
-		keys_are_strings &= ALIF_TYPE(key)->flags;
+		keysAreStrings &= ALIF_TYPE(key)->flags;
 		ALIFTUPLE_SET_ITEM(kwnames, i, ALIF_NEWREF(key));
 		kwstack[i] = ALIF_NEWREF(value);
 		i++;
 	}
 
-	if (!keys_are_strings) {
-		//_alifErr_setString(_thread, _alifExcTypeError_,
-		//	"keywords must be strings");
+	if (!keysAreStrings) {
+		_alifErr_setString(_thread, _alifExcTypeError_,
+			"الكلمات المفتاحية يجب أن تكون من نوع نص");
 		_alifStack_unpackDictFree(stack, _nargs, kwnames);
 		return nullptr;
 	}

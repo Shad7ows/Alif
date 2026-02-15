@@ -77,19 +77,19 @@ double alifOS_stringToDouble(const char* _s,
 		failPos = (char*)_s;
 	}
 	else if (!_endPtr and (failPos == _s or *failPos != '\0')) {
-		//alifErr_format(_alifExcValueError_,
-		//	"could not convert string to float: "
-		//	"'%.200s'", _s);
+		alifErr_format(_alifExcValueError_,
+			"لا يمكن تحويل النص إلى عدد عشري: "
+			"'%.200s'", _s);
 	}
 	else if (failPos == _s) {
-		//alifErr_format(_alifExcValueError_,
-		//	"could not convert string to float: "
-		//	"'%.200s'", _s);
+		alifErr_format(_alifExcValueError_,
+			"لا يمكن تحويل النص إلى عدد عشري: "
+			"'%.200s'", _s);
 	}
-	else if (errno == ERANGE and fabs(x) >= 1.0 && _overflowException) {
-		//alifErr_format(_overflowException,
-		//	"value too large to convert to float: "
-		//	"'%.200s'", _s);
+	else if (errno == ERANGE and fabs(x) >= 1.0 and _overflowException) {
+		alifErr_format(_overflowException,
+			"القيمة كبيرة جداً ولا يمكن تحويلها إلى عدد عشري: "
+			"'%.200s'", _s);
 	}
 	else result = x;
 
@@ -150,9 +150,9 @@ AlifObject* _alifString_toNumberWithUnderscores(const char* _s,
 
 error:
 	alifMem_dataFree(dup);
-	//alifErr_format(_alifExcValueError_,
-	//	"could not convert string to %s: "
-	//	"%R", what, obj);
+	alifErr_format(_alifExcValueError_,
+		"لا يمكن تحويل النص إلى %s: "
+		"%R", _what, _obj);
 	return nullptr;
 }
 

@@ -242,8 +242,8 @@ failed:
 
 AlifSizeT alifBytes_size(AlifObject* op) { // 1211
 	if (!ALIFBYTES_CHECK(op)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"expected bytes, %.200s found", ALIF_TYPE(op)->name);
+		alifErr_format(_alifExcTypeError_,
+			"متوقع تمرير نوع بايت, وليس %.200s", ALIF_TYPE(op)->name);
 		return -1;
 	}
 	return ALIF_SIZE(op);
@@ -252,8 +252,8 @@ AlifSizeT alifBytes_size(AlifObject* op) { // 1211
 
 char* alifBytes_asString(AlifObject* _op) { // 1221
 	if (!ALIFBYTES_CHECK(_op)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"expected bytes, %.200s found", ALIF_TYPE(_op)->name);
+		alifErr_format(_alifExcTypeError_,
+			"متوقع تمرير نوع بايت, وليس %.200s", ALIF_TYPE(_op)->name);
 		return nullptr;
 	}
 	return ((AlifBytesObject*)_op)->val;
@@ -268,8 +268,8 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 	}
 
 	if (!ALIFBYTES_CHECK(_obj)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"expected bytes, %.200s found", ALIF_TYPE(_obj)->name);
+		alifErr_format(_alifExcTypeError_,
+			"متوقع تمرير نوع بايت, وليس %.200s", ALIF_TYPE(_obj)->name);
 		return -1;
 	}
 
@@ -277,8 +277,8 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 	if (_len != nullptr)
 		*_len = ALIFBYTES_GET_SIZE(_obj);
 	else if (strlen(*_str) != (AlifUSizeT)ALIFBYTES_GET_SIZE(_obj)) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"embedded null byte");
+		alifErr_setString(_alifExcValueError_,
+			"يوجد بايت فارغ");
 		return -1;
 	}
 	return 0;
@@ -294,8 +294,8 @@ static AlifObject* bytes_concat(AlifObject* _a, AlifObject* _b) { // 1414
 	vb.len = -1;
 	if (alifObject_getBuffer(_a, &va, ALIFBUF_SIMPLE) != 0 or
 		alifObject_getBuffer(_b, &vb, ALIFBUF_SIMPLE) != 0) {
-		//alifErr_format(_alifExcTypeError_, "can't concat %.100s to %.100s",
-		//	ALIF_TYPE(_b)->name, ALIF_TYPE(_a)->name);
+		alifErr_format(_alifExcTypeError_, "لم يستطع دمج %.100s مع %.100s",
+			ALIF_TYPE(_b)->name, ALIF_TYPE(_a)->name);
 		goto done;
 	}
 
@@ -371,8 +371,8 @@ void alifBytes_concat(AlifObject** _pv, AlifObject* _w) { // 3072
 		AlifBuffer wb{};
 
 		if (alifObject_getBuffer(_w, &wb, ALIFBUF_SIMPLE) != 0) {
-			//alifErr_format(_alifExcTypeError_, "can't concat %.100s to %.100s",
-			//	ALIF_TYPE(_w)->name, ALIF_TYPE(*_pv)->name);
+			alifErr_format(_alifExcTypeError_, "لم يستطع دمج %.100s مع %.100s",
+				ALIF_TYPE(_w)->name, ALIF_TYPE(*_pv)->name);
 			ALIF_CLEAR(*_pv);
 			return;
 		}

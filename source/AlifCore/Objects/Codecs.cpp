@@ -93,8 +93,8 @@ AlifObject* _alifCodec_lookup(const char* _encoding) { // 133
 			continue;
 		}
 		if (!ALIFTUPLE_CHECK(result) or ALIFTUPLE_GET_SIZE(result) != 4) {
-			//alifErr_setString(_alifExcTypeError_,
-			//	"codec search functions must return 4-tuples");
+			alifErr_setString(_alifExcTypeError_,
+				"دوال البحث في codec يجب أن ترجع 4 مترابطات");
 			ALIF_DECREF(result);
 			goto onError;
 		}

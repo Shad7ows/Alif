@@ -1315,8 +1315,8 @@ AlifIntT _alifSequence_iterSearch(AlifObject* seq,
 	if (operation != ALIF_ITERSEARCH_INDEX)
 		goto Done;
 
-	//alifErr_setString(_alifExcValueError_,
-	//	"sequence.index(x): x not in sequence");
+	alifErr_setString(_alifExcValueError_,
+		"سلسلة.مؤشر(س): س ليست في السلسلة");
 	/* fall into failure code */
 Fail:
 	n = -1;

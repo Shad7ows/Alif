@@ -672,9 +672,9 @@ AlifObject* alifObject_selfIter(AlifObject* _obj) { // 1461
 }
 
 AlifObject* _alifObject_nextNotImplemented(AlifObject* _self) { // 1472
-	//alifErr_format(_alifExcTypeError_,
-	//	"'%.200s' object is not iterable",
-	//	ALIF_TYPE(_self)->name);
+	alifErr_format(_alifExcTypeError_,
+		"الكائن '%.200s' غير قابل للتكرار",
+		ALIF_TYPE(_self)->name);
 	return nullptr;
 }
 
@@ -778,9 +778,9 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 	DescrGetFunc f_{};
 
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExcTypeError_,
-			//"attribute name must be string, not '%.200s'",
-			//ALIF_TYPE(name)->name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
 	ALIF_INCREF(_name);
@@ -891,9 +891,9 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 	AlifIntT res = -1;
 
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"attribute name must be string, not '%.200s'",
-		//	ALIF_TYPE(name)->name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		return -1;
 	}
 

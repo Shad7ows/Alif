@@ -43,8 +43,8 @@ static AlifObject* update_bases(AlifObject* _bases, AlifObject* const* _args, Al
 			goto error;
 		}
 		if (!ALIFTUPLE_CHECK(new_base)) {
-			//alifErr_setString(_alifExcTypeError_,
-			//	"__mro_entries__ must return a tuple");
+			alifErr_setString(_alifExcTypeError_,
+				"__mroEntries__ يجب أن ترجع مترابطة");
 			ALIF_DECREF(new_base);
 			goto error;
 		}
@@ -89,20 +89,20 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 	AlifThread* thread{}; //* alif
 
 	if (_nargs < 2) {
-		//alifErr_setString(_alifExcTypeError_,
-		//	"__buildClass__: not enough arguments");
+		alifErr_setString(_alifExcTypeError_,
+			"__buildClass__: لم يتم تمرير معاملات كافية");
 		return nullptr;
 	}
 	func = _args[0];   /* Better be callable */
 	if (!ALIFFUNCTION_CHECK(func)) {
-		//alifErr_setString(_alifExcTypeError_,
-		//	"__buildClass__: func must be a function");
+		alifErr_setString(_alifExcTypeError_,
+			"__buildClass__: متغير func يجب أن يكون دالة");
 		return nullptr;
 	}
 	name = _args[1];
 	if (!ALIFUSTR_CHECK(name)) {
-		//alifErr_setString(_alifExcTypeError_,
-		//	"__buildClass__: name is not a string");
+		alifErr_setString(_alifExcTypeError_,
+			"__buildClass__: متغير name يجب أن يكون نص");
 		return nullptr;
 	}
 	orig_bases = _alifTuple_fromArray(_args + 2, _nargs - 2);
@@ -176,10 +176,10 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 		goto error;
 	}
 	if (!alifMapping_check(ns)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"%.200s.__prepare__() must return a mapping, not %.200s",
-		//	isclass ? ((AlifTypeObject*)meta)->name : "<metaclass>",
-		//	ALIF_TYPE(ns)->name);
+		alifErr_format(_alifExcTypeError_,
+			"%.200s.__prepare__() يجب أن ترجع فهرس, وليس %.200s",
+			isclass ? ((AlifTypeObject*)meta)->name : "<metaclass>",
+			ALIF_TYPE(ns)->name);
 		goto error;
 	}
 	thread = _alifThread_get();
@@ -303,7 +303,7 @@ static AlifObject* min_max(AlifObject* const* args, AlifSizeT nargs,
 	AlifArgParser* parser_ = (op == ALIF_LT) ? &parserMin : &parserMax;
 
 	if (nargs == 0) {
-		//alifErr_format(_alifExcTypeError_, "%s expected at least 1 argument, got 0", name);
+		alifErr_format(_alifExcTypeError_, "%s يجب تمرير معامل واحد على الأقل, ولكن تم تمرير 0", name);
 		return nullptr;
 	}
 
@@ -314,9 +314,9 @@ static AlifObject* min_max(AlifObject* const* args, AlifSizeT nargs,
 
 	const AlifIntT positional = nargs > 1;
 	if (positional and defaultval != nullptr) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"Cannot specify a default for %s() with multiple "
-		//	"positional arguments", name);
+		alifErr_format(_alifExcTypeError_,
+			"لا يمكن تحديد قيمة إفتراضية لـ %s() مع "
+			"معاملات مكانية متعددة", name);
 		return nullptr;
 	}
 
