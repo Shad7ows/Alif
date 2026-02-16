@@ -621,7 +621,7 @@ static AlifIntT calculate_stackDepth(CFGBuilder* _g) { // 803
 			AlifIntT newDepth = depth + effect;
 			if (newDepth < 0) {
 				alifErr_format(_alifExcValueError_,
-					"CFG غير مناسب , قيمة المكدس منخفضة");
+					"رسم التحكم بالتدفق غير مناسب , قيمة المكدس منخفضة");
 				goto error;
 			}
 			if (newDepth > maxDepth) {

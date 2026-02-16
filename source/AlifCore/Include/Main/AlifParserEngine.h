@@ -222,6 +222,7 @@ void* alifParserEngine_dummyName(AlifParser*, ...); // 248
 #define EXTRA_EXPR(_head, _tail) (_head)->lineNo, (_head)->colOffset, (_tail)->endLineNo, (_tail)->endColOffset, _p->astMem // 254
 
 #define EXTRA startLineNo, startColOffset, endLineNo, endColOffset, _p->astMem // 255
+AlifObject* alifParserEngine_newTypeComment(AlifParser*, const char*); // 256
 
 
 
@@ -234,8 +235,7 @@ void* alifParserEngine_dummyName(AlifParser*, ...); // 248
 
 
 
-
-
+ArgTy alifParserEngine_addTypeCommentToArg(AlifParser*, ArgTy, AlifPToken*); // 295
 AlifObject* alifParserEngine_newIdentifier(AlifParser*, const char*); // 296
 ASDLSeq* alifParserEngine_singletonSeq(AlifParser*, void*); // 297
 ASDLSeq* alifParserEngine_seqInsertInFront(AlifParser*, void*, ASDLSeq*); // 298
@@ -251,7 +251,8 @@ ExprTy alifParserEngine_setExprContext(AlifParser*, ExprTy, ExprContext_); // 30
 KeyValuePair* alifParserEngine_keyValuePair(AlifParser*, ExprTy, ExprTy); // 309
 ASDLExprSeq* alifParserEngine_getKeys(AlifParser*, ASDLSeq*); // 310
 ASDLExprSeq* alifParserEngine_getValues(AlifParser*, ASDLSeq*); // 311
-NameDefaultPair* alifParserEngine_nameDefaultPair(AlifParser*, Arg*, ExprTy); // 315
+NameDefaultPair* alifParserEngine_nameDefaultPair(AlifParser*, Arg*, ExprTy, AlifPToken*); // 315
+SlashWithDefault* alifParserEngine_slashWithDefault(AlifParser*, ASDLArgSeq*, ASDLSeq*);
 StarEtc* alifParserEngine_starEtc(AlifParser*, ArgTy, ASDLSeq*, ArgTy); // 317
 ArgumentsTy alifParserEngine_makeArguments(AlifParser*, ASDLArgSeq*, SlashWithDefault*, ASDLArgSeq*, ASDLSeq*, StarEtc*); // 318
 ArgumentsTy alifParserEngine_emptyArguments(AlifParser*); // 320

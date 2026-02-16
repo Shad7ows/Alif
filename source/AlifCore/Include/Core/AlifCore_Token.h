@@ -54,12 +54,13 @@
 #define EXCLAMATION				50  // !
 #define OP						51
 #define ELLIPSIS				52	// ...
-#define COMMENT					53
-#define FSTRINGSTART			54	
-#define FSTRINGMIDDLE			55	
-#define FSTRINGEND				56	
-#define NL						57	
-#define ERRORTOKEN				58	
+#define TYPE_COMMENT            53
+#define COMMENT					54
+#define FSTRINGSTART			55	
+#define FSTRINGMIDDLE			56	
+#define FSTRINGEND				57	
+#define NL						58	
+#define ERRORTOKEN				59	
 #define NTOFFSET				256
 
 

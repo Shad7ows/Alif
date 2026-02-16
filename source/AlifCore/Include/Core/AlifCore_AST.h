@@ -281,7 +281,7 @@ public:
 };
 
 enum ExprK_ { // 359
-	BoolOpK = 1, NamedExprK, BinOpK, UnaryOpK, IfExprK, DictK, SetK, ListK,
+	BoolOpK = 1, NamedExprK, BinOpK, UnaryOpK, IfExprK, LambdaK, DictK, SetK, ListK,
 	DictCompK, SetCompK, ListCompK, GeneratorExprK, AwaitK, YieldK,
 	YieldFromK, CompareK, CallK, FormattedValK, JoinStrK, ConstantK,
 	AttributeK, SubScriptK, StarK, NameK, TupleK, SliceK
@@ -314,6 +314,12 @@ public:
 			UnaryOp_ op{};
 			ExprTy operand{};
 		}unaryOp;
+
+		class {
+		public:
+			ArgumentsTy args{};
+			ExprTy body{};
+		}lambda;
 
 		class {
 		public:
@@ -500,7 +506,8 @@ public:
 class Arg { // 550
 public:
 	Identifier arg{};
-	String comment{};
+	ExprTy annotation{};
+	String typeComment{};
 
 	AlifIntT lineNo{};
 	AlifIntT colOffset{};
@@ -614,10 +621,11 @@ ExprTy alifAST_name(Identifier, ExprContext_, AlifIntT, AlifIntT, AlifIntT, Alif
 ExprTy alifAST_list(ASDLExprSeq*, ExprContext_, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_tuple(ASDLExprSeq*, ExprContext_, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_slice(ExprTy, ExprTy, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+ExprTy alifAST_lambda(ArgumentsTy, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ComprehensionTy alifAST_comprehension(ExprTy, ExprTy, ASDLExprSeq*, AlifIntT, AlifASTMem*);
 ExcepthandlerTy alifAST_exceptHandler(ExprTy, Identifier, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ArgumentsTy alifAST_arguments(ASDLArgSeq*, ASDLArgSeq*, ArgTy, ASDLArgSeq*, ASDLExprSeq*, Arg*, ASDLExprSeq*, AlifASTMem*);
-ArgTy alifAST_arg(Identifier, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+ArgTy alifAST_arg(Identifier, ExprTy, String, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 KeywordTy alifAST_keyword(Identifier, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 AliasTy alifAST_alias(Identifier, Identifier, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 WithItemTy alifAST_withItem(ExprTy, ExprTy, AlifASTMem*);

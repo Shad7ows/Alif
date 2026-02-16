@@ -270,15 +270,26 @@ ASDLExprSeq* alifParserEngine_getValues(AlifParser* _p, ASDLSeq* _seq) { // 367
 }
 
 NameDefaultPair* alifParserEngine_nameDefaultPair(AlifParser* _p,
-	ArgTy _arg, ExprTy _value) { // 428
+	ArgTy _arg, ExprTy _value, AlifPToken* _tc) { // 428
 
 	NameDefaultPair* a_ = (NameDefaultPair*)alifASTMem_malloc(_p->astMem, sizeof(NameDefaultPair));
 	if (!a_) return nullptr;
 
-	a_->arg = alifAST_arg(_arg->arg, _arg->lineNo, _arg->colOffset, _arg->endLineNo, _arg->endColOffset, _p->astMem);
+	a_->arg = alifParserEngine_addTypeCommentToArg(_p, _arg, _tc);
 	a_->value = _value;
 
 	return a_;
+}
+
+SlashWithDefault* alifParserEngine_slashWithDefault(AlifParser* _p,
+	ASDLArgSeq* _plainNames, ASDLSeq* _namesWithDefaults) { // 441
+	SlashWithDefault *a = (SlashWithDefault*)alifASTMem_malloc(_p->astMem, sizeof(SlashWithDefault));
+	if (!a) {
+		return nullptr;
+	}
+	a->plainNames = _plainNames;
+	a->namesWithDefaults = _namesWithDefaults;
+	return a;
 }
 
 StarEtc* alifParserEngine_starEtc(AlifParser* _p, ArgTy _varArg,
@@ -581,6 +592,37 @@ ModuleTy alifParserEngine_makeModule(AlifParser* _p, ASDLStmtSeq* _a) { // 857
 	//	}
 	//}
 	return alifAST_module(_a, /*typeIgnores,*/ _p->astMem);
+}
+
+
+AlifObject* alifParserEngine_newTypeComment(AlifParser* _p, const char* _s) { // 883
+	AlifObject* res = alifUStr_decodeUTF8(_s, strlen(_s), nullptr);
+	if (res == nullptr) {
+		return nullptr;
+	}
+	if (alifASTMem_listAddAlifObj(_p->astMem, res) < 0) {
+		ALIF_DECREF(res);
+		return nullptr;
+	}
+	return res;
+}
+
+ArgTy alifParserEngine_addTypeCommentToArg(AlifParser* _p, ArgTy _a,
+	AlifPToken* _tc) { // 897
+	if (_tc == nullptr) {
+		return _a;
+	}
+	const char *bytes = alifBytes_asString(_tc->bytes);
+	if (bytes == nullptr) {
+		return nullptr;
+	}
+	AlifObject* tco = alifParserEngine_newTypeComment(_p, bytes);
+	if (tco == nullptr) {
+		return nullptr;
+	}
+	return alifAST_arg(_a->arg, _a->annotation, tco,
+		_a->lineNo, _a->colOffset, _a->endLineNo, _a->endColOffset,
+		_p->astMem);
 }
 
 

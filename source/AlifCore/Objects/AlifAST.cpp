@@ -1990,6 +1990,33 @@ StmtTy alifAST_while(ExprTy _condetion, ASDLStmtSeq* _body,
 	return p_;
 }
 
+ExprTy alifAST_lambda(ArgumentsTy _args, ExprTy _body, AlifIntT _lineNo,
+	AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7725
+	ExprTy p{};
+	if (!_args) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'args' مطلوب لـ Lambda");
+		return nullptr;
+	}
+	if (!_body) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'body' مطلوب لـ Lambda");
+		return nullptr;
+	}
+	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = ExprK_::LambdaK;
+	p->V.lambda.args = _args;
+	p->V.lambda.body = _body;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
 ExcepthandlerTy alifAST_exceptHandler(ExprTy _type, Identifier _name,
 	ASDLStmtSeq* _body, AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 8318
@@ -2766,15 +2793,22 @@ Arguments* alifAST_arguments(ASDLArgSeq* _posOnlyArgs, ASDLArgSeq* _args, Arg* _
 	return p;
 }
 
-Arg* alifAST_arg(AlifObject* _arg,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+Arg* alifAST_arg(Identifier _arg, ExprTy _annotation,
+	String _typeComment, AlifIntT _lineNo, AlifIntT _colOffset,
+	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	Arg* p{};
-
+	if (!_arg) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'arg' مطلوب لـ arg");
+		return nullptr;
+	}
 	p = (Arg*)alifASTMem_malloc(_astMem, sizeof(*p));
 	if (!p) return nullptr;
 
 	p->arg = _arg;
+	//p->annotation = _annotation;
+	//p->typeComment = _typeComment;
 	p->lineNo = _lineNo;
 	p->colOffset = _colOffset;
 	p->endLineNo = _endLineNo;
