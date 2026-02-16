@@ -41,6 +41,7 @@ public:
 	public:
 		STRUCT_FOR_USTR(_windowsConsoleIO, "طرفية_ويندوز")
 			STRUCT_FOR_STR(AnonGenExpr, "<genexpr>")
+			STRUCT_FOR_STR(AnonLambda, "<خطية>")
 			STRUCT_FOR_STR(AnonListComp, "<listcomp>")
 			STRUCT_FOR_USTR(AnonModule, "<وحدة>") //* alif
 			STRUCT_FOR_STR(AnonString, "<string>")
@@ -58,6 +59,7 @@ public:
 			STRUCT_FOR_STR(True, "صح") //* alif
 			STRUCT_FOR_STR(False, "خطأ") //* alif
 			STRUCT_FOR_STR(ListErr, "مؤشر المصفوفة خارج النطاق")
+			STRUCT_FOR_STR(lambda, "خطية") //* alif
 			STRUCT_FOR_STR(Mode, "mode") //* alif
 			STRUCT_FOR_STR(Name, "name") //* alif
 			STRUCT_FOR_STR(Obj, "obj") //* alif

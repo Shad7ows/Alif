@@ -1868,50 +1868,46 @@ static AlifIntT codegen_ifExpr(AlifCompiler* _c, ExprTy _e) {
 
 
 
+static AlifIntT codegen_lambda(AlifCompiler* _c, ExprTy _e) {
+	AlifCodeObject* co{};
+	AlifSizeT funcflags{};
+	ArgumentsTy args = _e->V.lambda.args;
 
+	Location loc = LOC(_e);
+	funcflags = codegen_defaultArguments(_c, loc, args);
+	RETURN_IF_ERROR(funcflags);
 
+	AlifCompileCodeUnitMetadata umd = {
+		.argCount = ASDL_SEQ_LEN(args->args),
+		.posOnlyArgCount = ASDL_SEQ_LEN(args->posOnlyArgs),
+		.kwOnlyArgCount = ASDL_SEQ_LEN(args->kwOnlyArgs),
+	};
+	ALIF_DECLARE_STR(anon_lambda, "<خطية>");
+	RETURN_IF_ERROR(
+		codegen_enterScope(_c, &ALIF_STR(AnonLambda), ScopeType_::Compiler_Scope_Lambda,
+			(void *)_e, _e->lineNo, nullptr, &umd));
 
+	RETURN_IF_ERROR(_alifCompiler_addConst(_c, ALIF_NONE));
 
+	VISIT_IN_SCOPE(_c, Expr, _e->V.lambda.body);
+	if (SYMTABLE_ENTRY(_c)->generator) {
+		co = _alifCompiler_optimizeAndAssemble(_c, 0);
+	}
+	else {
+		Location loc = LOC(_e->V.lambda.body);
+		ADDOP_IN_SCOPE(_c, loc, RETURN_VALUE);
+		co = _alifCompiler_optimizeAndAssemble(_c, 1);
+	}
+	_alifCompiler_exitScope(_c);
+	if (co == nullptr) {
+		return ERROR;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	AlifIntT ret = codegen_makeClosure(_c, loc, co, funcflags);
+	ALIF_DECREF(co);
+	RETURN_IF_ERROR(ret);
+	return SUCCESS;
+}
 
 
 
@@ -3493,10 +3489,10 @@ static AlifTypeObject* infer_type(ExprTy _e) {
 	case ExprK_::SetK:
 	case ExprK_::SetCompK:
 		return &_alifSetType_;
-		//case ExprK_::GeneratorExpK:
-		//	return &_alifGenType_;
-		//case ExprK_::LambdaK:
-		//	return &_alifFunctionType_;
+	case ExprK_::GeneratorExprK:
+		return &_alifGenType_;
+	case ExprK_::LambdaK:
+		return &_alifFunctionType_;
 	case ExprK_::JoinStrK:
 	case ExprK_::FormattedValK:
 		return &_alifUStrType_;
@@ -3519,7 +3515,7 @@ static AlifIntT check_caller(AlifCompiler* _c, ExprTy _e) {
 	case ExprK_::DictCompK:
 	case ExprK_::SetK:
 	case ExprK_::SetCompK:
-		//case GeneratorExpK:
+	case ExprK_::GeneratorExprK:
 	case ExprK_::JoinStrK:
 	case ExprK_::FormattedValK: {
 		Location loc = LOC(_e);
@@ -3547,9 +3543,9 @@ static AlifIntT check_subScripter(AlifCompiler* _c, ExprTy _e) {
 		}
 		ALIF_FALLTHROUGH;
 	case ExprK_::SetK:
-	case ExprK_::SetCompK: {
-		//case ExprK_::GeneratorExpK:
-		//case ExprK_::LambdaK: {
+	case ExprK_::SetCompK:
+	case ExprK_::GeneratorExprK:
+	case ExprK_::LambdaK: {
 		Location loc = LOC(_e);
 		//return _alifCompiler_warn(_c, loc, "'%.200s' object is not subscriptable; "
 		//	"perhaps you missed a comma?",
@@ -4901,25 +4897,25 @@ static AlifIntT codegen_visitExpr(AlifCompiler* _c, ExprTy _e) {
 			ADDOP(_c, loc, unaryop(_e->V.unaryOp.op));
 		}
 		break;
-		//case ExprK_::LambdaK:
-		//	return codegen_lambda(_c, _e);
+	case ExprK_::LambdaK:
+		return codegen_lambda(_c, _e);
 	case ExprK_::IfExprK:
 		return codegen_ifExpr(_c, _e);
 	case ExprK_::DictK:
 		return codegen_dict(_c, _e);
-		//case ExprK_::SetK:
-		//	return codegen_set(_c, _e);
+	//case ExprK_::SetK:
+	//	return codegen_set(_c, _e);
 	case ExprK_::GeneratorExprK:
 		return codegen_genExpr(_c, _e);
 	case ExprK_::ListCompK:
 		return codegen_listComp(_c, _e);
-		//case ExprK_::SetCompK:
-		//	return codegen_setComp(_c, _e);
-		//case ExprK_::DictCompK:
-		//return codegen_dictComp(_c, _e);
+	//case ExprK_::SetCompK:
+	//	return codegen_setComp(_c, _e);
+	//case ExprK_::DictCompK:
+	//	return codegen_dictComp(_c, _e);
 	case ExprK_::YieldK:
 		if (!alifST_isFunctionLike(SYMTABLE_ENTRY(_c))) {
-			return _alifCompiler_error(_c, loc, "'yield' outside function");
+			return _alifCompiler_error(_c, loc, "'ولد' خارج الدالة");
 		}
 		if (_e->V.yield.val) {
 			VISIT(_c, Expr, _e->V.yield.val);
@@ -4931,10 +4927,10 @@ static AlifIntT codegen_visitExpr(AlifCompiler* _c, ExprTy _e) {
 		break;
 	case ExprK_::YieldFromK:
 		if (!alifST_isFunctionLike(SYMTABLE_ENTRY(_c))) {
-			return _alifCompiler_error(_c, loc, "'yield from' outside function");
+			return _alifCompiler_error(_c, loc, "'ولد من' خارج الدالة");
 		}
 		if (SCOPE_TYPE(_c) == ScopeType_::Compiler_Scope_Async_Function) {
-			return _alifCompiler_error(_c, loc, "'yield from' inside async function");
+			return _alifCompiler_error(_c, loc, "'ولد من' داخل دالة متزامنة");
 		}
 		VISIT(_c, Expr, _e->V.yieldFrom.val);
 		ADDOP(_c, loc, GET_YIELD_FROM_ITER);

@@ -576,7 +576,7 @@ ALIF_LOCAL(AlifIntT) stack_effect(AlifIntT _opcode, AlifIntT _oparg, AlifIntT _j
 ALIF_LOCAL_INLINE(AlifIntT) stackDepth_push(BasicBlock*** _sp,
 	BasicBlock* _b, AlifIntT _depth) { // 785
 	if (!(_b->startDepth < 0 or _b->startDepth == _depth)) {
-		//alifErr_format(_alifExcValueError_, "Invalid CFG, inconsistent stackdepth");
+		alifErr_format(_alifExcValueError_, "مخطط التحكم بالتدفق غير صحيح, عمق المكدس غير متسق");
 		return ERROR;
 	}
 	if (_b->startDepth < _depth and _b->startDepth < 100) {
@@ -621,7 +621,7 @@ static AlifIntT calculate_stackDepth(CFGBuilder* _g) { // 803
 			AlifIntT newDepth = depth + effect;
 			if (newDepth < 0) {
 				alifErr_format(_alifExcValueError_,
-					"رسم التحكم بالتدفق غير مناسب , قيمة المكدس منخفضة");
+					"مخطط التحكم بالتدفق غير صحيح , قيمة المكدس منخفضة");
 				goto error;
 			}
 			if (newDepth > maxDepth) {

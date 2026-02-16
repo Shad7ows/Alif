@@ -703,7 +703,7 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 	case AttributeK:
 		return "صفة";
 	case SubScriptK:
-		return "subscript";
+		return "نص فرعي";
 	case StarK:
 		return "نجمي";
 	case NameK:
@@ -712,8 +712,8 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 		return "مصفوفة";
 	case TupleK:
 		return "مترابطة";
-	//case LambdaK:
-	//	return "lambda";
+	case LambdaK:
+		return "خطية";
 	case CallK:
 		return "استدعاء دالة";
 	case BoolOpK:

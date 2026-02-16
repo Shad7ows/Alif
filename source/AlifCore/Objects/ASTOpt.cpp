@@ -690,6 +690,10 @@ static AlifIntT astFold_expr(ExprTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.unaryOp.operand);
 		CALL(fold_unaryOp, ExprTy, _node);
 		break;
+	case ExprK_::LambdaK:
+		CALL(astFold_arguments, ArgumentsTy, _node->V.lambda.args);
+		CALL(astFold_expr, ExprTy, _node->V.lambda.body);
+		break;
 	case ExprK_::IfExprK:
 		CALL(astFold_expr, ExprTy, _node->V.ifExpr.condition);
 		CALL(astFold_expr, ExprTy, _node->V.ifExpr.body);
@@ -706,15 +710,15 @@ static AlifIntT astFold_expr(ExprTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.listComp.elt);
 		CALL_SEQ(astFold_comprehension, Comprehension, _node->V.listComp.generators);
 		break;
-	//case ExprK_::SetCompK:
-	//	CALL(astFold_expr, ExprTy, _node->V.setComp.elts);
-	//	CALL_SEQ(astFold_comprehension, Comprehension, _node->V.setComp.generators);
-	//	break;
-	//case ExprK_::DictCompK:
-	//	CALL(astFold_expr, ExprTy, _node->V.dictComp.key);
-	//	CALL(astFold_expr, ExprTy, _node->V.dictComp.val);
-	//	CALL_SEQ(astFold_comprehension, Comprehension, _node->V.dictComp.generators);
-	//	break;
+	case ExprK_::SetCompK:
+		CALL(astFold_expr, ExprTy, _node->V.setComp.elts);
+		CALL_SEQ(astFold_comprehension, Comprehension, _node->V.setComp.generators);
+		break;
+	case ExprK_::DictCompK:
+		CALL(astFold_expr, ExprTy, _node->V.dictComp.key);
+		CALL(astFold_expr, ExprTy, _node->V.dictComp.val);
+		CALL_SEQ(astFold_comprehension, Comprehension, _node->V.dictComp.generators);
+		break;
 	case ExprK_::AwaitK:
 		CALL(astFold_expr, ExprTy, _node->V.await.val);
 		break;

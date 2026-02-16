@@ -681,6 +681,7 @@
 #define ALIF_STR_LITERALS_INIT { \
 	INIT_USTR(_windowsConsoleIO, "طرفية_ويندوز"), \
 	INIT_STR(AnonGenExpr, "<genexpr>"), \
+	INIT_STR(AnonLambda, "<خطية>"), \
 	INIT_STR(AnonListComp, "<listcomp>"), \
 	INIT_USTR(AnonModule, "<وحدة>"), /* //* alif */ \
 	INIT_STR(AnonString, "<string>"), \
@@ -698,6 +699,7 @@
     INIT_STR(True, "صح"), /* //* alif */	\
     INIT_STR(False, "خطأ"), /* //* alif */	\
     INIT_STR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
+    INIT_STR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
     INIT_STR(Name, "name"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\

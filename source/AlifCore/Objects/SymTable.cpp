@@ -225,7 +225,7 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	AlifSymTable* st_ = symtable_new();
 	ASDLStmtSeq* seq_{};
 	AlifSizeT i_{};
-	AlifThread* tstate{};
+	AlifThread* thread{};
 	AlifIntT startingRecursionDepth{};
 
 	if (st_ == nullptr)
@@ -237,12 +237,12 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	st_->fileName = ALIF_NEWREF(_filename);
 	st_->future = _future;
 
-	tstate = _alifThread_get();
-	if (!tstate) {
+	thread = _alifThread_get();
+	if (!thread) {
 		alifSymtable_free(st_);
 		return nullptr;
 	}
-	AlifIntT recursionDepth = ALIFCPP_RECURSION_LIMIT - tstate->cppRecursionRemaining;
+	AlifIntT recursionDepth = ALIFCPP_RECURSION_LIMIT - thread->cppRecursionRemaining;
 	startingRecursionDepth = recursionDepth;
 	st_->recursionDepth = startingRecursionDepth;
 	st_->recursionLimit = ALIFCPP_RECURSION_LIMIT;
@@ -1538,6 +1538,20 @@ static AlifIntT symtable_visitExpr(AlifSymTable* _st, ExprTy _e) { // 2334
 		break;
 	case ExprK_::UnaryOpK:
 		VISIT(_st, Expr, _e->V.unaryOp.operand);
+		break;
+	case ExprK_::LambdaK:
+		if (_e->V.lambda.args->defaults)
+			VISIT_SEQ(_st, Expr, _e->V.lambda.args->defaults);
+		if (_e->V.lambda.args->kwDefaults)
+			VISIT_SEQ_WITH_NULL(_st, Expr, _e->V.lambda.args->kwDefaults);
+		if (!symtable_enterBlock(_st, &ALIF_STR(lambda),
+			BlockType_::Function_Block, (void*)_e, LOCATION(_e))) {
+			return 0;
+		}
+		VISIT(_st, Arguments, _e->V.lambda.args);
+		VISIT(_st, Expr, _e->V.lambda.body);
+		if (!symtable_exitBlock(_st))
+			return 0;
 		break;
 	case ExprK_::IfExprK:
 		VISIT(_st, Expr, _e->V.ifExpr.condition);
