@@ -42,7 +42,9 @@ public:
 		STRUCT_FOR_USTR(_windowsConsoleIO, "طرفية_ويندوز")
 			STRUCT_FOR_STR(AnonGenExpr, "<genexpr>")
 			STRUCT_FOR_STR(AnonLambda, "<خطية>")
-			STRUCT_FOR_STR(AnonListComp, "<listcomp>")
+			STRUCT_FOR_STR(AnonListComp, "<مصفوفة_ضمنية>")
+			STRUCT_FOR_STR(AnonSetComp, "<مميزة_ضمنية>")
+			STRUCT_FOR_STR(AnonDictComp, "<فهرس_ضمني>")
 			STRUCT_FOR_USTR(AnonModule, "<وحدة>") //* alif
 			STRUCT_FOR_STR(AnonString, "<string>")
 			STRUCT_FOR_STR(DblPercent, "%%")

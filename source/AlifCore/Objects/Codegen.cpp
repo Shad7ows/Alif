@@ -1848,7 +1848,6 @@ static AlifIntT codegen_jumpIf(AlifCompiler* _c, Location _loc,
 
 
 
-
 static AlifIntT codegen_ifExpr(AlifCompiler* _c, ExprTy _e) {
 	NEW_JUMP_TARGET_LABEL(_c, end);
 	NEW_JUMP_TARGET_LABEL(_c, next);
@@ -1865,6 +1864,7 @@ static AlifIntT codegen_ifExpr(AlifCompiler* _c, ExprTy _e) {
 	USE_LABEL(_c, end);
 	return SUCCESS;
 }
+
 
 
 
@@ -1908,6 +1908,9 @@ static AlifIntT codegen_lambda(AlifCompiler* _c, ExprTy _e) {
 	RETURN_IF_ERROR(ret);
 	return SUCCESS;
 }
+
+
+
 
 
 
@@ -3344,6 +3347,12 @@ static AlifIntT codegen_tuple(AlifCompiler* _c, ExprTy _e) {
 
 
 
+static AlifIntT codegen_set(AlifCompiler* _c, ExprTy _e) {
+	Location loc = LOC(_e);
+	return starUnpack_helper(_c, loc, _e->V.set.elts, 0,
+		BUILD_SET, SET_ADD, SET_UPDATE, 0);
+}
+
 
 
 static bool areAllItems_const(ASDLExprSeq* _seq,
@@ -4616,8 +4625,6 @@ static AlifIntT codegen_genExpr(AlifCompiler* _c, ExprTy _e) {
 
 
 
-
-
 static AlifIntT codegen_listComp(AlifCompiler* _c, ExprTy _e) {
 	return codegen_comprehension(_c, _e, COMP_LISTCOMP, &ALIF_STR(AnonListComp),
 		_e->V.listComp.generators,
@@ -4628,23 +4635,23 @@ static AlifIntT codegen_listComp(AlifCompiler* _c, ExprTy _e) {
 
 
 
+static AlifIntT codegen_setComp(AlifCompiler* c, ExprTy _e) {
+	ALIF_DECLARE_STR(AnonSetComp, "<مميزة_ضمنية>");
+	return codegen_comprehension(c, _e, COMP_SETCOMP, &ALIF_STR(AnonSetComp),
+		_e->V.setComp.generators,
+		_e->V.setComp.elts, nullptr);
+}
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+static AlifIntT codegen_dictComp(AlifCompiler* _c, ExprTy _e) {
+	ALIF_DECLARE_STR(AnonDictComp, "<فهرس_ضمني>");
+	return codegen_comprehension(_c, _e, COMP_DICTCOMP, &ALIF_STR(AnonDictComp),
+		_e->V.dictComp.generators,
+		_e->V.dictComp.key, _e->V.dictComp.val);
+}
 
 
 
@@ -4903,16 +4910,16 @@ static AlifIntT codegen_visitExpr(AlifCompiler* _c, ExprTy _e) {
 		return codegen_ifExpr(_c, _e);
 	case ExprK_::DictK:
 		return codegen_dict(_c, _e);
-	//case ExprK_::SetK:
-	//	return codegen_set(_c, _e);
+	case ExprK_::SetK:
+		return codegen_set(_c, _e);
 	case ExprK_::GeneratorExprK:
 		return codegen_genExpr(_c, _e);
 	case ExprK_::ListCompK:
 		return codegen_listComp(_c, _e);
-	//case ExprK_::SetCompK:
-	//	return codegen_setComp(_c, _e);
-	//case ExprK_::DictCompK:
-	//	return codegen_dictComp(_c, _e);
+	case ExprK_::SetCompK:
+		return codegen_setComp(_c, _e);
+	case ExprK_::DictCompK:
+		return codegen_dictComp(_c, _e);
 	case ExprK_::YieldK:
 		if (!alifST_isFunctionLike(SYMTABLE_ENTRY(_c))) {
 			return _alifCompiler_error(_c, loc, "'ولد' خارج الدالة");

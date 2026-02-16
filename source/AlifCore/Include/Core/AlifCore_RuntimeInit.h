@@ -682,7 +682,9 @@
 	INIT_USTR(_windowsConsoleIO, "طرفية_ويندوز"), \
 	INIT_STR(AnonGenExpr, "<genexpr>"), \
 	INIT_STR(AnonLambda, "<خطية>"), \
-	INIT_STR(AnonListComp, "<listcomp>"), \
+	INIT_STR(AnonListComp, "<مصفوفة_ضمنية>"), \
+	INIT_STR(AnonSetComp, "<مميزة_ضمنية>"), \
+	INIT_STR(AnonDictComp, "<فهرس_ضمني>"), \
 	INIT_USTR(AnonModule, "<وحدة>"), /* //* alif */ \
 	INIT_STR(AnonString, "<string>"), \
     INIT_STR(DblPercent, "%%"), \

@@ -105,7 +105,7 @@
 #define SEND                                   101
 #define SET_ADD                                102
 #define SET_FUNCTION_ATTRIBUTE                 103
-//#define SET_UPDATE                             104
+#define SET_UPDATE                             104
 #define STORE_ATTR                             105
 #define STORE_DEREF                            106
 #define STORE_FAST                             107
