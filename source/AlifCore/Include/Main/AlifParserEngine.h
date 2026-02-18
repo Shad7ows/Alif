@@ -130,10 +130,13 @@ AlifIntT alifParserEngine_updateMemo(AlifParser*, AlifIntT, AlifIntT, void*); //
 AlifIntT alifParserEngine_isMemorized(AlifParser*, AlifIntT, void*);
 
 AlifIntT alifParserEngine_lookaheadWithInt(AlifIntT, AlifPToken* (_func)(AlifParser*, AlifIntT), AlifParser*, AlifIntT); // 136
+AlifIntT alifParserEngine_lookaheadWithString(AlifIntT, ExprTy (_func)(AlifParser *,
+	const char*), AlifParser*, const char*); // 137
 AlifIntT alifParserEngine_lookahead(AlifIntT, void* (_func)(AlifParser*), AlifParser*); // 138
 
 AlifPToken* alifParserEngine_expectToken(AlifParser*, AlifIntT); // 140
 AlifPToken* alifParserEngine_expectTokenForced(AlifParser*, AlifIntT, const char*); // 142
+ExprTy alifParserEngine_expectSoftKeyword(AlifParser*, const char*); // 143
 AlifPToken* alifParserEngine_getLastNonWhitespaceToken(AlifParser*); // 146
 ExprTy alifParserEngine_nameToken(AlifParser*); // 148
 ExprTy alifParserEngine_numberToken(AlifParser*); // 149

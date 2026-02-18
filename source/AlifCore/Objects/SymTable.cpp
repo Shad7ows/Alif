@@ -32,7 +32,7 @@
 #define NONLOCAL_ANNOT \
 "annotated name '%U' can't be nonlocal"
 
-#define IMPORT_STAR_WARNING "import * only allowed at module level"
+#define IMPORT_STAR_WARNING "استيراد * مسموح فقط في مستوى الوحدة"
 
 #define NAMED_EXPR_COMP_IN_CLASS \
 "assignment expression within a comprehension cannot be used in a class body"
@@ -1418,6 +1418,38 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 		_st->private_ = tmp;
 		break;
 	}
+	case StmtK_::TypeAliasK: {
+		VISIT(_st, Expr, _s->V.typeAlias.name);
+		AlifObject* name = _s->V.typeAlias.name->V.name.name;
+		AlifIntT isInClass = _st->cur->type == BlockType_::Class_Block;
+		AlifIntT isGeneric = ASDL_SEQ_LEN(_s->V.typeAlias.typeParams) > 0;
+		if (isGeneric) {
+			if (!symtable_enterTypeParamBlock(
+				_st, name,
+				(void*)_s->V.typeAlias.typeParams,
+				false, false, _s->type,
+				LOCATION(_s))) {
+				return 0;
+			}
+			VISIT_SEQ(_st, TypeParam, _s->V.typeAlias.typeParams);
+		}
+		if (!symtable_enterBlock(_st, name, BlockType_::Type_Alias_Block,
+			(void *)_s, LOCATION(_s))) {
+			return 0;
+		}
+		_st->cur->canSeeClassScope = isInClass;
+		if (isInClass and !symtable_addDef(_st, &ALIF_ID(__classDict__), USE, LOCATION(_s->V.typeAlias.val))) {
+			return 0;
+		}
+		VISIT(_st, Expr, _s->V.typeAlias.val);
+		if (!symtable_exitBlock(_st))
+			return 0;
+		if (isGeneric) {
+			if (!symtable_exitBlock(_st))
+				return 0;
+		}
+		break;
+	}
 	case StmtK_::ReturnK:
 		if (_s->V.return_.val) {
 			VISIT(_st, Expr, _s->V.return_.val);
@@ -1809,7 +1841,7 @@ static AlifIntT symtable_visitAlias(AlifSymTable* _st, AliasTy _a) { // 2825
 	}
 	else {
 		if (_st->cur->type != BlockType_::Module_Block) {
-			//alifErr_setString(_alifExcSyntaxError_, IMPORT_STAR_WARNING);
+			alifErr_setString(_alifExcSyntaxError_, IMPORT_STAR_WARNING);
 			//SET_ERROR_LOCATION(st->filename, LOCATION(a));
 			ALIF_DECREF(storeName);
 			return 0;

@@ -1990,6 +1990,34 @@ StmtTy alifAST_while(ExprTy _condetion, ASDLStmtSeq* _body,
 	return p_;
 }
 
+StmtTy alifAST_typeAlias(ExprTy _name, ASDLTypeParamSeq* _typeParams, ExprTy
+	_value, AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT
+	_endColOffset, AlifASTMem* _astMem) { // 7115
+	StmtTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ TypeAlias");
+		return nullptr;
+	}
+	if (!_value) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'value' مطلوب لـ TypeAlias");
+		return nullptr;
+	}
+	p = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = StmtK_::TypeAliasK;
+	p->V.typeAlias.name = _name;
+	p->V.typeAlias.typeParams = _typeParams;
+	p->V.typeAlias.val = _value;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
 ExprTy alifAST_lambda(ArgumentsTy _args, ExprTy _body, AlifIntT _lineNo,
 	AlifIntT _colOffset, AlifIntT _endLineNo,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7725
@@ -2627,7 +2655,8 @@ ExprTy alifAST_attribute(ExprTy _val, AlifObject* _attr, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_subScript(ExprTy _val, ExprTy _slice, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 	ExprTy p{};
 	if (!_val) {
 		// error
@@ -2657,7 +2686,8 @@ ExprTy alifAST_subScript(ExprTy _val, ExprTy _slice, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_star(ExprTy _val, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 	ExprTy p{};
 	if (!_val) {
 		// error
@@ -2695,7 +2725,8 @@ ExprTy alifAST_name(AlifObject* _id, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_list(ASDLExprSeq* _elts, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	ExprTy p{};
 	if (!_ctx) {
@@ -2715,7 +2746,8 @@ ExprTy alifAST_list(ASDLExprSeq* _elts, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_tuple(ASDLExprSeq* _elts, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	ExprTy p{};
 	if (!_ctx) {
@@ -2735,7 +2767,8 @@ ExprTy alifAST_tuple(ASDLExprSeq* _elts, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_slice(ExprTy _lower, ExprTy _upper, ExprTy _step,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	ExprTy p{};
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -2890,6 +2923,76 @@ AlifObject* alifAST_getDocString(ASDLStmtSeq* _body) {
 }
 
 
+
+TypeParamTy alifAST_typeVar(Identifier _name, ExprTy _bound,
+	ExprTy _defaultValue, AlifIntT _lineNo, AlifIntT _colOffset,
+	AlifIntT _endLineNo, AlifIntT _endColOffset,
+	AlifASTMem* _astMem) { // 8637
+	TypeParamTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحثل 'name' مطلوب لـ TypeVar");
+		return nullptr;
+	}
+	p = (TypeParamTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = TypeParamK::TypeVarK;
+	p->V.typeVar.name = _name;
+	p->V.typeVar.bound = _bound;
+	p->V.typeVar.defaultValue = _defaultValue;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
+TypeParamTy alifAST_paramSpec(Identifier _name, ExprTy _defaultValue,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
+
+	TypeParamTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحثل 'name' مطلوب لـ ParamSpec");
+		return nullptr;
+	}
+	p = (TypeParamTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = TypeParamK::ParamSpecK;
+	p->V.paramSpec.name = _name;
+	p->V.paramSpec.defaultValue = _defaultValue;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
+TypeParamTy alifAST_typeVarTuple(Identifier _name, ExprTy _defaultValue,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 8685
+
+	TypeParamTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحثل 'name' مطلوب لـ TypeVarTuple");
+		return NULL;
+	}
+	p = (TypeParamTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = TypeParamK::TypeVarTupleK;
+	p->V.typeVarTuple.name = _name;
+	p->V.typeVarTuple.defaultValue = _defaultValue;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
 
 
 
@@ -4574,11 +4677,11 @@ AlifObject* ast2obj_typeParam(ASTState* state, Validator* vstate, void* _o) { //
 		if (alifObject_setAttr(result, state->bound, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_expr(state, vstate, o->V.typeVar.defaultValue);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->default_value, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.typeVar.defaultValue);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->default_value, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	case TypeParamK::ParamSpecK:
 		tp = (AlifTypeObject*)state->ParamSpecType;
@@ -4589,11 +4692,11 @@ AlifObject* ast2obj_typeParam(ASTState* state, Validator* vstate, void* _o) { //
 		if (alifObject_setAttr(result, state->name, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_expr(state, vstate, o->V.paramSpec.defaultValue);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->default_value, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.paramSpec.defaultValue);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->default_value, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	case TypeParamK::TypeVarTupleK:
 		tp = (AlifTypeObject*)state->TypeVarTuple_type;
@@ -4604,11 +4707,11 @@ AlifObject* ast2obj_typeParam(ASTState* state, Validator* vstate, void* _o) { //
 		if (alifObject_setAttr(result, state->name, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_expr(state, vstate, o->V.typeVarTuple.defaultValue);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->default_value, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.typeVarTuple.defaultValue);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->default_value, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	}
 	value = ast2obj_int(state, vstate, o->lineNo);

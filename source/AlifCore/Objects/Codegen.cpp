@@ -299,8 +299,8 @@ static AlifIntT codegen_addOpLoadConst(AlifCompiler* _c,
 #define ADDOP_LOAD_CONST(_c, _loc, _o) \
     RETURN_IF_ERROR(codegen_addOpLoadConst(_c, _loc, _o))
 
-
-
+#define ADDOP_LOAD_CONST_IN_SCOPE(_c, _loc, _o) \
+    RETURN_IF_ERROR_IN_SCOPE((_c), codegen_addOpLoadConst((_c), (_loc), (_o)))
 
 
 #define ADDOP_LOAD_CONST_NEW(_c, _loc, _o) { \
@@ -653,30 +653,30 @@ static AlifIntT codegen_enterScope(AlifCompiler* _c, Identifier _name,
 
 
 
+static AlifIntT codegen_setupAnnotationsScope(AlifCompiler* _c, Location _loc,
+	void* _key, AlifObject* _name) {
+	AlifCompileCodeUnitMetadata umd = {
+		.posOnlyArgCount = 1,
+	};
+	RETURN_IF_ERROR(
+		codegen_enterScope(_c, _name, ScopeType_::Compiler_Scope_Annotations,
+			_key, _loc.lineNo, nullptr, &umd));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	// Insert None into consts to prevent an annotation
+	// appearing to be a docstring
+	_alifCompiler_addConst(_c, ALIF_NONE);
+	// if .format != 1: raise NotImplementedError
+	ALIF_DECLARE_STR(format, ".format");
+	ADDOP_I(_c, _loc, LOAD_FAST, 0);
+	ADDOP_LOAD_CONST(_c, _loc, _alifLong_getOne());
+	ADDOP_I(_c, _loc, COMPARE_OP, (ALIF_NE << 5) | _compareMasks_[ALIF_NE]);
+	NEW_JUMP_TARGET_LABEL(_c, body);
+	ADDOP_JUMP(_c, _loc, POP_JUMP_IF_FALSE, body);
+	ADDOP_I(_c, _loc, LOAD_COMMON_CONSTANT, CONSTANT_NOTIMPLEMENTEDERROR);
+	ADDOP_I(_c, _loc, RAISE_VARARGS, 1);
+	USE_LABEL(_c, body);
+	return SUCCESS;
+}
 
 
 
@@ -1082,122 +1082,122 @@ static AlifIntT codegen_wrapInStopIterationHandler(AlifCompiler* _c) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+static AlifIntT codegen_typeParamBoundOrDefault(AlifCompiler* _c, ExprTy _e,
+	Identifier _name, void* _key, bool _allowStarred) {
+	AlifObject* defaults = alifTuple_pack(1, _alifLong_getOne());
+	ADDOP_LOAD_CONST_NEW(_c, LOC(_e), defaults);
+	RETURN_IF_ERROR(codegen_setupAnnotationsScope(_c, LOC(_e), _key, _name));
+	if (_allowStarred and _e->type == ExprK_::StarK) {
+		VISIT(_c, Expr, _e->V.star.val);
+		ADDOP_I(_c, LOC(_e), UNPACK_SEQUENCE, (AlifSizeT)1);
+	}
+	else {
+		VISIT(_c, Expr, _e);
+	}
+	ADDOP_IN_SCOPE(_c, LOC(_e), RETURN_VALUE);
+	AlifCodeObject* co = _alifCompiler_optimizeAndAssemble(_c, 1);
+	_alifCompiler_exitScope(_c);
+	if (co == nullptr) {
+		return ERROR;
+	}
+	AlifIntT ret = codegen_makeClosure(_c, LOC(_e), co, MAKE_FUNCTION_DEFAULTS);
+	ALIF_DECREF(co);
+	RETURN_IF_ERROR(ret);
+	return SUCCESS;
+}
+
+
+
+
+static AlifIntT codegen_typeParams(AlifCompiler* _c, ASDLTypeParamSeq* _typeParams) {
+	if (!_typeParams) {
+		return SUCCESS;
+	}
+	AlifSizeT n = ASDL_SEQ_LEN(_typeParams);
+	bool seenDefault = false;
+
+	for (AlifSizeT i = 0; i < n; i++) {
+		TypeParamTy typeparam = ASDL_SEQ_GET(_typeParams, i);
+		Location loc = LOC(typeparam);
+		switch(typeparam->type) {
+		case TypeParamK::TypeVarK:
+			ADDOP_LOAD_CONST(_c, loc, typeparam->V.typeVar.name);
+			if (typeparam->V.typeVar.bound) {
+				ExprTy bound = typeparam->V.typeVar.bound;
+				RETURN_IF_ERROR(
+					codegen_typeParamBoundOrDefault(_c, bound, typeparam->V.typeVar.name,
+						(void*)typeparam, false));
+
+				AlifIntT intrinsic = bound->type == ExprK_::TupleK
+					? INTRINSIC_TYPEVAR_WITH_CONSTRAINTS
+					: INTRINSIC_TYPEVAR_WITH_BOUND;
+				ADDOP_I(_c, loc, CALL_INTRINSIC_2, intrinsic);
+			}
+			else {
+				ADDOP_I(_c, loc, CALL_INTRINSIC_1, INTRINSIC_TYPEVAR);
+			}
+			if (typeparam->V.typeVar.defaultValue) {
+				seenDefault = true;
+				ExprTy default_ = typeparam->V.typeVar.defaultValue;
+				RETURN_IF_ERROR(
+					codegen_typeParamBoundOrDefault(_c, default_, typeparam->V.typeVar.name,
+						(void *)((uintptr_t)typeparam + 1), false));
+				ADDOP_I(_c, loc, CALL_INTRINSIC_2, INTRINSIC_SET_TYPEPARAM_DEFAULT);
+			}
+			else if (seenDefault) {
+				return _alifCompiler_error(_c, loc, "المعلمة غير الافتراضية '%U' "
+					"تتبع المعلمة الافتراضية",
+					typeparam->V.typeVar.name);
+			}
+			ADDOP_I(_c, loc, COPY, 1);
+			RETURN_IF_ERROR(codegen_nameOp(_c, loc,
+				typeparam->V.typeVar.name, ExprContext_::Store));
+			break;
+		case TypeParamK::TypeVarTupleK:
+			ADDOP_LOAD_CONST(_c, loc, typeparam->V.typeVarTuple.name);
+			ADDOP_I(_c, loc, CALL_INTRINSIC_1, INTRINSIC_TYPEVARTUPLE);
+			if (typeparam->V.typeVarTuple.defaultValue) {
+				ExprTy default_ = typeparam->V.typeVarTuple.defaultValue;
+				RETURN_IF_ERROR(
+					codegen_typeParamBoundOrDefault(_c, default_, typeparam->V.typeVarTuple.name,
+						(void*)typeparam, true));
+				ADDOP_I(_c, loc, CALL_INTRINSIC_2, INTRINSIC_SET_TYPEPARAM_DEFAULT);
+				seenDefault = true;
+			}
+			else if (seenDefault) {
+				return _alifCompiler_error(_c, loc, "المعلمة غير الافتراضية '%U' "
+					"تتبع المعلمة الافتراضية",
+					typeparam->V.typeVarTuple.name);
+			}
+			ADDOP_I(_c, loc, COPY, 1);
+			RETURN_IF_ERROR(codegen_nameOp(_c, loc,
+				typeparam->V.typeVarTuple.name, ExprContext_::Store));
+			break;
+		case TypeParamK::ParamSpecK:
+			ADDOP_LOAD_CONST(_c, loc, typeparam->V.paramSpec.name);
+			ADDOP_I(_c, loc, CALL_INTRINSIC_1, INTRINSIC_PARAMSPEC);
+			if (typeparam->V.paramSpec.defaultValue) {
+				ExprTy default_ = typeparam->V.paramSpec.defaultValue;
+				RETURN_IF_ERROR(
+					codegen_typeParamBoundOrDefault(_c, default_, typeparam->V.paramSpec.name,
+						(void*)typeparam, false));
+				ADDOP_I(_c, loc, CALL_INTRINSIC_2, INTRINSIC_SET_TYPEPARAM_DEFAULT);
+				seenDefault = true;
+			}
+			else if (seenDefault) {
+				return _alifCompiler_error(_c, loc, "المعلمة غير الافتراضية '%U' "
+					"تتبع المعلمة الافتراضية",
+					typeparam->V.paramSpec.name);
+			}
+			ADDOP_I(_c, loc, COPY, 1);
+			RETURN_IF_ERROR(codegen_nameOp(_c, loc,
+				typeparam->V.paramSpec.name, ExprContext_::Store));
+			break;
+		}
+	}
+	ADDOP_I(_c, LOC(ASDL_SEQ_GET(_typeParams, 0)), BUILD_TUPLE, n);
+	return SUCCESS;
+}
 
 static AlifIntT codegen_functionBody(AlifCompiler* _c, StmtTy _s,
 	AlifIntT _isAsync, AlifSizeT _funcFlags, AlifIntT _firstLineNo) {
@@ -1583,81 +1583,81 @@ static AlifIntT codegen_class(AlifCompiler* _c, StmtTy _s) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+static AlifIntT codegen_typeAliasBody(AlifCompiler* _c, StmtTy _s) {
+	Location loc = LOC(_s);
+	AlifObject* name = _s->V.typeAlias.name->V.name.name;
+	AlifObject* defaults = alifTuple_pack(1, _alifLong_getOne());
+	ADDOP_LOAD_CONST_NEW(_c, loc, defaults);
+	RETURN_IF_ERROR(
+		codegen_setupAnnotationsScope(_c, LOC(_s), _s, name));
+
+
+	RETURN_IF_ERROR(_alifCompiler_addConst(_c, ALIF_NONE));
+	VISIT_IN_SCOPE(_c, Expr, _s->V.typeAlias.val);
+	ADDOP_IN_SCOPE(_c, loc, RETURN_VALUE);
+	AlifCodeObject *co = _alifCompiler_optimizeAndAssemble(_c, 0);
+	_alifCompiler_exitScope(_c);
+	if (co == nullptr) {
+		return ERROR;
+	}
+	AlifIntT ret = codegen_makeClosure(_c, loc, co, MAKE_FUNCTION_DEFAULTS);
+	ALIF_DECREF(co);
+	RETURN_IF_ERROR(ret);
+
+	ADDOP_I(_c, loc, BUILD_TUPLE, 3);
+	ADDOP_I(_c, loc, CALL_INTRINSIC_1, INTRINSIC_TYPEALIAS);
+	return SUCCESS;
+}
+
+
+
+static AlifIntT codegen_typeAlias(AlifCompiler* _c, StmtTy _s) {
+	Location loc = LOC(_s);
+	ASDLTypeParamSeq* typeParams = _s->V.typeAlias.typeParams;
+	AlifIntT isGeneric = ASDL_SEQ_LEN(typeParams) > 0;
+	AlifObject* name = _s->V.typeAlias.name->V.name.name;
+	if (isGeneric) {
+		AlifObject* typeParamsName = alifUStr_fromFormat("<المعايير العامة لـ %U>",
+			name);
+		if (!typeParamsName) {
+			return ERROR;
+		}
+		AlifIntT ret = codegen_enterScope(_c, typeParamsName,
+			ScopeType_::Compiler_Scope_Annotations, (void*)typeParams,
+			loc.lineNo, nullptr, nullptr);
+		ALIF_DECREF(typeParamsName);
+		RETURN_IF_ERROR(ret);
+		ADDOP_LOAD_CONST_IN_SCOPE(_c, loc, name);
+		RETURN_IF_ERROR_IN_SCOPE(_c, codegen_typeParams(_c, typeParams));
+	}
+	else {
+		ADDOP_LOAD_CONST(_c, loc, name);
+		ADDOP_LOAD_CONST(_c, loc, ALIF_NONE);
+	}
+
+	AlifIntT ret = codegen_typeAliasBody(_c, _s);
+	if (isGeneric) {
+		RETURN_IF_ERROR_IN_SCOPE(_c, ret);
+	}
+	else {
+		RETURN_IF_ERROR(ret);
+	}
+
+	if (isGeneric) {
+		AlifCodeObject *co = _alifCompiler_optimizeAndAssemble(_c, 0);
+		_alifCompiler_exitScope(_c);
+		if (co == nullptr) {
+			return ERROR;
+		}
+		AlifIntT ret = codegen_makeClosure(_c, loc, co, 0);
+		ALIF_DECREF(co);
+		RETURN_IF_ERROR(ret);
+		ADDOP(_c, loc, PUSH_NULL);
+		ADDOP_I(_c, loc, CALL, 0);
+	}
+	RETURN_IF_ERROR(codegen_nameOp(_c, loc, name, ExprContext_::Store));
+	return SUCCESS;
+}
 
 
 
@@ -2662,43 +2662,45 @@ static AlifIntT codegen_tryStar(AlifCompiler* _c, StmtTy _s) {
 
 
 
+static AlifIntT codegen_importAs(AlifCompiler* _c, Location _loc,
+	Identifier _name, Identifier _asName) {
+	/* The IMPORT_NAME opcode was already generated.  This function
+	merely needs to bind the result to a name.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	If there is a dot in name, we need to split it and emit a
+	IMPORT_FROM for each name.
+	*/
+	AlifSizeT len = ALIFUSTR_GET_LENGTH(_name);
+	AlifSizeT dot = alifUStr_findChar(_name, '.', 0, len, 1);
+	if (dot == -2) {
+		return ERROR;
+	}
+	if (dot != -1) {
+		/* Consume the base module name to get the first attribute */
+		while (1) {
+			AlifSizeT pos = dot + 1;
+			AlifObject* attr{};
+			dot = alifUStr_findChar(_name, '.', pos, len, 1);
+			if (dot == -2) {
+				return ERROR;
+			}
+			attr = alifUStr_subString(_name, pos, (dot != -1) ? dot : len);
+			if (!attr) {
+				return ERROR;
+			}
+			ADDOP_N(_c, _loc, IMPORT_FROM, attr, names);
+			if (dot == -1) {
+				break;
+			}
+			ADDOP_I(_c, _loc, SWAP, 2);
+			ADDOP(_c, _loc, POP_TOP);
+		}
+		RETURN_IF_ERROR(codegen_nameOp(_c, _loc, _asName, ExprContext_::Store));
+		ADDOP(_c, _loc, POP_TOP);
+		return SUCCESS;
+	}
+	return codegen_nameOp(_c, _loc, _asName, ExprContext_::Store);
+}
 
 static AlifIntT codegen_import(AlifCompiler* _c, StmtTy _s) {
 	Location loc = LOC(_s);
@@ -2714,7 +2716,7 @@ static AlifIntT codegen_import(AlifCompiler* _c, StmtTy _s) {
 		ADDOP_NAME(_c, loc, IMPORT_NAME, alias->name, names);
 
 		if (alias->asName) {
-			//r = codegen_import_as(c, loc, alias->name, alias->asName);
+			r = codegen_importAs(_c, loc, alias->name, alias->asName);
 			RETURN_IF_ERROR(r);
 		}
 		else {
@@ -2854,8 +2856,8 @@ static AlifIntT codegen_visitStmt(AlifCompiler* _c, StmtTy _s) {
 		return codegen_function(_c, _s, 0);
 	case StmtK_::ClassDefK:
 		return codegen_class(_c, _s);
-		//case StmtK_::TypeAliasK:
-		//	return codegen_typealias(_c, _s);
+		case StmtK_::TypeAliasK:
+			return codegen_typeAlias(_c, _s);
 	case StmtK_::ReturnK:
 		return codegen_return(_c, _s);
 	case StmtK_::DeleteK:
@@ -5000,10 +5002,10 @@ static AlifIntT codegen_visitExpr(AlifCompiler* _c, ExprTy _e) {
 			/* In all legitimate cases, the Starred node was already replaced
 			 * by codegen_list/codegen_tuple. XXX: is that okay? */
 			return _alifCompiler_error(_c, loc,
-				"starred assignment target must be in a list or tuple");
+				"هدف الإسناد النجمي يجب أن يكون في مصفوفة او مترابطة");
 		default:
 			return _alifCompiler_error(_c, loc,
-				"can't use starred expression here");
+				"لا يمكن إستخدام تعبير نجمي هنا");
 		}
 		break;
 	case ExprK_::SliceK:

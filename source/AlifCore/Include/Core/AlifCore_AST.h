@@ -137,7 +137,7 @@ public:
 
 enum StmtK_ { // 187
 	ClassDefK = 1, FunctionDefK, AsyncFunctionDefK, ReturnK,
-	DeleteK, AssignK, AugAssignK, ForK, AsyncForK, WhileK,
+	DeleteK, AssignK, TypeAliasK, AugAssignK, ForK, AsyncForK, WhileK,
 	IfK, WithK, AsyncWithK, TryK, TryStarK, ImportK, ImportFromK,
 	ExprK, PassK, BreakK, ContinueK, GlobalK, NonlocalK,
 };
@@ -186,6 +186,13 @@ public:
 			ASDLExprSeq* targets{};
 			ExprTy val{};
 		} assign;
+
+		class {
+		public:
+			ExprTy name{};
+			ASDLTypeParamSeq* typeParams{};
+			ExprTy val{};
+		}typeAlias;
 
 		class {
 		public:
@@ -552,16 +559,19 @@ public:
 		public:
 			Identifier name{};
 			ExprTy bound{};
+			ExprTy defaultValue{};
 		}typeVar;
 
 		class {
 		public:
 			Identifier name{};
+			ExprTy defaultValue{};
 		}paramSpec;
 
 		class {
 		public:
 			Identifier name{};
+			ExprTy defaultValue{};
 		}typeVarTuple;
 
 	} V{};
@@ -576,6 +586,7 @@ public:
 ModuleTy alifAST_module(ASDLStmtSeq*, AlifASTMem*);
 ModuleTy alifAST_interactive(ASDLStmtSeq*, AlifASTMem*);
 StmtTy alifAST_assign(ASDLExprSeq*, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+StmtTy alifAST_typeAlias(ExprTy, ASDLTypeParamSeq*, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_expr(ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_constant(Constant, String, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_asyncFunctionDef(Identifier, ArgumentsTy, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
@@ -629,9 +640,9 @@ ArgTy alifAST_arg(Identifier, ExprTy, String, AlifIntT, AlifIntT, AlifIntT, Alif
 KeywordTy alifAST_keyword(Identifier, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 AliasTy alifAST_alias(Identifier, Identifier, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 WithItemTy alifAST_withItem(ExprTy, ExprTy, AlifASTMem*);
-
-
-
+TypeParamTy alifAST_typeVar(Identifier, ExprTy, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+TypeParamTy alifAST_paramSpec(Identifier, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+TypeParamTy alifAST_typeVarTuple(Identifier, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 
 AlifObject* alifAST_mod2obj(ModuleTy); // 909
 

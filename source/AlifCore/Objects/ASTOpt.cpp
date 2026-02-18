@@ -867,6 +867,11 @@ static AlifIntT astFold_stmt(StmtTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.augAssign.target);
 		CALL(astFold_expr, ExprTy, _node->V.augAssign.val);
 		break;
+	case StmtK_::TypeAliasK:
+		CALL(astFold_expr, ExprTy, _node->V.typeAlias.name);
+		CALL_SEQ(astFold_typeParam, TypeParam, _node->V.typeAlias.typeParams);
+		CALL(astFold_expr, ExprTy, _node->V.typeAlias.val);
+		break;
 	case StmtK_::ForK:
 		CALL(astFold_expr, ExprTy, _node->V.for_.target);
 		CALL(astFold_expr, ExprTy, _node->V.for_.iter);
@@ -954,13 +959,13 @@ static AlifIntT astFold_typeParam(TypeParamTy _node,
 	switch (_node->type) {
 	case TypeParamK::TypeVarK:
 		CALL_OPT(astFold_expr, ExprTy, _node->V.typeVar.bound);
-		//CALL_OPT(astFold_expr, ExprTy, _node->V.typeVar.defaultValue);
+		CALL_OPT(astFold_expr, ExprTy, _node->V.typeVar.defaultValue);
 		break;
 	case TypeParamK::ParamSpecK:
-		//CALL_OPT(astFold_expr, ExprTy, _node->V.paramSpec.defaultValue);
+		CALL_OPT(astFold_expr, ExprTy, _node->V.paramSpec.defaultValue);
 		break;
 	case TypeParamK::TypeVarTupleK:
-		//CALL_OPT(astFold_expr, ExprTy, _node->V.typeVarTuple.defaultValue);
+		CALL_OPT(astFold_expr, ExprTy, _node->V.typeVarTuple.defaultValue);
 		break;
 	}
 	return 1;

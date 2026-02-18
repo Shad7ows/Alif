@@ -105,6 +105,7 @@ static char* softKeywords[] = {
 #define TARGETWITH_STARATOM_TYPE 1030
 #define T_PRIMARY_TYPE 1031
 #define DEL_TARGET_TYPE 1032
+#define TYPE_PARAM_TYPE 1100
 
 
 
@@ -149,6 +150,7 @@ static ExprTy lambdef_rule(AlifParser*);
 static NameDefaultPair* lambdaParamWithDefault_rule(AlifParser*);
 static ArgTy lambdaParamNoDefault_rule(AlifParser*);
 static NameDefaultPair* lambdaParamMaybeDefault_rule(AlifParser*);
+static TypeParamTy typeParam_rule(AlifParser*);
 
 
 
@@ -11777,6 +11779,492 @@ done:
 }
 
 
+// معامل_نوع_افتراضي_نجمي: "=" تعبير_نجمة
+static ExprTy typeParamStarredDefault_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ExprTy res{};
+	AlifIntT mark = _p->mark;
+	{ // "=" تعبير_نجمة
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		ExprTy e{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, EQUAL))  // "="
+			and
+			(e = starExpression_rule(_p))  // تعبير_نجمة
+			)
+		{
+			res = e;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// معامل_نوع_افتراضي: "=" تعبير
+static ExprTy typeParamDefault_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ExprTy res{};
+	AlifIntT mark = _p->mark;
+	{ // "=" تعبير
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		ExprTy e{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, EQUAL))  // "="
+			and
+			(e = expression_rule(_p))  // تعبير
+			) {
+			res = e;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// معامل_نوع_حدود: ":" تعبير
+static ExprTy typeParamBound_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ExprTy res{};
+	AlifIntT mark = _p->mark;
+	{ // ":" تعبير
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		ExprTy e{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, COLON))  // ":"
+			and
+			(e = expression_rule(_p))  // تعبير
+			)
+		{
+			res = e;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// alif37_loop0: "," معامل_نوع
+static ASDLSeq* alif37_loop0(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	void* res{};
+	AlifIntT mark = _p->mark;
+
+	AlifPArray children{};
+	if (!children.data) {
+		_p->errorIndicator = 1;
+		// alifErr_noMemory();
+		_p->level--;
+		return nullptr;
+	}
+
+	{ // "," معامل_نوع
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		TypeParamTy elem{};
+		while (
+			(literal = alifParserEngine_expectToken(_p, COMMA))  // ","
+			and
+			(elem = typeParam_rule(_p))  // معامل_نوع
+			)
+		{
+			res = elem;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			if (!children.push_back(res)) {
+				_p->errorIndicator = 1;
+				// alifErr_noMemory();
+				_p->level--;
+				return nullptr;
+			}
+			mark = _p->mark;
+		}
+		_p->mark = mark;
+	}
+
+	AlifSizeT size = children.size;
+	ASDLSeq* seq = (ASDLSeq*)alifNew_genericSeq(size, _p->astMem);
+	if (!seq) {
+		_p->errorIndicator = 1;
+		// alifErr_noMemory();
+		_p->level--;
+		return nullptr;
+	}
+	for (AlifIntT i = 0; i < size; i++) ASDL_SEQ_SETUNTYPED(seq, i, children[i]);
+
+	_p->level--;
+	return seq;
+}
+//	^
+//	|
+//	|
+/*
+معامل_نوع:
+    > اسم معامل_نوع_حدود؟ معامل_نوع_افتراضي؟
+    > معامل_نوع_غير_صالحة
+    > "*" اسم معامل_نوع_افتراضي_نجمي؟
+    > "**" اسم معامل_نوع_افتراضي؟
+*/
+static TypeParamTy typeParam_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	TypeParamTy res{};
+	if (alifParserEngine_isMemorized(_p, TYPE_PARAM_TYPE, &res)) {
+		_p->level--;
+		return res;
+	}
+
+	AlifIntT mark = _p->mark;
+	if (_p->mark == _p->fill
+		and
+		alifParserEngine_fillToken(_p) < 0) {
+		_p->errorIndicator = 1;
+		_p->level--;
+		return nullptr;
+	}
+	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
+	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
+
+	{ // اسم معامل_نوع_حدود؟ معامل_نوع_افتراضي؟
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		ExprTy a{};
+		ExprTy b{};
+		ExprTy c{};
+		if (
+			(a = alifParserEngine_nameToken(_p))  // اسم
+			and
+			(b = typeParamBound_rule(_p), !_p->errorIndicator)  // معامل_نوع_حدود?
+			and
+			(c = typeParamDefault_rule(_p), !_p->errorIndicator)  // معامل_نوع_افتراضي?
+			)
+		{
+			AlifPToken* token_ = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token_ == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token_->endLineNo;
+			AlifIntT endColOffset = token_->endColOffset;
+
+			res = alifAST_typeVar(a->V.name.name , b , c , EXTRA );
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // "*" اسم معامل_نوع_افتراضي_نجمي؟
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		ExprTy a{};
+		ExprTy b{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, STAR))  // "*"
+			and
+			(a = alifParserEngine_nameToken(_p))  // اسم
+			and
+			(b = typeParamStarredDefault_rule(_p), !_p->errorIndicator)  // معامل_نوع_افتراضي_نجمي؟
+			)
+		{
+			AlifPToken* token_ = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token_ == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token_->endLineNo;
+			AlifIntT endColOffset = token_->endColOffset;
+
+			res = alifAST_typeVarTuple(a->V.name.name, b, EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // "**" اسم معامل_نوع_افتراضي؟
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		ExprTy a{};
+		ExprTy b{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, DOUBLESTAR))  // "**"
+			and
+			(a = alifParserEngine_nameToken(_p))  // اسم
+			and
+			(b = typeParamDefault_rule(_p), !_p->errorIndicator)  // معامل_نوع_افتراضي؟
+			)
+		{
+			AlifPToken* token_ = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token_ == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token_->endLineNo;
+			AlifIntT endColOffset = token_->endColOffset;
+
+			res = alifAST_paramSpec(a->V.name.name, b, EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	alifParserEngine_insertMemo(_p, mark, TYPE_PARAM_TYPE, res);
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// alif14_gather: معامل_نوع alif37_loop0
+static ASDLSeq* alif14_gather(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ASDLSeq * res{};
+	AlifIntT mark = _p->mark;
+	{ // معامل_نوع alif37_loop0
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		TypeParamTy elem{};
+		ASDLSeq* seq{};
+		if (
+			(elem = typeParam_rule(_p))  // معامل_نوع
+			and
+			(seq = alif37_loop0(_p))  // alif37_loop0
+			)
+		{
+			res = alifParserEngine_seqInsertInFront(_p, elem, seq);
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// معامل_متسلسل_نوع: ",".معامل_نوع+ ","؟
+static ASDLTypeParamSeq* typeParamSeq_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ASDLTypeParamSeq* res{};
+	AlifIntT mark = _p->mark;
+	{ // ",".معامل_نوع+ ","؟
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		void* optVar{};
+		ASDLTypeParamSeq* a{};
+		if (
+			(a = (ASDLTypeParamSeq*)alif14_gather(_p))  // ",".معامل_نوع+
+			and
+			(optVar = alifParserEngine_expectToken(_p, COMMA), !_p->errorIndicator)  // ","?
+			)
+		{
+			res = a;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// معاملات_نوع: معاملات_نوع_غير_صالحة > "[" معامل_متسلسل_نوع "]"
+static ASDLTypeParamSeq* typeParams_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ASDLTypeParamSeq* res{};
+	AlifIntT mark = _p->mark;
+	{ // "[" معامل_متسلسل_نوع "]"
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		AlifPToken* literal1{};
+		ASDLTypeParamSeq* t{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, LSQR))  // "["
+			and
+			(t = typeParamSeq_rule(_p))  // معامل_متسلسل_نوع
+			and
+			(literal1 = alifParserEngine_expectToken(_p, RSQR))  // "]"
+			)
+		{
+			res = t;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// نوع_بديل: "نوع" اسم معاملات_نوع؟ '=' تعبير
+static StmtTy typeAlias_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	StmtTy res{};
+	AlifIntT mark = _p->mark;
+	if (_p->mark == _p->fill
+		and
+		alifParserEngine_fillToken(_p) < 0) {
+		_p->errorIndicator = 1;
+		_p->level--;
+		return nullptr;
+	}
+	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
+	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
+
+	{ // نوع_بديل: "نوع" اسم معاملات_نوع؟ '=' تعبير
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		ExprTy keyword{};
+		AlifPToken* literal{};
+		ExprTy b{};
+		ExprTy n{};
+		ASDLTypeParamSeq* t{};
+		if (
+			(keyword = alifParserEngine_expectSoftKeyword(_p, "نوع"))  // "نوع"
+			and
+			(n = alifParserEngine_nameToken(_p))  // اسم
+			and
+			(t = typeParams_rule(_p), !_p->errorIndicator)  // معاملات_نوع؟
+			and
+			(literal = alifParserEngine_expectToken(_p, EQUAL))  // "="
+			and
+			(b = expression_rule(_p))  // تعبير
+			)
+		{
+			AlifPToken* token_ = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token_ == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token_->endLineNo;
+			AlifIntT endColOffset = token_->endColOffset;
+			res = alifAST_typeAlias(alifParserEngine_setExprContext(_p, n, ExprContext_::Store), t , b , EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+
+
 // ألف6: أهداف_نجمة "="
 static void* alif6(AlifParser* _p) {
 
@@ -13317,6 +13805,7 @@ done:
 /*
 	حالة_بسيطة:
 		> إسناد
+		> &"نوع" نوع_بديل
 		> تعبيرات_نجمة
 		> &"ارجع" حالة_ارجع
 		> &("استورد" > "من") حالة_استورد
@@ -13356,6 +13845,20 @@ static StmtTy simpleStmt_rule(AlifParser* _p) {
 		StmtTy assignmentVar{};
 		if ((assignmentVar = assignment_rule(_p))) {
 			res = assignmentVar;
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // &"نوع" نوع_بديل
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		StmtTy typeAliasVar{};
+		if (
+			alifParserEngine_lookaheadWithString(1, alifParserEngine_expectSoftKeyword, _p, "نوع")
+			and
+			(typeAliasVar = typeAlias_rule(_p))  // نوع_بديل
+			) {
+			res = typeAliasVar;
 			goto done;
 		}
 		_p->mark = mark;

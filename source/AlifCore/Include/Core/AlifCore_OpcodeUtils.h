@@ -51,7 +51,8 @@
 #define MAKE_FUNCTION_CLOSURE     0x08
 #define MAKE_FUNCTION_ANNOTATE    0x10
 
-
+/* Values used as the oparg for LOAD_COMMON_CONSTANT */
+#define CONSTANT_NOTIMPLEMENTEDERROR 1
 
 
  // 68

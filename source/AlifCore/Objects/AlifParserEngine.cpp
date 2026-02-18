@@ -226,6 +226,14 @@ AlifIntT alifParserEngine_isMemorized(AlifParser* _p, AlifIntT _type, void* _pre
 	return 0;
 }
 
+AlifIntT alifParserEngine_lookaheadWithString(AlifIntT _positive, ExprTy (_func)(AlifParser *,
+	const char*), AlifParser* _p, const char* _arg) { // 388
+	AlifIntT mark = _p->mark;
+	void *res = _func(_p, _arg);
+	_p->mark = mark;
+	return (res != nullptr) == _positive;
+}
+
 AlifIntT alifParserEngine_lookaheadWithInt(AlifIntT _positive,
 	AlifPToken* (_func)(AlifParser*, AlifIntT), AlifParser* _p, AlifIntT _arg) { // 397
 	AlifIntT mark_ = _p->mark;
@@ -278,12 +286,37 @@ AlifPToken* alifParserEngine_expectTokenForced(AlifParser* _p,
 
 	AlifPToken* t_ = _p->tokens[_p->mark];
 	if (t_->type != _type) {
-		//RAISE_SYNTAX_ERROR_KNOWN_LOCATION(t_, "expected '%s'", _expected);
+		RAISE_SYNTAX_ERROR_KNOWN_LOCATION(t_, "متوقع '%s'", _expected);
 		return nullptr;
 	}
 	_p->mark += 1;
 	return t_;
 }
+
+
+ExprTy alifParserEngine_expectSoftKeyword(AlifParser* _p,
+	const char* _keyword) { // 467
+	if (_p->mark == _p->fill) {
+		if (alifParserEngine_fillToken(_p) < 0) {
+			_p->errorIndicator = 1;
+			return nullptr;
+		}
+	}
+	AlifPToken* t = _p->tokens[_p->mark];
+	if (t->type != NAME) {
+		return nullptr;
+	}
+	const char *s = alifBytes_asString(t->bytes);
+	if (!s) {
+		_p->errorIndicator = 1;
+		return nullptr;
+	}
+	if (strcmp(s, _keyword) != 0) {
+		return nullptr;
+	}
+	return alifParserEngine_nameToken(_p);
+}
+
 
 AlifPToken* alifParserEngine_getLastNonWhitespaceToken(AlifParser* _p) { // 491
 	AlifPToken* token = nullptr;
