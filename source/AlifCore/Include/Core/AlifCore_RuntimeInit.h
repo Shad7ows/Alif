@@ -720,8 +720,12 @@
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
     INIT_USTR(__import__, "__استورد__"), /* //* alif */	\
+    INIT_USTR(__mul__, "__اضرب__"), /* //* alif */	\
     INIT_USTR(__radd__, "__اجمع_ع__"), /* //* alif */	\
     INIT_USTR(__repr__, "__عرض__"), /* //* alif */	\
+    INIT_USTR(__rmul__, "__اضرب_ع__"), /* //* alif */	\
+    INIT_USTR(__rsub__, "__اطرح_ع__"), /* //* alif */	\
+    INIT_USTR(__sub__, "__اطرح__"), /* //* alif */	\
     INIT_STR(_io, "تبادل"), /* //* alif // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject() */	\
 }
 

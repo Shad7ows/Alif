@@ -4094,6 +4094,17 @@ static AlifObject* wrap_binaryFuncL(AlifObject* _self,
 	return (*func)(_self, other);
 }
 
+static AlifObject* wrap_binaryFuncR(AlifObject* _self,
+	AlifObject* _args, void* _wrapped) { // 8860
+	BinaryFunc func = (BinaryFunc)_wrapped;
+	AlifObject* other{};
+
+	if (!check_numArgs(_args, 1))
+		return nullptr;
+	other = ALIFTUPLE_GET_ITEM(_args, 0);
+	return (*func)(other, _self);
+}
+
 static AlifObject* wrap_unaryFunc(AlifObject* _self,
 	AlifObject* _args, void* _wrapped) { // 8899
 	UnaryFunc func = (UnaryFunc)_wrapped;
@@ -4298,7 +4309,8 @@ _funcName(AlifObject *self, AlifObject *other) \
 
 
 SLOT1BIN(slot_nbAdd, add_, __add__, __radd__) // 9684
-
+SLOT1BIN(slot_nbSubtract, subtract, __sub__, __rsub__)
+SLOT1BIN(slot_nbMultiply, multiply, __mul__, __rmul__)
 
 
 
@@ -4372,9 +4384,9 @@ static AlifIntT slot_tpInit(AlifObject* _self,
 	if (res == nullptr)
 		return -1;
 	if (res != ALIF_NONE) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"__init__() should return None, not '%.200s'",
-		//	ALIF_TYPE(res)->name);
+		alifErr_format(_alifExcTypeError_,
+			"__تهيئة__() يجب أن يرجع عدم, وليس '%.200s'",
+			ALIF_TYPE(res)->name);
 		ALIF_DECREF(res);
 		return -1;
 	}
@@ -4428,6 +4440,9 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 #define BINSLOT(_name, _slot, _function, _doc) \
     ETSLOT(_name, number._slot, _function, wrap_binaryFuncL, \
            nullptr)
+#define RBINSLOT(_name, _slot, _function, _doc) \
+    ETSLOT(_name, number._slot, _function, wrap_binaryFuncR, \
+           nullptr)
 
 static AlifTypeSlotDef _slotDefs_[] = { // 10416
 	TPSLOT(__repr__, repr, slot_tpRepr, wrap_unaryFunc, nullptr),
@@ -4438,6 +4453,13 @@ static AlifTypeSlotDef _slotDefs_[] = { // 10416
 
 
 	BINSLOT(__add__, add_, slot_nbAdd, "+"),
+	RBINSLOT(__radd__, add_, slot_nbAdd, "+"),
+	BINSLOT(__sub__, subtract, slot_nbSubtract, "-"),
+	RBINSLOT(__rsub__, subtract, slot_nbSubtract, "-"),
+	BINSLOT(__mul__, multiply, slot_nbMultiply, "*"),
+	RBINSLOT(__rmul__, multiply, slot_nbMultiply, "*"),
+
+
 	UNSLOT(__abs__, absolute, slot_nbAbsolute, wrap_unaryFunc,
 		"مطلق(هذا)"),
 	{nullptr}
@@ -4608,9 +4630,9 @@ static AlifIntT typeNew_setNames(AlifTypeObject* _type) { // 10973
 		AlifObject* set_name = alifObject_lookupSpecial(value,
 			&ALIF_ID(__setName__));
 		if (set_name == nullptr) {
-			//if (alifErr_occurred()) {
-			//	goto error;
-			//}
+			if (alifErr_occurred()) {
+				goto error;
+			}
 			continue;
 		}
 
