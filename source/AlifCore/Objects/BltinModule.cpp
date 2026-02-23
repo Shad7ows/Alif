@@ -1138,7 +1138,7 @@ check:
 	if (i) {
 		// خطأ_قيمة: zip() argument 2 is shorter than argument 1
 		// خطأ_قيمة: zip() argument 3 is shorter than arguments 1-2
-		const char* plural = i == 1 ? " " : "لات 1-";
+		const char* plural = i == 1 ? " " : "ات 1-";
 		return alifErr_format(_alifExcValueError_,
 			"مقرون() المعامل %d اقصر من المعامل%s%d",
 			i + 1, plural, i);
@@ -1148,7 +1148,7 @@ check:
 		item = (*ALIF_TYPE(it)->iterNext)(it);
 		if (item) {
 			ALIF_DECREF(item);
-			const char* plural = i == 1 ? " " : "لات 1-";
+			const char* plural = i == 1 ? " " : "ات 1-";
 			return alifErr_format(_alifExcValueError_,
 				"مقرون() المعامل %d اطول من المعامل%s%d",
 				i + 1, plural, i);
