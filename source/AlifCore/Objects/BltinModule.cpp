@@ -719,6 +719,273 @@ _readline_errors:
 
 
 
+class CompensatedSum { // 2534
+public:
+	double hi{};     /* high-order bits for a running sum */
+	double lo{};     /* a running compensation for lost low-order bits */
+};
+
+static inline CompensatedSum cs_fromDouble(double _x) { // 2539
+	return {_x};
+}
+
+static inline CompensatedSum cs_add(CompensatedSum _total,
+	double _x) {
+	double t = _total.hi + _x;
+	if (fabs(_total.hi) >= fabs(_x)) {
+		_total.lo += (_total.hi - t) + _x;
+	}
+	else {
+		_total.lo += (_x - t) + _total.hi;
+	}
+	return {t, _total.lo};
+}
+
+static inline double cs_toDouble(CompensatedSum _total) {
+	/* Avoid losing the sign on a negative result,
+	and don't let adding the compensation convert
+	an infinite or overflowed sum to a NaN (not a number). */
+	if (_total.lo and isfinite(_total.lo)) {
+		return _total.hi + _total.lo;
+	}
+	return _total.hi;
+}
+
+static AlifObject* builtin_sumImpl(AlifObject* module,
+	AlifObject* iterable, AlifObject* start) { // 2584
+	AlifObject* result = start;
+	AlifObject* temp{}, * item{}, * iter{};
+
+	iter = alifObject_getIter(iterable);
+	if (iter == nullptr)
+		return nullptr;
+
+	if (result == nullptr) {
+		result = alifLong_fromLong(0);
+		if (result == nullptr) {
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+	} else {
+		/* reject string values for 'start' parameter */
+		if (ALIFUSTR_CHECK(result)) {
+			alifErr_setString(_alifExcTypeError_,
+				"اجمع() لا تستطيع جمع النصوص [بدل من ذلك استخدم ''.ضم(سلسلة)]");
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+		if (ALIFBYTES_CHECK(result)) {
+			//alifErr_setString(_alifExcTypeError_,
+			//	"اجمع() لا تستطيع جمع البايتات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+		if (ALIFBYTEARRAY_CHECK(result)) {
+			//alifErr_setString(_alifExcTypeError_,
+			//	"اجمع() لا تستطيع جمع مصفوفة البايتات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+		ALIF_INCREF(result);
+	}
+
+#ifndef SLOW_SUM
+	/* Fast addition by keeping temporary sums in CPP instead of new Alif objects.
+	Assumes all inputs are the same type.  If the assumption fails, default
+	to the more general routine.
+	*/
+	if (ALIFLONG_CHECKEXACT(result)) {
+		AlifIntT overflow{};
+		AlifSizeT i_result = alifLong_asLongAndOverflow(result, &overflow);
+		/* If this already overflowed, don't even enter the loop. */
+		if (overflow == 0) {
+			ALIF_SETREF(result, nullptr);
+		}
+		while(result == nullptr) {
+			item = alifIter_next(iter);
+			if (item == nullptr) {
+				ALIF_DECREF(iter);
+				if (alifErr_occurred())
+					return nullptr;
+				return alifLong_fromSizeT(i_result);
+			}
+			if (ALIFLONG_CHECKEXACT(item) or ALIFBOOL_CHECK(item)) {
+				AlifSizeT b{};
+				overflow = 0;
+				/* Single digits are common, fast, and cannot overflow on unpacking. */
+				if (alifLong_isCompact((AlifLongObject*)item)) {
+					b = alifLong_compactValue((AlifLongObject*)item);
+				}
+				else {
+					b = alifLong_asLongAndOverflow(item, &overflow);
+				}
+				if (overflow == 0 and
+					(i_result >= 0 ? (b <= ALIF_SIZET_MAX - i_result)
+						: (b >= ALIF_SIZET_MIN - i_result)))
+				{
+					i_result += b;
+					ALIF_DECREF(item);
+					continue;
+				}
+			}
+			/* Either overflowed or is not an int. Restore real objects and process normally */
+			result = alifLong_fromSizeT(i_result);
+			if (result == nullptr) {
+				ALIF_DECREF(item);
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+			temp = alifNumber_add(result, item);
+			ALIF_DECREF(result);
+			ALIF_DECREF(item);
+			result = temp;
+			if (result == nullptr) {
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+		}
+	}
+
+	if (ALIFFLOAT_CHECKEXACT(result)) {
+		CompensatedSum re_sum = cs_fromDouble(ALIFFLOAT_AS_DOUBLE(result));
+		ALIF_SETREF(result, nullptr);
+		while(result == nullptr) {
+			item = alifIter_next(iter);
+			if (item == nullptr) {
+				ALIF_DECREF(iter);
+				if (alifErr_occurred())
+					return nullptr;
+				return alifFloat_fromDouble(cs_toDouble(re_sum));
+			}
+			if (ALIFFLOAT_CHECKEXACT(item)) {
+				re_sum = cs_add(re_sum, ALIFFLOAT_AS_DOUBLE(item));
+				_alif_decrefSpecialized(item, _alifFloat_exactDealloc);
+				continue;
+			}
+			if (ALIFLONG_CHECK(item)) {
+				double value = alifLong_asDouble(item);
+				if (value != -1.0 or !alifErr_occurred()) {
+					re_sum = cs_add(re_sum, value);
+					ALIF_DECREF(item);
+					continue;
+				}
+				else {
+					ALIF_DECREF(item);
+					ALIF_DECREF(iter);
+					return nullptr;
+				}
+			}
+			result = alifFloat_fromDouble(cs_toDouble(re_sum));
+			if (result == nullptr) {
+				ALIF_DECREF(item);
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+			temp = alifNumber_add(result, item);
+			ALIF_DECREF(result);
+			ALIF_DECREF(item);
+			result = temp;
+			if (result == nullptr) {
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+		}
+	}
+
+	/*if (ALIFCOMPLEX_CHECKEXACT(result)) {
+		AlifComplex z = alifComplex_asCComplex(result);
+		CompensatedSum re_sum = cs_fromDouble(z.real);
+		CompensatedSum im_sum = cs_fromDouble(z.imag);
+		ALIF_SETREF(result, nullptr);
+		while (result == nullptr) {
+			item = alifIter_next(iter);
+			if (item == nullptr) {
+				ALIF_DECREF(iter);
+				if (alifErr_occurred()) {
+					return nullptr;
+				}
+				return alifComplex_fromDoubles(cs_toDouble(re_sum),
+					cs_toDouble(im_sum));
+			}
+			if (ALIFCOMPLEX_CHECKEXACT(item)) {
+				z = alifComplex_asCComplex(item);
+				re_sum = cs_add(re_sum, z.real);
+				im_sum = cs_add(im_sum, z.imag);
+				ALIF_DECREF(item);
+				continue;
+			}
+			if (ALIFLONG_CHECK(item)) {
+				double value = alifLong_asDouble(item);
+				if (value != -1.0 or !alifErr_occurred()) {
+					re_sum = cs_add(re_sum, value);
+					im_sum.hi += 0.0;
+					ALIF_DECREF(item);
+					continue;
+				}
+				else {
+					ALIF_DECREF(item);
+					ALIF_DECREF(iter);
+					return nullptr;
+				}
+			}
+			if (ALIFFLOAT_CHECK(item)) {
+				double value = alifFLOAT_AS_DOUBLE(item);
+				re_sum = cs_add(re_sum, value);
+				im_sum.hi += 0.0;
+				_alif_decRefSpecialized(item, _alifFloat_exactDealloc);
+				continue;
+			}
+			result = alifComplex_fromDoubles(cs_toDouble(re_sum),
+				cs_toDouble(im_sum));
+			if (result == nullptr) {
+				ALIF_DECREF(item);
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+			temp = alifNumber_add(result, item);
+			ALIF_DECREF(result);
+			ALIF_DECREF(item);
+			result = temp;
+			if (result == nullptr) {
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+		}
+	}*/
+#endif
+
+	for(;;) {
+		item = alifIter_next(iter);
+		if (item == nullptr) {
+			/* error, or end-of-sequence */
+			if (alifErr_occurred()) {
+				ALIF_SETREF(result, nullptr);
+			}
+			break;
+		}
+		/* It's tempting to use alifNumber_inPlaceAdd instead of
+		alifNumber_add here, to avoid quadratic running time
+		when doing 'sum(list_of_lists, [])'.  However, this
+		would produce a change in behaviour: a snippet like
+
+		empty = []
+		sum([[x] for x in range(10)], empty)
+
+		would change the value of empty. In fact, using
+		in-place addition rather that binary addition for
+		any of the steps introduces subtle behavior changes: */
+		temp = alifNumber_add(result, item);
+		ALIF_DECREF(result);
+		ALIF_DECREF(item);
+		result = temp;
+		if (result == nullptr)
+			break;
+	}
+	ALIF_DECREF(iter);
+	return result;
+}
+
+
 static AlifObject * builtin_isInstanceImpl(AlifObject *_module, AlifObject *_obj,
 	AlifObject *_classOrTuple) { // 2837
 	AlifIntT retval{};
@@ -742,6 +1009,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	{"اقصى", ALIF_CPPFUNCTION_CAST(builtin_max), METHOD_FASTCALL | METHOD_KEYWORDS},
 	{"ادنى", ALIF_CPPFUNCTION_CAST(builtin_min), METHOD_FASTCALL | METHOD_KEYWORDS},
 	BUILTIN_PRINT_METHODDEF,
+	BUILTIN_SUM_METHODDEF,
 	{nullptr, nullptr},
 };
 

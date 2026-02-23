@@ -59,9 +59,9 @@ static AlifObject* float_fromStringInner(const char* s, AlifSizeT len, void* obj
 
 	x = alifOS_stringToDouble(s, (char**)&end, nullptr);
 	if (end != last) {
-		//alifErr_format(_alifExcValueError_,
-		//	"could not convert string to float: "
-		//	"%R", obj);
+		alifErr_format(_alifExcValueError_,
+			"لا يمكن تحويل النص إلى عدد عشري: "
+			"%R", obj);
 		return nullptr;
 	}
 	else if (x == -1.0 and alifErr_occurred()) {
@@ -119,6 +119,16 @@ AlifObject* alifFloat_fromString(AlifObject* v) { // 177
 }
 
 
+void _alifFloat_exactDealloc(AlifObject* _obj) { // 262
+	ALIF_FREELIST_FREE(floats, FLOATS, _obj, alifMem_objFree);
+}
+
+static void float_dealloc(AlifObject* _op) { // 269
+	if (ALIFFLOAT_CHECKEXACT(_op))
+		_alifFloat_exactDealloc(_op);
+	else
+		ALIF_TYPE(_op)->free(_op);
+}
 
 double alifFloat_asDouble(AlifObject* _op) { // 250
 	AlifNumberMethods* nb_{};
@@ -737,6 +747,7 @@ AlifTypeObject _alifFloatType_ = { // 1847
 	.name = "عشري",
 	.basicSize = sizeof(AlifFloatObject),
 	.itemSize = 0,
+	.dealloc = (Destructor)float_dealloc,
 	.repr = (ReprFunc)float_repr,
 	.asNumber = &_floatAsNumber_,
 	.hash = (HashFunc)float_hash,

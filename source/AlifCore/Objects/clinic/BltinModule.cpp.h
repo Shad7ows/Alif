@@ -211,8 +211,60 @@ exit:
 }
 
 
+// 1106
+#define BUILTIN_SUM_METHODDEF    \
+    {"اجمع", ALIF_CPPFUNCTION_CAST(builtin_sum), METHOD_FASTCALL|METHOD_KEYWORDS}
 
+static AlifObject* builtin_sumImpl(AlifObject*, AlifObject*, AlifObject*);
 
+static AlifObject* builtin_sum(AlifObject* _module, AlifObject *const* _args,
+	AlifSizeT _nargs, AlifObject* _kwNames) { // 1112
+	AlifObject* return_value = nullptr;
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
+
+#define NUM_KEYWORDS 1
+	static struct {
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD;
+		AlifObject* item[NUM_KEYWORDS];
+	} _kwtuple = {
+			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
+			.item = { &ALIF_ID(start), },
+	};
+#undef NUM_KEYWORDS
+#define KWTUPLE (&_kwtuple.objBase.objBase)
+
+#else 
+#  define KWTUPLE nullptr
+#endif
+
+	static const char * const _keywords[] = {"", "بداية", nullptr};
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "اجمع",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[2]{};
+	AlifSizeT noptargs = _nargs + (_kwNames ? ALIFTUPLE_GET_SIZE(_kwNames) : 0) - 1;
+	AlifObject* iterable{};
+	AlifObject* start{};
+
+	_args = ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 2, 0, argsbuf);
+	if (!_args) {
+		goto exit;
+	}
+	iterable = _args[0];
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	start = _args[1];
+skip_optional_pos:
+	return_value = builtin_sumImpl(_module, iterable, start);
+
+exit:
+	return return_value;
+}
 
 
 
