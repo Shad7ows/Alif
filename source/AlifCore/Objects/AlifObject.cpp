@@ -1043,7 +1043,7 @@ static AlifTypeObject* staticTypes[] = {
 	//&_alifAsyncGenType_,
 	//&_alifByteArrayIterType_, // 
 	&_alifByteArrayType_,
-	//&_alifBytesIterType_, // 
+	//&_alifBytesIterType_,
 	&_alifBytesType_,
 	&_alifCPPFunctionType_,
 	//&_alifCallIterType_,
@@ -1111,7 +1111,7 @@ static AlifTypeObject* staticTypes[] = {
 	//&_alifUStrIterType_,
 	&_alifUStrType_,
 	&_alifWrapperDescrType_,
-	//&_alifZipType_,
+	&_alifZipType_,
 	&_alifGenericAliasType_,
 	//&_alifAnextAwaitableType_,
 	//&_alifAsyncGenASendType_,

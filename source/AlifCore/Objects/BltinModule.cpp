@@ -997,6 +997,192 @@ static AlifObject * builtin_isInstanceImpl(AlifObject *_module, AlifObject *_obj
 }
 
 
+class ZipObject { // 2878
+public:
+	ALIFOBJECT_HEAD{};
+	AlifSizeT tupleSize{};
+	AlifObject* itTuple{};     /* tuple of iterators */
+	AlifObject* result;
+	AlifIntT strict{};
+};
+
+static AlifObject* zip_new(AlifTypeObject* type,
+	AlifObject* args, AlifObject* kwds) { // 2886
+	ZipObject* lz{};
+	AlifSizeT i{};
+	AlifObject* ittuple{};  /* tuple of iterators */
+	AlifObject* result{};
+	AlifSizeT tupleSize{};
+	AlifIntT strict = 0;
+
+	if (kwds) {
+		AlifObject* empty = alifTuple_new(0);
+		if (empty == nullptr) {
+			return nullptr;
+		}
+		static char *kwlist[] = {(char*)"strict", nullptr};
+		//AlifIntT parsed = alifArg_parseTupleAndKeywords(
+		//	empty, kwds, "|$p:مقرونة", kwlist, &strict);
+		//ALIF_DECREF(empty);
+		//if (!parsed) {
+		//	return nullptr;
+		//}
+	}
+
+	/* args must be a tuple */
+	tupleSize = ALIFTUPLE_GET_SIZE(args);
+
+	/* obtain iterators */
+	ittuple = alifTuple_new(tupleSize);
+	if (ittuple == nullptr)
+		return nullptr;
+	for (i=0; i < tupleSize; ++i) {
+		AlifObject* item = ALIFTUPLE_GET_ITEM(args, i);
+		AlifObject* it = alifObject_getIter(item);
+		if (it == nullptr) {
+			ALIF_DECREF(ittuple);
+			return nullptr;
+		}
+		ALIFTUPLE_SET_ITEM(ittuple, i, it);
+	}
+
+	/* create a result holder */
+	result = alifTuple_new(tupleSize);
+	if (result == nullptr) {
+		ALIF_DECREF(ittuple);
+		return nullptr;
+	}
+	for (i=0 ; i < tupleSize ; i++) {
+		ALIFTUPLE_SET_ITEM(result, i, ALIF_NEWREF(ALIF_NONE));
+	}
+
+	/* create zipobject structure */
+	lz = (ZipObject*)type->alloc(type, 0);
+	if (lz == nullptr) {
+		ALIF_DECREF(ittuple);
+		ALIF_DECREF(result);
+		return nullptr;
+	}
+	lz->itTuple = ittuple;
+	lz->tupleSize = tupleSize;
+	lz->result = result;
+	lz->strict = strict;
+
+	return (AlifObject*)lz;
+}
+
+static void zip_dealloc(ZipObject* lz) { // 2953
+	alifObject_gcUnTrack(lz);
+	ALIF_XDECREF(lz->itTuple);
+	ALIF_XDECREF(lz->result);
+	ALIF_TYPE(lz)->free(lz);
+}
+
+
+static AlifObject* zip_next(ZipObject* lz) { // 2970
+	AlifSizeT i{};
+	AlifSizeT tuplesize = lz->tupleSize;
+	AlifObject *result = lz->result;
+	AlifObject *it{};
+	AlifObject *item{};
+	AlifObject *olditem{};
+
+	if (tuplesize == 0)
+		return nullptr;
+
+	if (_alifObject_isUniquelyReferenced(result)) {
+		ALIF_INCREF(result);
+		for (i=0 ; i < tuplesize ; i++) {
+			it = ALIFTUPLE_GET_ITEM(lz->itTuple, i);
+			item = (*ALIF_TYPE(it)->iterNext)(it);
+			if (item == nullptr) {
+				ALIF_DECREF(result);
+				if (lz->strict) {
+					goto check;
+				}
+				return nullptr;
+			}
+			olditem = ALIFTUPLE_GET_ITEM(result, i);
+			ALIFTUPLE_SET_ITEM(result, i, item);
+			ALIF_DECREF(olditem);
+		}
+		if (!ALIFOBJECT_GC_IS_TRACKED(result)) {
+			ALIFOBJECT_GC_TRACK(result);
+		}
+	} else {
+		result = alifTuple_new(tuplesize);
+		if (result == nullptr)
+			return nullptr;
+		for (i=0 ; i < tuplesize ; i++) {
+			it = ALIFTUPLE_GET_ITEM(lz->itTuple, i);
+			item = (*ALIF_TYPE(it)->iterNext)(it);
+			if (item == nullptr) {
+				ALIF_DECREF(result);
+				if (lz->strict) {
+					goto check;
+				}
+				return nullptr;
+			}
+			ALIFTUPLE_SET_ITEM(result, i, item);
+		}
+	}
+	return result;
+check:
+	if (alifErr_occurred()) {
+		if (!alifErr_exceptionMatches(_alifExcStopIteration_)) {
+			// next() on argument i raised an exception (not StopIteration)
+			return nullptr;
+		}
+		alifErr_clear();
+	}
+	if (i) {
+		// خطأ_قيمة: zip() argument 2 is shorter than argument 1
+		// خطأ_قيمة: zip() argument 3 is shorter than arguments 1-2
+		const char* plural = i == 1 ? " " : "لات 1-";
+		return alifErr_format(_alifExcValueError_,
+			"مقرون() المعامل %d اقصر من المعامل%s%d",
+			i + 1, plural, i);
+	}
+	for (i = 1; i < tuplesize; i++) {
+		it = ALIFTUPLE_GET_ITEM(lz->itTuple, i);
+		item = (*ALIF_TYPE(it)->iterNext)(it);
+		if (item) {
+			ALIF_DECREF(item);
+			const char* plural = i == 1 ? " " : "لات 1-";
+			return alifErr_format(_alifExcValueError_,
+				"مقرون() المعامل %d اطول من المعامل%s%d",
+				i + 1, plural, i);
+		}
+		if (alifErr_occurred()) {
+			if (!alifErr_exceptionMatches(_alifExcStopIteration_)) {
+				// next() on argument i raised an exception (not StopIteration)
+				return nullptr;
+			}
+			alifErr_clear();
+		}
+		// Argument i is exhausted. So far so good...
+	}
+	// All arguments are exhausted. Success!
+	return nullptr;
+}
+
+AlifTypeObject _alifZipType_ = { // 3105
+	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
+	.name = "مقرون",
+	.basicSize = sizeof(ZipObject),
+	/* methods */
+	.dealloc = (Destructor)zip_dealloc,
+	.getAttro = alifObject_genericGetAttr,
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
+	ALIF_TPFLAGS_BASETYPE,
+	//.traverse = (TraverseProc)zip_traverse,
+	.iter = alifObject_selfIter,
+	.iterNext = (IterNextFunc)zip_next,
+	//.methods = _zipMethods_,
+	.alloc = alifType_genericAlloc,
+	.new_ = zip_new,
+	.free = alifObject_gcDel,
+};
 
 static AlifMethodDef _builtinMethods_[] = { // 3141
 	{"__buildClass__", ALIF_CPPFUNCTION_CAST(builtin___buildClass__),
@@ -1072,6 +1258,7 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	SETBUILTIN("اصل", &_alifSuperType_);
 	SETBUILTIN("مترابطة", &_alifTupleType_);
 	SETBUILTIN("نوع", &_alifTypeType_);
+	SETBUILTIN("مقرون", &_alifZipType_);
 	debug = alifBool_fromLong(config->optimizationLevel == 0);
 	if (alifDict_setItemString(dict, "__debug__", debug) < 0) {
 		ALIF_DECREF(debug);
