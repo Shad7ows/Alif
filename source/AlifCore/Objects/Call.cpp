@@ -27,10 +27,10 @@ AlifObject* _alif_checkFunctionResult(AlifThread* _thread,
 		if (!_alifErr_occurred(_thread)) {
 			if (_callable)
 				_alifErr_format(_thread, _alifExcSystemError_,
-					"%R قام بالإرجاع بدون ضبط خلل", _callable);
+					"%R قام بالإرجاع بدون ضبط خطأ", _callable);
 			else
 				_alifErr_format(_thread, _alifExcSystemError_,
-					"%s قام بالإرجاع بدون ضبط خلل", _where);
+					"%s قام بالإرجاع بدون ضبط خطأ", _where);
 			return nullptr;
 		}
 	}

@@ -2507,7 +2507,7 @@ static void format_missing(AlifThread* _thread, const char* _kind,
 	_alifErr_format(_thread, _alifExcTypeError_,
 		"%U() مفقود %i مطلوب %s معامل%s: %U",
 		_qualname, len, _kind,
-		/*len == 1 ? "" : "s",*/ nameStr);
+		len == 1 ? "" : "ات", nameStr);
 	ALIF_DECREF(nameStr);
 }
 
@@ -2593,7 +2593,7 @@ static void tooMany_positional(AlifThread* _thread, AlifCodeObject* _co,
 	}
 	_alifErr_format(_thread, _alifExcTypeError_,
 		"%U() تحتاج %U معامل مكاني%s ولكن تم تمرير %zd%U %s",
-		_qualname, sig, /*plural ? "s" : "",*/ _given, kwOnlySig
+		_qualname, sig, plural ? "ات" : "", _given, kwOnlySig
 		/*,_given == 1 and !kwOnlyGiven ? "كان" : "كانوا"*/);
 	ALIF_DECREF(sig);
 	ALIF_DECREF(kwOnlySig);
@@ -2836,7 +2836,7 @@ static AlifIntT initialize_locals(AlifThread* _thread, AlifFunctionObject* _func
 							ALIFLIST_SET_ITEM(possibleKeywords, k - co->posOnlyArgCount, varNames[k]);
 						}
 
-						//suggestionKeyword = _alif_calculateSuggestions(possibleKeywords, keyword);
+						suggestionKeyword = _alif_calculateSuggestions(possibleKeywords, keyword);
 						ALIF_DECREF(possibleKeywords);
 					}
 				}

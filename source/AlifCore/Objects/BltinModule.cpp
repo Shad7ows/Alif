@@ -1020,13 +1020,13 @@ static AlifObject* zip_new(AlifTypeObject* type,
 		if (empty == nullptr) {
 			return nullptr;
 		}
-		static char *kwlist[] = {(char*)"strict", nullptr};
-		//AlifIntT parsed = alifArg_parseTupleAndKeywords(
-		//	empty, kwds, "|$p:مقرونة", kwlist, &strict);
-		//ALIF_DECREF(empty);
-		//if (!parsed) {
-		//	return nullptr;
-		//}
+		static char* kwlist[] = { (char*)"دقيق", nullptr };
+		AlifIntT parsed = alifArg_parseTupleAndKeywords(
+			empty, kwds, "|$p:مقرون", kwlist, &strict);
+		ALIF_DECREF(empty);
+		if (!parsed) {
+			return nullptr;
+		}
 	}
 
 	/* args must be a tuple */

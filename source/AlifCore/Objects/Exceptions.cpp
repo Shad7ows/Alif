@@ -773,11 +773,11 @@ static AlifIntT attributeError_init(AlifAttributeErrorObject* _self,
 	if (!emptyTuple) {
 		return -1;
 	}
-	//if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$OO:AttributeError", kwlist,
-	//	&name, &obj)) {
-	//	ALIF_DECREF(emptyTuple);
-	//	return -1;
-	//}
+	if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$OO:خطأ_خاصية", kwlist,
+		&name, &obj)) {
+		ALIF_DECREF(emptyTuple);
+		return -1;
+	}
 	ALIF_DECREF(emptyTuple);
 
 	ALIF_XSETREF(_self->name, ALIF_XNEWREF(name));
