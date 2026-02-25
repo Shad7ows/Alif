@@ -3295,6 +3295,26 @@ AlifObject* alifEval_getGlobals() { // 2557
 }
 
 
+AlifIntT _alifEval_sliceIndex(AlifObject* _v, AlifSizeT* _pi) { // 2720
+	AlifThread* thread = _alifThread_get();
+	if (!ALIF_ISNONE(_v)) {
+		AlifSizeT x{};
+		if (_alifIndex_check(_v)) {
+			x = alifNumber_asSizeT(_v, nullptr);
+			if (x == -1 and _alifErr_occurred(thread))
+				return 0;
+		}
+		else {
+			_alifErr_setString(thread, _alifExcTypeError_,
+				"مؤشرات القطع يجب أن تكون اعداد صحيحة أو "
+				"عدم أو تملك دالة __مؤشر__");
+			return 0;
+		}
+		*_pi = x;
+	}
+	return 1;
+}
+
 
 AlifObject* _alifEval_importName(AlifThread* _thread, AlifInterpreterFrame* _frame,
 	AlifObject* _name, AlifObject* _fromList, AlifObject* _level) { // 2683

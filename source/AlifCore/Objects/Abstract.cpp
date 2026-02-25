@@ -137,7 +137,7 @@ AlifObject* alifObject_getItem(AlifObject* _o, AlifObject* _key) { // 150
 
 	AlifSequenceMethods* ms = ALIF_TYPE(_o)->asSequence;
 	if (ms and ms->item) {
-		if (alifIndex_check(_key)) {
+		if (_alifIndex_check(_key)) {
 			AlifSizeT keyValue;
 			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_);
 			return alifSequence_getItem(_o, keyValue);
@@ -206,7 +206,7 @@ AlifIntT alifObject_setItem(AlifObject* _o,
 	}
 
 	if (ALIF_TYPE(_o)->asSequence) {
-		if (alifIndex_check(_key)) {
+		if (_alifIndex_check(_key)) {
 			AlifSizeT keyValue{};
 			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_);
 			if (keyValue == -1 and alifErr_occurred())
@@ -238,7 +238,7 @@ AlifIntT alifObject_delItem(AlifObject* _o, AlifObject* _key) { // 256
 	}
 
 	if (ALIF_TYPE(_o)->asSequence) {
-		if (alifIndex_check(_key)) {
+		if (_alifIndex_check(_key)) {
 			AlifSizeT keyValue{};
 			keyValue = alifNumber_asSizeT(_key, _alifExcIndexError_);
 			if (keyValue == -1 and alifErr_occurred())
@@ -671,7 +671,7 @@ AlifObject* alifNumber_add(AlifObject* _v, AlifObject* _w) { // 1124
 
 static AlifObject* sequence_repeat(SizeArgFunc _repeatFunc, AlifObject* _seq, AlifObject* _n) { // 1143
 	AlifSizeT count{};
-	if (alifIndex_check(_n)) {
+	if (_alifIndex_check(_n)) {
 		count = alifNumber_asSizeT(_n, _alifExcOverflowError_);
 		if (count == -1 and alifErr_occurred()) {
 			return nullptr;
@@ -860,7 +860,7 @@ AlifObject* _alifNumber_index(AlifObject* _item) { // 1397
 	if (ALIFLONG_CHECK(_item)) {
 		return ALIF_NEWREF(_item);
 	}
-	if (!alifIndex_check(_item)) {
+	if (!_alifIndex_check(_item)) {
 		alifErr_format(_alifExcTypeError_,
 			"'%.200s' الكائن ليس من نوع عدد صحيح ", ALIF_TYPE(_item)->name);
 		return nullptr;

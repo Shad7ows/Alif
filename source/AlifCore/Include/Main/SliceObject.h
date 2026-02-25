@@ -19,3 +19,8 @@ extern AlifTypeObject _alifSliceType_; // 32
 #define ALIFSLICE_CHECK(_op) ALIF_IS_TYPE((_op), &_alifSliceType_) // 35
 
 AlifObject* alifSlice_new(AlifObject* , AlifObject* , AlifObject* ); // 37
+
+
+
+AlifIntT alifSlice_unpack(AlifObject*, AlifSizeT*, AlifSizeT*, AlifSizeT*); // 59
+AlifSizeT alifSlice_adjustIndices(AlifSizeT, AlifSizeT*, AlifSizeT*, AlifSizeT);

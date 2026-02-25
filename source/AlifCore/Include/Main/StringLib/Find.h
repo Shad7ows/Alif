@@ -36,14 +36,14 @@ STRINGLIB(rfind)(const STRINGLIB_CHAR* str, AlifSizeT str_len,
 }
 
 ALIF_LOCAL_INLINE(AlifSizeT)
-STRINGLIB(find_slice)(const STRINGLIB_CHAR* str, AlifSizeT str_len,
+STRINGLIB(findSlice)(const STRINGLIB_CHAR* str, AlifSizeT str_len,
 	const STRINGLIB_CHAR* sub, AlifSizeT sub_len,
 	AlifSizeT start, AlifSizeT end) {
 	return STRINGLIB(find)(str + start, end - start, sub, sub_len, start);
 }
 
 ALIF_LOCAL_INLINE(AlifSizeT)
-STRINGLIB(rfind_slice)(const STRINGLIB_CHAR* str, AlifSizeT str_len,
+STRINGLIB(rfindSlice)(const STRINGLIB_CHAR* str, AlifSizeT str_len,
 	const STRINGLIB_CHAR* sub, AlifSizeT sub_len,
 	AlifSizeT start, AlifSizeT end) {
 	return STRINGLIB(rfind)(str + start, end - start, sub, sub_len, start);

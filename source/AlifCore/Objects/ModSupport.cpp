@@ -11,7 +11,7 @@ AlifIntT _alifConvertOptional_toSizeT(AlifObject* _obj, void* _result) { // 13
 	if (_obj == ALIF_NONE) {
 		return 1;
 	}
-	else if (alifIndex_check(_obj)) {
+	else if (_alifIndex_check(_obj)) {
 		limit = alifNumber_asSizeT(_obj, _alifExcOverflowError_);
 		if (limit == -1 and alifErr_occurred()) {
 			return 0;
