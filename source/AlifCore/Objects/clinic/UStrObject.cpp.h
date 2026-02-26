@@ -5,6 +5,53 @@
 
 
 
+// 147
+#define UNICODE_COUNT_METHODDEF    \
+    {"كم", ALIF_CPPFUNCTION_CAST(uStr_count), METHOD_FASTCALL},
+
+static AlifSizeT uStr_countImpl(AlifObject*, AlifObject*, AlifSizeT, AlifSizeT);
+
+static AlifObject* uStr_count(AlifObject* str, AlifObject*const* args, AlifSizeT nargs) { // 154
+	AlifObject* returnValue{};
+	AlifObject* substr{};
+	AlifSizeT start = 0;
+	AlifSizeT end = ALIF_SIZET_MAX;
+	AlifSizeT returnValue_;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("كم", nargs, 1, 3)) {
+		goto exit;
+	}
+	if (!ALIFUSTR_CHECK(args[0])) {
+		//_alifArg_badArgument("كم", "argument 1", "str", args[0]);
+		goto exit;
+	}
+	substr = args[0];
+	if (nargs < 2) {
+		goto skip_optional;
+	}
+	if (!_alifEval_sliceIndex(args[1], &start)) {
+		goto exit;
+	}
+	if (nargs < 3) {
+		goto skip_optional;
+	}
+	if (!_alifEval_sliceIndex(args[2], &end)) {
+		goto exit;
+	}
+skip_optional:
+	returnValue_ = uStr_countImpl(str, substr, start, end);
+	if ((returnValue_ == -1) and alifErr_occurred()) {
+		goto exit;
+	}
+	returnValue = alifLong_fromSizeT(returnValue_);
+
+exit:
+	return returnValue;
+}
+
+
+
+
 
 // 368
 #define UNICODE_FIND_METHODDEF    \

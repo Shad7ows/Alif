@@ -5924,6 +5924,68 @@ void alifUStr_appendAndDel(AlifObject** _pleft, AlifObject* _right) { // 11448
 }
 
 
+static AlifSizeT uStr_countImpl(AlifObject* str, AlifObject* substr,
+	AlifSizeT start, AlifSizeT end) { // 11470
+	AlifSizeT result{};
+	AlifIntT kind1{}, kind2;
+	const void* buf1{}, *buf2{};
+	AlifSizeT len1{}, len2{};
+
+	kind1 = ALIFUSTR_KIND(str);
+	kind2 = ALIFUSTR_KIND(substr);
+	if (kind1 < kind2)
+		return 0;
+
+	len1 = ALIFUSTR_GET_LENGTH(str);
+	len2 = ALIFUSTR_GET_LENGTH(substr);
+	ADJUST_INDICES(start, end, len1);
+	if (end - start < len2)
+		return 0;
+
+	buf1 = ALIFUSTR_DATA(str);
+	buf2 = ALIFUSTR_DATA(substr);
+	if (kind2 != kind1) {
+		buf2 = uStr_asKind(kind2, buf2, len2, kind1);
+		if (!buf2)
+			goto onError;
+	}
+
+	// We don't reuse `anyLib_count` here because of the explicit casts.
+	switch (kind1) {
+	case AlifUStrKind_::AlifUStr_1Byte_Kind:
+		result = ucs1Lib_count(
+			((const AlifUCS1*)buf1) + start, end - start,
+			(AlifUCS1*)buf2, len2, ALIF_SIZET_MAX
+		);
+		break;
+	case AlifUStrKind_::AlifUStr_2Byte_Kind:
+		result = ucs2Lib_count(
+			((const AlifUCS2*)buf1) + start, end - start,
+			(AlifUCS2*)buf2, len2, ALIF_SIZET_MAX
+		);
+		break;
+	case AlifUStrKind_::AlifUStr_4Byte_Kind:
+		result = ucs4Lib_count(
+			((const AlifUCS4*)buf1) + start, end - start,
+			(AlifUCS4*)buf2, len2, ALIF_SIZET_MAX
+		);
+		break;
+	default:
+		ALIF_UNREACHABLE();
+	}
+
+	if (kind2 != kind1)
+		alifMem_dataFree((void *)buf2);
+
+	return result;
+onError:
+	if (kind2 != kind1)
+		alifMem_dataFree((void *)buf2);
+	return -1;
+}
+
+
+
 static AlifSizeT uStr_findImpl(AlifObject* str, AlifObject* substr, AlifSizeT start,
 	AlifSizeT end) { // 11655
 	AlifSizeT result = any_findSlice(str, substr, start, end, 1);
@@ -6639,9 +6701,10 @@ void alifUStrWriter_dealloc(AlifUStrWriter* _writer) { // 13852
 
 
 static AlifMethodDef _uStrMethods_[] = { // 13987
+	UNICODE_COUNT_METHODDEF
+	UNICODE_FIND_METHODDEF
 	UNICODE_REPLACE_METHODDEF
 	UNICODE_SPLIT_METHODDEF
-	UNICODE_FIND_METHODDEF
 	UNICODE_PARTITION_METHODDEF
 	{nullptr, nullptr}
 };
