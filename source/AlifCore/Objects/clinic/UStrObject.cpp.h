@@ -130,10 +130,10 @@ static AlifObject* unicode_replace(AlifObject* self, AlifObject* const* args,
 #  define KWTUPLE nullptr
 #endif
 
-	static const char* const _keywords[] = { "", "", "count", nullptr };
+	static const char* const _keywords[] = { "", "", "التكرار", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "replace",
+		.fname = "استبدل",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
@@ -182,11 +182,11 @@ exit:
 
 // 1245
 #define UNICODE_SPLIT_METHODDEF    \
-    {"افصل", ALIF_CPPFUNCTION_CAST(unicode_split), METHOD_FASTCALL|METHOD_KEYWORDS},
+    {"افصل", ALIF_CPPFUNCTION_CAST(uStr_split), METHOD_FASTCALL|METHOD_KEYWORDS},
 
 static AlifObject* uStr_splitImpl(AlifObject*, AlifObject*, AlifSizeT);
 
-static AlifObject* unicode_split(AlifObject* _self, AlifObject* const* _args,
+static AlifObject* uStr_split(AlifObject* _self, AlifObject* const* _args,
 	AlifSizeT _nargs, AlifObject* _kwnames) { // 1251
 	AlifObject* returnValue = nullptr;
 #if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
@@ -207,10 +207,10 @@ static AlifObject* unicode_split(AlifObject* _self, AlifObject* const* _args,
 #  define KWTUPLE nullptr
 #endif
 
-	static const char* const _keywords[] = { "Sep", "MaxSplit", nullptr };
+	static const char* const _keywords[] = { "الفاصل", "التكرار", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "split",
+		.fname = "افصل",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
@@ -256,4 +256,79 @@ exit:
 
 // 1330
 #define UNICODE_PARTITION_METHODDEF    \
-    {"قسم", (AlifCPPFunction)uStr_partition, METHOD_O},
+    {"اقسم", (AlifCPPFunction)uStr_partition, METHOD_O},
+
+#define UNICODE_RPARTITION_METHODDEF    \
+    {"اقسم_ع", (AlifCPPFunction)uStr_rpartition, METHOD_O},
+
+
+// 1367
+#define UNICODE_RSPLIT_METHODDEF    \
+    {"افصل_ع", ALIF_CPPFUNCTION_CAST(uStr_rsplit), METHOD_FASTCALL|METHOD_KEYWORDS},
+
+static AlifObject* uStr_rsplitImpl(AlifObject*, AlifObject*, AlifSizeT);
+
+static AlifObject* uStr_rsplit(AlifObject* self, AlifObject *const* args,
+	AlifSizeT nargs, AlifObject* kwnames) { // 1373
+	AlifObject* returnValue = nullptr;
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
+
+#define NUM_KEYWORDS 2
+	static struct {
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
+	} _kwtuple = {
+			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
+			.item = { &ALIF_STR(Sep), &ALIF_STR(MaxSplit), },
+	};
+#undef NUM_KEYWORDS
+#define KWTUPLE (&_kwtuple.ob_base.ob_base)
+
+#else 
+#  define KWTUPLE nullptr
+#endif
+
+	static const char * const _keywords[] = {"الفاصل", "التكرار", nullptr};
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "افصل_ع",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject *argsbuf[2];
+	AlifSizeT noptargs = nargs + (kwnames ? ALIFTUPLE_GET_SIZE(kwnames) : 0) - 0;
+	AlifObject* sep = ALIF_NONE;
+	AlifSizeT maxsplit = -1;
+
+	args = ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 0, 2, 0, argsbuf);
+	if (!args) {
+		goto exit;
+	}
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	if (args[0]) {
+		sep = args[0];
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+	{
+		AlifSizeT ival = -1;
+		AlifObject* iobj = _alifNumber_index(args[1]);
+		if (iobj != nullptr) {
+			ival = alifLong_asSizeT(iobj);
+			ALIF_DECREF(iobj);
+		}
+		if (ival == -1 and alifErr_occurred()) {
+			goto exit;
+		}
+		maxsplit = ival;
+	}
+skip_optional_pos:
+	returnValue = uStr_rsplitImpl(self, sep, maxsplit);
+
+exit:
+	return returnValue;
+}

@@ -5186,6 +5186,93 @@ static AlifObject* split(AlifObject* _self,
 	return out;
 }
 
+static AlifObject* rsplit(AlifObject* self,
+	AlifObject *substring, AlifSizeT maxcount) { // 10350
+	AlifIntT kind1{}, kind2{};
+	const void *buf1{}, * buf2{};
+	AlifSizeT len1{}, len2{};
+	AlifObject* out{};
+
+	len1 = ALIFUSTR_GET_LENGTH(self);
+	kind1 = ALIFUSTR_KIND(self);
+
+	if (substring == nullptr) {
+		if (maxcount < 0) {
+			maxcount = (len1 - 1) / 2 + 1;
+		}
+		switch (kind1) {
+		case AlifUStrKind_::AlifUStr_1Byte_Kind:
+			if (ALIFUSTR_IS_ASCII(self))
+				return asciiLib_rsplitWhitespace(
+					self,  ALIFUSTR_1BYTE_DATA(self),
+					len1, maxcount
+				);
+			else
+				return ucs1Lib_rsplitWhitespace(
+					self,  ALIFUSTR_1BYTE_DATA(self),
+					len1, maxcount
+				);
+		case AlifUStrKind_::AlifUStr_2Byte_Kind:
+			return ucs2Lib_rsplitWhitespace(
+				self,  ALIFUSTR_2BYTE_DATA(self),
+				len1, maxcount
+			);
+		case AlifUStrKind_::AlifUStr_4Byte_Kind:
+			return ucs4Lib_rsplitWhitespace(
+				self,  ALIFUSTR_4BYTE_DATA(self),
+				len1, maxcount
+			);
+		default:
+			ALIF_UNREACHABLE();
+		}
+	}
+	kind2 = ALIFUSTR_KIND(substring);
+	len2 = ALIFUSTR_GET_LENGTH(substring);
+	if (maxcount < 0) {
+		// if len2 == 0, it will raise ValueError.
+		maxcount = len2 == 0 ? 0 : (len1 / len2) + 1;
+		// handle expected overflow case: (ALIF_SIZET_MAX / 1) + 1
+		maxcount = maxcount < 0 ? len1 : maxcount;
+	}
+	if (kind1 < kind2 or len1 < len2) {
+		out = alifList_new(1);
+		if (out == nullptr)
+			return nullptr;
+		ALIFLIST_SET_ITEM(out, 0, ALIF_NEWREF(self));
+		return out;
+	}
+	buf1 = ALIFUSTR_DATA(self);
+	buf2 = ALIFUSTR_DATA(substring);
+	if (kind2 != kind1) {
+		buf2 = uStr_asKind(kind2, buf2, len2, kind1);
+		if (!buf2)
+			return nullptr;
+	}
+
+	switch (kind1) {
+	case AlifUStrKind_::AlifUStr_1Byte_Kind:
+		if (ALIFUSTR_IS_ASCII(self) and ALIFUSTR_IS_ASCII(substring))
+			out = asciiLib_rsplit(
+				self, (const AlifUCS1*)buf1, len1, (const AlifUCS1*)buf2, len2, maxcount);
+		else
+			out = ucs1Lib_rsplit(
+				self,  (const AlifUCS1*)buf1, len1, (const AlifUCS1*)buf2, len2, maxcount);
+		break;
+	case AlifUStrKind_::AlifUStr_2Byte_Kind:
+		out = ucs2Lib_rsplit(
+			self,  (const AlifUCS2*)buf1, len1, (const AlifUCS2*)buf2, len2, maxcount);
+		break;
+	case AlifUStrKind_::AlifUStr_4Byte_Kind:
+		out = ucs4Lib_rsplit(
+			self,  (const AlifUCS4*)buf1, len1, (const AlifUCS4*)buf2, len2, maxcount);
+		break;
+	default:
+		out = nullptr;
+	}
+	if (kind2 != kind1)
+		alifMem_dataFree((void*)buf2);
+	return out;
+}
 
 static AlifSizeT anyLib_find(AlifIntT _kind, AlifObject* _str1,
 	const void* _buf1, AlifSizeT _len1, AlifObject* _str2,
@@ -6224,7 +6311,7 @@ static AlifObject* uStr_splitImpl(AlifObject* _self,
 		return split(_self, _sep, _maxSplit);
 
 	alifErr_format(_alifExcTypeError_,
-		"must be str or None, not %.100s",
+		"يجب أن يكون نص او عدم, وليس %.100s",
 		ALIF_TYPE(_sep)->name);
 	return nullptr;
 }
@@ -6278,10 +6365,75 @@ AlifObject* alifUStr_partition(AlifObject* _strObj, AlifObject* _sepObj) { // 12
 	return out;
 }
 
+AlifObject* alifUStr_rpartition(AlifObject* _strObj,
+	AlifObject* _sepObj) { // 12905
+	AlifObject* out{};
+	AlifIntT kind1{}, kind2{};
+	const void* buf1{}, * buf2{};
+	AlifSizeT len1{}, len2{};
+
+	if (ensure_uStr(_strObj) < 0 or ensure_uStr(_sepObj) < 0)
+		return nullptr;
+
+	kind1 = ALIFUSTR_KIND(_strObj);
+	kind2 = ALIFUSTR_KIND(_sepObj);
+	len1 = ALIFUSTR_GET_LENGTH(_strObj);
+	len2 = ALIFUSTR_GET_LENGTH(_sepObj);
+	if (kind1 < kind2 or len1 < len2) {
+		AlifObject *empty = uStr_getEmpty();  // Borrowed reference
+		return alifTuple_pack(3, empty, empty, _strObj);
+	}
+	buf1 = ALIFUSTR_DATA(_strObj);
+	buf2 = ALIFUSTR_DATA(_sepObj);
+	if (kind2 != kind1) {
+		buf2 = uStr_asKind(kind2, buf2, len2, kind1);
+		if (!buf2)
+			return nullptr;
+	}
+
+	switch (kind1) {
+	case AlifUStrKind_::AlifUStr_1Byte_Kind:
+		if (ALIFUSTR_IS_ASCII(_strObj) and ALIFUSTR_IS_ASCII(_sepObj))
+			out = asciiLib_rpartition(_strObj, (const AlifUCS1*)buf1, len1, _sepObj, (const AlifUCS1*)buf2, len2);
+		else
+			out = ucs1Lib_rpartition(_strObj, (const AlifUCS1*)buf1, len1, _sepObj, (const AlifUCS1*)buf2, len2);
+		break;
+	case AlifUStrKind_::AlifUStr_2Byte_Kind:
+		out = ucs2Lib_rpartition(_strObj, (const AlifUCS2*)buf1, len1, _sepObj, (const AlifUCS2*)buf2, len2);
+		break;
+	case AlifUStrKind_::AlifUStr_4Byte_Kind:
+		out = ucs4Lib_rpartition(_strObj, (const AlifUCS4*)buf1, len1, _sepObj, (const AlifUCS4*)buf2, len2);
+		break;
+	default:
+		ALIF_UNREACHABLE();
+	}
+
+	if (kind2 != kind1)
+		alifMem_dataFree((void *)buf2);
+
+	return out;
+}
+
 static AlifObject* uStr_partition(AlifObject* _self, AlifObject* _sep) { // 12972
 	return alifUStr_partition(_self, _sep);
 }
 
+static AlifObject* uStr_rpartition(AlifObject* _self, AlifObject* _sep) { // 12992
+	return alifUStr_rpartition(_self, _sep);
+}
+
+static AlifObject* uStr_rsplitImpl(AlifObject* self, AlifObject* sep,
+	AlifSizeT maxsplit) { // 13016
+	if (sep == ALIF_NONE)
+		return rsplit(self, nullptr, maxsplit);
+	if (ALIFUSTR_CHECK(sep))
+		return rsplit(self, sep, maxsplit);
+
+	alifErr_format(_alifExcTypeError_,
+		"يجب أن يكون نص او عدم, وليس %.100s",
+		ALIF_TYPE(sep)->name);
+	return nullptr;
+}
 
 
 static inline void alifUStrWriter_update(AlifUStrWriter* _writer) { // 13364
@@ -6705,7 +6857,9 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	UNICODE_FIND_METHODDEF
 	UNICODE_REPLACE_METHODDEF
 	UNICODE_SPLIT_METHODDEF
+	UNICODE_RSPLIT_METHODDEF
 	UNICODE_PARTITION_METHODDEF
+	UNICODE_RPARTITION_METHODDEF
 	{nullptr, nullptr}
 };
 

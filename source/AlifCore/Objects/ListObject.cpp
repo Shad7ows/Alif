@@ -2085,7 +2085,7 @@ fail:
 	}
 
 	if (_self->allocated != -1 and result != nullptr) {
-		//alifErr_setString(_alifExcValueError_, "list modified during sort");
+		alifErr_setString(_alifExcValueError_, "تم التعديل على المصفوفة اثناء الترتيب");
 		result = nullptr;
 	}
 
@@ -2128,7 +2128,20 @@ AlifIntT alifList_sort(AlifObject* _v) { // 3080
 }
 
 
+AlifIntT alifList_reverse(AlifObject* _v) { // 3109
+	AlifListObject* self = (AlifListObject*)_v;
 
+	if (_v == nullptr or !ALIFLIST_CHECK(_v)) {
+		//ALIFERR_BADINTERNALCALL();
+		return -1;
+	}
+	ALIF_BEGIN_CRITICAL_SECTION(self);
+	if (ALIF_SIZE(self) > 1) {
+		reverse_slice(self->item, self->item + ALIF_SIZE(self));
+	}
+	ALIF_END_CRITICAL_SECTION()
+	return 0;
+}
 
 
 AlifObject* alifList_asTuple(AlifObject* _v) { // 3129
