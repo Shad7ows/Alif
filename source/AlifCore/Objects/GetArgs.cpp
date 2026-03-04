@@ -491,7 +491,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 			iVal = alifLong_asSizeT(iObj);
 			ALIF_DECREF(iObj);
 		}
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		*p_ = iVal;
 		break;
@@ -499,7 +499,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'l': {/* long AlifIntT */
 		long* p_ = va_arg(*_pVa, long*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = iVal;
@@ -518,7 +518,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'L': {/* long long */
 		long long* p = va_arg(*_pVa, long long*);
 		long long ival = alifLong_asLongLong(_arg);
-		if (ival == (long long)-1 /*and alifErr_occurred()*/)
+		if (ival == (long long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p = ival;
@@ -537,7 +537,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'f': {/* float */
 		float* p = va_arg(*_pVa, float*);
 		double dval = alifFloat_asDouble(_arg);
-		if (dval == -1.0 /*and alifErr_occurred()*/)
+		if (dval == -1.0 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p = (float)dval;
@@ -547,7 +547,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'd': {/* double */
 		double* p = va_arg(*_pVa, double*);
 		double dval = alifFloat_asDouble(_arg);
-		if (dval == -1.0 /*and alifErr_occurred()*/)
+		if (dval == -1.0 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p = dval;

@@ -2200,7 +2200,14 @@ AlifIntT alifDict_update(AlifObject* _a, AlifObject* _b) { // 3881
 }
 
 
-static AlifDictValues* copy_values(AlifDictValues* values) { // 3857
+
+AlifIntT _alifDict_mergeEx(AlifObject* _a,
+	AlifObject* _b, AlifIntT _override) { // 3952
+	AlifInterpreter* interp = _alifInterpreter_get();
+	return dict_merge(interp, _a, _b, _override);
+}
+
+static AlifDictValues* copy_values(AlifDictValues* values) { // 3975
 	AlifDictValues* newvalues = new_values(values->capacity);
 	if (newvalues == nullptr) {
 		return nullptr;
@@ -2215,7 +2222,7 @@ static AlifDictValues* copy_values(AlifDictValues* values) { // 3857
 	return newvalues;
 }
 
-static AlifObject* copy_lockHeld(AlifObject* o) { // 3876
+static AlifObject* copy_lockHeld(AlifObject* o) { // 3993
 	AlifObject* copy{};
 	AlifDictObject* mp{};
 	AlifInterpreter* interp = _alifInterpreter_get();

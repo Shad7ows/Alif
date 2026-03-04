@@ -1665,6 +1665,32 @@ resume_frame:
 				}
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(DICT_MERGE) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				AlifStackRef callable{};
+				AlifStackRef dict{};
+				AlifStackRef update{};
+				update = stackPointer[-1];
+				dict = stackPointer[-2 - (oparg - 1)];
+				callable = stackPointer[-5 - (oparg - 1)];
+				AlifObject* callableObj = alifStackRef_asAlifObjectBorrow(callable);
+				AlifObject* dictObj = alifStackRef_asAlifObjectBorrow(dict);
+				AlifObject* updateObj = alifStackRef_asAlifObjectBorrow(update);
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifIntT err = _alifDict_mergeEx(dictObj, updateObj, 2);
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				if (err < 0) {
+					_alifFrame_setStackPointer(_frame, stackPointer);
+					//_alifEval_formatKwargsError(_thread, callableObj, updateObj);
+					stackPointer = _alifFrame_getStackPointer(_frame);
+					ALIFSTACKREF_CLOSE(update);
+					goto pop_1_error;
+				}
+				ALIFSTACKREF_CLOSE(update);
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(EXTENDED_ARG) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;

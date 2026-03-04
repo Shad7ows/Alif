@@ -33,7 +33,11 @@ AlifObject* alifSeqIter_new(AlifObject* _seq) { // 15
 
 
 
-
+static void iter_dealloc(SeqIterObject* _it) {
+	ALIFOBJECT_GC_UNTRACK(_it);
+	ALIF_XDECREF(_it->seq);
+	alifObject_gcDel(_it);
+}
 
 
 
@@ -78,10 +82,12 @@ static AlifObject* iter_iterNext(AlifObject* iterator) { // 48
 AlifTypeObject _alifSeqIterType_ = { // 144
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "مكرر",
-	.basicSize = sizeof(SeqIterObject),                  
-	.itemSize = 0,                                       
+	.basicSize = sizeof(SeqIterObject),
+
+	.dealloc = (Destructor)iter_dealloc,
 	.getAttro = alifObject_genericGetAttr,               
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC,
 
+	.iter = alifObject_selfIter,
 	.iterNext = iter_iterNext,
 };

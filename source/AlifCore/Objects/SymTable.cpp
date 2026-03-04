@@ -557,7 +557,7 @@ static AlifIntT inline_comprehension(SymTableEntry* _ste, SymTableEntry* _comp,
 		}
 		else {
 			long flags = alifLong_asLong(existing);
-			if (flags == -1 /*and alifErr_occurred()*/) {
+			if (flags == -1 and alifErr_occurred()) {
 				return 0;
 			}
 			if ((flags & DEF_BOUND) and _ste->type != BlockType_::Class_Block) {
@@ -589,7 +589,7 @@ static AlifIntT analyze_cells(AlifObject* _scopes, AlifObject* _free, AlifObject
 		return 0;
 	while (alifDict_next(_scopes, &pos_, &name, &v_)) {
 		long scope = alifLong_asLong(v_);
-		if (scope == -1 /*and alifErr_occurred()*/) {
+		if (scope == -1 and alifErr_occurred()) {
 			goto error;
 		}
 		if (scope != LOCAL)
@@ -642,7 +642,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 
 	while (alifDict_next(_symbols, &pos_, &name, &v_)) {
 		long flags = alifLong_asLong(v_);
-		if (flags == -1 /*and alifErr_occurred()*/) {
+		if (flags == -1 and alifErr_occurred()) {
 			return 0;
 		}
 		AlifIntT contains = alifSet_contains(_inlinedCells, name);
@@ -661,7 +661,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 		}
 		long scope = alifLong_asLong(vScope);
 		ALIF_DECREF(vScope);
-		if (scope == -1 /*and alifErr_occurred()*/) {
+		if (scope == -1 and alifErr_occurred()) {
 			return 0;
 		}
 		flags |= (scope << SCOPE_OFFSET);
@@ -692,7 +692,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 
 			if (_classFlag) {
 				long flags = alifLong_asLong(v_);
-				if (flags == -1 /*and alifErr_occurred()*/) {
+				if (flags == -1 and alifErr_occurred()) {
 					goto error;
 				}
 				flags |= DEF_FREE_CLASS;
@@ -709,9 +709,9 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 			ALIF_DECREF(name);
 			continue;
 		}
-		//else if (alifErr_occurred()) {
-			//goto error;
-		//}
+		else if (alifErr_occurred()) {
+			goto error;
+		}
 		if (_bound) {
 			AlifIntT contains = alifSet_contains(_bound, name);
 			if (contains < 0) {
@@ -728,9 +728,9 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 		ALIF_DECREF(name);
 	}
 
-	//if (alifErr_occurred()) {
-		//goto error;
-	//}
+	if (alifErr_occurred()) {
+		goto error;
+	}
 
 	ALIF_DECREF(itr_);
 	ALIF_DECREF(vFree);

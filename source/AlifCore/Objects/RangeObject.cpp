@@ -143,21 +143,21 @@ static long compute_rangeLengthLong(AlifObject* start,
 	if (overflow) {
 		return -2;
 	}
-	if (long_start == -1 /*and alifErr_occurred()*/) {
+	if (long_start == -1 and alifErr_occurred()) {
 		return -1;
 	}
 	long long_stop = alifLong_asLongAndOverflow(stop, &overflow);
 	if (overflow) {
 		return -2;
 	}
-	if (long_stop == -1 /*and alifErr_occurred()*/) {
+	if (long_stop == -1 and alifErr_occurred()) {
 		return -1;
 	}
 	long long_step = alifLong_asLongAndOverflow(step, &overflow);
 	if (overflow) {
 		return -2;
 	}
-	if (long_step == -1 /*and alifErr_occurred()*/) {
+	if (long_step == -1 and alifErr_occurred()) {
 		return -1;
 	}
 
@@ -382,18 +382,18 @@ static AlifObject* range_iter(AlifObject* _seq) { // 1126
 	unsigned long ulen{};
 
 	lstart = alifLong_asLong(r->start);
-	if (lstart == -1 /*and alifErr_occurred()*/) {
-		//alifErr_clear();
+	if (lstart == -1 and alifErr_occurred()) {
+		alifErr_clear();
 		goto long_range;
 	}
 	lstop = alifLong_asLong(r->stop);
-	if (lstop == -1 /*and alifErr_occurred()*/) {
-		//alifErr_clear();
+	if (lstop == -1 and alifErr_occurred()) {
+		alifErr_clear();
 		goto long_range;
 	}
 	lstep = alifLong_asLong(r->step);
-	if (lstep == -1 /*and alifErr_occurred()*/) {
-		//alifErr_clear();
+	if (lstep == -1 and alifErr_occurred()) {
+		alifErr_clear();
 		goto long_range;
 	}
 	ulen = get_lenOfRange(lstart, lstop, lstep);

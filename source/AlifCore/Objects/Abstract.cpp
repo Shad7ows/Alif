@@ -1046,11 +1046,9 @@ AlifObject* alifSequence_getItem(AlifObject* _s, AlifSizeT _i) { // 1829
 	}
 
 	if (ALIF_TYPE(_s)->asMapping and ALIF_TYPE(_s)->asMapping->subscript) {
-		//return type_error("%.200s is not a sequence", _s);
-		return nullptr; // temp
+		return type_error("%.200s ليست سلسلة", _s);
 	}
-	//return type_error("'%.200s' object does not support indexing", _s);
-	return nullptr; // temp
+	return type_error("الكائن '%.200s' لا يدعم المؤشر", _s);
 }
 
 AlifIntT alifSequence_setItem(AlifObject* _s, AlifSizeT _i, AlifObject* _o) { // 1880

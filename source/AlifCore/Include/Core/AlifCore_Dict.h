@@ -20,6 +20,9 @@ extern AlifIntT _alifDict_hasOnlyStringKeys(AlifObject*); // 43
 #define ALIFDICT_HASSPLITTABLE(_d) ((_d)->values != nullptr) // 50
 
 
+AlifIntT _alifDict_mergeEx(AlifObject*, AlifObject*, AlifIntT); // 58
+
+
 class AlifDictViewObject { // 64
 public:
 	ALIFOBJECT_HEAD;
