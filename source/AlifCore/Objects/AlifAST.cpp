@@ -2710,13 +2710,29 @@ ExprTy alifAST_star(ExprTy _val, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_name(AlifObject* _id, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 	ExprTy p{};
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
 	if (!p) return nullptr;
 	p->type = NameK;
 	p->V.name.name = _id;
 	p->V.name.ctx = _ctx;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
+ExprTy alifAST_set(ASDLExprSeq* _elts, AlifIntT _lineNo, AlifIntT _colOffset,
+	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7805
+	ExprTy p{};
+	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return NULL;
+	p->type = ExprK_::SetK;
+	p->V.set.elts = _elts;
 	p->lineNo = _lineNo;
 	p->colOffset = _colOffset;
 	p->endLineNo = _endLineNo;

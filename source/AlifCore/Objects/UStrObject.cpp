@@ -507,9 +507,9 @@ static char* xmlCharRef_replace(AlifBytesWriter* _writer, char* _str,
 
 static AlifIntT ensure_uStr(AlifObject* _obj) { // 960
 	if (!ALIFUSTR_CHECK(_obj)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"must be str, not %.100s",
-		//	ALIF_TYPE(_obj)->name);
+		alifErr_format(_alifExcTypeError_,
+			"يجب أن يكون نص, وليس %.100s",
+			ALIF_TYPE(_obj)->name);
 		return -1;
 	}
 	return 0;
@@ -1651,8 +1651,8 @@ static const char* uStr_fromFormatArg(AlifUStrWriter* _writer,
 		_f++;
 		while (ALIF_ISDIGIT((unsigned)*_f)) {
 			if (width > (ALIF_SIZET_MAX - ((AlifIntT)*_f - '0')) / 10) {
-				//alifErr_setString(_alifExcValueError_,
-				//	"width too big");
+				alifErr_setString(_alifExcValueError_,
+					"العرض كبير جداً");
 				return nullptr;
 			}
 			width = (width * 10) + (*_f - '0');
@@ -6676,23 +6676,23 @@ AlifIntT _alifUStrWriter_writeSubString(AlifUStrWriter* writer, AlifObject* str,
 }
 
 
-AlifIntT alifUStrWriter_writeSubString(AlifUStrWriter* writer, AlifObject* str,
-	AlifSizeT start, AlifSizeT end) { // 13694
-	if (!ALIFUSTR_CHECK(str)) {
-		alifErr_format(_alifExcTypeError_, "من المتوقع نوع نص, وليس %T", str);
+AlifIntT alifUStrWriter_writeSubString(AlifUStrWriter* _writer, AlifObject* _str,
+	AlifSizeT _start, AlifSizeT _end) { // 13694
+	if (!ALIFUSTR_CHECK(_str)) {
+		alifErr_format(_alifExcTypeError_, "من المتوقع نوع نص, وليس %T", _str);
 		return -1;
 	}
-	if (start < 0 or start > end) {
-		//alifErr_format(_alifExcValueError_, "invalid start argument");
+	if (_start < 0 or _start > _end) {
+		alifErr_format(_alifExcValueError_, "المعامل الاول غير صالح");
 		return -1;
 	}
-	if (end > ALIFUSTR_GET_LENGTH(str)) {
-		//alifErr_format(_alifExcValueError_, "invalid end argument");
+	if (_end > ALIFUSTR_GET_LENGTH(_str)) {
+		alifErr_format(_alifExcValueError_, "المعامل الأخير غير صالح");
 		return -1;
 	}
 
-	return _alifUStrWriter_writeSubString((AlifUStrWriter*)writer, str,
-		start, end);
+	return _alifUStrWriter_writeSubString((AlifUStrWriter*)_writer, _str,
+		_start, _end);
 }
 
 
@@ -6854,11 +6854,20 @@ void alifUStrWriter_dealloc(AlifUStrWriter* _writer) { // 13852
 
 static AlifMethodDef _uStrMethods_[] = { // 13987
 	UNICODE_COUNT_METHODDEF
+	//UNICODE_CENTER_METHODDEF
 	UNICODE_FIND_METHODDEF
+	//UNICODE_RFIND_METHODDEF
+	//UNICODE_STRIP_METHODDEF
+	//UNICODE_LSTRIP_METHODDEF
+	//UNICODE_RSTRIP_METHODDEF
+	//UNICODE_ENDSWITH_METHODDEF
+	//UNICODE_STARTSWITH_METHODDEF
+	//UNICODE_ISDECIMAL_METHODDEF
 	UNICODE_REPLACE_METHODDEF
 	UNICODE_SPLIT_METHODDEF
 	UNICODE_RSPLIT_METHODDEF
 	UNICODE_PARTITION_METHODDEF
+	//{"نسق", ALIF_CPPFUNCTION_CAST(do_stringFormat), METHOD_VARARGS | METHOD_KEYWORDS},
 	UNICODE_RPARTITION_METHODDEF
 	{nullptr, nullptr}
 };

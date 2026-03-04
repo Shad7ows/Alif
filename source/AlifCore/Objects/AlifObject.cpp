@@ -374,7 +374,7 @@ static AlifObject* do_richCompare(AlifThread* _thread,
 		break;
 	default:
 		_alifErr_format(_thread, _alifExcTypeError_,
-			"'%s' ليس مدعوم بين حالات من '%.100 s' و '%.100 s'",
+			"'%s' ليس مدعوم بين حالات من '%.100s' و '%.100s'",
 			_opStrings_[_op],
 			ALIF_TYPE(_v)->name, ALIF_TYPE(_w)->name);
 		return nullptr;

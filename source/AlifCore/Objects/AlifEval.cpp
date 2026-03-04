@@ -20,6 +20,7 @@
 #include "AlifCore_Errors.h"
 
 #include "AlifCore_State.h"
+#include "AlifCore_SetObject.h"
 #include "AlifCore_SliceObject.h"
 
 #include "AlifCore_Dict.h"
@@ -980,6 +981,45 @@ resume_frame:
 				map = ALIFSTACKREF_FROMALIFOBJECTSTEAL(mapObj);
 				stackPointer[-oparg * 2] = map;
 				stackPointer += 1 - oparg * 2;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(BUILD_SET) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				AlifStackRef* values{};
+				AlifStackRef set{};
+				values = &stackPointer[-oparg];
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifObject* setObj = alifSet_new(nullptr);
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				if (setObj == nullptr) {
+					for (AlifIntT _i = oparg; --_i >= 0;) {
+						ALIFSTACKREF_CLOSE(values[_i]);
+					}
+					{
+						stackPointer += -oparg;
+						goto error;
+					}
+				}
+				AlifIntT err = 0;
+				for (AlifIntT i = 0; i < oparg; i++) {
+					if (err == 0) {
+						_alifFrame_setStackPointer(_frame, stackPointer);
+						err = alifSet_add(setObj, alifStackRef_asAlifObjectBorrow(values[i]));
+						stackPointer = _alifFrame_getStackPointer(_frame);
+					}
+					ALIFSTACKREF_CLOSE(values[i]);
+				}
+				if (err != 0) {
+					ALIF_DECREF(setObj);
+					{
+						stackPointer += -oparg;
+						goto error;
+					}
+				}
+				set = ALIFSTACKREF_FROMALIFOBJECTSTEAL(setObj);
+				stackPointer[-oparg] = set;
+				stackPointer += 1 - oparg;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
 			TARGET(BUILD_STRING) {
@@ -2109,6 +2149,22 @@ resume_frame:
 				AlifObject** ptr = (AlifObject**)(((char*)func) + offset);
 				*ptr = attr;
 				stackPointer[-2] = funcOut;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(SET_UPDATE) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				AlifStackRef set{};
+				AlifStackRef iterable{};
+				iterable = stackPointer[-1];
+				set = stackPointer[-2 - (oparg-1)];
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifIntT err = _alifSet_update(alifStackRef_asAlifObjectBorrow(set),
+					alifStackRef_asAlifObjectBorrow(iterable));
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				ALIFSTACKREF_CLOSE(iterable);
+				if (err < 0) goto pop_1_error;
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //

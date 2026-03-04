@@ -3132,6 +3132,63 @@ done:
 }
 
 
+// مميزة: "{" تعبيرات_فرعية_نجمة "}"
+static ExprTy set_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ExprTy res{};
+	AlifIntT mark = _p->mark;
+	if (_p->mark == _p->fill
+		and
+		alifParserEngine_fillToken(_p) < 0) {
+		_p->errorIndicator = 1;
+		_p->level--;
+		return nullptr;
+	}
+
+	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
+	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
+
+	{ // "{" تعبيرات_فرعية_نجمة "}"
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		AlifPToken* literal1{};
+		ASDLExprSeq* a{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, LBRACE))  // "{"
+			and
+			(a = starSubExpressions_rule(_p))  // تعبيرات_فرعية_نجمة
+			and
+			(literal1 = alifParserEngine_expectToken(_p, RBRACE))  // "}"
+			)
+		{
+			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token->endLineNo;
+			AlifIntT endColOffset = token->endColOffset;
+
+			res = alifAST_set(a , EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+
 // فهرس: "{" ازواج_نجمة_مضاعفة? "}"
 static ExprTy dict_rule(AlifParser* _p) {
 
@@ -4170,7 +4227,7 @@ done:
 // ^
 // |
 // |
-// ألف18: فهرس > فهرس_ضمني
+// ألف18: فهرس > مميزة > فهرس_ضمني
 static ExprTy alif18(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -4184,6 +4241,19 @@ static ExprTy alif18(AlifParser* _p) {
 		ExprTy dictVar{};
 		if ((dictVar = dict_rule(_p))) {
 			res = dictVar;
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // مميزة
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		ExprTy setVar{};
+		if (
+			(setVar = set_rule(_p))  // set
+			)
+		{
+			res = setVar;
 			goto done;
 		}
 		_p->mark = mark;

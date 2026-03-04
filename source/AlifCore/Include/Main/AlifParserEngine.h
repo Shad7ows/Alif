@@ -204,10 +204,10 @@ ALIF_LOCAL_INLINE(void*) _raiseSyntaxError_invalidTarget(AlifParser* _p,
 	if (invalid_target != nullptr) {
 		const char* msg;
 		if (_type == TargetsType_::Star_Targets or _type == TargetsType_::For_Targets) {
-			msg = "cannot assign to %s";
+			msg = "لا يمكن الإسناد لـ %s";
 		}
 		else {
-			msg = "cannot delete %s";
+			msg = "لا يمكن حذف %s";
 		}
 		return RAISE_SYNTAX_ERROR_KNOWN_LOCATION(
 			invalid_target, msg,

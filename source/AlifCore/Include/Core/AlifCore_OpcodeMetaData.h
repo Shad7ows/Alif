@@ -162,8 +162,8 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		return 0;
 	case DELETE_SUBSCR:
 		return 2;
-		//case DICT_MERGE:
-		//	return 5 + (_oparg - 1);
+	case DICT_MERGE:
+		return 5 + (_oparg - 1);
 	case DICT_UPDATE:
 		return 2 + (_oparg - 1);
 	case END_ASYNC_FOR:
@@ -402,8 +402,8 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		return 2 + (_oparg - 1);
 	case SET_FUNCTION_ATTRIBUTE:
 		return 2;
-		//case SET_UPDATE:
-		//	return 2 + (_oparg - 1);
+	case SET_UPDATE:
+		return 2 + (_oparg - 1);
 	case STORE_ATTR:
 		return 2;
 		//case STORE_ATTR_INSTANCE_VALUE:
@@ -630,8 +630,8 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		return 0;
 	case DELETE_SUBSCR:
 		return 0;
-		//case DICT_MERGE:
-		//	return 4 + (_oparg - 1);
+	case DICT_MERGE:
+		return 4 + (_oparg - 1);
 	case DICT_UPDATE:
 		return 1 + (_oparg - 1);
 	case END_ASYNC_FOR:
@@ -870,8 +870,8 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		return 1 + (_oparg - 1);
 	case SET_FUNCTION_ATTRIBUTE:
 		return 1;
-		//case SET_UPDATE:
-		//	return 1 + (_oparg - 1);
+	case SET_UPDATE:
+		return 1 + (_oparg - 1);
 	case STORE_ATTR:
 		return 0;
 		//case STORE_ATTR_INSTANCE_VALUE:
@@ -1401,7 +1401,7 @@ const uint8_t _alifOpcodeDeopt_[256] = {
 	DELETE_FAST, // DELETE_FAST // 61
 	DELETE_GLOBAL, // DELETE_GLOBAL // 62
 	DELETE_NAME, // DELETE_NAME // 63
-	0,//DICT_MERGE, // DICT_MERGE // 64
+	DICT_MERGE, // DICT_MERGE // 64
 	DICT_UPDATE, // DICT_UPDATE // 65
 	EXTENDED_ARG, // EXTENDED_ARG // 66
 	FOR_ITER, // FOR_ITER // 67
@@ -1441,7 +1441,7 @@ const uint8_t _alifOpcodeDeopt_[256] = {
 	SEND, // SEND // 101
 	SET_ADD, // SET_ADD // 102
 	SET_FUNCTION_ATTRIBUTE, // SET_FUNCTION_ATTRIBUTE // 103
-	0,//SET_UPDATE, // SET_UPDATE // 104
+	SET_UPDATE, // SET_UPDATE // 104
 	STORE_ATTR, // STORE_ATTR // 105
 	STORE_DEREF, // STORE_DEREF // 106
 	STORE_FAST, // STORE_FAST // 107
