@@ -1096,7 +1096,7 @@ static AlifTypeObject* staticTypes[] = {
 	//&_alifPropertyType_,
 	&_alifRangeIterType_,
 	&_alifRangeType_,
-	//&_alifReversedType_,
+	&_alifReversedType_,
 	//&_alifSTEntryType_,
 	&_alifSeqIterType_,
 	//&_alifSetIterType_,

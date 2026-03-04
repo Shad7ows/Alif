@@ -1250,7 +1250,7 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	//SETBUILTIN("map", &_alifMapType_);
 	SETBUILTIN("كائن", &_alifBaseObjectType_);
 	SETBUILTIN("مدى", &_alifRangeType_);
-	//SETBUILTIN("reversed", &_alifReversedType_);
+	SETBUILTIN("معكوس", &_alifReversedType_);
 	SETBUILTIN("مميزة", &_alifSetType_);
 	SETBUILTIN("قطع", &_alifSliceType_);
 	//SETBUILTIN("staticmethod", &_alifStaticMethodType_);

@@ -375,5 +375,8 @@
     <ClCompile Include="..\source\AlifCore\Objects\Suggestions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\EnumObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

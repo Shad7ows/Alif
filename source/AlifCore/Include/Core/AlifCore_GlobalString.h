@@ -83,6 +83,7 @@ public:
 			STRUCT_FOR_USTR(__mul__, "__اضرب__") //* alif
 			STRUCT_FOR_USTR(__radd__, "__اجمع_ع__") //* alif
 			STRUCT_FOR_USTR(__repr__, "__عرض__") //* alif
+			STRUCT_FOR_USTR(__reversed__, "__معكوس__") //* alif
 			STRUCT_FOR_USTR(__rmul__, "__اضرب_ع__") //* alif
 			STRUCT_FOR_USTR(__rsub__, "__اطرح_ع__") //* alif
 			STRUCT_FOR_USTR(__sub__, "__اطرح__") //* alif
