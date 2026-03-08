@@ -3042,13 +3042,14 @@ static AlifNumberMethods _typeAsNumber_ = { // 6305
 	//.or_ = _alif_unionTypeOr, // Add __or__ function
 };
 
-AlifTypeObject _alifTypeType_ = { // 6195
+AlifTypeObject _alifTypeType_ = { // 6309
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "نوع",
 	.basicSize = sizeof(AlifHeapTypeObject),
 	.itemSize = sizeof(AlifMemberDef),
 	.dealloc = type_dealloc,
 	.vectorCallOffset = offsetof(AlifTypeObject, vectorCall),
+	//.repr = type_repr,
 	.asNumber = &_typeAsNumber_,
 	.call = type_call,
 	.getAttro = alifType_getAttro,
@@ -3198,17 +3199,17 @@ static AlifMethodDef _objectMethods_[] = { // 7433
 
 
 
-AlifTypeObject _alifBaseObjectType_ = { // 7453
+AlifTypeObject _alifBaseObjectType_ = { // 7557
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "كائن",
 	.basicSize = sizeof(AlifObject),
-	.itemSize = 0,
 	.dealloc = object_dealloc,
 	.hash = alifObject_genericHash,
 	//.str = object_str,
 	.getAttro = alifObject_genericGetAttr,
 	.setAttro = alifObject_genericSetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE,
+	//.richCompare = object_richCompare,
 	.methods = _objectMethods_,
 	.init = object_init,
 	.alloc = alifType_genericAlloc,
@@ -4069,7 +4070,7 @@ static AlifIntT add_subClass(AlifTypeObject* _base, AlifTypeObject* _type) { // 
 }
 
 
-static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8748
+static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8763
 	if (!ALIFTUPLE_CHECKEXACT(_ob)) {
 		alifErr_setString(_alifExcSystemError_,
 			"alifArg_unpackTuple() سلسلة المعاملات ليست مترابطة");
@@ -4081,6 +4082,24 @@ static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8748
 		_alifExcTypeError_,
 		"متوقع %d معامل%s, ولكن %zd", _n, _n == 1 ? "" : "ات", ALIFTUPLE_GET_SIZE(_ob));
 	return 0;
+}
+
+static AlifSizeT check_powArgs(AlifObject* ob) { // 8779
+	AlifIntT min = 1;
+	AlifIntT max = 2;
+	if (!ALIFTUPLE_CHECKEXACT(ob)) {
+		alifErr_setString(_alifExcSystemError_,
+			"alifArg_unpackTuple() مصفوفة المعاملات ليست من نوع مصفوفة");
+		return -1;
+	}
+	AlifSizeT size = ALIFTUPLE_GET_SIZE(ob);
+	if (size >= min and size <= max) {
+		return size;
+	}
+	alifErr_format(
+		_alifExcTypeError_,
+		"من المتوقع المعاملات %d او %d, ولكن الممرر %zd", min, max, ALIFTUPLE_GET_SIZE(ob));
+	return -1;
 }
 
 static AlifObject* wrap_binaryFuncL(AlifObject* _self,
@@ -4104,6 +4123,47 @@ static AlifObject* wrap_binaryFuncR(AlifObject* _self,
 	other = ALIFTUPLE_GET_ITEM(_args, 0);
 	return (*func)(other, _self);
 }
+
+static AlifObject* wrap_ternaryFunc(AlifObject* _self,
+	AlifObject* _args, void* _wrapped) { // 8872
+	TernaryFunc func = (TernaryFunc)_wrapped;
+	AlifObject* other{};
+	AlifObject* third = ALIF_NONE;
+
+	/* ملاحظة: هذه الدالة تستخدم فقط مع __اس__() */
+
+	AlifSizeT size = check_powArgs(_args);
+	if (size == -1) {
+		return nullptr;
+	}
+	other = ALIFTUPLE_GET_ITEM(_args, 0);
+	if (size == 2) {
+		third = ALIFTUPLE_GET_ITEM(_args, 1);
+	}
+
+	return (*func)(_self, other, third);
+}
+
+static AlifObject* wrap_ternaryFuncR(AlifObject* _self,
+	AlifObject* _args, void* _wrapped) { // 8893
+	TernaryFunc func = (TernaryFunc)_wrapped;
+	AlifObject* other{};
+	AlifObject* third = ALIF_NONE;
+
+	/* ملاحظة: هذه الدالة تستخدم فقط مع __اس_ع__() */
+
+	AlifSizeT size = check_powArgs(_args);
+	if (size == -1) {
+		return nullptr;
+	}
+	other = ALIFTUPLE_GET_ITEM(_args, 0);
+	if (size == 2) {
+		third = ALIFTUPLE_GET_ITEM(_args, 1);
+	}
+
+	return (*func)(other, _self, third);
+}
+
 
 static AlifObject* wrap_unaryFunc(AlifObject* _self,
 	AlifObject* _args, void* _wrapped) { // 8899
@@ -4313,11 +4373,24 @@ SLOT1BIN(slot_nbSubtract, subtract, __sub__, __rsub__)
 SLOT1BIN(slot_nbMultiply, multiply, __mul__, __rmul__)
 
 
+static AlifObject* slot_nbPower(AlifObject*, AlifObject*, AlifObject*); // 9691
+
+SLOT1BINFULL(slot_nbPowerBinary, slot_nbPower, power, __pow__, __rpow__)
+
+static AlifObject* slot_nbPower(AlifObject* _self,
+	AlifObject* _other, AlifObject* _modulus) { // 9695
+	if (_modulus == ALIF_NONE)
+		return slot_nbPowerBinary(_self, _other);
+	if (ALIF_TYPE(_self)->asNumber != nullptr and
+		ALIF_TYPE(_self)->asNumber->power == slot_nbPower) {
+		AlifObject* stack[3] = {_self, _other, _modulus};
+		return vectorcall_method(&ALIF_STR(__pow__), stack, 3);
+	}
+	ALIF_RETURN_NOTIMPLEMENTED;
+}
 
 
-
-
-
+SLOT0(slot_nbNegative, __neg__) // 9711
 SLOT0(slot_nbAbsolute, __abs__) // 9713
 
 
@@ -4424,7 +4497,7 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 #undef BINSLOT
 #undef RBINSLOT
 
-// 10497
+// 10512
 #define TPSLOT(_name, _slot, _function, _wrapper, _doc) \
     {.name = #_name, .offset = offsetof(AlifTypeObject, _slot), .function = (void *)(_function), .wrapper = _wrapper, \
      .doc = ALIFDOC_STR(_doc), .nameStrObj = &ALIF_STR(_name)}
@@ -4434,6 +4507,8 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 #define ETSLOT(_name, _slot, _function, _wrapper, _doc) \
     {.name = #_name, .offset = offsetof(AlifHeapTypeObject, _slot), .function = (void *)(_function), .wrapper = _wrapper, \
      .doc = ALIFDOC_STR(_doc), .nameStrObj = &ALIF_STR(_name) }
+#define NBSLOT(_name, _slot, _function, _wrapper, _doc) \
+    ETSLOT(_name, number._slot, _function, _wrapper, _doc)
 #define UNSLOT(_name, _slot, _function, _wrapper, _doc) \
     ETSLOT(_name, number._slot, _function, _wrapper, \
            #_name "(هذا, /)\n--\n\n" _doc)
@@ -4444,7 +4519,7 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
     ETSLOT(_name, number._slot, _function, wrap_binaryFuncR, \
            nullptr)
 
-static AlifTypeSlotDef _slotDefs_[] = { // 10416
+static AlifTypeSlotDef _slotDefs_[] = { // 10550
 	TPSLOT(__repr__, repr, slot_tpRepr, wrap_unaryFunc, nullptr),
 	FLSLOT(__call__, call, slot_tpCall, (WrapperFunc)(void(*)(void))wrap_call,
 		nullptr, ALIFWRAPPERFLAG_KEYWORDS),
@@ -4458,8 +4533,11 @@ static AlifTypeSlotDef _slotDefs_[] = { // 10416
 	RBINSLOT(__rsub__, subtract, slot_nbSubtract, "-"),
 	BINSLOT(__mul__, multiply, slot_nbMultiply, "*"),
 	RBINSLOT(__rmul__, multiply, slot_nbMultiply, "*"),
-
-
+	NBSLOT(__pow__, power, slot_nbPower, wrap_ternaryFunc,
+		"__اس__"),
+	NBSLOT(__rpow__, power, slot_nbPower, wrap_ternaryFuncR,
+		"__اس_ع__"),
+	UNSLOT(__neg__, negative, slot_nbNegative, wrap_unaryFunc, "-هذا"),
 	UNSLOT(__abs__, absolute, slot_nbAbsolute, wrap_unaryFunc,
 		"مطلق(هذا)"),
 	{nullptr}
