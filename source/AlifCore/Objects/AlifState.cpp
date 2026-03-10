@@ -9,6 +9,7 @@
 #include "AlifCore_FreeList.h"
 #include "AlifCore_InitConfig.h"
 #include "AlifCore_ParkingLot.h"
+#include "AlifCore_Errors.h"
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_Memory.h"
 #include "AlifCore_State.h"
@@ -446,7 +447,7 @@ AlifObject* _alifThreadState_getDict(AlifThread* _thread) { // 1941
 	if (_thread->dict == nullptr) {
 		_thread->dict = alifDict_new();
 		if (_thread->dict == nullptr) {
-			//_alifErr_clear(_thread);
+			_alifErr_clear(_thread);
 		}
 	}
 	return _thread->dict;

@@ -187,7 +187,7 @@ AlifIntT alifMapping_getOptionalItem(AlifObject* _obj,
 	//if (!alifErr_exceptionMatches(_alifExcKeyError_)) {
 	//	return -1;
 	//}
-	//alifErr_clear();
+	alifErr_clear();
 	return 0;
 }
 

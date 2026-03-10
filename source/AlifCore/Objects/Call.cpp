@@ -94,19 +94,19 @@ static void object_isNotCallable(AlifThread* _thread, AlifObject* _callable) { /
 	if (ALIF_IS_TYPE(_callable, &_alifModuleType_)) {
 		AlifObject* name = alifModule_getNameObject(_callable);
 		if (name == nullptr) {
-			//alifErr_clear(_thread);
+			_alifErr_clear(_thread);
 			goto basic_type_error;
 		}
 		AlifObject* attr{};
 		AlifIntT res = alifObject_getOptionalAttr(_callable, name, &attr);
 		if (res < 0) {
-			//alifErr_clear(_thread);
+			_alifErr_clear(_thread);
 		}
 		else if (res > 0 and alifCallable_check(attr)) {
-			//alifErr_format(_thread, alifExcTypeError,
-			//	"'%.200s' object is not callable. "
-			//	"Did you mean: '%U.%U(...)'?",
-			//	ALIF_TYPE(_callable)->name_, name, name);
+			_alifErr_format(_thread, _alifExcTypeError_,
+				"الكائن '%.200s' غير قابل للإستدعاء. "
+				"هل تقصد: '%U.%U(...)'?",
+				ALIF_TYPE(_callable)->name, name, name);
 			ALIF_DECREF(attr);
 			ALIF_DECREF(name);
 			return;
@@ -115,8 +115,7 @@ static void object_isNotCallable(AlifThread* _thread, AlifObject* _callable) { /
 		ALIF_DECREF(name);
 	}
 basic_type_error:
-	//alifErr_format(_thread, alifExcTypeError, "'%.200s' object is not callable", ALIF_TYPE(_callable)->name_);
-	return; //* alif
+	_alifErr_format(_thread, _alifExcTypeError_, "الكائن '%.200s' غير قابل للإستدعاء", ALIF_TYPE(_callable)->name);
 }
 
 AlifObject* alifObject_makeTpCall(AlifThread* _thread, AlifObject* _callable,

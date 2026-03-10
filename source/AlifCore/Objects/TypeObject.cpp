@@ -2893,7 +2893,7 @@ AlifObject* alifType_lookupRef(AlifTypeObject* _type, AlifObject* _name) { // 54
 	if (error) {
 
 		if (error == -1) {
-			//alifErr_clear();
+			alifErr_clear();
 		}
 		return nullptr;
 	}
@@ -4634,7 +4634,7 @@ static AlifTypeSlotDef* update_oneSlot(AlifTypeObject* type, AlifTypeSlotDef* p)
 		descr = findName_inMro(type, p->nameStrObj, &error);
 		if (descr == nullptr) {
 			if (error == -1) {
-				//alifErr_clear();
+				alifErr_clear();
 			}
 			if (ptr == (void**)&type->iterNext) {
 				specific = (void*)_alifObject_nextNotImplemented;

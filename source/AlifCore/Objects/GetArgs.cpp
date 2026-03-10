@@ -336,7 +336,7 @@ static const char* convert_tuple(AlifObject* _arg, const char** _pFormat,
 		AlifObject* item{};
 		item = alifSequence_getItem(_arg, i);
 		if (item == nullptr) {
-			//alifErr_clear();
+			alifErr_clear();
 			_levels[0] = i + 1;
 			_levels[1] = 0;
 			strncpy(_msgbuf, "is not retrievable", _bufsize);
@@ -940,7 +940,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 		format++;
 
 		if (alifObject_getBuffer(_arg, (AlifBuffer*)p, ALIFBUF_WRITABLE) < 0) {
-			//alifErr_clear();
+			alifErr_clear();
 			//return convert_err("read-write bytes-like object",
 			//	_arg, _mSGBuf, _bufSize);
 		}

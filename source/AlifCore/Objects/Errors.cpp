@@ -71,7 +71,7 @@ void _alifErr_restore(AlifThread* _thread, AlifObject* _type, AlifObject* _value
 			_traceback = nullptr;
 		}
 		else {
-			//alifErr_setString(_alifExcTypeError_, "traceback must be a Traceback or None");
+			alifErr_setString(_alifExcTypeError_, "نظام التتبع العكسي يجب أن يكون من نوع تتبع_عكسي او عدم");
 			ALIF_XDECREF(_value);
 			ALIF_DECREF(_type);
 			ALIF_XDECREF(_traceback);

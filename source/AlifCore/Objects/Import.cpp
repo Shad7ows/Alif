@@ -850,7 +850,7 @@ static AlifObject* import_runExtension(AlifThread* tstate, AlifModInitFunction p
 				alifUStr_internImmortal(interp, &filename);
 
 				if (alifModule_addObjectRef(mod, "__file__", filename) < 0) {
-					//alifErr_clear(); /* Not important enough to report */
+					alifErr_clear(); /* Not important enough to report */
 				}
 			}
 
@@ -1208,7 +1208,7 @@ static FrozenStatus find_frozen(AlifObject* nameobj, FrozenInfo* info) { // 2922
 	}
 	const char* name = alifUStr_asUTF8(nameobj);
 	if (name == nullptr) {
-		//alifErr_clear();
+		alifErr_clear();
 		return FrozenStatus::Frozen_Bad_Name;
 	}
 
@@ -1246,7 +1246,7 @@ static AlifObject* unmarshal_frozenCode(AlifInterpreter* _interp,
 	AlifObject* co = alifMarshal_readObjectFromString(_info->data, _info->size);
 	if (co == nullptr) {
 		/* Does not contain executable code. */
-		//alifErr_clear();
+		alifErr_clear();
 		//set_frozenError(FROZEN_INVALID, _info->nameobj);
 		return nullptr;
 	}
@@ -2875,7 +2875,7 @@ static AlifIntT ensure_fromList(AlifObject* mod, AlifObject* fromlist,
 				continue; /* Avoid endless recursion */
 			all = alifObject_getAttrString(mod, "__all__");
 			if (all == nullptr) {
-				//alifErr_clear();
+				alifErr_clear();
 			}
 			else {
 				int ret = ensure_fromList(mod, all, buf, buflen, 1);
@@ -2964,7 +2964,7 @@ static AlifObject* import_submodule(AlifObject* mod,
 		else {
 			path = alifObject_getAttrString(mod, "__path__");
 			if (path == nullptr) {
-				//alifErr_clear();
+				alifErr_clear();
 				ALIF_INCREF(ALIF_NONE);
 				return ALIF_NONE;
 			}

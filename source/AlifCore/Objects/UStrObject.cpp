@@ -7091,7 +7091,7 @@ static AlifObject* intern_common(AlifInterpreter* _interp,
 	{
 		AlifIntT res = alifDict_setDefaultRef(interned, _s, _s, &t);
 		if (res < 0) {
-			//alifErr_clear();
+			alifErr_clear();
 			return _s;
 		}
 		else if (res == 1) {

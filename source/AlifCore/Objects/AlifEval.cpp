@@ -1703,7 +1703,7 @@ resume_frame:
 				_frame->instrPtr = nextInstr;
 				nextInstr += 2;
 				PREDICTED(FOR_ITER);
-				AlifCodeUnit* thisInstr = nextInstr - 2;
+				AlifCodeUnit* const thisInstr = nextInstr - 2;
 				AlifStackRef iter{};
 				AlifStackRef next{};
 				// _SPECIALIZE_FOR_ITER

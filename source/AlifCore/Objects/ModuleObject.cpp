@@ -670,11 +670,11 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 		}
 	}
 	else {
-		//if (!alifErr_exceptionMatches(_alfiExcAttributeError_)) {
+		if (!alifErr_exceptionMatches(_alifExcAttributeError_)) {
 			// pass up non-AttributeError exception
-			//return nullptr;
-		//}
-		//alifErr_clear();
+			return nullptr;
+		}
+		alifErr_clear();
 	}
 	if (alifDict_getItemRef(_m->dict, &ALIF_ID(__getAttr__), &getAttr) < 0) {
 		return nullptr;
