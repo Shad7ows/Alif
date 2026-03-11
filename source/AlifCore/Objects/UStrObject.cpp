@@ -4891,12 +4891,12 @@ AlifSizeT alifUStr_findChar(AlifObject* _str, AlifUCS4 _ch,
 
 
 AlifObject* alifUStr_join(AlifObject* _separator, AlifObject* _seq) { // 9910
-	AlifObject* res_{};
+	AlifObject* res{};
 	AlifObject* fSeq{};
 	AlifSizeT seqLen{};
 	AlifObject** items{};
 
-	fSeq = alifSequence_fast(_seq, "can only join an iterable");
+	fSeq = alifSequence_fast(_seq, "يمكن ربط أنواع يمكن التكرار عليها فقط مثل الحاويات 'مصفوفة، مترابطة ...'");
 	if (fSeq == nullptr) {
 		return nullptr;
 	}
@@ -4905,12 +4905,12 @@ AlifObject* alifUStr_join(AlifObject* _separator, AlifObject* _seq) { // 9910
 
 	items = ALIFSEQUENCE_FAST_ITEMS(fSeq);
 	seqLen = ALIFSEQUENCE_FAST_GET_SIZE(fSeq);
-	res_ = alifUStr_joinArray(_separator, items, seqLen);
+	res = alifUStr_joinArray(_separator, items, seqLen);
 
 	ALIF_END_CRITICAL_SECTION_SEQUENCE_FAST();
 
 	ALIF_DECREF(fSeq);
-	return res_;
+	return res;
 }
 
 AlifObject* alifUStr_joinArray(AlifObject* _separator,
@@ -6151,6 +6151,9 @@ AlifIntT alifUStr_isIdentifier(AlifObject* _self) { // 12124
 	return len and i == len;
 }
 
+static AlifObject* uStr_join(AlifObject* _self, AlifObject* _iterable) { // 12224
+	return alifUStr_join(_self, _iterable);
+}
 
 static AlifSizeT uStr_length(AlifObject* _self) { // 12231
 	return ALIFUSTR_GET_LENGTH(_self);
@@ -6856,6 +6859,10 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	UNICODE_COUNT_METHODDEF
 	//UNICODE_CENTER_METHODDEF
 	UNICODE_FIND_METHODDEF
+	UNICODE_REPLACE_METHODDEF
+	UNICODE_SPLIT_METHODDEF
+	UNICODE_RSPLIT_METHODDEF
+	UNICODE_JOIN_METHODDEF
 	//UNICODE_RFIND_METHODDEF
 	//UNICODE_STRIP_METHODDEF
 	//UNICODE_LSTRIP_METHODDEF
@@ -6863,9 +6870,6 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	//UNICODE_ENDSWITH_METHODDEF
 	//UNICODE_STARTSWITH_METHODDEF
 	//UNICODE_ISDECIMAL_METHODDEF
-	UNICODE_REPLACE_METHODDEF
-	UNICODE_SPLIT_METHODDEF
-	UNICODE_RSPLIT_METHODDEF
 	UNICODE_PARTITION_METHODDEF
 	//{"نسق", ALIF_CPPFUNCTION_CAST(do_stringFormat), METHOD_VARARGS | METHOD_KEYWORDS},
 	UNICODE_RPARTITION_METHODDEF

@@ -100,6 +100,9 @@ exit:
 
 
 
+// 734
+#define UNICODE_JOIN_METHODDEF {"اربط", (AlifCPPFunction)uStr_join, METHOD_O},
+
 
 
 

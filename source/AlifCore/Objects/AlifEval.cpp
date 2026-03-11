@@ -2587,7 +2587,7 @@ static void format_missing(AlifThread* _thread, const char* _kind,
 	if (nameStr == nullptr)
 		return;
 	_alifErr_format(_thread, _alifExcTypeError_,
-		"%U() مفقود %i مطلوب %s معامل%s: %U",
+		"%U() مفقود %i معامل %s %s: %U",
 		_qualname, len, _kind,
 		len == 1 ? "" : "ات", nameStr);
 	ALIF_DECREF(nameStr);
@@ -2600,7 +2600,7 @@ static void missing_arguments(AlifThread* _thread, AlifCodeObject* _co,
 	AlifSizeT i{}, j = 0;
 	AlifSizeT start{}, end{};
 	AlifIntT positional = (_defcount != -1);
-	const char* kind = positional ? "positional" : "keyword-only";
+	const char* kind = positional ? "مكاني" : "كلمة-مفتاحية";
 	AlifObject* missingNames{};
 
 	/* Compute the names of the arguments that are missing. */
@@ -2661,9 +2661,9 @@ static void tooMany_positional(AlifThread* _thread, AlifCodeObject* _co,
 	if (kwOnlyGiven) {
 		const char* format = " معامل مكاني%s (و %zd معامل مفتاحي فقط%s)";
 		kwOnlySig = alifUStr_fromFormat(format,
-			//_given != 1 ? "s" : "",
+			_given != 1 ? "ات" : "",
 			kwOnlyGiven
-			/*,kwOnlyGiven != 1 ? "s" : ""*/);
+			,kwOnlyGiven != 1 ? "ات" : "");
 		if (kwOnlySig == nullptr) {
 			ALIF_DECREF(sig);
 			return;
