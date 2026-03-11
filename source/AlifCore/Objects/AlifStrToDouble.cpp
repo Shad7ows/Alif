@@ -171,12 +171,12 @@ error:
 
 /* The lengths of these are known to the code below, so don't change them */
 static const char* const _lcFloatStrings_[] = { // 928
-	"inf",
+	"لانهائي",
 	"nan",
 	"e",
 };
 static const char* const _ucFloatStrings_[] = { // 933
-	"INF",
+	"لانهائي",
 	"NAN",
 	"E",
 };
@@ -215,7 +215,7 @@ static char* format_floatShort(double _d, char _formatCode,
 		if (digits[0] == 'n' or digits[0] == 'N')
 			sign = 0;
 
-		bufsize = 5;
+		bufsize = 16; //* alif
 		buf = (char*)alifMem_dataAlloc(bufsize);
 		if (buf == nullptr) {
 			//alifErr_noMemory();
@@ -230,8 +230,8 @@ static char* format_floatShort(double _d, char _formatCode,
 			*p++ = '+';
 		}
 		if (digits[0] == 'i' or digits[0] == 'I') {
-			strncpy(p, _floatStrings[OFS_INF], 3);
-			p += 3;
+			strncpy(p, _floatStrings[OFS_INF], 14); //* alif
+			p += 14; //* alif
 
 			if (_type)
 				*_type = ALIF_DTST_INFINITE;
