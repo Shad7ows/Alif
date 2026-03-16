@@ -78,6 +78,7 @@ public:
 			STRUCT_FOR_USTR(__abs__, "__مطلق__") //* alif
 			STRUCT_FOR_USTR(__add__, "__اجمع__") //* alif
 			STRUCT_FOR_USTR(__call__, "__استدعاء__") //* alif
+			STRUCT_FOR_USTR(__format__, "__تنسيق__") //* alif
 			STRUCT_FOR_USTR(__init__, "__تهيئة__") //* alif
 			STRUCT_FOR_USTR(__import__, "__استورد__") //* alif
 			STRUCT_FOR_USTR(__mul__, "__اضرب__") //* alif
@@ -116,7 +117,7 @@ public:
 			STRUCT_FOR_ID(__eq__)
 			STRUCT_FOR_ID(__file__)
 			STRUCT_FOR_ID(__firstLineno__)
-			STRUCT_FOR_ID(__format__)
+			//STRUCT_FOR_ID(__format__)
 			STRUCT_FOR_ID(__getAttr__)
 			STRUCT_FOR_ID(__hash__)
 			STRUCT_FOR_ID(__initSubclass__)

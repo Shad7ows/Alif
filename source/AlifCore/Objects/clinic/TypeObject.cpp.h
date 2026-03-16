@@ -21,7 +21,7 @@ static AlifObject* type___subclasses__(AlifTypeObject* self,
 
  // 207
 #define OBJECT___FORMAT___METHODDEF    \
-    {"__format__", (AlifCPPFunction)object___format__, METHOD_O}
+    {"__تنسيق__", (AlifCPPFunction)object___format__, METHOD_O}
 
 static AlifObject* object___format__Impl(AlifObject*, AlifObject*); // 210
 

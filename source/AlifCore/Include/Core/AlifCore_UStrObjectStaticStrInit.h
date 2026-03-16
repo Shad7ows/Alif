@@ -43,8 +43,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__firstLineno__);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(__format__);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(__format__);
+	//_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__getAttr__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__hash__);
@@ -191,6 +191,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(Sep);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__call__);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__format__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__init__);
 	_alifUStr_internStatic(interp, &string);

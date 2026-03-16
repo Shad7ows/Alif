@@ -718,6 +718,7 @@
     INIT_USTR(__abs__, "__مطلق__"), /* //* alif */	\
     INIT_USTR(__add__, "__اجمع__"), /* //* alif */	\
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
+    INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
     INIT_USTR(__import__, "__استورد__"), /* //* alif */	\
     INIT_USTR(__mul__, "__اضرب__"), /* //* alif */	\
@@ -755,7 +756,7 @@
 	INIT_ID(__eq__), \
 	INIT_ID(__file__), \
 	INIT_ID(__firstLineno__), \
-	INIT_ID(__format__), \
+	/*INIT_ID(__format__),*/ \
 	INIT_ID(__getAttr__), \
 	INIT_ID(__hash__), \
 	INIT_ID(__initSubclass__), \

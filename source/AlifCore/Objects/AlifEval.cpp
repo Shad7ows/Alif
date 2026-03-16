@@ -599,6 +599,25 @@ resume_frame:
 				stackPointer[-1] = res;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(FORMAT_WITH_SPEC) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				AlifStackRef value{};
+				AlifStackRef fmtSpec{};
+				AlifStackRef res{};
+				fmtSpec = stackPointer[-1];
+				value = stackPointer[-2];
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifObject* resObj = alifObject_format(alifStackRef_asAlifObjectBorrow(value), alifStackRef_asAlifObjectBorrow(fmtSpec));
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				ALIFSTACKREF_CLOSE(value);
+				ALIFSTACKREF_CLOSE(fmtSpec);
+				if (resObj == nullptr) goto pop_2_error;
+				res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
+				stackPointer[-2] = res;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(GET_ITER) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;

@@ -47,6 +47,7 @@ wchar_t* alifUStr_asWideCharString(AlifObject*, AlifSizeT*); // 291
 #endif // 296
 
 
+AlifObject* alifUStr_fromOrdinal(AlifIntT); // 307
 
 
 const char* alifUStr_getDefaultEncoding(void); // 330

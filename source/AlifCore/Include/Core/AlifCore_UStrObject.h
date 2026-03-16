@@ -14,9 +14,9 @@ extern AlifIntT _alifUStr_isXIDContinue(AlifUCS4); // 19
 
 AlifObject* _alifUStr_copy(AlifObject*); // 40
 
+extern void _alifUStr_fastFill(AlifObject*, AlifSizeT, AlifSizeT, AlifUCS4); // 45
 
-
-extern void alifUStr_fastCopyCharacters(AlifObject*, AlifSizeT,
+extern void _alifUStr_fastCopyCharacters(AlifObject*, AlifSizeT,
 	AlifObject*, AlifSizeT, AlifSizeT); // 55
 
 
@@ -43,6 +43,11 @@ extern AlifObject* _alifUStr_asASCIIString(AlifObject*, const char*); // 170
 AlifObject* _alifUStr_transformDecimalAndSpaceToASCII(AlifObject*); // 201
 
 AlifObject* alifUStr_joinArray(AlifObject*, AlifObject* const*, AlifSizeT); // 206
+
+
+extern AlifSizeT _alifUStr_insertThousandsGrouping(AlifUStrWriter*, AlifSizeT, AlifObject*,
+	AlifSizeT, AlifSizeT, AlifSizeT, const char*, AlifObject*, AlifUCS4*); // 240
+
 
 
 AlifIntT alifUStr_equalToASCIIString(AlifObject*, const char*); // 224

@@ -438,8 +438,8 @@ AlifObject* alifObject_format(AlifObject* _obj, AlifObject* _formatSpec) { // 83
 		_formatSpec = empty;
 	}
 
-	/* Find the (unbound!) __format__ method */
-	meth = alifObject_lookupSpecial(_obj, &ALIF_ID(__format__));
+	/* Find the (unbound!) __تنسيق__ method */
+	meth = alifObject_lookupSpecial(_obj, &ALIF_STR(__format__));
 	if (meth == nullptr) {
 		AlifThread* thread = _alifThread_get();
 		if (!_alifErr_occurred(thread)) {

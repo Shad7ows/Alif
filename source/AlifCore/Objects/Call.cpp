@@ -242,7 +242,7 @@ AlifObject* _alifObject_call(AlifThread* _thread, AlifObject* _callable,
 			return nullptr;
 		}
 
-		if (_alif_enterRecursiveCallThread(_thread, " while calling a Alif object")) {
+		if (_alif_enterRecursiveCallThread(_thread, " عند إستدعاء كائن ألف")) {
 			return nullptr;
 		}
 

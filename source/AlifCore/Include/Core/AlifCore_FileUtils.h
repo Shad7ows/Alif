@@ -121,6 +121,7 @@ extern AlifIntT _alif_wStat(const wchar_t*, struct stat*); // 231
 
 //wchar_t* alifUniversal_newLineFGetsWithSize(wchar_t*, int, FILE*, AlifSizeT*);
 
+extern AlifIntT _alif_getLocaleConvNumeric(lconv*, AlifObject**, AlifObject**); // 244
 
 extern wchar_t* _alif_getLocaleEncoding(void); // 252
 extern AlifObject* _alif_getLocaleEncodingObject(void); // 253

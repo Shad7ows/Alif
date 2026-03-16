@@ -1649,7 +1649,79 @@ AlifIntT _alifOpen_osfHandleNoRaise(void* handle, AlifIntT flags) { // 2856
 
 #endif // 2875 
 
+AlifIntT _alif_getLocaleConvNumeric(lconv *lc,
+	AlifObject** decimal_point, AlifObject** thousands_sep) { // 2877
 
+#ifndef _WINDOWS
+	AlifIntT change_locale = 0;
+	if ((strlen(lc->decimal_point) > 1 or ((unsigned char)lc->decimal_point[0]) > 127)) {
+		change_locale = 1;
+	}
+	if ((strlen(lc->thousands_sep) > 1 or ((unsigned char)lc->thousands_sep[0]) > 127)) {
+		change_locale = 1;
+	}
+
+	/* Keep a copy of the LC_CTYPE locale */
+	char *oldloc = nullptr, *loc = nullptr;
+	if (change_locale) {
+		oldloc = setlocale(LC_CTYPE, nullptr);
+		if (!oldloc) {
+			//alifErr_setString(_alifExcRuntimeWarning_,
+			//	"failed to get LC_CTYPE locale");
+			return -1;
+		}
+
+		oldloc = alifMem_strDup(oldloc);
+		if (!oldloc) {
+			//alifErr_noMemory();
+			return -1;
+		}
+
+		loc = setlocale(LC_NUMERIC, nullptr);
+		if (loc != nullptr && strcmp(loc, oldloc) == 0) {
+			loc = nullptr;
+		}
+
+		if (loc != nullptr) {
+			/* Only set the locale temporarily the LC_CTYPE locale
+			if LC_NUMERIC locale is different than LC_CTYPE locale and
+			decimal_point and/or thousands_sep are non-ASCII or longer than
+			1 byte */
+			setlocale(LC_CTYPE, loc);
+		}
+	}
+
+#define GET_LOCALE_STRING(ATTR) alifUStr_decodeLocale(lc->ATTR, nullptr)
+#else /* _WINDOWS */
+	/* Use _W_* fields of Windows strcut lconv */
+#define GET_LOCALE_STRING(ATTR) alifUStr_fromWideChar(lc->_W_ ## ATTR, -1)
+#endif /* _WINDOWS */
+
+	AlifIntT res = -1;
+
+	*decimal_point = GET_LOCALE_STRING(decimal_point);
+	if (*decimal_point == nullptr) {
+		goto done;
+	}
+
+	*thousands_sep = GET_LOCALE_STRING(thousands_sep);
+	if (*thousands_sep == nullptr) {
+		goto done;
+	}
+
+	res = 0;
+
+done:
+#ifndef _WINDOWS
+	if (loc != nullptr) {
+		setlocale(LC_CTYPE, oldloc);
+	}
+	alifMem_dataFree(oldloc);
+#endif
+	return res;
+
+#undef GET_LOCALE_STRING
+}
 
 
 

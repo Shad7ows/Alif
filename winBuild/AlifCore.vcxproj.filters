@@ -1065,6 +1065,9 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\EnumObject.h">
       <Filter>Include\Main</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\LocaleUtil.h">
+      <Filter>Include\Main\StringLib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">

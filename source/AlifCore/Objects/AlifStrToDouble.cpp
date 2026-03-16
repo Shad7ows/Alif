@@ -173,12 +173,12 @@ error:
 static const char* const _lcFloatStrings_[] = { // 928
 	"لانهائي",
 	"nan",
-	"e",
+	"هـ",
 };
 static const char* const _ucFloatStrings_[] = { // 933
 	"لانهائي",
 	"NAN",
-	"E",
+	"هـ",
 };
 
 
@@ -289,7 +289,7 @@ static char* format_floatShort(double _d, char _formatCode,
 		vdigits_end = vdigits_end > decpt ? vdigits_end : decpt;
 
 
-	bufsize = 3 + (vdigits_end - vdigits_start) + (use_exp ? 5 : 0);
+	bufsize = 3 + (vdigits_end - vdigits_start) + (use_exp ? 8 : 0); //* alif
 
 	buf = (char*)alifMem_dataAlloc(bufsize);
 	if (buf == nullptr) {
@@ -343,7 +343,8 @@ static char* format_floatShort(double _d, char _formatCode,
 		p--;
 
 	if (use_exp) {
-		*p++ = _floatStrings[OFS_E][0];
+		strncpy(p, _floatStrings[OFS_E], 4); //* alif
+		p += 4; //* alif
 		exp_len = sprintf(p, "%+.02d", exp);
 		p += exp_len;
 	}

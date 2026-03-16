@@ -677,7 +677,7 @@ static AlifObject* resize_copy(AlifObject* _uStr, AlifSizeT _length) { // 1182
 	if (copy == nullptr) return nullptr;
 
 	copyLength = ALIF_MIN(_length, ALIFUSTR_GET_LENGTH(_uStr));
-	alifUStr_fastCopyCharacters(copy, 0, _uStr, 0, copyLength);
+	_alifUStr_fastCopyCharacters(copy, 0, _uStr, 0, copyLength);
 	return copy;
 }
 
@@ -878,7 +878,7 @@ static AlifIntT copy_characters(AlifObject* _to, AlifSizeT _toStart, AlifObject*
 	return 0;
 }
 
-void alifUStr_fastCopyCharacters(AlifObject* _to, AlifSizeT _toStart,
+void _alifUStr_fastCopyCharacters(AlifObject* _to, AlifSizeT _toStart,
 	AlifObject* _from, AlifSizeT _fromStart, AlifSizeT _howMany) { // 1529
 	(void)copy_characters(_to, _toStart, _from, _fromStart, _howMany, 0);
 }
@@ -1413,7 +1413,7 @@ static void uStr_adjustMaxChar(AlifObject** _pUStr) { // 2393
 
 	copy = alifUStr_new(len, maxChar);
 	if (copy != nullptr)
-		alifUStr_fastCopyCharacters(copy, 0, unicode, 0, len);
+		_alifUStr_fastCopyCharacters(copy, 0, unicode, 0, len);
 	ALIF_DECREF(unicode);
 	*_pUStr = copy;
 }
@@ -1514,7 +1514,7 @@ static AlifIntT uStr_fromFormatWriteStr(AlifUStrWriter* writer, AlifObject* str,
 		writer->pos += fill;
 	}
 
-	alifUStr_fastCopyCharacters(writer->buffer, writer->pos,
+	_alifUStr_fastCopyCharacters(writer->buffer, writer->pos,
 		str, 0, length);
 	writer->pos += length;
 
@@ -2196,8 +2196,8 @@ wchar_t* alifUStr_asWideCharString(AlifObject* _uStr, AlifSizeT* _size) { // 333
 	}
 	else if (wcslen(buffer) != (AlifUSizeT)buflen) {
 		alifMem_dataFree(buffer);
-		//alifErr_setString(_alifExcValueError_,
-		//	"embedded null character");
+		alifErr_setString(_alifExcValueError_,
+			"يحتوي حرف فارغ");
 		return nullptr;
 	}
 	return buffer;
@@ -2205,8 +2205,8 @@ wchar_t* alifUStr_asWideCharString(AlifObject* _uStr, AlifSizeT* _size) { // 333
 
 AlifObject* alifUStr_fromOrdinal(AlifIntT _ordinal) { // 3434
 	if (_ordinal < 0 or _ordinal > MAX_UNICODE) {
-		//alifErr_setString(_alifExcValueError_,
-			//"chr() arg not in range(0x110000)");
+		alifErr_setString(_alifExcValueError_,
+			"معامل chr() ليس في مدى(0x110000)");
 		return nullptr;
 	}
 
@@ -4864,9 +4864,95 @@ static AlifSizeT any_findSlice(AlifObject* s1, AlifObject* s2,
 
 
 
+#include "StringLib/LocaleUtil.h" // 9456
 
+AlifSizeT _alifUStr_insertThousandsGrouping(
+	AlifUStrWriter* _writer, AlifSizeT _nBuffer,
+	AlifObject* _digits, AlifSizeT _dPos,
+	AlifSizeT _nDigits, AlifSizeT _minWidth,
+	const char* _grouping, AlifObject* _thousandsSep,
+	AlifUCS4* _maxchar) { // 9481
 
+	_minWidth = ALIF_MAX(0, _minWidth);
 
+	AlifSizeT count = 0;
+	AlifSizeT nZeros{};
+	AlifIntT loopBroken = 0;
+	AlifIntT useSeparator = 0; /* First time through, don't append the
+	separator. They only go between
+	groups. */
+	AlifSizeT bufferPos{};
+	AlifSizeT digitsPos{};
+	AlifSizeT len{};
+	AlifSizeT nChars{};
+	AlifSizeT remaining = _nDigits; /* Number of chars remaining to
+	be looked at */
+	/* A generator that returns all of the grouping widths, until it
+	returns 0. */
+	GroupGenerator groupgen{};
+	groupGenerator_init(&groupgen, _grouping);
+	const AlifSizeT thousandsSepLen = ALIFUSTR_GET_LENGTH(_thousandsSep);
+
+	digitsPos = _dPos + _nDigits;
+	if (_writer) {
+		bufferPos = _writer->pos + _nBuffer;
+	}
+	else {
+		bufferPos = _nBuffer;
+	}
+
+	if (!_writer) {
+		*_maxchar = 127;
+	}
+
+	while ((len = groupGenerator_next(&groupgen)) > 0) {
+		len = ALIF_MIN(len, ALIF_MAX(ALIF_MAX(remaining, _minWidth), 1));
+		nZeros = ALIF_MAX(0, len - remaining);
+		nChars = ALIF_MAX(0, ALIF_MIN(remaining, len));
+
+		/* Use nZero zero's and nChars chars */
+
+		/* Count only, don't do anything. */
+		count += (useSeparator ? thousandsSepLen : 0) + nZeros + nChars;
+
+		/* Copy into the writer. */
+		insertThousandsGrouping_fill(_writer, &bufferPos,
+			_digits, &digitsPos,
+			nChars, nZeros,
+			useSeparator ? _thousandsSep : nullptr,
+			thousandsSepLen, _maxchar);
+
+		/* Use a separator next time. */
+		useSeparator = 1;
+
+		remaining -= nChars;
+		_minWidth -= len;
+
+		if (remaining <= 0 and _minWidth <= 0) {
+			loopBroken = 1;
+			break;
+		}
+		_minWidth -= thousandsSepLen;
+	}
+	if (!loopBroken) {
+		/* We left the loop without using a break statement. */
+
+		len = ALIF_MAX(ALIF_MAX(remaining, _minWidth), 1);
+		nZeros = ALIF_MAX(0, len - remaining);
+		nChars = ALIF_MAX(0, ALIF_MIN(remaining, len));
+
+		/* Use nZero zero's and nChars chars */
+		count += (useSeparator ? thousandsSepLen : 0) + nZeros + nChars;
+
+		/* Copy into the writer. */
+		insertThousandsGrouping_fill(_writer, &bufferPos,
+			_digits, &digitsPos,
+			nChars, nZeros,
+			useSeparator ? _thousandsSep : NULL,
+			thousandsSepLen, _maxchar);
+	}
+	return count;
+}
 
 
 
@@ -5036,13 +5122,13 @@ AlifObject* alifUStr_joinArray(AlifObject* _separator,
 			item = _items[i_];
 
 			if (i_ and sepLen != 0) {
-				alifUStr_fastCopyCharacters(res_, resOffset, sep_, 0, sepLen);
+				_alifUStr_fastCopyCharacters(res_, resOffset, sep_, 0, sepLen);
 				resOffset += sepLen;
 			}
 
 			itemlen = ALIFUSTR_GET_LENGTH(item);
 			if (itemlen != 0) {
-				alifUStr_fastCopyCharacters(res_, resOffset, item, 0, itemlen);
+				_alifUStr_fastCopyCharacters(res_, resOffset, item, 0, itemlen);
 				resOffset += itemlen;
 			}
 		}
@@ -5385,7 +5471,7 @@ static AlifObject* replace(AlifObject* _self, AlifObject* _str1,
 			if (!u)
 				goto error;
 
-			alifUStr_fastCopyCharacters(u, 0, _self, 0, slen);
+			_alifUStr_fastCopyCharacters(u, 0, _self, 0, slen);
 			replace_1charInplace(u, pos, u1, u2, _maxCount);
 		}
 		else {
@@ -5930,8 +6016,8 @@ AlifObject* alifUStr_concat(AlifObject* _left, AlifObject* _right) { // 11295
 	/* Concat the two Unicode strings */
 	result = alifUStr_new(newLen, maxChar);
 	if (result == nullptr) return nullptr;
-	alifUStr_fastCopyCharacters(result, 0, _left, 0, leftLen);
-	alifUStr_fastCopyCharacters(result, leftLen, _right, 0, rightLen);
+	_alifUStr_fastCopyCharacters(result, 0, _left, 0, leftLen);
+	_alifUStr_fastCopyCharacters(result, leftLen, _right, 0, rightLen);
 	return result;
 }
 
@@ -5983,7 +6069,7 @@ void alifUStr_append(AlifObject** _pLeft, AlifObject* _right) { // 11344
 			goto error;
 
 		/* copy 'right' into the newly allocated area of 'left' */
-		alifUStr_fastCopyCharacters(*_pLeft, leftLen, _right, 0, rightLen);
+		_alifUStr_fastCopyCharacters(*_pLeft, leftLen, _right, 0, rightLen);
 	}
 	else {
 		maxChar = ALIFUSTR_MAX_CHAR_VALUE(left);
@@ -5993,8 +6079,8 @@ void alifUStr_append(AlifObject** _pLeft, AlifObject* _right) { // 11344
 		/* Concat the two Unicode strings */
 		res = alifUStr_new(newLen, maxChar);
 		if (res == nullptr) goto error;
-		alifUStr_fastCopyCharacters(res, 0, left, 0, leftLen);
-		alifUStr_fastCopyCharacters(res, leftLen, _right, 0, rightLen);
+		_alifUStr_fastCopyCharacters(res, 0, left, 0, leftLen);
+		_alifUStr_fastCopyCharacters(res, leftLen, _right, 0, rightLen);
 		ALIF_DECREF(left);
 		*_pLeft = res;
 	}
@@ -6279,7 +6365,7 @@ static AlifObject* uStr_repr(AlifObject* _UStr) { // 12621
 	if (!changed) {
 		ALIFUSTR_WRITE(okind, odata, 0, quote);
 
-		alifUStr_fastCopyCharacters(repr, 1,
+		_alifUStr_fastCopyCharacters(repr, 1,
 			_UStr, 0,
 			isize);
 
@@ -6544,7 +6630,7 @@ AlifIntT alifUStrWriter_prepareInternal(AlifUStrWriter* _writer,
 			newbuffer = alifUStr_new(newlen, _maxChar);
 			if (newbuffer == nullptr)
 				return -1;
-			alifUStr_fastCopyCharacters(newbuffer, 0,
+			_alifUStr_fastCopyCharacters(newbuffer, 0,
 				_writer->buffer, 0, _writer->pos);
 			ALIF_DECREF(_writer->buffer);
 			_writer->readOnly = 0;
@@ -6560,7 +6646,7 @@ AlifIntT alifUStrWriter_prepareInternal(AlifUStrWriter* _writer,
 		newbuffer = alifUStr_new(_writer->size, _maxChar);
 		if (newbuffer == nullptr) return -1;
 
-		alifUStr_fastCopyCharacters(newbuffer, 0, _writer->buffer, 0, _writer->pos);
+		_alifUStr_fastCopyCharacters(newbuffer, 0, _writer->buffer, 0, _writer->pos);
 		ALIF_SETREF(_writer->buffer, newbuffer);
 	}
 	alifUStrWriter_update(_writer);
@@ -6615,7 +6701,7 @@ AlifIntT _alifUStrWriter_writeStr(AlifUStrWriter* _writer, AlifObject* _str) { /
 		if (alifUStrWriter_prepareInternal(_writer, len, maxChar) == -1)
 			return -1;
 	}
-	alifUStr_fastCopyCharacters(_writer->buffer, _writer->pos, _str, 0, len);
+	_alifUStr_fastCopyCharacters(_writer->buffer, _writer->pos, _str, 0, len);
 	_writer->pos += len;
 	return 0;
 }
@@ -6672,7 +6758,7 @@ AlifIntT _alifUStrWriter_writeSubString(AlifUStrWriter* writer, AlifObject* str,
 		return -1;
 	}
 
-	alifUStr_fastCopyCharacters(writer->buffer, writer->pos,
+	_alifUStr_fastCopyCharacters(writer->buffer, writer->pos,
 		str, start, len);
 	writer->pos += len;
 	return 0;

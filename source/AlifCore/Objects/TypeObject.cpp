@@ -3176,14 +3176,14 @@ static AlifObject* object_initSubclass(AlifObject* cls, AlifObject* arg) { // 73
 
 
 
-static AlifObject* object___format__Impl(AlifObject* self, AlifObject* format_spec) { // 7340
-	if (ALIFUSTR_GET_LENGTH(format_spec) > 0) {
+static AlifObject* object___format__Impl(AlifObject* _self, AlifObject* _formatSpec) { // 7340
+	if (ALIFUSTR_GET_LENGTH(_formatSpec) > 0) {
 		//alifErr_format(_alifExcTypeError_,
-		//	"unsupported format string passed to %.200s.__format__",
+		//	"unsupported format string passed to %.200s.__تنسيق__",
 		//	ALIF_TYPE(self)->name);
 		return nullptr;
 	}
-	return alifObject_str(self);
+	return alifObject_str(_self);
 }
 
 
