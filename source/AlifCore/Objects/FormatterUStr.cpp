@@ -92,7 +92,9 @@ public:
 
 static AlifIntT parseInternal_renderFormatSpec(AlifObject* _obj,
 	AlifObject* _formatSpec, AlifSizeT _start, AlifSizeT _end,
-	InternalFormatSpec* _format, char _defaultType, char _defaultAlign) { // 148
+	InternalFormatSpec* _format,
+	wchar_t _defaultType /* //* alif */,
+	char _defaultAlign) { // 148
 	AlifSizeT pos = _start;
 	AlifIntT kind = ALIFUSTR_KIND(_formatSpec);
 	const void* data = ALIFUSTR_DATA(_formatSpec);
@@ -217,6 +219,7 @@ static AlifIntT parseInternal_renderFormatSpec(AlifObject* _obj,
 		switch (_format->type) { //* alif
 		case L'ف':
 		case L'ه':
+		case L'ط':
 		case L'ع':
 		//case 'd':
 		//case 'e':
@@ -229,10 +232,13 @@ static AlifIntT parseInternal_renderFormatSpec(AlifObject* _obj,
 		case '\0':
 			/* These are allowed.*/
 			break;
-		case 'b':
-		case 'o':
-		case 'x':
-		case 'X':
+		case L'ث':
+		case L'م':
+		case L'س':
+		//case 'b':
+		//case 'o':
+		//case 'x':
+		//case 'X':
 			if (_format->thousandsSeparators == LocaleType::LT_UNDERSCORE_LOCALE) {
 				_format->thousandsSeparators = LocaleType::LT_UNDER_FOUR_LOCALE;
 				break;
@@ -561,6 +567,176 @@ static void free_localeInfo(LocaleInfo* _localeInfo) { // 752
 
 
 
+
+
+/************************************************************************/
+/*********** long formatting ********************************************/
+/************************************************************************/
+
+static AlifIntT format_longInternal(AlifObject* _value, const InternalFormatSpec* _format,
+	AlifUStrWriter* _writer) { // 863
+	int result = -1;
+	AlifUCS4 maxchar = 127;
+	AlifObject *tmp = nullptr;
+	AlifSizeT inumericChars{};
+	AlifUCS4 signChar = '\0';
+	AlifSizeT nDigits{};       /* count of digits need from the computed
+	string */
+	AlifSizeT nRemainder = 0; /* Used only for 'c' formatting, which
+	produces non-digits */
+	AlifSizeT nPrefix = 0;   /* Count of prefix chars, (e.g., '0x') */
+	AlifSizeT nTotal{};
+	AlifSizeT prefix = 0;
+	NumberFieldWidths spec{};
+	long x{};
+
+	/* Locale settings, either from the actual locale or
+	from a hard-code pseudo-locale */
+	LocaleInfo locale = LOCALEINFO_STATIC_INIT;
+
+	/* no precision allowed on integers */
+	if (_format->precision != -1) {
+		alifErr_setString(_alifExcValueError_,
+			"الفاصلة غير مسموح بها في تركيب تنسيق العدد الصحيح");
+		goto done;
+	}
+	/* no negative zero coercion on integers */
+	if (_format->noNeg0) {
+		alifErr_setString(_alifExcValueError_,
+			"لا يُسمح بالتحويل القسري للصفر السالب (ص) في تركيب تنسيق الأعداد الصحيحة");
+		goto done;
+	}
+
+	/* special case for character formatting */
+	if (_format->type == 'c') {
+		/* error to specify a sign */
+		if (_format->sign != '\0') {
+			alifErr_setString(_alifExcValueError_,
+				"لا يسمح للإشارة مع العدد الصحيح"
+				" للمركب التنسيقي 'ر'");
+			goto done;
+		}
+		/* error to request alternate format */
+		if (_format->alternate) {
+				alifErr_setString(_alifExcValueError_,
+				"البديل من (#) غير مسموح مع العدد الصحيح"
+				" للمركب التنسيقي 'ر'");
+			goto done;
+		}
+
+		/* taken from uStrobject.cpp formatchar() */
+		/* Integer input truncated to a character */
+		x = alifLong_asLong(_value);
+		if (x == -1 and alifErr_occurred())
+			goto done;
+		if (x < 0 or x > 0x10ffff) {
+			alifErr_setString(_alifExcOverflowError_,
+				"المعامل %c ليس في مدى(0x110000)");
+			goto done;
+		}
+		tmp = alifUStr_fromOrdinal(x);
+		inumericChars = 0;
+		nDigits = 1;
+		maxchar = ALIF_MAX(maxchar, (AlifUCS4)x);
+
+		nRemainder = 1;
+	}
+	else {
+		AlifIntT base{};
+		AlifIntT leading_chars_to_skip = 0; 
+
+		/* Compute the base and how many characters will be added by
+		PyNumber_ToBase */
+		switch (_format->type) {
+		case 'b':
+			base = 2;
+			leading_chars_to_skip = 2; /* 0b */
+			break;
+		case 'o':
+			base = 8;
+			leading_chars_to_skip = 2; /* 0o */
+			break;
+		case 'x':
+		case 'X':
+			base = 16;
+			leading_chars_to_skip = 2; /* 0x */
+			break;
+		default:  /* shouldn't be needed, but stops a compiler warning */
+		case 'd':
+		case 'n':
+			base = 10;
+			break;
+		}
+
+		if (_format->sign != '+' and _format->sign != ' '
+			and _format->width == -1
+			and _format->type != 'X' and _format->type != 'n'
+			and !_format->thousandsSeparators
+			and ALIFLONG_CHECKEXACT(_value))
+		{
+			/* Fast path */
+			return _alifLong_formatWriter(_writer, _value, base, _format->alternate);
+		}
+
+		/* The number of prefix chars is the same as the leading
+		chars to skip */
+		if (_format->alternate)
+			nPrefix = leading_chars_to_skip;
+
+		/* Do the hard part, converting to a string in a given base */
+		tmp = _alifLong_format(_value, base);
+		if (tmp == nullptr)
+			goto done;
+
+		inumericChars = 0;
+		nDigits = ALIFUSTR_GET_LENGTH(tmp);
+
+		prefix = inumericChars;
+
+		/* Is a sign character present in the output?  If so, remember it
+		and skip it */
+		if (ALIFUSTR_READ_CHAR(tmp, inumericChars) == '-') {
+			signChar = '-';
+			++prefix;
+			++leading_chars_to_skip;
+		}
+
+		/* Skip over the leading chars (0x, 0b, etc.) */
+		nDigits -= leading_chars_to_skip;
+		inumericChars += leading_chars_to_skip;
+	}
+
+	/* Determine the grouping, separator, and decimal point, if any. */
+	if (get_localeInfo(_format->type == 'n' ? LT_CURRENT_LOCALE :
+		_format->thousandsSeparators,
+		&locale) == -1)
+		goto done;
+
+	/* Calculate how much memory we'll need. */
+	nTotal = calc_numberWidths(&spec, nPrefix, signChar, inumericChars,
+		inumericChars + nDigits, nRemainder, 0,
+		&locale, _format, &maxchar);
+	if (nTotal == -1) {
+		goto done;
+	}
+
+	/* Allocate the memory. */
+	if (ALIFUSTRWRITER_PREPARE(_writer, nTotal, maxchar) == -1)
+		goto done;
+
+	/* Populate the memory. */
+	result = fill_number(_writer, &spec,
+		tmp, inumericChars,
+		tmp, prefix, _format->fillChar,
+		&locale, _format->type == 'X');
+
+done:
+	ALIF_XDECREF(tmp);
+	free_localeInfo(&locale);
+	return result;
+}
+
+
 /************************************************************************/
 /*********** float formatting *******************************************/
 /************************************************************************/
@@ -712,6 +888,104 @@ static AlifIntT format_obj(AlifObject* _obj, AlifUStrWriter* _writer) { // 1436
 }
 
 
+AlifIntT _alifLong_formatAdvancedWriter(AlifUStrWriter* _writer,
+	AlifObject* _obj, AlifObject* _formatSpec,
+	AlifSizeT _start, AlifSizeT _end) { // 1486
+	AlifObject* tmp = nullptr;
+	InternalFormatSpec format;
+	AlifIntT result = -1;
+
+	/* check for the special case of zero length format spec, make
+	it equivalent to str(obj) */
+	if (_start == _end) {
+		if (ALIFLONG_CHECKEXACT(_obj))
+			return _alifLong_formatWriter(_writer, _obj, 10, 0);
+		else
+			return format_obj(_obj, _writer);
+	}
+
+	/* parse the format_spec */
+	if (!parseInternal_renderFormatSpec(_obj, _formatSpec, _start, _end,
+		&format, L'ع', '>'))
+		goto done;
+
+	//* alif
+	switch (format.type) {
+	case L'ث':
+		format.type = 'b';
+		break;
+	case L'ز':
+		format.type = 'c';
+		break;
+	case L'ع':
+		format.type = 'd';
+		break;
+	case L'م':
+		format.type = 'o';
+		break;
+	case L'س':
+		format.type = 'x';
+		break;
+	case L'ر':
+		format.type = 'n';
+		break;
+
+	// for floats
+	case L'ه':
+		format.type = 'e';
+		break;
+	case L'ف':
+		format.type = 'f';
+		break;
+	case L'ط':
+		format.type = 'g';
+		break;
+
+	default:
+		/* unknown */
+		unknown_presentationType(format.type, ALIF_TYPE(_obj)->name);
+		return -1;
+	}
+	//* alif
+
+	/* type conversion? */
+	switch (format.type) {
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'o':
+	case 'x':
+	//case 'X':
+	case 'n':
+		/* no type conversion needed, already an int.  do the formatting */
+		result = format_longInternal(_obj, &format, _writer);
+		break;
+
+	case 'e':
+	//case 'E':
+	case 'f':
+	//case 'F':
+	case 'g':
+	//case 'G':
+	case '%':
+		/* convert to float */
+		tmp = alifNumber_float(_obj);
+		if (tmp == nullptr)
+			goto done;
+		result = format_floatInternal(tmp, &format, _writer);
+		break;
+
+	default:
+		/* unknown */
+		unknown_presentationType(format.type, ALIF_TYPE(_obj)->name);
+		goto done;
+	}
+
+done:
+	ALIF_XDECREF(tmp);
+	return result;
+}
+
 
 AlifIntT _alifFloat_formatAdvancedWriter(AlifUStrWriter* _writer,
 	AlifObject* _obj, AlifObject* _formatSpec,
@@ -740,7 +1014,7 @@ AlifIntT _alifFloat_formatAdvancedWriter(AlifUStrWriter* _writer,
 	case L'ه':
 		format.type = 'e';
 		break;
-	case L'ع':
+	case L'ط':
 		format.type = 'g';
 	//case 'e':
 	//case 'E':

@@ -10,6 +10,8 @@
 
 #include <float.h>
 
+#include "clinic/LongObject.cpp.h"
+
 
 #define MEDIUM_VALUE(_x) ((stwodigits)alifLong_compactValue(_x)) // 23
 
@@ -1503,7 +1505,7 @@ success:
 #endif /* WITH_ALIFLONG_MODULE */
 
 
-static AlifIntT longTo_decimalStringInternal(AlifObject* _aa,
+static AlifIntT long_toDecimalStringInternal(AlifObject* _aa,
 	AlifObject** _pOutput, AlifUStrWriter* _writer,
 	AlifBytesWriter* _bytesWriter, char** _bytesStr) { // 2072
 	AlifLongObject* scratch{}, * a_{};
@@ -1677,7 +1679,7 @@ static AlifIntT longTo_decimalStringInternal(AlifObject* _aa,
 
 static AlifObject* longTo_decimalString(AlifObject* _aa) { // 2294
 	AlifObject* v{};
-	if (longTo_decimalStringInternal(_aa, &v, nullptr, nullptr, nullptr) == -1)
+	if (long_toDecimalStringInternal(_aa, &v, nullptr, nullptr, nullptr) == -1)
 		return nullptr;
 	return v;
 }
@@ -1833,10 +1835,24 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
 	return 0;
 }
 
+
+AlifObject* _alifLong_format(AlifObject* _obj, AlifIntT _base) { // 2477
+	AlifObject* str{};
+	AlifIntT err{};
+	if (_base == 10)
+		err = long_toDecimalStringInternal(_obj, &str, nullptr, nullptr, nullptr);
+	else
+		err = long_formatBinary(_obj, _base, 1, &str, nullptr, nullptr, nullptr);
+	if (err == -1)
+		return NULL;
+	return str;
+}
+
+
 AlifIntT _alifLong_formatWriter(AlifUStrWriter* _writer, AlifObject* _obj,
 	AlifIntT _base, AlifIntT _alternate) { // 2491
 	if (_base == 10)
-		return longTo_decimalStringInternal(_obj, nullptr, _writer,
+		return long_toDecimalStringInternal(_obj, nullptr, _writer,
 			nullptr, nullptr);
 	else
 		return long_formatBinary(_obj, _base, _alternate, nullptr, _writer,
@@ -4341,6 +4357,24 @@ static AlifObject* long_float(AlifObject* _v) { // 5848
 
 
 
+static AlifObject* int___format__Impl(AlifObject* _self, AlifObject* _formatSpec) { // 6000
+	AlifUStrWriter writer{};
+	AlifIntT ret{};
+
+	alifUStrWriter_init(&writer);
+	ret = _alifLong_formatAdvancedWriter(
+		&writer,
+		_self,
+		_formatSpec, 0, ALIFUSTR_GET_LENGTH(_formatSpec));
+	if (ret == -1) {
+		alifUStrWriter_dealloc(&writer);
+		return nullptr;
+	}
+	return _alifUStrWriter_finish(&writer);
+}
+
+
+
 
 static AlifObject* long_vectorCall(AlifObject* type, AlifObject* const* args,
 	AlifUSizeT nargsf, AlifObject* kwnames) { // 6479
@@ -4364,6 +4398,11 @@ static AlifObject* long_vectorCall(AlifObject* type, AlifObject* const* args,
 	}
 }
 
+
+static AlifMethodDef _longMethods_[] = { // 6449
+	INT___FORMAT___METHODDEF
+	{nullptr, nullptr}           /* sentinel */
+};
 
 
 static AlifNumberMethods _longAsNumber_ = { // 6560
@@ -4423,6 +4462,8 @@ AlifTypeObject _alifLongType_ = { // 6597
 		_ALIF_TPFLAGS_MATCH_SELF,
 
 	.richCompare = long_richCompare,
+
+	.methods = _longMethods_,
 
 	.free = alifMem_objFree,
 	.vectorCall = long_vectorCall,

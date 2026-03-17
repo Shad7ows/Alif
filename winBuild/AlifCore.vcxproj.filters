@@ -1068,6 +1068,9 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\LocaleUtil.h">
       <Filter>Include\Main\StringLib</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\LongObject.cpp.h">
+      <Filter>Objects\clinic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
