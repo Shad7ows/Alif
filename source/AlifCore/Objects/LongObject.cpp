@@ -2279,9 +2279,9 @@ onError:
 	if (strObj == nullptr) {
 		return nullptr;
 	}
-	//alifErr_format(_alifExcValueError_,
-	//	"invalid literal for AlifIntT() with base %d: %.200R",
-	//	_base, strObj);
+	alifErr_format(_alifExcValueError_,
+		"قيمة غير صحيحة لـ AlifIntT() للأساس %d: %.200R",
+		_base, strObj);
 	ALIF_DECREF(strObj);
 	return nullptr;
 }
