@@ -10,7 +10,7 @@
 
 // 158
 #define _IO__IOBASE_FLUSH_METHODDEF    \
-    {"Flush", (AlifCPPFunction)_io_IOBase_flush, METHOD_NOARGS},
+    {"دفق", (AlifCPPFunction)_io_IOBase_flush, METHOD_NOARGS},
 
 static AlifObject* _io_IOBase_flushImpl(AlifObject*);
 

@@ -335,3 +335,38 @@ skip_optional_pos:
 exit:
 	return returnValue;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 1759
+#define UNICODE___FORMAT___METHODDEF    \
+    {"__تنسيق__", (AlifCPPFunction)uStr___format__, METHOD_O},
+
+static AlifObject* uStr___format__Impl(AlifObject*, AlifObject*);
+
+static AlifObject* uStr___format__(AlifObject* _self, AlifObject* _arg) { // 1765
+	AlifObject* returnValue{};
+	AlifObject* formatSpec{};
+
+	if (!ALIFUSTR_CHECK(_arg)) {
+		//_alifArg_badArgument("__تنسيق__", "وسيط", "نص", _arg);
+		goto exit;
+	}
+	formatSpec = _arg;
+	returnValue = uStr___format__Impl(_self, formatSpec);
+
+exit:
+	return returnValue;
+}

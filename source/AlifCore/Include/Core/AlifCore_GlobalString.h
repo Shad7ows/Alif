@@ -60,6 +60,7 @@ public:
 			STRUCT_FOR_STR(TypeParams, ".type_params")
 			STRUCT_FOR_STR(True, "صح") //* alif
 			STRUCT_FOR_STR(False, "خطأ") //* alif
+			STRUCT_FOR_USTR(Flush, "دفق") //* alif
 			STRUCT_FOR_STR(ListErr, "مؤشر المصفوفة خارج النطاق")
 			STRUCT_FOR_STR(lambda, "خطية") //* alif
 			STRUCT_FOR_STR(Mode, "mode") //* alif
@@ -170,7 +171,7 @@ public:
 			STRUCT_FOR_ID(File)
 			STRUCT_FOR_ID(Filename)
 			STRUCT_FOR_ID(Fileno)
-			STRUCT_FOR_ID(Flush)
+			//STRUCT_FOR_ID(Flush)
 			STRUCT_FOR_ID(GenExpr)
 			STRUCT_FOR_ID(GetState)
 			STRUCT_FOR_ID(HasLocation)

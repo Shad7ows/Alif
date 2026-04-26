@@ -193,7 +193,7 @@ char* alifUniversal_newLineFGetsWithSize(char* _buf,
 
 
 AlifIntT _alifFile_flush(AlifObject* _file) { // 533
-	AlifObject* tmp = alifObject_callMethodNoArgs(_file, &ALIF_ID(Flush));
+	AlifObject* tmp = alifObject_callMethodNoArgs(_file, &ALIF_STR(Flush));
 	if (tmp == nullptr) {
 		return -1;
 	}

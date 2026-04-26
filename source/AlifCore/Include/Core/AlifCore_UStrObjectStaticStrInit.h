@@ -111,8 +111,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Fileno);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(Flush);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(Flush);
+	//_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(HasLocation);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Join);
@@ -175,6 +175,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(True);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(False);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(Flush);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Mode);
 	_alifUStr_internStatic(interp, &string);

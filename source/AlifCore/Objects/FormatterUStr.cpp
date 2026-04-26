@@ -256,11 +256,59 @@ static AlifIntT parseInternal_renderFormatSpec(AlifObject* _obj,
 
 
 
+/* Calculate the padding needed. */
+static void calc_padding(AlifSizeT _nchars, AlifSizeT _width, AlifUCS4 _align,
+	AlifSizeT *_nLPadding, AlifSizeT* _nRPadding, AlifSizeT* _nTotal) { // 336
+	if (_width >= 0) {
+		if (_nchars > _width)
+			*_nTotal = _nchars;
+		else
+			*_nTotal = _width;
+	}
+	else {
+		/* not specified, use all of the chars and no more */
+		*_nTotal = _nchars;
+	}
 
+	/* Figure out how much leading space we need, based on the
+	aligning */
+	if (_align == '>')
+		*_nLPadding = *_nTotal - _nchars;
+	else if (_align == '^')
+		*_nLPadding = (*_nTotal - _nchars) / 2;
+	else if (_align == '<' || _align == '=')
+		*_nLPadding = 0;
+	else {
+		/* We should never have an unspecified alignment. */
+		ALIF_UNREACHABLE();
+	}
 
+	*_nRPadding = *_nTotal - _nchars - *_nLPadding;
+}
 
+/* Do the padding, and return a pointer to where the caller-supplied
+content goes. */
+static AlifIntT fill_padding(AlifUStrWriter* _writer,
+	AlifSizeT _nchars, AlifUCS4 _fillChar,
+	AlifSizeT _nLPadding, AlifSizeT _nRPadding) { // 368
+	AlifSizeT pos{};
 
+	/* Pad on left. */
+	if (_nLPadding) {
+		pos = _writer->pos;
+		_alifUStr_fastFill(_writer->buffer, pos, _nLPadding, _fillChar);
+	}
 
+	/* Pad on right. */
+	if (_nRPadding) {
+		pos = _writer->pos + _nchars + _nLPadding;
+		_alifUStr_fastFill(_writer->buffer, pos, _nRPadding, _fillChar);
+	}
+
+	/* Pointer to the user content. */
+	_writer->pos += _nLPadding;
+	return 0;
+}
 
 
 
@@ -567,6 +615,100 @@ static void free_localeInfo(LocaleInfo* _localeInfo) { // 752
 
 
 
+
+/************************************************************************/
+/*********** string formatting ******************************************/
+/************************************************************************/
+
+static AlifIntT format_stringInternal(AlifObject* _value,
+	const InternalFormatSpec* _format,
+	AlifUStrWriter* _writer) { // 764
+	AlifSizeT lpad{};
+	AlifSizeT rpad{};
+	AlifSizeT total{};
+	AlifSizeT len{};
+	AlifIntT result = -1;
+	AlifUCS4 maxchar{};
+
+	len = ALIFUSTR_GET_LENGTH(_value);
+
+	/* sign is not allowed on strings */
+	if (_format->sign != '\0') {
+		if (_format->sign == ' ') {
+			alifErr_setString(_alifExcValueError_,
+				"المسافة غير مسموح بها في محدد التنسيق النصي");
+		}
+		else {
+			alifErr_setString(_alifExcValueError_,
+				"الإشارة غير مسموح بها في محدد التنسيق النصي");
+		}
+		goto done;
+	}
+
+	/* negative 0 coercion is not allowed on strings */
+	if (_format->noNeg0) {
+		alifErr_setString(_alifExcValueError_,
+			"الصفر السالب القسري (ز) غير مسموح به في محدد التنسيق النصي");
+		goto done;
+	}
+
+	/* alternate is not allowed on strings */
+	if (_format->alternate) {
+		alifErr_setString(_alifExcValueError_,
+			"الشكل البديل (#) غير مسموح به في محدد التنسيق النصي");
+		goto done;
+	}
+
+	/* '=' alignment not allowed on strings */
+	if (_format->align == '=') {
+		alifErr_setString(_alifExcValueError_,
+			"'=' المحاذاة باستخدام "
+			"غير مسموح بها في محدد التنسيق النصي");
+		goto done;
+	}
+
+	if ((_format->width == -1 or _format->width <= len)
+		&& (_format->precision == -1 or _format->precision >= len)) {
+		/* Fast path */
+		return _alifUStrWriter_writeStr(_writer, _value);
+	}
+
+	/* if precision is specified, output no more that format.precision
+	characters */
+	if (_format->precision >= 0 && len >= _format->precision) {
+		len = _format->precision;
+	}
+
+	calc_padding(len, _format->width, _format->align, &lpad, &rpad, &total);
+
+	maxchar = _writer->maxChar;
+	if (lpad != 0 or rpad != 0)
+		maxchar = ALIF_MAX(maxchar, _format->fillChar);
+	if (ALIFUSTR_MAX_CHAR_VALUE(_value) > maxchar) {
+		AlifUCS4 valmaxchar = _alifUStr_findMaxChar(_value, 0, len);
+		maxchar = ALIF_MAX(maxchar, valmaxchar);
+	}
+
+	/* allocate the resulting string */
+	if (ALIFUSTRWRITER_PREPARE(_writer, total, maxchar) == -1)
+		goto done;
+
+	/* Write into that space. First the padding. */
+	result = fill_padding(_writer, len, _format->fillChar, lpad, rpad);
+	if (result == -1)
+		goto done;
+
+	/* Then the source string. */
+	if (len) {
+		_alifUStr_fastCopyCharacters(_writer->buffer, _writer->pos,
+			_value, 0, len);
+	}
+	_writer->pos += (len + rpad);
+	result = 0;
+
+done:
+	return result;
+}
 
 
 /************************************************************************/
@@ -887,6 +1029,36 @@ static AlifIntT format_obj(AlifObject* _obj, AlifUStrWriter* _writer) { // 1436
 	return err;
 }
 
+AlifIntT _alifUStr_formatAdvancedWriter(AlifUStrWriter* _writer,
+	AlifObject* _obj, AlifObject* _formatSpec,
+	AlifSizeT _start, AlifSizeT _end) {
+	InternalFormatSpec format{};
+
+	/* check for the special case of zero length format spec, make
+	it equivalent to str(obj) */
+	if (_start == _end) {
+		if (ALIFUSTR_CHECKEXACT(_obj))
+			return _alifUStrWriter_writeStr(_writer, _obj);
+		else
+			return format_obj(_obj, _writer);
+	}
+
+	/* parse the format_spec */
+	if (!parseInternal_renderFormatSpec(_obj, _formatSpec, _start, _end,
+		&format, 's', '<'))
+		return -1;
+
+	/* type conversion? */
+	switch (format.type) {
+	case 's':
+		/* no type conversion needed, already a string.  do the formatting */
+		return format_stringInternal(_obj, &format, _writer);
+	default:
+		/* unknown */
+		unknown_presentationType(format.type, ALIF_TYPE(_obj)->name);
+		return -1;
+	}
+}
 
 AlifIntT _alifLong_formatAdvancedWriter(AlifUStrWriter* _writer,
 	AlifObject* _obj, AlifObject* _formatSpec,

@@ -23,6 +23,11 @@ extern void _alifUStr_fastCopyCharacters(AlifObject*, AlifSizeT,
 
 extern AlifObject* _alifUStr_fromASCII(const char*, AlifSizeT); // 65
 
+extern AlifUCS4 _alifUStr_findMaxChar(AlifObject*, AlifSizeT, AlifSizeT); // 71
+
+extern AlifIntT _alifUStr_formatAdvancedWriter(AlifUStrWriter*, AlifObject*,
+	AlifObject*, AlifSizeT, AlifSizeT); // 80
+
 AlifObject* _alifUStr_asUTF8String(AlifObject*, const char*); // 98
 
 AlifObject* _alifUStr_encodeUTF32(AlifObject*, const char*, AlifIntT); // 105

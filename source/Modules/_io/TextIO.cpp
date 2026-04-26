@@ -1469,8 +1469,8 @@ static AlifObject* _ioTextIOWrapper_flushImpl(TextIO* self) { // 3098
 	CHECK_CLOSED(self);
 	self->telling = self->seekable;
 	if (_textIOWrapper_writeFlush(self) < 0)
-		return NULL;
-	return alifObject_callMethodNoArgs(self->buffer, &ALIF_ID(Flush));
+		return nullptr;
+	return alifObject_callMethodNoArgs(self->buffer, &ALIF_STR(Flush));
 }
 
 static AlifObject* _ioTextIOWrapper_closeImpl(TextIO* self) { // 3115

@@ -56,7 +56,7 @@ exit:
 
 // 305
 #define _IO__BUFFERED_SIMPLE_FLUSH_METHODDEF    \
-    {"Flush", (AlifCPPFunction)_io_Buffered_simpleFlush, METHOD_NOARGS},
+    {"دفق", (AlifCPPFunction)_io_Buffered_simpleFlush, METHOD_NOARGS},
 
 static AlifObject* _io_Buffered_simpleFlushImpl(Buffered*);
 
@@ -173,7 +173,7 @@ static AlifObject* _io_Buffered_fileno(Buffered* self,
 
 // 577
 #define _IO__BUFFERED_FLUSH_METHODDEF    \
-    {"Flush", (AlifCPPFunction)_io_Buffered_flush, METHOD_NOARGS},
+    {"دفق", (AlifCPPFunction)_io_Buffered_flush, METHOD_NOARGS},
 
 static AlifObject* _io_Buffered_flushImpl(Buffered*);
 

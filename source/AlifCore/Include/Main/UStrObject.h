@@ -401,7 +401,7 @@ public:
 
 
 
-void alifUStrWriter_init(AlifUStrWriter*); // 523
+void _alifUStrWriter_init(AlifUStrWriter*); // 523
 
 
 // 530
@@ -438,7 +438,7 @@ AlifIntT alifUStrWriter_writeString(AlifUStrWriter*, const char*, AlifSizeT); //
 AlifObject* _alifUStrWriter_finish(AlifUStrWriter*); // 602
 
 
-void alifUStrWriter_dealloc(AlifUStrWriter*); // 607
+void _alifUStrWriter_dealloc(AlifUStrWriter*); // 607
 
 
 const char* alifUStr_asUTF8(AlifObject*); // 625

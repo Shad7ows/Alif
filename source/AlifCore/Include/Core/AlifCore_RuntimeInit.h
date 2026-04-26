@@ -700,6 +700,7 @@
     INIT_STR(TypeParams, ".type_params"),	\
     INIT_STR(True, "صح"), /* //* alif */	\
     INIT_STR(False, "خطأ"), /* //* alif */	\
+    INIT_USTR(Flush, "دفق"), /* //* alif */	\
     INIT_STR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
     INIT_STR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
@@ -809,7 +810,7 @@
 	INIT_ID(File), \
 	INIT_ID(Filename), \
 	INIT_ID(Fileno), \
-	INIT_ID(Flush), \
+	/*INIT_ID(Flush),*/ \
 	INIT_ID(GenExpr), \
 	INIT_ID(GetState), \
 	INIT_ID(HasLocation), \

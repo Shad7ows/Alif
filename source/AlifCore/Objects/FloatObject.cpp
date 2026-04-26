@@ -677,11 +677,11 @@ static AlifObject* float___format___impl(AlifObject* _self, AlifObject* _formatS
 	AlifUStrWriter writer{};
 	AlifIntT ret{};
 
-	alifUStrWriter_init(&writer);
+	_alifUStrWriter_init(&writer);
 	ret = _alifFloat_formatAdvancedWriter(&writer, _self,
 		_formatSpec, 0, ALIFUSTR_GET_LENGTH(_formatSpec));
 	if (ret == -1) {
-		alifUStrWriter_dealloc(&writer);
+		_alifUStrWriter_dealloc(&writer);
 		return nullptr;
 	}
 	return _alifUStrWriter_finish(&writer);

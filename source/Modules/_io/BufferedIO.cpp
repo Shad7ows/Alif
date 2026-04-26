@@ -191,7 +191,7 @@ static AlifObject* _io_Buffered__deallocWarn(Buffered* self, AlifObject* source)
 
 static AlifObject* _io_Buffered_simpleFlushImpl(Buffered* _self) { // 497
 	CHECK_INITIALIZED(_self);
-	return alifObject_callMethodNoArgs(_self->raw, &ALIF_ID(Flush));
+	return alifObject_callMethodNoArgs(_self->raw, &ALIF_STR(Flush));
 }
 
 
