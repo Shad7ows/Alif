@@ -60,7 +60,7 @@ public:
 			STRUCT_FOR_STR(TypeParams, ".type_params")
 			STRUCT_FOR_STR(True, "صح") //* alif
 			STRUCT_FOR_STR(False, "خطأ") //* alif
-			STRUCT_FOR_USTR(Flush, "دفق") //* alif
+			STRUCT_FOR_USTR(Flush, "مباشر") //* alif
 			STRUCT_FOR_STR(ListErr, "مؤشر المصفوفة خارج النطاق")
 			STRUCT_FOR_STR(lambda, "خطية") //* alif
 			STRUCT_FOR_STR(Mode, "mode") //* alif

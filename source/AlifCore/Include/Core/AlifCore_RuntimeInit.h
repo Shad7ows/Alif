@@ -700,7 +700,7 @@
     INIT_STR(TypeParams, ".type_params"),	\
     INIT_STR(True, "صح"), /* //* alif */	\
     INIT_STR(False, "خطأ"), /* //* alif */	\
-    INIT_USTR(Flush, "دفق"), /* //* alif */	\
+    INIT_USTR(Flush, "مباشر"), /* //* alif */	\
     INIT_STR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
     INIT_STR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\

@@ -127,7 +127,7 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 #define KWTUPLE (&_kwtuple.objBase.objBase)
 
 
-	static const char* const keywords[] = { "الفاصل", "النهاية", "File", "دفق", nullptr };
+	static const char* const keywords[] = { "الفاصل", "النهاية", "File", "مباشر", nullptr };
 	static AlifArgParser parser = {
 		.keywords = keywords,
 		.fname = "اطبع",

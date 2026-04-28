@@ -329,7 +329,7 @@ static AlifObject* _ioTextIOWrapper_fileno(TextIO* self,
 
 // 1093
 #define _IO_TEXTIOWRAPPER_FLUSH_METHODDEF    \
-    {"دفق", (AlifCPPFunction)_ioTextIOWrapper_flush, METHOD_NOARGS},
+    {"مباشر", (AlifCPPFunction)_ioTextIOWrapper_flush, METHOD_NOARGS},
 
 static AlifObject* _ioTextIOWrapper_flushImpl(TextIO*);
 
