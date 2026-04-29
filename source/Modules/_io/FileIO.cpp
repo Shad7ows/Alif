@@ -199,11 +199,11 @@ static AlifIntT _ioFileIO___init__Impl(FileIO* self, AlifObject* nameobj, const 
 	}
 	fd = alifLong_asInt(nameobj);
 	if (fd < 0) {
-		//if (!alifErr_occurred()) {
-		//	alifErr_setString(_alifExcValueError_,
-		//		"negative file descriptor");
-		//	return -1;
-		//}
+		if (!alifErr_occurred()) {
+			alifErr_setString(_alifExcValueError_,
+				"negative file descriptor");
+			return -1;
+		}
 		alifErr_clear();
 	}
 
@@ -411,10 +411,10 @@ bad_mode:
 		goto error;
 
 	if (self->appending) {
-		//AlifObject* pos = portable_lseek(self, nullptr, 2, true);
-		//if (pos == nullptr)
-		//	goto error;
-		//ALIF_DECREF(pos);
+		AlifObject* pos = portable_lseek(self, nullptr, 2, true);
+		if (pos == nullptr)
+			goto error;
+		ALIF_DECREF(pos);
 	}
 
 	goto done;
@@ -588,8 +588,8 @@ static AlifObject* _ioFileIO_readallImpl(FileIO * _self) { // 731
 			bufsize = new_bufferSize(_self, bytesRead);
 			if (bufsize > ALIF_SIZET_MAX || bufsize <= 0) {
 				alifErr_setString(_alifExcOverflowError_,
-					"unbounded read returned more bytes "
-					"than a ALIF bytes object can hold");
+					"القراءة غير المحدودة قامت بإرجاع عددا من البايتات أكبر "
+					"من عدد البايتات التي يمكن أن يستوعبها كائن ألف");
 				ALIF_DECREF(result);
 				return nullptr;
 			}

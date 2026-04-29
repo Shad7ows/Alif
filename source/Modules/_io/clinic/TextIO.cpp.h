@@ -82,6 +82,17 @@ exit:
 
 
 
+// 457
+#define _IO_INCREMENTALNEWLINEDECODER_RESET_METHODDEF    \
+    {"Reset", (AlifCPPFunction)_ioIncrementalNewlineDecoder_reset, METHOD_NOARGS}
+
+static AlifObject* _ioIncrementalNewlineDecoder_resetImpl(NLDecoderObject*);
+
+static AlifObject* _ioIncrementalNewlineDecoder_reset(NLDecoderObject* self,
+	AlifObject *ALIF_UNUSED(ignored)) { // 463
+	return _ioIncrementalNewlineDecoder_resetImpl(self);
+}
+
 
 
 
@@ -108,7 +119,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 	static const char* const _keywords[] = { "Buffer", "Encoding", "Errors", "Newline", "LineBuffering", "write_through", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "TextIOWrapper",
+		.fname = "غلاف_النص",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
@@ -147,7 +158,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 			}
 		}
 		else {
-			//_alifArg_badArgument("TextIOWrapper", "argument 'encoding'", "str or None", fastargs[1]);
+			//_alifArg_badArgument("غلاف_النص", "argument 'encoding'", "str or None", fastargs[1]);
 			goto exit;
 		}
 		if (!--noptargs) {
@@ -176,7 +187,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 			}
 		}
 		else {
-			//_alifArg_badArgument("TextIOWrapper", "argument 'newline'", "str or None", fastargs[3]);
+			//_alifArg_badArgument("غلاف_النص", "argument 'newline'", "str or None", fastargs[3]);
 			goto exit;
 		}
 		if (!--noptargs) {
@@ -318,7 +329,7 @@ static AlifObject* _ioTextIOWrapper_fileno(TextIO* self,
 
 // 1093
 #define _IO_TEXTIOWRAPPER_FLUSH_METHODDEF    \
-    {"Flush", (AlifCPPFunction)_ioTextIOWrapper_flush, METHOD_NOARGS},
+    {"مباشر", (AlifCPPFunction)_ioTextIOWrapper_flush, METHOD_NOARGS},
 
 static AlifObject* _ioTextIOWrapper_flushImpl(TextIO*);
 

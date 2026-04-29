@@ -41,6 +41,7 @@ public:
 	AlifIntT mainThreadID{};
 	AlifThread* mainThread{};
 
+	AlifHashRuntimeState alifHashState{};
 	AlifThreadRuntimeState threads{};
 	SignalsRuntimeState signals{};
 

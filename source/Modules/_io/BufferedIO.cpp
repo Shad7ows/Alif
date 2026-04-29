@@ -68,12 +68,39 @@ public:
 	AlifObject* weakRefList{};
 };
 
+//* todo
+static AlifIntT _enterBuffered_busy(Buffered *self) { // 289
+	AlifIntT relaxLocking{};
+	//AlifLockStatus st{};
+	//if (self->owner == alifThread_getThreadID()) {
+	//	alifErr_format(_alifExcRuntimeError_,
+	//		"reentrant call inside %R", self);
+	//	return 0;
+	//}
+	//AlifInterpreter *interp = _alifInterpreter_get();
+	//relaxLocking = _alif_isInterpreterFinalizing(interp);
+	//ALIF_BEGIN_ALLOW_THREADS
+	//if (!relaxLocking)
+	//	st = alifThread_acquireLock(self->lock, 1);
+	//else {
+	//	st = alifThread_acquireLockTimed(self->lock, (ALIF_TIMEOUT_T)1e6, 0);
+	//}
+	//ALIF_END_ALLOW_THREADS
+	//if (relaxLocking and st != AlifLockStatus_::Alif_Lock_Acquired) {
+	//	AlifObject *ascii = alifObject_ascii((AlifObject*)self);
+	//	_alif_fatalErrorFormat(__func__,
+	//		"could not acquire lock for %s at interpreter "
+	//		"shutdown, possibly due to daemon threads",
+	//		ascii ? alifUStr_asUTF8(ascii) : "<ascii(self) failed>");
+	//}
+	return 1;
+}
 
 // 324
 #define ENTER_BUFFERED(_self) \
     ( (alifThread_acquireLock(_self->lock, 0) ? \
        1 : _enterBuffered_busy(_self)) \
-     and (_self->owner = alifThread_getThreadIdent(), 1) )
+     and (_self->owner = alifThread_getThreadID(), 1) )
 
 #define LEAVE_BUFFERED(_self) \
     do { \
@@ -164,7 +191,7 @@ static AlifObject* _io_Buffered__deallocWarn(Buffered* self, AlifObject* source)
 
 static AlifObject* _io_Buffered_simpleFlushImpl(Buffered* _self) { // 497
 	CHECK_INITIALIZED(_self);
-	return alifObject_callMethodNoArgs(_self->raw, &ALIF_ID(Flush));
+	return alifObject_callMethodNoArgs(_self->raw, &ALIF_STR(Flush));
 }
 
 
@@ -307,7 +334,7 @@ static AlifIntT _buffered_init(Buffered* self) { // 822
 		alifThread_freeLock(self->lock);
 	self->lock = alifThread_allocateLock();
 	if (self->lock == nullptr) {
-		//alifErr_setString(_alifExcRuntimeError_, "can't allocate read lock");
+		alifErr_setString(_alifExcRuntimeError_, "لم يستطع حجز قفل القراءة");
 		return -1;
 	}
 	self->owner = 0;
@@ -435,23 +462,23 @@ static AlifObject* _io_Buffered_read1Impl(Buffered* self, AlifSizeT n) { // 1018
 	res = alifBytes_fromStringAndSize(nullptr, n);
 	if (res == nullptr)
 		return nullptr;
-	//if (!ENTER_BUFFERED(self)) {
-	//	ALIF_DECREF(res);
-	//	return nullptr;
-	//}
+	if (!ENTER_BUFFERED(self)) {
+		ALIF_DECREF(res);
+		return nullptr;
+	}
 	/* Flush the write buffer if necessary */
-	//if (self->writable) {
-	//	AlifObject* r = buffered_flushAndRewindUnlocked(self);
-	//	if (r == nullptr) {
-	//		LEAVE_BUFFERED(self)
-	//		ALIF_DECREF(res);
-	//		return nullptr;
-	//	}
-	//	ALIF_DECREF(r);
-	//}
+	if (self->writable) {
+		AlifObject* r = buffered_flushAndRewindUnlocked(self);
+		if (r == nullptr) {
+			LEAVE_BUFFERED(self)
+			ALIF_DECREF(res);
+			return nullptr;
+		}
+		ALIF_DECREF(r);
+	}
 	_bufferedReader_resetBuf(self);
 	r = _bufferedReader_rawRead(self, ALIFBYTES_AS_STRING(res), n);
-	//LEAVE_BUFFERED(self)
+	LEAVE_BUFFERED(self)
 	if (r == -1) {
 		ALIF_DECREF(res);
 		return nullptr;
@@ -533,8 +560,8 @@ static AlifSizeT _bufferedReader_rawRead(Buffered* self, char* start, AlifSizeT 
 
 	if (n < 0 or n > len) {
 		alifErr_format(_alifExcOSError_,
-			"raw readinto() returned invalid length %zd "
-			"(should have been between 0 and %zd)", n, len);
+			"اقرا_في() الخام تقوم بإرجاع طول غير صحيح %zd "
+			"(يجب أن تكون بين 0 و %zd)", n, len);
 		return -1;
 	}
 	if (n > 0 and self->absPos != -1)
@@ -699,7 +726,7 @@ static AlifSizeT _bufferedWriter_rawWrite(Buffered* self, char* start, AlifSizeT
 		return -1;
 	do {
 		errno = 0;
-		res = alifObject_callMethodOneArg(self->raw, &ALIF_ID(Write), memobj);
+		res = alifObject_callMethodOneArg(self->raw, &ALIF_STR(Write), memobj);
 		errnum = errno;
 	}
 	while (res == nullptr and _alifIO_trapEintr());
@@ -715,8 +742,8 @@ static AlifSizeT _bufferedWriter_rawWrite(Buffered* self, char* start, AlifSizeT
 	ALIF_DECREF(res);
 	if (n < 0 or n > len) {
 		alifErr_format(_alifExcOSError_,
-			"raw write() returned invalid length %zd "
-			"(should have been between 0 and %zd)", n, len);
+			"اكتب() الخام تقوم بإرجاع طول غير صحيح %zd "
+			"(يجب أن تكون بين 0 و %zd)", n, len);
 		return -1;
 	}
 	if (n > 0 and self->absPos != -1)
@@ -768,7 +795,8 @@ error:
 
 
 
-static AlifObject* _ioBufferedWriter_writeImpl(Buffered* self, AlifBuffer* buffer) { // 2068
+static AlifObject* _ioBufferedWriter_writeImpl(Buffered* self,
+	AlifBuffer* buffer) { // 2068
 	AlifObject* res = nullptr;
 	AlifSizeT written{}, avail{}, remaining{};
 	AlifOffT offset{};
@@ -893,7 +921,40 @@ error:
 
 
 
+static AlifIntT _ioBufferedRandom___init__Impl(Buffered *self, AlifObject *raw,
+	AlifSizeT buffer_size) { // 2445
+	self->ok = 0;
+	self->detached = 0;
 
+	AlifIOState *state = findIOState_byDef(ALIF_TYPE(self));
+	if (_alifIOBase_checkSeekable(state, raw, ALIF_TRUE) == nullptr) {
+		return -1;
+	}
+	if (_alifIOBase_checkReadable(state, raw, ALIF_TRUE) == nullptr) {
+		return -1;
+	}
+	if (_alifIOBase_checkWritable(state, raw, ALIF_TRUE) == nullptr) {
+		return -1;
+	}
+
+	ALIF_INCREF(raw);
+	ALIF_XSETREF(self->raw, raw);
+	self->bufferSize = buffer_size;
+	self->readable = 1;
+	self->writable = 1;
+
+	if (_buffered_init(self) < 0)
+		return -1;
+	_bufferedReader_resetBuf(self);
+	_bufferedWriter_resetBuf(self);
+	self->pos = 0;
+
+	self->fastClosedChecks = (ALIF_IS_TYPE(self, state->alifBufferedRandomType) and
+		ALIF_IS_TYPE(raw, state->alifFileIOType));
+
+	self->ok = 1;
+	return 0;
+}
 
 
 #include "clinic/BufferedIO.cpp.h" // 2484
@@ -1028,4 +1089,84 @@ AlifTypeSpec _bufferedWriterSpec_ = { // 2627
 	.flags = (ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
 			  ALIF_TPFLAGS_IMMUTABLETYPE),
 	.slots = _bufferedWriterSlots_,
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static AlifMethodDef _bufferedRandomMethods_[] = { // 2686
+	/* BufferedIOMixin methods */
+	_IO__BUFFERED_CLOSE_METHODDEF
+	//_IO__BUFFERED_DETACH_METHODDEF
+	_IO__BUFFERED_SEEKABLE_METHODDEF
+	_IO__BUFFERED_READABLE_METHODDEF
+	_IO__BUFFERED_WRITABLE_METHODDEF
+	_IO__BUFFERED_FILENO_METHODDEF
+	//_IO__BUFFERED_ISATTY_METHODDEF
+	//_IO__BUFFERED__DEALLOC_WARN_METHODDEF
+
+	_IO__BUFFERED_FLUSH_METHODDEF
+
+	//_IO__BUFFERED_SEEK_METHODDEF
+	//_IO__BUFFERED_TELL_METHODDEF
+	//_IO__BUFFERED_TRUNCATE_METHODDEF
+	_IO__BUFFERED_READ_METHODDEF
+	_IO__BUFFERED_READ1_METHODDEF
+	//_IO__BUFFERED_READINTO_METHODDEF
+	//_IO__BUFFERED_READINTO1_METHODDEF
+	//_IO__BUFFERED_READLINE_METHODDEF
+	//_IO__BUFFERED_PEEK_METHODDEF
+	_IO_BUFFEREDWRITER_WRITE_METHODDEF
+	//_IO__BUFFERED___SIZEOF___METHODDEF
+
+	//{"__reduce__", _alifIOBase_cannotPickle, METHOD_NOARGS},
+	//{"__reduce_ex__", _alifIOBase_cannotPickle, METHOD_O},
+	{nullptr, nullptr}
+};
+
+static AlifMemberDef _bufferedRandomMembers_[] = { // 2716
+	{"raw", ALIF_T_OBJECT, offsetof(Buffered, raw), ALIF_READONLY},
+	{"_finalizing", ALIF_T_BOOL, offsetof(Buffered, finalizing), 0},
+	{"__weakListOffset__", ALIF_T_ALIFSIZET, offsetof(Buffered, weakRefList), ALIF_READONLY},
+	{"__dictOffset__", ALIF_T_ALIFSIZET, offsetof(Buffered, dict), ALIF_READONLY},
+	{nullptr}
+};
+
+static AlifGetSetDef _bufferedRandomGetSet_[] = {
+	_IO__BUFFERED_CLOSED_GETSETDEF
+	//_IO__BUFFERED_NAME_GETSETDEF
+	//_IO__BUFFERED_MODE_GETSETDEF
+	{nullptr}
+};
+
+static AlifTypeSlot _bufferedRandomSlots_[] = { // 2732
+	//{ALIF_TP_DEALLOC, buffered_dealloc},
+	//{ALIF_TP_REPR, buffered_repr},
+	//{ALIF_TP_DOC, (void *)_ioBufferedRandom___init____doc__},
+	{ALIF_TP_TRAVERSE, (void*)buffered_traverse},
+	//{ALIF_TP_CLEAR, buffered_clear},
+	//{ALIF_TP_ITERNEXT, buffered_iterNext},
+	{ALIF_TP_METHODS, _bufferedRandomMethods_},
+	{ALIF_TP_MEMBERS, _bufferedRandomMembers_},
+	{ALIF_TP_GETSET, _bufferedRandomGetSet_},
+	{ALIF_TP_INIT, (void*)_ioBufferedRandom___init__},
+	{0, nullptr},
+};
+
+AlifTypeSpec _bufferedRandomSpec_ = { // 2746
+	.name = "تبادل.عشوائي_مخزن",
+	.basicsize = sizeof(Buffered),
+	.flags = (ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
+		ALIF_TPFLAGS_IMMUTABLETYPE),
+	.slots = _bufferedRandomSlots_,
 };

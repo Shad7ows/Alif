@@ -4,7 +4,7 @@
 
 
 AlifIntT alifArg_parseTuple(AlifObject*, const char*, ...); // 10
-
+AlifIntT alifArg_parseTupleAndKeywords(AlifObject*, AlifObject*, const char*, const char* const *, ...); // 11
 AlifIntT alifArg_unpackTuple(AlifObject*, const char*, AlifSizeT, AlifSizeT, ...); // 18
 AlifObject* alif_buildValue(const char*, ...); // 19
 

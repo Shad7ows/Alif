@@ -57,25 +57,25 @@ AlifIntT _alifParserEngine_tokenizerError(AlifParser* p) { // 61
 		msg = "inconsistent use of tabs and spaces in indentation";
 		break;
 	case E_TOODEEP:
-		//errtype = _alifExcIndentationError_;
-		msg = "too many levels of indentation";
+		errtype = _alifExcIndentationError_;
+		msg = "تم إضافة مستويات كثيرة من المسافة البادئة";
 		break;
 	case E_LINECONT: {
 		col_offset = p->tok->cur - p->tok->buf - 1;
-		msg = "unexpected character after line continuation character";
+		msg = "حرف غير متوقع بعد حرف استمرار السطر";
 		break;
 	}
 	case E_COLUMNOVERFLOW:
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"Parser column offset overflow - source line is too big");
+		alifErr_setString(_alifExcOverflowError_,
+			"عمود إزاحة المحلل تجاوز الحد المسموح - سطر المصدر كبير جدًا");
 		return -1;
 	default:
-		msg = "unknown parsing error";
+		msg = "خطأ في المحلل غير معروف";
 	}
 
-	//RAISE_ERROR_KNOWN_LOCATION(p, errtype, p->tok->lineNo,
-	//	col_offset >= 0 ? col_offset : 0,
-	//	p->tok->lineNo, -1, msg);
+	_raiseError_knownLocation(p, errtype, p->tok->lineNo,
+		col_offset >= 0 ? col_offset : 0,
+		p->tok->lineNo, -1, msg);
 	return -1;
 }
 

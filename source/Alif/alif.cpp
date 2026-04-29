@@ -139,7 +139,7 @@ static AlifIntT alifMain_runCommand(wchar_t* _command) { // 231
 
 	cf = ALIFCOMPILERFLAGS_INIT;
 	cf.flags |= ALIFCF_IGNORE_COOKIE;
-	ret = _alifRun_simpleStringFlagsWithName(alifBytes_asString(bytes), "<string>", &cf);
+	ret = _alifRun_simpleStringFlagsWithName(alifBytes_asString(bytes), "<نص>", &cf);
 	ALIF_DECREF(bytes);
 	return (ret != 0);
 
@@ -246,17 +246,17 @@ static AlifIntT alifMain_runStartup(AlifConfig* _config, AlifIntT* _exitcode) { 
 	fp = alif_fOpenObj(startup, "r");
 	if (fp == nullptr) {
 		AlifIntT save_errno = errno;
-		//alifErr_clear();
+		alifErr_clear();
 		//alifSys_writeStderr("Could not open ALIFSTARTUP\n");
 
 		errno = save_errno;
-		//alifErr_setFromErrnoWithFilenameObjects(_alifExcOSError_, startup, nullptr);
+		alifErr_setFromErrnoWithFilenameObjects(_alifExcOSError_, startup, nullptr);
 		goto error;
 	}
 
 	cf = ALIFCOMPILERFLAGS_INIT;
 	(void)alifRun_simpleFileObject(fp, startup, 0, &cf);
-	//alifErr_clear();
+	alifErr_clear();
 	fclose(fp);
 	ret = 0;
 
@@ -265,7 +265,7 @@ done:
 	return ret;
 
 error:
-	//ret = alifMain_errPrint(_exitcode);
+	ret = alifMain_errPrint(_exitcode);
 	goto done;
 }
 

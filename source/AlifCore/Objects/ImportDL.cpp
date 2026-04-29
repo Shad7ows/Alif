@@ -128,7 +128,7 @@ AlifIntT _alifImport_runModInitFunc(AlifModInitFunction p0,
 
 		res.def = _alifModule_getDef(m);
 		if (res.def == nullptr) {
-			//alifErr_clear();
+			alifErr_clear();
 			//alifExtModuleLoader_resultSetError(
 			//	&res, Alif_Ext_Module_Loader_Result_ERR_MISSING_DEF);
 			goto error;

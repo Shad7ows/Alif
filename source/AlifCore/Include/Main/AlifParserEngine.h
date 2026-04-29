@@ -130,10 +130,13 @@ AlifIntT alifParserEngine_updateMemo(AlifParser*, AlifIntT, AlifIntT, void*); //
 AlifIntT alifParserEngine_isMemorized(AlifParser*, AlifIntT, void*);
 
 AlifIntT alifParserEngine_lookaheadWithInt(AlifIntT, AlifPToken* (_func)(AlifParser*, AlifIntT), AlifParser*, AlifIntT); // 136
+AlifIntT alifParserEngine_lookaheadWithString(AlifIntT, ExprTy (_func)(AlifParser *,
+	const char*), AlifParser*, const char*); // 137
 AlifIntT alifParserEngine_lookahead(AlifIntT, void* (_func)(AlifParser*), AlifParser*); // 138
 
 AlifPToken* alifParserEngine_expectToken(AlifParser*, AlifIntT); // 140
 AlifPToken* alifParserEngine_expectTokenForced(AlifParser*, AlifIntT, const char*); // 142
+ExprTy alifParserEngine_expectSoftKeyword(AlifParser*, const char*); // 143
 AlifPToken* alifParserEngine_getLastNonWhitespaceToken(AlifParser*); // 146
 ExprTy alifParserEngine_nameToken(AlifParser*); // 148
 ExprTy alifParserEngine_numberToken(AlifParser*); // 149
@@ -201,10 +204,10 @@ ALIF_LOCAL_INLINE(void*) _raiseSyntaxError_invalidTarget(AlifParser* _p,
 	if (invalid_target != nullptr) {
 		const char* msg;
 		if (_type == TargetsType_::Star_Targets or _type == TargetsType_::For_Targets) {
-			msg = "cannot assign to %s";
+			msg = "لا يمكن الإسناد لـ %s";
 		}
 		else {
-			msg = "cannot delete %s";
+			msg = "لا يمكن حذف %s";
 		}
 		return RAISE_SYNTAX_ERROR_KNOWN_LOCATION(
 			invalid_target, msg,
@@ -222,6 +225,7 @@ void* alifParserEngine_dummyName(AlifParser*, ...); // 248
 #define EXTRA_EXPR(_head, _tail) (_head)->lineNo, (_head)->colOffset, (_tail)->endLineNo, (_tail)->endColOffset, _p->astMem // 254
 
 #define EXTRA startLineNo, startColOffset, endLineNo, endColOffset, _p->astMem // 255
+AlifObject* alifParserEngine_newTypeComment(AlifParser*, const char*); // 256
 
 
 
@@ -234,8 +238,7 @@ void* alifParserEngine_dummyName(AlifParser*, ...); // 248
 
 
 
-
-
+ArgTy alifParserEngine_addTypeCommentToArg(AlifParser*, ArgTy, AlifPToken*); // 295
 AlifObject* alifParserEngine_newIdentifier(AlifParser*, const char*); // 296
 ASDLSeq* alifParserEngine_singletonSeq(AlifParser*, void*); // 297
 ASDLSeq* alifParserEngine_seqInsertInFront(AlifParser*, void*, ASDLSeq*); // 298
@@ -251,7 +254,8 @@ ExprTy alifParserEngine_setExprContext(AlifParser*, ExprTy, ExprContext_); // 30
 KeyValuePair* alifParserEngine_keyValuePair(AlifParser*, ExprTy, ExprTy); // 309
 ASDLExprSeq* alifParserEngine_getKeys(AlifParser*, ASDLSeq*); // 310
 ASDLExprSeq* alifParserEngine_getValues(AlifParser*, ASDLSeq*); // 311
-NameDefaultPair* alifParserEngine_nameDefaultPair(AlifParser*, Arg*, ExprTy); // 315
+NameDefaultPair* alifParserEngine_nameDefaultPair(AlifParser*, Arg*, ExprTy, AlifPToken*); // 315
+SlashWithDefault* alifParserEngine_slashWithDefault(AlifParser*, ASDLArgSeq*, ASDLSeq*);
 StarEtc* alifParserEngine_starEtc(AlifParser*, ArgTy, ASDLSeq*, ArgTy); // 317
 ArgumentsTy alifParserEngine_makeArguments(AlifParser*, ASDLArgSeq*, SlashWithDefault*, ASDLArgSeq*, ASDLSeq*, StarEtc*); // 318
 ArgumentsTy alifParserEngine_emptyArguments(AlifParser*); // 320

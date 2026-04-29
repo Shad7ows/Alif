@@ -34,6 +34,12 @@ static inline void _alif_refcntAdd(AlifObject* _op, AlifSizeT _n) { // 132
 #define ALIF_REFCNTADD(_op, _n) _alif_refcntAdd(ALIFOBJECT_CAST(_op), _n)
 
 
+static inline AlifIntT _alifObject_isUniquelyReferenced(AlifObject* ob) { // 144
+	return (alif_isOwnedByCurrentThread(ob) and
+		alifAtomic_loadUint32Relaxed(&ob->refLocal) == 1 and
+		alifAtomic_loadSizeRelaxed(&ob->refShared) == 0);
+}
+
 void alif_setImmortal(AlifObject*); // 162
 void alif_setImmortalUntracked(AlifObject*); // 163 
 
@@ -152,7 +158,7 @@ static inline void _alifObject_gcTrack(AlifObject* _op) { // 403
 	alifObject_setGCBits(_op, ALIFGC_BITS_TRACKED);
 }
 
-static inline void alifObject_gcUntrack(AlifObject* op) { // 443
+static inline void _alifObject_gcUntrack(AlifObject* op) { // 443
 	alifObject_clearGCBits(op, ALIFGC_BITS_TRACKED);
 }
 
@@ -160,7 +166,7 @@ static inline void alifObject_gcUntrack(AlifObject* op) { // 443
 #define ALIFOBJECT_GC_TRACK(_op) \
         _alifObject_gcTrack(ALIFOBJECT_CAST(_op))
 #define ALIFOBJECT_GC_UNTRACK(_op) \
-        alifObject_gcUntrack(ALIFOBJECT_CAST(_op))
+        _alifObject_gcUntrack(ALIFOBJECT_CAST(_op))
 
 static inline AlifIntT alif_tryIncrefFast(AlifObject* _op) { // 492
 	uint32_t local = alifAtomic_loadUint32Relaxed(&_op->refLocal);

@@ -1923,7 +1923,7 @@ AlifStatus alifConfig_setArgv(AlifConfig* _config,
 static AlifObject* config_getSys(const char* _name) { // 4029
 	AlifObject* value = alifSys_getObject(_name);
 	if (value == nullptr) {
-		//alifErr_format(_alifExcRuntimeError_, "lost sys.%s", _name);
+		alifErr_format(_alifExcRuntimeError_, "النظام.%s مفقود", _name);
 		return nullptr;
 	}
 	return ALIF_NEWREF(value);

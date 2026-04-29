@@ -11,7 +11,7 @@ AlifIntT _alifConvertOptional_toSizeT(AlifObject* _obj, void* _result) { // 13
 	if (_obj == ALIF_NONE) {
 		return 1;
 	}
-	else if (alifIndex_check(_obj)) {
+	else if (_alifIndex_check(_obj)) {
 		limit = alifNumber_asSizeT(_obj, _alifExcOverflowError_);
 		if (limit == -1 and alifErr_occurred()) {
 			return 0;
@@ -34,8 +34,8 @@ static AlifSizeT count_format(const char* _format, char _endchar) { // 39
 		switch (*_format) {
 		case '\0':
 			/* Premature end */
-			//alifErr_setString(_alifExcSystemError_,
-			//	"unmatched paren in format");
+			alifErr_setString(_alifExcSystemError_,
+				"قوس غير مطابق في التنسيق");
 			return -1;
 		case '(':
 		case '[':
@@ -80,8 +80,8 @@ static AlifIntT check_end(const char** _pFormat, char _endChar) { // 91
 	const char* f = *_pFormat;
 	while (*f != _endChar) {
 		if (*f != ' ' and *f != '\t' and *f != ',' and *f != ':') {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"Unmatched paren in format");
+			alifErr_setString(_alifExcSystemError_,
+				"نهايات غير متطابقة في التنسيق");
 			return 0;
 		}
 		f++;
@@ -99,9 +99,9 @@ static void do_ignore(const char** _pFormat,
 	va_list* _pVa, char _endChar, AlifSizeT _n) { // 110
 	AlifObject* v = alifTuple_new(_n);
 	for (AlifSizeT i = 0; i < _n; i++) {
-		//AlifObject* exc = alifErr_getRaisedException();
+		AlifObject* exc = alifErr_getRaisedException();
 		AlifObject* w = do_mkValue(_pFormat, _pVa);
-		//alifErr_setRaisedException(exc);
+		alifErr_setRaisedException(exc);
 		if (w != nullptr) {
 			if (v != nullptr) {
 				ALIFTUPLE_SET_ITEM(v, i, w);
@@ -125,8 +125,8 @@ static AlifObject* do_mkDict(const char** _pFormat,
 	AlifSizeT i{};
 	if (_n < 0) return nullptr;
 	if (_n % 2) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Bad dict format");
+		alifErr_setString(_alifExcSystemError_,
+			"تنسيق فهرس غير مناسب");
 		do_ignore(_pFormat, _pVa, _endChar, _n);
 		return nullptr;
 	}
@@ -295,8 +295,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 			return alifLong_fromUnsignedLong(n);
 		}
 
-		//case 'L':
-		//	return alifLong_fromLongLong((long long)va_arg(*_pVa, long long));
+		case 'L':
+			return alifLong_fromLongLong((long long)va_arg(*_pVa, long long));
 
 		case 'K':
 			return alifLong_fromUnsignedLongLong((long long)va_arg(*_pVa, unsigned long long));
@@ -363,8 +363,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 				if (n < 0) {
 					AlifUSizeT m = strlen(str);
 					if (m > ALIF_SIZET_MAX) {
-						//alifErr_setString(_alifExcOverflowError_,
-						//	"string too long for Alif string");
+						alifErr_setString(_alifExcOverflowError_,
+							"النص طويل جداً ولا يتسع في نوع نصوص ألف");
 						return nullptr;
 					}
 					n = (AlifSizeT)m;
@@ -392,8 +392,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 				if (n < 0) {
 					AlifUSizeT m = strlen(str);
 					if (m > ALIF_SIZET_MAX) {
-						//alifErr_setString(_alifExcOverflowError_,
-						//	"string too long for Alif bytes");
+						alifErr_setString(_alifExcOverflowError_,
+							"النص طويل جداً ولا يتسع في نوع بايتات ألف");
 						return nullptr;
 					}
 					n = (AlifSizeT)m;
@@ -420,9 +420,9 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 					if (*(*_pFormat - 1) != 'N')
 						ALIF_INCREF(v);
 				}
-				//else if (!alifErr_occurred())
-				//	alifErr_setString(_alifExcSystemError_,
-				//		"nullptr object passed to alif_buildValue");
+				else if (!alifErr_occurred())
+					alifErr_setString(_alifExcSystemError_,
+						"تم تمرير كائن فارغ لـ alif_buildValue");
 				return v;
 			}
 
@@ -433,8 +433,8 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 			break;
 
 		default:
-			//alifErr_setString(_alifExcSystemError_,
-			//	"bad format char passed to alif_buildValue");
+			alifErr_setString(_alifExcSystemError_,
+				"تم تمرير حرف للتنسيق غير مناسب alif_buildValue");
 			return nullptr;
 
 		}
@@ -536,9 +536,9 @@ AlifIntT alifModule_addObjectRef(AlifObject* _mod,
 	}
 	if (!_value) {
 		if (!alifErr_occurred()) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"alifModule_addObjectRef() must be called "
-			//	"with an exception raised if value is NULL");
+			alifErr_setString(_alifExcSystemError_,
+				"alifModule_addObjectRef() يجب أن تستدعى "
+				"مع إصدار خطأ اذا كانت قيمة المتغير value عدم");
 		}
 		return -1;
 	}
@@ -546,8 +546,8 @@ AlifIntT alifModule_addObjectRef(AlifObject* _mod,
 	AlifObject* dict = alifModule_getDict(_mod);
 	if (dict == nullptr) {
 		/* Internal error -- modules must have a dict! */
-		//alifErr_format(_alifExcSystemError_, "module '%s' has no __dict__",
-		//	alifModule_getName(mod));
+		alifErr_format(_alifExcSystemError_, "الوحدة '%s' لا تملك __فهرس__",
+			alifModule_getName(_mod));
 		return -1;
 	}
 	return alifDict_setItemString(dict, _name, _value);

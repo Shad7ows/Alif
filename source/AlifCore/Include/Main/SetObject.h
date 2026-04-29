@@ -30,6 +30,8 @@ AlifSizeT alifSet_size(AlifObject*); // 21
 	alifType_isSubType(ALIF_TYPE(_ob), &_alifSetType_) or \
 	alifType_isSubType(ALIF_TYPE(_ob), &_alifFrozenSetType_))
 
+// 35
+#define ALIFSET_CHECKEXACT(_op) ALIF_IS_TYPE(_op, &_alifSetType_)
 // 36
 #define ALIFSET_CHECK(_ob) \
     (ALIF_IS_TYPE((_ob), &_alifSetType_) or \

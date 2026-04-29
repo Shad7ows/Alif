@@ -10,7 +10,12 @@
 
 
 
-
+/* Compatibility aliases */
+AlifObject *_alifExcEnvironmentError_ = nullptr;  // borrowed ref
+AlifObject *_alifExcIOError_ = nullptr;  // borrowed ref
+#ifdef _WINDOWS
+AlifObject *_alifExcWindowsError_ = nullptr;  // borrowed ref
+#endif
 
 static AlifExcState* get_excState(void) { // 28
 	AlifInterpreter* interp = _alifInterpreter_get();
@@ -86,7 +91,24 @@ static AlifObject* baseException_vectorCall(AlifObject* type_obj, AlifObject* co
 	return (AlifObject*)self;
 }
 
+static AlifIntT baseException_clear(AlifBaseExceptionObject* _self) { // 115
+	ALIF_CLEAR(_self->dict);
+	ALIF_CLEAR(_self->args);
+	ALIF_CLEAR(_self->notes);
+	ALIF_CLEAR(_self->traceback);
+	ALIF_CLEAR(_self->cause);
+	ALIF_CLEAR(_self->context);
+	return 0;
+}
 
+
+static void baseException_dealloc(AlifBaseExceptionObject* _self) { // 127
+	alifObject_gcUnTrack(_self);
+	ALIF_TRASHCAN_BEGIN(_self, baseException_dealloc)
+		baseException_clear(_self);
+	ALIF_TYPE(_self)->free((AlifObject*)_self);
+	ALIF_TRASHCAN_END
+}
 
 static AlifObject* baseException_str(AlifBaseExceptionObject* _self) { // 152
 	switch (ALIFTUPLE_GET_SIZE(_self->args)) {
@@ -142,7 +164,8 @@ static AlifObject* baseException_addNote(AlifObject* self, AlifObject* note) { /
 }
 
 
-static AlifIntT baseException_setTB(AlifBaseExceptionObject* self, AlifObject* tb, void* ALIF_UNUSED(ignored)) { // 319
+static AlifIntT baseException_setTB(AlifBaseExceptionObject* self,
+	AlifObject* tb, void* ALIF_UNUSED(ignored)) { // 319
 	if (tb == nullptr) {
 		alifErr_setString(_alifExcTypeError_, "__traceback__ may not be deleted");
 		return -1;
@@ -265,17 +288,17 @@ static AlifGetSetDef _baseExceptionGetSet_[] = { // 399
 
 static AlifTypeObject _excBaseException_ = { // 483
 	.objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0),
-	.name = "استثناء_قاعدة",
+	.name = "خطأ_اساس",
 	.basicSize = sizeof(AlifBaseExceptionObject),
-	//.dealloc = (Destructor)baseException_dealloc,
+	.dealloc = (Destructor)baseException_dealloc,
 	//.repr = (ReprFunc)baseException_repr,
-	//.str = (ReprFunc)baseException_str,
+	.str = (ReprFunc)baseException_str,
 	.getAttro = alifObject_genericGetAttr,
 	.setAttro = alifObject_genericSetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC |
 		ALIF_TPFLAGS_BASE_EXC_SUBCLASS,
 	//.traverse = (TraverseProc)baseException_traverse,
-	//(Inquiry)baseException_clear,
+	.clear = (Inquiry)baseException_clear,
 	//.methods = baseException_methods,
 	//.members = baseException_members,
 	.getSet = _baseExceptionGetSet_,
@@ -293,10 +316,10 @@ static AlifTypeObject _exc ## EXCNAME ## _ = { \
     .objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0), \
     .name = # ALIFNAME, \
     .basicSize = sizeof(AlifBaseExceptionObject), \
-    /*.dealloc = (Destructor)baseException_dealloc,*/ \
+    .dealloc = (Destructor)baseException_dealloc, \
     .flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC, \
     /*.traverse = (TraverseProc)baseException_traverse,*/ \
-    /*.clear = (Inquiry)baseException_clear,*/	\
+    .clear = (Inquiry)baseException_clear,	\
 	.base = &EXCBASE, \
     .dictOffset = offsetof(AlifBaseExceptionObject, dict), \
     .init = (InitProc)baseException_init,	\
@@ -306,12 +329,12 @@ AlifObject* _alifExc ## EXCNAME ## _ = (AlifObject *)&_exc ## EXCNAME ## _
 
 
  // 567
-#define COMPLEXEXTENDSEXCEPTION(EXCBASE, EXCNAME, NAME, EXCSTORE, EXCNEW, \
+#define COMPLEXEXTENDSEXCEPTION(EXCBASE, EXCNAME, ALIFNAME, EXCSTORE, EXCNEW, \
                                 EXCMETHODS, EXCMEMBERS, EXCGETSET, \
                                 EXCSTR, EXCDOC) \
 static AlifTypeObject _exc ## EXCNAME ## _ = { \
     .objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0), \
-    .name = # NAME, \
+    .name = # ALIFNAME, \
     .basicSize = sizeof(Alif ## EXCNAME ## Object), \
     /*.dealloc = (Destructor)EXCSTORE ## _dealloc,*/ \
     .repr = (ReprFunc)EXCSTR, \
@@ -331,7 +354,7 @@ AlifObject* _alifExc ## EXCNAME ## _ = (AlifObject*)&_exc ## EXCNAME ## _
 
 
  // 586
-SIMPLEEXTENDSEXCEPTION(_excBaseException_, Exception, خطأ_اساس,
+SIMPLEEXTENDSEXCEPTION(_excBaseException_, Exception, خطأ,
 	"Common base class for all non-exit exceptions.");
 
 // 596
@@ -340,7 +363,7 @@ SIMPLEEXTENDSEXCEPTION(_excException_, TypeError, خطأ_نوع,
 
 
 // 603
-SIMPLEEXTENDSEXCEPTION(_excException_, StopAsyncIteration, خطأ_تكرار_متزامن,
+SIMPLEEXTENDSEXCEPTION(_excException_, StopAsyncIteration, خطأ_توقف_التكرار_المتزامن,
 	"Signal the end from iterator.__anext__().");
 
 
@@ -363,7 +386,7 @@ static AlifIntT stopIteration_init(AlifStopIterationObject* self,
 }
 
 // 656
-COMPLEXEXTENDSEXCEPTION(_excException_, StopIteration, خطأ_تكرار_توقف, stopIteration,
+COMPLEXEXTENDSEXCEPTION(_excException_, StopIteration, خطأ_توقف_التكرار, stopIteration,
 	0, 0, nullptr/*_stopIterationMembers_*/, 0, 0,
 	"Signal the end from iterator.__next__().");
 
@@ -394,10 +417,25 @@ COMPLEXEXTENDSEXCEPTION(_excBaseException_, BaseExceptionGroup, خطأ_اساس_
 	"A combination of multiple unrelated exceptions.");
 
 
+static AlifObject* createException_groupClass(void) { // 1531
+	AlifExcState *state = get_excState();
+
+	AlifObject *bases = alifTuple_pack(
+		2, _alifExcBaseExceptionGroup_, _alifExcException_);
+	if (bases == nullptr) {
+		return nullptr;
+	}
+
+	state->alifExcExceptionGroup = alifErr_newException(
+		"builtins.ExceptionGroup", bases, nullptr);
+
+	ALIF_DECREF(bases);
+	return state->alifExcExceptionGroup;
+}
 
 
-
-AlifObject* _alifExc_createExceptionGroup(const char* _msgStr, AlifObject* _excs) { // 849
+AlifObject* _alifExc_createExceptionGroup(const char* _msgStr,
+	AlifObject* _excs) { // 849
 	AlifObject* msg = alifUStr_fromString(_msgStr);
 	if (!msg) {
 		return nullptr;
@@ -437,7 +475,7 @@ COMPLEXEXTENDSEXCEPTION(_excException_, ImportError,
 	"لا يمكن إيجاد وحدة الاستيراد, او لا يمكن إيجاد الاسم في الوحدة ");
 
 // 1710
-MIDDLINGEXTENDSEXCEPTION(_excImportError_, ModuleNotFoundError, خطأ_استيراد, ImportError,
+MIDDLINGEXTENDSEXCEPTION(_excImportError_, ModuleNotFoundError, خطأ_مكتبة_غير_موجودة, ImportError,
 	"Module not found.");
 
 
@@ -702,14 +740,14 @@ static AlifGetSetDef _osErrorGetSet_[] = {
 };
 
 // 2159
-COMPLEXEXTENDSEXCEPTION(_excException_, OSError, خطأ_نظام,
+COMPLEXEXTENDSEXCEPTION(_excException_, OSError, خطأ_نظام_تشغيل,
 	osError, osError_new,
 	_osErrorMethods_, _osErrorMembers_, _osErrorGetSet_,
 	nullptr/*osError_str*/,
 	"Base class for I/O related errors.");
 
 
-MIDDLINGEXTENDSEXCEPTION(_excOSError_, BlockingIOError, خطأ_نظام, OSError,
+MIDDLINGEXTENDSEXCEPTION(_excOSError_, BlockingIOError, خطأ_منع_التبادل, OSError,
 	"I/O operation would block."); // 2169
 
 
@@ -717,7 +755,7 @@ MIDDLINGEXTENDSEXCEPTION(_excOSError_, BlockingIOError, خطأ_نظام, OSError
 /*
  *    RuntimeError extends Exception
  */
-SIMPLEEXTENDSEXCEPTION(_excException_, RuntimeError, خطا_اثناء_التشغيل,
+SIMPLEEXTENDSEXCEPTION(_excException_, RuntimeError, خطأ_اثناء_التشغيل,
 	"خطأ غير محدد أثناء التشغيل.");
 
 
@@ -735,11 +773,11 @@ static AlifIntT attributeError_init(AlifAttributeErrorObject* _self,
 	if (!emptyTuple) {
 		return -1;
 	}
-	//if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$OO:AttributeError", kwlist,
-	//	&name, &obj)) {
-	//	ALIF_DECREF(emptyTuple);
-	//	return -1;
-	//}
+	if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$OO:خطأ_خاصية", kwlist,
+		&name, &obj)) {
+		ALIF_DECREF(emptyTuple);
+		return -1;
+	}
 	ALIF_DECREF(emptyTuple);
 
 	ALIF_XSETREF(_self->name, ALIF_XNEWREF(name));
@@ -872,7 +910,7 @@ static AlifMemberDef _syntaxErrorMembers_[] = { // 2573
 	{"text", ALIF_T_OBJECT, offsetof(AlifSyntaxErrorObject, text), 0},
 	{"endLineno", ALIF_T_OBJECT, offsetof(AlifSyntaxErrorObject, endLineno), 0},
 	{"endOffset", ALIF_T_OBJECT, offsetof(AlifSyntaxErrorObject, endOffset), 0},
-	{"printFileAndLine", ALIF_T_OBJECT,
+	{"PrintFileAndLine", ALIF_T_OBJECT,
 		offsetof(AlifSyntaxErrorObject, printFileAndLine), 0},
 	{nullptr}  /* Sentinel */
 };
@@ -883,10 +921,10 @@ COMPLEXEXTENDSEXCEPTION(_excException_, SyntaxError, خطأ_نسق, syntaxError,
 
 
 
-MIDDLINGEXTENDSEXCEPTION(_excSyntaxError_, IndentationError, خطأ_مسافة, SyntaxError,
+MIDDLINGEXTENDSEXCEPTION(_excSyntaxError_, IndentationError, خطأ_مسافة_بادئة, SyntaxError,
 	"مسافة طويلة 'tab' غير صحيحة"); // 2602
 
-MIDDLINGEXTENDSEXCEPTION(_excIndentationError_, TabError, خطأ_مسافة, SyntaxError,
+MIDDLINGEXTENDSEXCEPTION(_excIndentationError_, TabError, خطأ_مسافة_طويلة, SyntaxError,
 	"Improper mixture of spaces and tabs."); // 2609
 
 
@@ -904,7 +942,7 @@ SIMPLEEXTENDSEXCEPTION(_excException_, ValueError, خطأ_قيمة,
 	"Inappropriate argument value (of correct type)."); // 2660
 
 
-SIMPLEEXTENDSEXCEPTION(_excException_, ArithmeticError, خطأ_حساب,
+SIMPLEEXTENDSEXCEPTION(_excException_, ArithmeticError, خطأ_حسابي,
 	"Base class for arithmetic errors.");
 
 // 3310
@@ -925,42 +963,42 @@ public:
 };
 
 static StaticException _staticExceptions_[] = { // 3615
-#define ITEM(_name) {&_exc##_name##_, #_name}
+#define ITEM(_name, _alifName) {&_exc##_name##_, #_alifName}
 	// Level 1
-	ITEM(BaseException),
+	ITEM(BaseException, خطأ_اساس),
 
 	// Level 2: BaseException subclasses
-	ITEM(BaseExceptionGroup),
-	ITEM(Exception),
+	ITEM(BaseExceptionGroup, خطأ_اساس_مجموعة),
+	ITEM(Exception, خطأ),
 	//ITEM(GeneratorExit),
 	//ITEM(KeyboardInterrupt),
 	//ITEM(SystemExit),
 
 	// Level 3: Exception(BaseException) subclasses
-	ITEM(ArithmeticError),
+	ITEM(ArithmeticError, خطأ_حسابي),
 	//ITEM(AssertionError),
-	ITEM(AttributeError),
+	ITEM(AttributeError, خطأ_خاصية),
 	//ITEM(BufferError),
 	//ITEM(EOFError),
 	//ITEM(ExceptionGroup),
-	ITEM(ImportError),
-	ITEM(LookupError),
+	ITEM(ImportError, خطأ_استيراد),
+	ITEM(LookupError, خطأ_بحث),
 	//ITEM(MemoryError),
 	//ITEM(NameError),
-	ITEM(OSError),
+	ITEM(OSError, خطأ_نظام_تشغيل),
 	//ITEM(ReferenceError),
-	//ITEM(RuntimeError),
-	ITEM(StopAsyncIteration),
-	ITEM(StopIteration),
-	ITEM(SyntaxError),
-	ITEM(SystemError),
-	ITEM(TypeError),
-	ITEM(ValueError),
+	ITEM(RuntimeError, خطأ_اثناء_التشغيل),
+	ITEM(StopAsyncIteration, خطأ_توقف_التكرار_المتزامن),
+	ITEM(StopIteration, خطأ_توقف_التكرار),
+	ITEM(SyntaxError, خطأ_نسق),
+	ITEM(SystemError, خطأ_نظام),
+	ITEM(TypeError, خطأ_نوع),
+	ITEM(ValueError, خطأ_قيمة),
 	//ITEM(Warning),
 
 	// Level 4: ArithmeticError(Exception) subclasses
 	//ITEM(FloatingPointError),
-	ITEM(OverflowError),
+	ITEM(OverflowError, خطأ_فائض),
 	//ITEM(ZeroDivisionError),
 
 	// Level 4: Warning(Exception) subclasses
@@ -977,7 +1015,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	//ITEM(UserWarning),
 
 	// Level 4: OSError(Exception) subclasses
-	ITEM(BlockingIOError),
+	ITEM(BlockingIOError, خطأ_منع_التبادل),
 	//ITEM(ChildProcessError),
 	//ITEM(ConnectionError),
 	//ITEM(FileExistsError),
@@ -990,11 +1028,11 @@ static StaticException _staticExceptions_[] = { // 3615
 	//ITEM(TimeoutError),
 
 	// Level 4: Other subclasses
-	ITEM(IndentationError), // base: SyntaxError(Exception)
+	ITEM(IndentationError, خطأ_مسافة_بادئة), // base: SyntaxError(Exception)
 	//{&_alifExcIncompleteInputError_, "_IncompleteInputError"}, // base: SyntaxError(Exception)
-	ITEM(IndexError),  // base: LookupError(Exception)
+	ITEM(IndexError, خطأ_مؤشر),  // base: LookupError(Exception)
 	//ITEM(KeyError),  // base: LookupError(Exception)
-	//ITEM(ModuleNotFoundError), // base: ImportError(Exception)
+	ITEM(ModuleNotFoundError, خطأ_مكتبة_غير_موجودة), // base: ImportError(Exception)
 	//ITEM(NotImplementedError),  // base: RuntimeError(Exception)
 	//ITEM(AlifFinalizationError),  // base: RuntimeError(Exception)
 	//ITEM(RecursionError),  // base: RuntimeError(Exception)
@@ -1008,7 +1046,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	//ITEM(ConnectionResetError),
 
 	// Level 5: IndentationError(SyntaxError) subclasses
-	//ITEM(TabError),  // base: IndentationError
+	ITEM(TabError, خطأ_مسافة_طويلة),  // base: IndentationError
 
 	// Level 5: UnicodeError(ValueError) subclasses
 	//ITEM(UnicodeDecodeError),
@@ -1030,5 +1068,49 @@ AlifIntT _alifExc_initTypes(AlifInterpreter* _interp) { // 3709
 			exc->vectorCall = baseException_vectorCall;
 		}
 	}
+	return 0;
+}
+
+
+
+/* Add exception types to the builtins module */
+AlifIntT _alifBuiltins_addExceptions(AlifObject *_bltinMod) { // 3828
+	AlifObject *mod_dict = alifModule_getDict(_bltinMod);
+	if (mod_dict == nullptr) {
+		return -1;
+	}
+
+	for (size_t i=0; i < ALIF_ARRAY_LENGTH(_staticExceptions_); i++) {
+		StaticException item = _staticExceptions_[i];
+
+		if (alifDict_setItemString(mod_dict, item.name, (AlifObject*)item.exc)) {
+			return -1;
+		}
+	}
+
+	AlifObject* alifExcExceptionGroup = createException_groupClass();
+	if (!alifExcExceptionGroup) {
+		return -1;
+	}
+	if (alifDict_setItemString(mod_dict, "ExceptionGroup", alifExcExceptionGroup)) {
+		return -1;
+	}
+
+#define INIT_ALIAS(_name, _type) \
+    do { \
+        _alifExc ## _name ## _ = _alifExc ## _type ## _; \
+        if (alifDict_setItemString(mod_dict, # _name, _alifExc ## _type ## _)) { \
+            return -1; \
+        } \
+    } while (0)
+
+	INIT_ALIAS(EnvironmentError, OSError);
+	INIT_ALIAS(IOError, OSError);
+#ifdef _WINDOWS
+	INIT_ALIAS(WindowsError, OSError);
+#endif
+
+#undef INIT_ALIAS
+
 	return 0;
 }

@@ -9,6 +9,7 @@
 #include "AlifCore_FreeList.h"
 #include "AlifCore_InitConfig.h"
 #include "AlifCore_ParkingLot.h"
+#include "AlifCore_Errors.h"
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_Memory.h"
 #include "AlifCore_State.h"
@@ -289,7 +290,7 @@ AlifIntT alifInterpreter_setRunningMain(AlifInterpreter* _interp) { // 1056
 	ALIF_ENSURETHREADNOTNULL(tstate);
 	if (tstate->interpreter != _interp) {
 		alifErr_setString(_alifExcRuntimeError_,
-			"current tstate has wrong interpreter");
+			"الخيط الحالي او القناة الحالية 'thread' يحتوي على المفسر الخاطئ");
 		return -1;
 	}
 	set_mainThread(_interp, tstate);
@@ -318,7 +319,7 @@ AlifIntT alifInterpreter_failIfRunningMain(AlifInterpreter* _interp) { // 1105
 
 int64_t alifInterpreter_getID(AlifInterpreter* _interp) { // 1226
 	if (_interp == nullptr) {
-		alifErr_setString(_alifExcRuntimeError_, "no interpreter provided");
+		alifErr_setString(_alifExcRuntimeError_, "متغير المفسر فارغ");
 		return -1;
 	}
 	return _interp->id_;
@@ -446,7 +447,7 @@ AlifObject* _alifThreadState_getDict(AlifThread* _thread) { // 1941
 	if (_thread->dict == nullptr) {
 		_thread->dict = alifDict_new();
 		if (_thread->dict == nullptr) {
-			//_alifErr_clear(_thread);
+			_alifErr_clear(_thread);
 		}
 	}
 	return _thread->dict;

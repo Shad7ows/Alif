@@ -43,8 +43,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__firstLineno__);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(__format__);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(__format__);
+	//_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__getAttr__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__hash__);
@@ -111,8 +111,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Fileno);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(Flush);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(Flush);
+	//_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(HasLocation);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Join);
@@ -143,12 +143,12 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Stdout);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(TextIOWrapper);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(TextIOWrapper);
+	//_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Top);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(Write);
-	_alifUStr_internStatic(interp, &string);
+	//string = &ALIF_ID(Write);
+	//_alifUStr_internStatic(interp, &string);
 
 	string = &ALIF_STR(AnonListComp);
 	_alifUStr_internStatic(interp, &string);
@@ -176,6 +176,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(False);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(Flush);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Mode);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Name);
@@ -191,6 +193,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(Sep);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__call__);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__format__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__init__);
 	_alifUStr_internStatic(interp, &string);

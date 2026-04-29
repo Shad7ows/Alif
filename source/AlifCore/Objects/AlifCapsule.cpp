@@ -33,7 +33,7 @@ static AlifIntT _is_legalCapsule(AlifObject* _op,
 	return 1;
 
 error:
-	//alifErr_setString(_alifExcValueError_, _invalidCapsule);
+	alifErr_setString(_alifExcValueError_, _invalidCapsule);
 	return 0;
 }
 
@@ -56,7 +56,7 @@ AlifObject* alifCapsule_new(void* pointer, const char* name,
 	AlifCapsule* capsule{};
 
 	if (!pointer) {
-		//alifErr_setString(_alifExcValueError_, "alifCapsule_new called with null pointer");
+		alifErr_setString(_alifExcValueError_, "alifCapsule_new تم إستدعائها مع متغير pointer فارغ");
 		return nullptr;
 	}
 
@@ -84,7 +84,7 @@ void* alifCapsule_getPointer(AlifObject* _op, const char* _name) { // 96
 	AlifCapsule* capsule = (AlifCapsule*)_op;
 
 	if (!name_matches(_name, capsule->name)) {
-		//alifErr_setString(_alifExcValueError_, "alifCapsule_getPointer called with incorrect name");
+		alifErr_setString(_alifExcValueError_, "alifCapsule_getPointer تم إستدعائها مع متغير name غير صحيح");
 		return nullptr;
 	}
 

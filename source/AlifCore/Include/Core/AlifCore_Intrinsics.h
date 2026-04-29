@@ -15,6 +15,7 @@
 #define INTRINSIC_PARAMSPEC                      8
 #define INTRINSIC_TYPEVARTUPLE                   9
 #define INTRINSIC_SUBSCRIPT_GENERIC             10
+#define INTRINSIC_TYPEALIAS                     11
 
 
 

@@ -27,6 +27,8 @@ public:
 };
 
 
+void _alifFloat_exactDealloc(AlifObject*); // 36
+
 
 extern AlifIntT _alifFloat_formatAdvancedWriter(AlifUStrWriter*, AlifObject*,
 	AlifObject*, AlifSizeT, AlifSizeT); // 44

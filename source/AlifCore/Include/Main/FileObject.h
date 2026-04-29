@@ -4,7 +4,7 @@
 AlifObject* alifFile_getLine(AlifObject*, AlifIntT); // 14
 AlifIntT alifFile_writeObject(AlifObject*, AlifObject*, AlifIntT); // 15
 AlifIntT alifFile_writeString(const char*, AlifObject*); // 16
-
+AlifIntT alifObject_asFileDescriptor(AlifObject*); // 17
 
 
 

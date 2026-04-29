@@ -330,7 +330,7 @@ AlifIntT _alifTokenizer_checkCodingSpec(const char* line, AlifSizeT size, TokenS
 	if (tok->encoding == nullptr) {
 		if (strcmp(cs, "utf-8") != 0 and !set_readline(tok, cs)) {
 			_alifTokenizer_errorRet(tok);
-			alifErr_format(_alifExcSyntaxError_, "encoding problem: %s", cs);
+			alifErr_format(_alifExcSyntaxError_, "مشكلة ترميز: %s", cs);
 			alifMem_dataFree(cs);
 			return 0;
 		}
@@ -340,7 +340,7 @@ AlifIntT _alifTokenizer_checkCodingSpec(const char* line, AlifSizeT size, TokenS
 		if (strcmp(tok->encoding, cs) != 0) {
 			_alifTokenizer_errorRet(tok);
 			alifErr_format(_alifExcSyntaxError_,
-				"encoding problem: %s with BOM", cs);
+				"مشكلة ترميز: %s مع BOM", cs);
 			alifMem_dataFree(cs);
 			return 0;
 		}

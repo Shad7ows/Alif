@@ -270,15 +270,26 @@ ASDLExprSeq* alifParserEngine_getValues(AlifParser* _p, ASDLSeq* _seq) { // 367
 }
 
 NameDefaultPair* alifParserEngine_nameDefaultPair(AlifParser* _p,
-	ArgTy _arg, ExprTy _value) { // 428
+	ArgTy _arg, ExprTy _value, AlifPToken* _tc) { // 428
 
 	NameDefaultPair* a_ = (NameDefaultPair*)alifASTMem_malloc(_p->astMem, sizeof(NameDefaultPair));
 	if (!a_) return nullptr;
 
-	a_->arg = alifAST_arg(_arg->arg, _arg->lineNo, _arg->colOffset, _arg->endLineNo, _arg->endColOffset, _p->astMem);
+	a_->arg = alifParserEngine_addTypeCommentToArg(_p, _arg, _tc);
 	a_->value = _value;
 
 	return a_;
+}
+
+SlashWithDefault* alifParserEngine_slashWithDefault(AlifParser* _p,
+	ASDLArgSeq* _plainNames, ASDLSeq* _namesWithDefaults) { // 441
+	SlashWithDefault *a = (SlashWithDefault*)alifASTMem_malloc(_p->astMem, sizeof(SlashWithDefault));
+	if (!a) {
+		return nullptr;
+	}
+	a->plainNames = _plainNames;
+	a->namesWithDefaults = _namesWithDefaults;
+	return a;
 }
 
 StarEtc* alifParserEngine_starEtc(AlifParser* _p, ArgTy _varArg,
@@ -584,6 +595,37 @@ ModuleTy alifParserEngine_makeModule(AlifParser* _p, ASDLStmtSeq* _a) { // 857
 }
 
 
+AlifObject* alifParserEngine_newTypeComment(AlifParser* _p, const char* _s) { // 883
+	AlifObject* res = alifUStr_decodeUTF8(_s, strlen(_s), nullptr);
+	if (res == nullptr) {
+		return nullptr;
+	}
+	if (alifASTMem_listAddAlifObj(_p->astMem, res) < 0) {
+		ALIF_DECREF(res);
+		return nullptr;
+	}
+	return res;
+}
+
+ArgTy alifParserEngine_addTypeCommentToArg(AlifParser* _p, ArgTy _a,
+	AlifPToken* _tc) { // 897
+	if (_tc == nullptr) {
+		return _a;
+	}
+	const char *bytes = alifBytes_asString(_tc->bytes);
+	if (bytes == nullptr) {
+		return nullptr;
+	}
+	AlifObject* tco = alifParserEngine_newTypeComment(_p, bytes);
+	if (tco == nullptr) {
+		return nullptr;
+	}
+	return alifAST_arg(_a->arg, _a->annotation, tco,
+		_a->lineNo, _a->colOffset, _a->endLineNo, _a->endColOffset,
+		_p->astMem);
+}
+
+
 static ResultTokenWithMetadata* resultToken_withMetadata(AlifParser* _p,
 	void* _result, AlifObject* _metadata) { // 948
 
@@ -661,7 +703,7 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 	case AttributeK:
 		return "صفة";
 	case SubScriptK:
-		return "subscript";
+		return "نص فرعي";
 	case StarK:
 		return "نجمي";
 	case NameK:
@@ -670,8 +712,8 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 		return "مصفوفة";
 	case TupleK:
 		return "مترابطة";
-	//case LambdaK:
-	//	return "lambda";
+	case LambdaK:
+		return "خطية";
 	case CallK:
 		return "استدعاء دالة";
 	case BoolOpK:
@@ -688,13 +730,13 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 	case ListCompK:
 		return "مصفوفة ضمنية";
 	case SetCompK:
-		return "تشكيلة ضمنية";
+		return "مميزة ضمنية";
 	case DictCompK:
 		return "فهرس ضمني";
 	case DictK:
 		return "فهرس";
 	case SetK:
-		return "عرض تشكيلة";
+		return "عرض مميزة";
 	case JoinStrK:
 	case FormattedValK:
 		return "تعبير نص منسق";
@@ -721,9 +763,9 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 	case NamedExprK:
 		return "تعبير اسمي";
 	default:
-		//alifErr_format(_alifExcSystemError_,
-		//	"unexpected expression in assignment %d (line %d)",
-		//	e->type, e->lineNo);
+		alifErr_format(_alifExcSystemError_,
+			"تعبير غير متوقع في الإسناد %d (السطر %d)",
+			_e->type, _e->lineNo);
 		return nullptr;
 	}
 }

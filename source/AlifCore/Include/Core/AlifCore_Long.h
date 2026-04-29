@@ -26,18 +26,21 @@ double _alifLong_frexp(AlifLongObject* , int64_t* ); // 88
 
 extern AlifObject* _alifLong_fromBytes(const char*, AlifSizeT, AlifIntT); // 91
 
-extern AlifIntT _alifLong_formatWriter(AlifUStrWriter*, AlifObject*, AlifIntT, AlifIntT); // 104
+extern AlifObject* _alifLong_format(AlifObject*, AlifIntT); // 104
 
 extern AlifObject* _alifLong_rShift(AlifObject*, int64_t); // 107
 
 extern AlifObject* _alifLong_lShift(AlifObject*, int64_t); // 111
 
+extern AlifIntT _alifLong_formatWriter(AlifUStrWriter*, AlifObject*, AlifIntT, AlifIntT); // 128
 
 AlifObject* _alifLong_add(AlifLongObject*, AlifLongObject*); // 113
 
 extern unsigned char _alifLongDigitValue_[256]; // 118
 
 
+extern AlifIntT _alifLong_formatAdvancedWriter(AlifUStrWriter*,
+	AlifObject*, AlifObject*, AlifSizeT, AlifSizeT); // 121
 
 
 

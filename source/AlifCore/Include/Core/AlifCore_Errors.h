@@ -46,3 +46,7 @@ AlifObject* _alifErr_format(AlifThread*, AlifObject*, const char*, ...); // 128
 
 
 extern AlifObject* _alifExc_createExceptionGroup(const char*, AlifObject*); // 151
+
+
+
+extern AlifObject* _alif_calculateSuggestions(AlifObject*, AlifObject*); // 162

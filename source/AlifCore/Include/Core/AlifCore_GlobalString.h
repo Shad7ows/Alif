@@ -41,7 +41,10 @@ public:
 	public:
 		STRUCT_FOR_USTR(_windowsConsoleIO, "طرفية_ويندوز")
 			STRUCT_FOR_STR(AnonGenExpr, "<genexpr>")
-			STRUCT_FOR_STR(AnonListComp, "<listcomp>")
+			STRUCT_FOR_STR(AnonLambda, "<خطية>")
+			STRUCT_FOR_STR(AnonListComp, "<مصفوفة_ضمنية>")
+			STRUCT_FOR_STR(AnonSetComp, "<مميزة_ضمنية>")
+			STRUCT_FOR_STR(AnonDictComp, "<فهرس_ضمني>")
 			STRUCT_FOR_USTR(AnonModule, "<وحدة>") //* alif
 			STRUCT_FOR_STR(AnonString, "<string>")
 			STRUCT_FOR_STR(DblPercent, "%%")
@@ -57,6 +60,9 @@ public:
 			STRUCT_FOR_STR(TypeParams, ".type_params")
 			STRUCT_FOR_STR(True, "صح") //* alif
 			STRUCT_FOR_STR(False, "خطأ") //* alif
+			STRUCT_FOR_USTR(Flush, "مباشر") //* alif
+			STRUCT_FOR_STR(ListErr, "مؤشر المصفوفة خارج النطاق")
+			STRUCT_FOR_STR(lambda, "خطية") //* alif
 			STRUCT_FOR_STR(Mode, "mode") //* alif
 			STRUCT_FOR_STR(Name, "name") //* alif
 			STRUCT_FOR_STR(Obj, "obj") //* alif
@@ -70,12 +76,22 @@ public:
 			STRUCT_FOR_USTR(Sep, "الفاصل") //* alif
 			STRUCT_FOR_USTR(TextIOWrapper, "غلاف_النص") //* alif
 			STRUCT_FOR_USTR(Write, "اكتب") //* alif
+			STRUCT_FOR_USTR(__abs__, "__مطلق__") //* alif
 			STRUCT_FOR_USTR(__add__, "__اجمع__") //* alif
 			STRUCT_FOR_USTR(__call__, "__استدعاء__") //* alif
+			STRUCT_FOR_USTR(__format__, "__تنسيق__") //* alif
 			STRUCT_FOR_USTR(__init__, "__تهيئة__") //* alif
 			STRUCT_FOR_USTR(__import__, "__استورد__") //* alif
+			STRUCT_FOR_USTR(__mul__, "__اضرب__") //* alif
+			STRUCT_FOR_USTR(__neg__, "__سالب__") //* alif
+			STRUCT_FOR_USTR(__pow__, "__اس__") //* alif
+			STRUCT_FOR_USTR(__rpow__, "__اس_ع__") //* alif
 			STRUCT_FOR_USTR(__radd__, "__اجمع_ع__") //* alif
 			STRUCT_FOR_USTR(__repr__, "__عرض__") //* alif
+			STRUCT_FOR_USTR(__reversed__, "__معكوس__") //* alif
+			STRUCT_FOR_USTR(__rmul__, "__اضرب_ع__") //* alif
+			STRUCT_FOR_USTR(__rsub__, "__اطرح_ع__") //* alif
+			STRUCT_FOR_USTR(__sub__, "__اطرح__") //* alif
 			STRUCT_FOR_STR(_io, "تبادل") //* alif //* review // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject()
 	} literals;
 
@@ -83,6 +99,7 @@ public:
 	public:
 		STRUCT_FOR_ID(CANCELLED)
 			STRUCT_FOR_ID(AlifRepr)
+			//STRUCT_FOR_ID(__abs__)
 			STRUCT_FOR_ID(__abstractMethods__)
 			STRUCT_FOR_ID(__annotate__)
 			STRUCT_FOR_ID(__bases__)
@@ -101,10 +118,11 @@ public:
 			STRUCT_FOR_ID(__eq__)
 			STRUCT_FOR_ID(__file__)
 			STRUCT_FOR_ID(__firstLineno__)
-			STRUCT_FOR_ID(__format__)
+			//STRUCT_FOR_ID(__format__)
 			STRUCT_FOR_ID(__getAttr__)
 			STRUCT_FOR_ID(__hash__)
 			STRUCT_FOR_ID(__initSubclass__)
+			STRUCT_FOR_ID(__instanceCheck__)
 			STRUCT_FOR_ID(__IOBaseClosed)
 			STRUCT_FOR_ID(__lengthHint__)
 			STRUCT_FOR_ID(__loader__)
@@ -139,7 +157,7 @@ public:
 			STRUCT_FOR_ID(Buffering)
 			STRUCT_FOR_ID(buffersize)
 			STRUCT_FOR_ID(Builtins)
-			STRUCT_FOR_ID(Close)
+			//STRUCT_FOR_ID(Close)
 			STRUCT_FOR_ID(Closed)
 			STRUCT_FOR_ID(CloseFD)
 			STRUCT_FOR_ID(Code)
@@ -153,7 +171,7 @@ public:
 			STRUCT_FOR_ID(File)
 			STRUCT_FOR_ID(Filename)
 			STRUCT_FOR_ID(Fileno)
-			STRUCT_FOR_ID(Flush)
+			//STRUCT_FOR_ID(Flush)
 			STRUCT_FOR_ID(GenExpr)
 			STRUCT_FOR_ID(GetState)
 			STRUCT_FOR_ID(HasLocation)
@@ -176,6 +194,7 @@ public:
 			STRUCT_FOR_ID(Origin)
 			STRUCT_FOR_ID(Path)
 			STRUCT_FOR_ID(Peek)
+			STRUCT_FOR_ID(PrintFileAndLine)
 			STRUCT_FOR_ID(Readable)
 			STRUCT_FOR_ID(Read)
 			STRUCT_FOR_ID(Read1)
@@ -191,10 +210,10 @@ public:
 			STRUCT_FOR_ID(Stdin)
 			STRUCT_FOR_ID(Stdout)
 			STRUCT_FOR_ID(strict)
-			STRUCT_FOR_ID(TextIOWrapper)
+			//STRUCT_FOR_ID(TextIOWrapper)
 			STRUCT_FOR_ID(Top)
 			STRUCT_FOR_ID(Translate)
-			STRUCT_FOR_ID(Write)
+			//STRUCT_FOR_ID(Write)
 			STRUCT_FOR_ID(Writable)
 			STRUCT_FOR_ID(WriteThrough)
 	} identifiers;

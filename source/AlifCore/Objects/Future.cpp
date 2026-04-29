@@ -46,8 +46,8 @@ static AlifIntT future_checkFeatures(AlifFutureFeatures* ff, StmtTy s, AlifObjec
 			ff->features |= CO_FUTURE_ANNOTATIONS;
 		}
 		else if (strcmp(feature, "braces") == 0) {
-			//alifErr_setString(_alifExcSyntaxError_,
-			//	"not a chance");
+			alifErr_setString(_alifExcSyntaxError_,
+				"لا يوجد فرصة");
 			//alifErr_rangedSyntaxLocationObject(filename,
 			//	name->lineNo,
 			//	name->colOffset + 1,
@@ -56,8 +56,8 @@ static AlifIntT future_checkFeatures(AlifFutureFeatures* ff, StmtTy s, AlifObjec
 			return 0;
 		}
 		else {
-			//alifErr_format(_alifExcSyntaxError_,
-			//	UNDEFINED_FUTURE_FEATURE, feature);
+			alifErr_format(_alifExcSyntaxError_,
+				UNDEFINED_FUTURE_FEATURE, feature);
 			//alifErr_rangedSyntaxLocationObject(filename,
 			//	name->lineNo,
 			//	name->colOffset + 1,

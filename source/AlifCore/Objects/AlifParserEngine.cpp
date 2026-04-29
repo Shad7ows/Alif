@@ -226,6 +226,14 @@ AlifIntT alifParserEngine_isMemorized(AlifParser* _p, AlifIntT _type, void* _pre
 	return 0;
 }
 
+AlifIntT alifParserEngine_lookaheadWithString(AlifIntT _positive, ExprTy (_func)(AlifParser *,
+	const char*), AlifParser* _p, const char* _arg) { // 388
+	AlifIntT mark = _p->mark;
+	void *res = _func(_p, _arg);
+	_p->mark = mark;
+	return (res != nullptr) == _positive;
+}
+
 AlifIntT alifParserEngine_lookaheadWithInt(AlifIntT _positive,
 	AlifPToken* (_func)(AlifParser*, AlifIntT), AlifParser* _p, AlifIntT _arg) { // 397
 	AlifIntT mark_ = _p->mark;
@@ -278,12 +286,37 @@ AlifPToken* alifParserEngine_expectTokenForced(AlifParser* _p,
 
 	AlifPToken* t_ = _p->tokens[_p->mark];
 	if (t_->type != _type) {
-		//RAISE_SYNTAX_ERROR_KNOWN_LOCATION(t_, "expected '%s'", _expected);
+		RAISE_SYNTAX_ERROR_KNOWN_LOCATION(t_, "متوقع '%s'", _expected);
 		return nullptr;
 	}
 	_p->mark += 1;
 	return t_;
 }
+
+
+ExprTy alifParserEngine_expectSoftKeyword(AlifParser* _p,
+	const char* _keyword) { // 467
+	if (_p->mark == _p->fill) {
+		if (alifParserEngine_fillToken(_p) < 0) {
+			_p->errorIndicator = 1;
+			return nullptr;
+		}
+	}
+	AlifPToken* t = _p->tokens[_p->mark];
+	if (t->type != NAME) {
+		return nullptr;
+	}
+	const char *s = alifBytes_asString(t->bytes);
+	if (!s) {
+		_p->errorIndicator = 1;
+		return nullptr;
+	}
+	if (strcmp(s, _keyword) != 0) {
+		return nullptr;
+	}
+	return alifParserEngine_nameToken(_p);
+}
+
 
 AlifPToken* alifParserEngine_getLastNonWhitespaceToken(AlifParser* _p) { // 491
 	AlifPToken* token = nullptr;
@@ -403,7 +436,7 @@ static AlifObject* parseNumber_raw(const char* _s) { // 611
 	//	return alifComplex_fromCComplex(compl);
 	//}
 	dx = alifOS_stringToDouble(_s, nullptr, nullptr);
-	if (dx == -1.0 /*and alifErr_occurred()*/) {
+	if (dx == -1.0 and alifErr_occurred()) {
 		return nullptr;
 	}
 	return alifFloat_fromDouble(dx);
@@ -447,27 +480,25 @@ ExprTy alifParserEngine_numberToken(AlifParser* _p) { // 684
 
 	if (_p->featureVersion < 6 and strchr(rawNum, L'_') != nullptr) {
 		_p->errorIndicator = 1;
-		//return RAISE_SYNTAX_ERROR("Underscores in numeric literals are only supported "
-		//	"in Alif5"); //* todo
-		return nullptr; // temp
+		return (ExprTy)RAISE_SYNTAX_ERROR("فقط الشحطة السفلية '_' مسموحة في الأرقام");
 	}
 
 	AlifObject* num = parse_number(rawNum);
 	if (num == nullptr) {
 		_p->errorIndicator = 1;
-		//AlifThread* tstate = _alifThread_get();
-		//if (tstate->currentException != nullptr and
-		//	ALIF_TYPE(tstate->currentException) == (AlifTypeObject*)_alifExcValueError_) {
-		//	AlifObject* exc = alifErr_getRaisedException();
-		//	RAISE_ERROR_KNOWN_LOCATION(
-		//		_p, _alifExcSyntaxError_,
-		//		tok->lineNo, -1 /* col_offset */,
-		//		tok->endLineNo, -1 /* end_col_offset */,
-		//		"%S - Consider hexadecimal for huge integer literals "
-		//		"to avoid decimal conversion limits.",
-		//		exc);
-			//ALIF_DECREF(exc);
-		//}
+		AlifThread* tstate = _alifThread_get();
+		if (tstate->currentException != nullptr and
+			ALIF_TYPE(tstate->currentException) == (AlifTypeObject*)_alifExcValueError_) {
+			AlifObject* exc = alifErr_getRaisedException();
+			_raiseError_knownLocation(
+				_p, _alifExcSyntaxError_,
+				tok->lineNo, -1 /* colOffset */,
+				tok->endLineNo, -1 /* endColOffset */,
+				"%S - ضع في اعتبارك استخدام النظام السداسي عشري للأعداد الصحيحة الضخمة "
+				"لتجنب حدود التحويل العشري.",
+				exc);
+			ALIF_DECREF(exc);
+		}
 		return nullptr;
 	}
 
@@ -589,7 +620,7 @@ void* alifParserEngine_runParser(AlifParser* _p) { // 883
 	if (res == nullptr) {
 		//if ((_p->flags & ALIFPARSE_ALLOW_INCOMPLETE_INPUT) and is_endOfSource(_p)) {
 		//	alifErr_clear();
-		//	return alifParserEngine_raiseError(_p, ALIFEXC_INCOMPLETEINPUTERROR, 0, "incomplete input");
+		//	return _alifParserEngine_raiseError(_p, ALIFEXC_INCOMPLETEINPUTERROR, 0, "incomplete input");
 		//}
 		if (alifErr_occurred() and !alifErr_exceptionMatches(_alifExcSyntaxError_)) {
 			return nullptr;

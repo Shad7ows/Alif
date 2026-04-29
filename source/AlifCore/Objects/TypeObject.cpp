@@ -421,7 +421,8 @@ void alifType_setVersion(AlifTypeObject* _tp, AlifUIntT _version) { // 1184
 
 #define MAX_VERSIONS_PER_CLASS 1000 // 1218
 
-static AlifIntT assign_versionTag(AlifInterpreter* interp, AlifTypeObject* type) { // 1220
+static AlifIntT assign_versionTag(AlifInterpreter* interp,
+	AlifTypeObject* type) { // 1220
 	if (type->versionTag != 0) {
 		return 1;
 	}
@@ -460,6 +461,30 @@ static AlifIntT assign_versionTag(AlifInterpreter* interp, AlifTypeObject* type)
 }
 
 
+static AlifIntT check_setSpecialTypeAttr(AlifTypeObject *type,
+	AlifObject *value, const char *name) { // 1284
+	if (_alifType_hasFeature(type, ALIF_TPFLAGS_IMMUTABLETYPE)) {
+		alifErr_format(_alifExcTypeError_,
+			"لا يمكن ضبط '%s' عنصر لنوع غير متغير '%s'",
+			name, type->name);
+		return 0;
+	}
+	if (!value) {
+		alifErr_format(_alifExcTypeError_,
+			"لا يمكن حذف '%s' عنصر لنوع غير متغير '%s'",
+			name, type->name);
+		return 0;
+	}
+
+	//if (alifSys_audit("object.__setattr__", "OsO",
+	//	type, name, value) < 0) {
+	//	return 0;
+	//}
+
+	return 1;
+}
+
+
 const char* _alifType_name(AlifTypeObject* _type) { // 1308
 	const char* s = strrchr(_type->name, '.');
 	if (s == nullptr) {
@@ -483,15 +508,59 @@ static AlifObject* type_qualname(AlifTypeObject* type, void* context) { // 1335
 }
 
 
-static AlifObject* type_abstractMethods(AlifTypeObject* type, void* context) { // 1491
+static AlifObject* type_module(AlifTypeObject *_type) { // 1396
+	AlifObject* mod{};
+	if (_type->flags & ALIF_TPFLAGS_HEAPTYPE) {
+		AlifObject *dict = lookup_tpDict(_type);
+		if (alifDict_getItemRef(dict, &ALIF_ID(__module__), &mod) == 0) {
+			alifErr_format(_alifExcAttributeError_, "__module__");
+		}
+	}
+	else {
+		const char *s = strrchr(_type->name, '.');
+		if (s != nullptr) {
+			mod = alifUStr_fromStringAndSize(
+				_type->name, (AlifSizeT)(s - _type->name));
+			if (mod != nullptr) {
+				AlifInterpreter* interp = _alifInterpreter_get();
+				alifUStr_internMortal(interp, &mod);
+			}
+		}
+		else {
+			mod = &ALIF_ID(Builtins);
+		}
+	}
+	return mod;
+}
+
+static AlifObject* type_getModule(AlifTypeObject* _type, void* _context) { // 1423
+	return type_module(_type);
+}
+
+static AlifIntT type_setModule(AlifTypeObject* type, AlifObject* value,
+	void* context) { // 1429
+	if (!check_setSpecialTypeAttr(type, value, "__module__"))
+		return -1;
+
+	alifType_modified(type);
+
+	AlifObject *dict = lookup_tpDict(type);
+	if (alifDict_pop(dict, &ALIF_ID(__firstLineno__), nullptr) < 0) {
+		return -1;
+	}
+	return alifDict_setItem(dict, &ALIF_ID(__module__), value);
+}
+
+static AlifObject* type_abstractMethods(AlifTypeObject* type,
+	void* context) { // 1491
 	AlifObject* mod = nullptr;
 	if (type == &_alifTypeType_) {
-		//alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
+		alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
 	}
 	else {
 		AlifObject* dict = lookup_tpDict(type);
 		if (alifDict_getItemRef(dict, &ALIF_ID(__abstractMethods__), &mod) == 0) {
-			//alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
+			alifErr_setObject(_alifExcAttributeError_, &ALIF_ID(__abstractMethods__));
 		}
 	}
 	return mod;
@@ -502,7 +571,23 @@ static AlifObject* type_abstractMethods(AlifTypeObject* type, void* context) { /
 static AlifIntT add_subClass(AlifTypeObject*, AlifTypeObject*); // 1569
 
 
-static AlifObject* type_call(AlifObject* _self, AlifObject* _args, AlifObject* _kwds) { // 2136
+
+static AlifGetSetDef _typeGetSets_[] = { // 2076
+	//{"__name__", (Getter)type_name, (Setter)type_setName, nullptr},
+	//{"__qualname__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
+	//{"__bases__", (Getter)type_getBases, (Setter)type_setBases, nullptr},
+	//{"__mro__", (Getter)type_getMro, nullptr, nullptr},
+	{"__module__", (Getter)type_getModule, (Setter)type_setModule, nullptr},
+	//{"__abstractmethods__", (Getter)type_abstractMethods,
+	//(Setter)type_setAbstractMethods, nullptr},
+	//{"__dict__",  (Getter)type_dict,  nullptr, nullptr},
+	{0}
+};
+
+
+
+static AlifObject* type_call(AlifObject* _self, AlifObject* _args,
+	AlifObject* _kwds) { // 2136
 	AlifTypeObject* type = (AlifTypeObject*)_self;
 	AlifObject* obj{};
 	AlifThread* thread = _alifThread_get();
@@ -818,13 +903,13 @@ static AlifObject* lookup_maybeMethod(AlifObject* _self, AlifObject* _attr, Alif
 	return res;
 }
 
-static AlifObject* lookup_method(AlifObject* _self, AlifObject* _attr, AlifIntT* _unbound) { // 2760
+static AlifObject* lookup_method(AlifObject* _self, AlifObject* _attr,
+	AlifIntT* _unbound) { // 2760
 	AlifObject* res_ = lookup_maybeMethod(_self, _attr, _unbound);
 	if (res_ == nullptr
-		//and !alifErr_occurred()
+		and !alifErr_occurred()
 		) {
-		//alifErr_setObject(_alifExcAttributeError_, _attr);
-		return nullptr; // temp
+		alifErr_setObject(_alifExcAttributeError_, _attr);
 	}
 	return res_;
 }
@@ -838,7 +923,7 @@ static inline AlifObject* vectorcall_unbound(AlifThread* _thread, AlifIntT _unbo
 		nargsf = nargsf - 1 + ALIF_VECTORCALL_ARGUMENTS_OFFSET;
 	}
 	//EVAL_CALL_STAT_INC_IF_FUNCTION(EVAL_CALL_SLOT, _func);
-	return alifObject_vectorCallThread(_thread, _func, _args, nargsf, NULL);
+	return alifObject_vectorCallThread(_thread, _func, _args, nargsf, nullptr);
 }
 
 
@@ -850,6 +935,20 @@ static AlifObject* call_unboundNoArg(AlifIntT _unbound,
 	else {
 		return _alifObject_callNoArgs(_func);
 	}
+}
+
+static AlifObject* vectorcall_method(AlifObject *_name,
+	AlifObject *const *_args, AlifSizeT _nargs) { // 2795
+	AlifThread* thread = _alifThread_get();
+	AlifIntT unbound{};
+	AlifObject *self = _args[0];
+	AlifObject *func = lookup_method(self, _name, &unbound);
+	if (func == nullptr) {
+		return nullptr;
+	}
+	AlifObject *retval = vectorcall_unbound(thread, unbound, func, _args, _nargs);
+	ALIF_DECREF(func);
+	return retval;
 }
 
 static AlifObject* vectorcall_maybe(AlifThread* _thread, AlifObject* _name,
@@ -1854,9 +1953,9 @@ static AlifIntT typeNew_setAttrs(const TypeNewCtx* _ctx, AlifTypeObject* _type) 
 static AlifIntT typeNew_getSlots(TypeNewCtx* _ctx, AlifObject* _dict) { // 4297
 	AlifObject* slots = alifDict_getItemWithError(_dict, &ALIF_ID(__slots__));
 	if (slots == nullptr) {
-		//if (alifErr_occurred()) {
-		//	return -1;
-		//}
+		if (alifErr_occurred()) {
+			return -1;
+		}
 		_ctx->slots = nullptr;
 		_ctx->nslot = 0;
 		return 0;
@@ -2183,7 +2282,7 @@ inline static AlifObject* get_basesTuple(AlifObject* bases_in, AlifTypeSpec* spe
 		if (ALIFTUPLE_CHECK(bases)) {
 			return ALIF_NEWREF(bases);
 		}
-		//alifErr_setString(_alifExcSystemError_, "ALIF_TP_BASES is not a tuple");
+		alifErr_setString(_alifExcSystemError_, "ALIF_TP_BASES ليس مترابطة");
 		return nullptr;
 	}
 	if (ALIFTUPLE_CHECK(bases_in)) {
@@ -2226,10 +2325,10 @@ static inline AlifIntT specialOffset_fromMember(
 		return 0;
 	}
 	if (_memb->type != ALIF_T_ALIFSIZET) {
-		//alifErr_format(
-		//	_alifExcSystemError_,
-		//	"type of %s must be ALIF_T_ALIFSIZET",
-		//	memb->name);
+		alifErr_format(
+			_alifExcSystemError_,
+			"نوع %s يجب أ نيكون ALIF_T_ALIFSIZET",
+			_memb->name);
 		return -1;
 	}
 	if (_memb->flags == ALIF_READONLY) {
@@ -2240,10 +2339,10 @@ static inline AlifIntT specialOffset_fromMember(
 		*_dest = _memb->offset + _typeDataOffset;
 		return 0;
 	}
-	//alifErr_format(
-	//	_alifExcSystemError_,
-	//	"flags for %s must be ALIF_READONLY or (ALIF_READONLY | ALIF_RELATIVE_OFFSET)",
-	//	memb->name);
+	alifErr_format(
+		_alifExcSystemError_,
+		"أعلام %s يجب أن تكون ALIF_READONLY او (ALIF_READONLY | ALIF_RELATIVE_OFFSET)",
+		_memb->name);
 	return -1;
 }
 
@@ -2269,7 +2368,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 	for (slot = spec->slots; slot->slot; slot++) {
 		if (slot->slot < 0
 			or (AlifUSizeT)slot->slot >= ALIF_ARRAY_LENGTH(_alifSlotOffsets_)) {
-			//alifErr_setString(_alifExcRuntimeError_, "invalid slot offset");
+			alifErr_setString(_alifExcRuntimeError_, "إزاحة الخانة غير صالحة");
 			goto finally;
 		}
 		switch (slot->slot) {
@@ -2277,7 +2376,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 			if (nmembers != 0) {
 				alifErr_setString(
 					_alifExcSystemError_,
-					"Multiple ALIF_TP_MEMBERS slots are not supported.");
+					"خانات ALIF_TP_MEMBERS غير مدعومة.");
 				goto finally;
 			}
 			for (const AlifMemberDef* memb = (AlifMemberDef*)slot->pfunc; memb->name != nullptr; memb++) {
@@ -2286,13 +2385,13 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 					if (spec->basicsize > 0) {
 						alifErr_setString(
 							_alifExcSystemError_,
-							"With ALIF_RELATIVE_OFFSET, basicsize must be negative.");
+							"مع ALIF_RELATIVE_OFFSET, basicsize يجب أن يكون قيمة سالبة.");
 						goto finally;
 					}
 					if (memb->offset < 0 or memb->offset >= -spec->basicsize) {
 						alifErr_setString(
 							_alifExcSystemError_,
-							"Member offset out of range (0..-basicsize)");
+							"العضو offset خارج النطاق (0..-basicsize)");
 						goto finally;
 					}
 				}
@@ -2309,9 +2408,9 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 			break;
 		case ALIF_TP_DOC:
 			if (tp_doc != nullptr) {
-				//_alifErr_setString(
-				//	_alifExcSystemError_,
-				//	"Multiple ALIF_TP_DOC slots are not supported.");
+				alifErr_setString(
+					_alifExcSystemError_,
+					"خانات ALIF_TP_DOC غير مدعومة.");
 				goto finally;
 			}
 			if (slot->pfunc == nullptr) {
@@ -2334,8 +2433,8 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 	/* Prepare the type name and qualname */
 
 	if (spec->name == nullptr) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Type spec does not define the name field.");
+		alifErr_setString(_alifExcSystemError_,
+			"نوع spec لا يُعرِف مجال الاسم.");
 		goto finally;
 	}
 
@@ -2416,9 +2515,9 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 		/* Inheriting variable-sized types is limited */
 		if (base->itemSize
 			and !((base->flags | spec->flags) & ALIF_TPFLAGS_ITEMS_AT_END)) {
-			//alifErr_setString(
-			//	_alifExcSystemError_,
-			//	"Cannot extend variable-size class without ALIF_TPFLAGS_ITEMS_AT_END.");
+			alifErr_setString(
+				_alifExcSystemError_,
+				"لا يمكن زيادة حجم متغير الصنف بدون ALIF_TPFLAGS_ITEMS_AT_END.");
 			goto finally;
 		}
 	}
@@ -2794,7 +2893,7 @@ AlifObject* alifType_lookupRef(AlifTypeObject* _type, AlifObject* _name) { // 54
 	if (error) {
 
 		if (error == -1) {
-			//alifErr_clear();
+			alifErr_clear();
 		}
 		return nullptr;
 	}
@@ -2813,9 +2912,9 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 	AlifObject* res{};
 
 	if (!ALIFUSTR_CHECK(_name)) {
-		//alifErr_format(_alifExctypeError_,
-			//"attribute name must be string, not '%.200s'",
-			//ALIF_TYPE(name)->name);
+		alifErr_format(_alifExcTypeError_,
+			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
 
@@ -2869,9 +2968,9 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 	}
 
 	if (_suppressMissingAttribute == nullptr) {
-		//alfiErr_format(_alifExcAttributeError_,
-			//"type object '%.100s' has no attribute '%U'",
-			//type->name, _name);
+		alifErr_format(_alifExcAttributeError_,
+			"كائن النوع '%.100s' لا يملك الخاصية '%U'",
+			_type->name, _name);
 	}
 	else {
 		// signal the caller we have not set an _alifExcAttributeError_ and gave up
@@ -2939,15 +3038,19 @@ static AlifMethodDef _typeMethods_[] = { // 6182
 };
 
 
+static AlifNumberMethods _typeAsNumber_ = { // 6305
+	//.or_ = _alif_unionTypeOr, // Add __or__ function
+};
 
-
-AlifTypeObject _alifTypeType_ = { // 6195
+AlifTypeObject _alifTypeType_ = { // 6309
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "نوع",
 	.basicSize = sizeof(AlifHeapTypeObject),
 	.itemSize = sizeof(AlifMemberDef),
 	.dealloc = type_dealloc,
 	.vectorCallOffset = offsetof(AlifTypeObject, vectorCall),
+	//.repr = type_repr,
+	.asNumber = &_typeAsNumber_,
 	.call = type_call,
 	.getAttro = alifType_getAttro,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
@@ -2958,6 +3061,7 @@ AlifTypeObject _alifTypeType_ = { // 6195
 	.weakListOffset = offsetof(AlifTypeObject, weakList),
 
 	.methods = _typeMethods_,
+	.getSet = _typeGetSets_,
 	.dictOffset = offsetof(AlifTypeObject, dict),
 	.init = type_init,
 	.new_ = type_new,
@@ -3072,14 +3176,14 @@ static AlifObject* object_initSubclass(AlifObject* cls, AlifObject* arg) { // 73
 
 
 
-static AlifObject* object___format__Impl(AlifObject* self, AlifObject* format_spec) { // 7340
-	if (ALIFUSTR_GET_LENGTH(format_spec) > 0) {
+static AlifObject* object___format__Impl(AlifObject* _self, AlifObject* _formatSpec) { // 7340
+	if (ALIFUSTR_GET_LENGTH(_formatSpec) > 0) {
 		//alifErr_format(_alifExcTypeError_,
-		//	"unsupported format string passed to %.200s.__format__",
+		//	"unsupported format string passed to %.200s.__تنسيق__",
 		//	ALIF_TYPE(self)->name);
 		return nullptr;
 	}
-	return alifObject_str(self);
+	return alifObject_str(_self);
 }
 
 
@@ -3095,17 +3199,17 @@ static AlifMethodDef _objectMethods_[] = { // 7433
 
 
 
-AlifTypeObject _alifBaseObjectType_ = { // 7453
+AlifTypeObject _alifBaseObjectType_ = { // 7557
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "كائن",
 	.basicSize = sizeof(AlifObject),
-	.itemSize = 0,
 	.dealloc = object_dealloc,
 	.hash = alifObject_genericHash,
 	//.str = object_str,
 	.getAttro = alifObject_genericGetAttr,
 	.setAttro = alifObject_genericSetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE,
+	//.richCompare = object_richCompare,
 	.methods = _objectMethods_,
 	.init = object_init,
 	.alloc = alifType_genericAlloc,
@@ -3492,8 +3596,8 @@ static AlifIntT add_tpNewWrapper(AlifTypeObject*); // 7898
 
 static AlifIntT typeReady_preChecks(AlifTypeObject* _type) { // 7902
 	if (_type->name == nullptr) {
-		//alifErr_format(_alifExcSystemError_,
-			//"Type does not define the tp_name field.");
+		alifErr_format(_alifExcSystemError_,
+			"type لا يُعرِف مجال الاسم.");
 		return -1;
 	}
 	return 0;
@@ -3775,10 +3879,10 @@ static AlifIntT typeReady_managedDict(AlifTypeObject* _type) { // 8322
 		return 0;
 	}
 	if (!(_type->flags & ALIF_TPFLAGS_HEAPTYPE)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"type %s has the ALIF_TPFLAGS_MANAGED_DICT flag "
-		//	"but not ALIF_TPFLAGS_HEAPTYPE flag",
-		//	type->name);
+		alifErr_format(_alifExcSystemError_,
+			"نوع %s يملك علم ALIF_TPFLAGS_MANAGED_DICT "
+			"وليس علم ALIF_TPFLAGS_HEAPTYPE",
+			_type->name);
 		return -1;
 	}
 	AlifHeapTypeObject* et = (AlifHeapTypeObject*)_type;
@@ -3798,25 +3902,25 @@ static AlifIntT typeReady_managedDict(AlifTypeObject* _type) { // 8322
 static AlifIntT typeReady_postChecks(AlifTypeObject* type) { // 8349
 	if (type->flags & ALIF_TPFLAGS_HAVE_GC
 		and type->traverse == nullptr) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"type %s has the ALIF_TPFLAGS_HAVE_GC flag "
-		//	"but has no traverse function", type->name);
+		alifErr_format(_alifExcSystemError_,
+			"نوع %s يملك علم ALIF_TPFLAGS_HAVE_GC "
+			"ولكن لا يملك دالة عبور", type->name);
 		return -1;
 	}
 	if (type->flags & ALIF_TPFLAGS_MANAGED_DICT) {
 		if (type->dictOffset != -1) {
-			//alifErr_format(_alifExcSystemError_,
-			//	"type %s has the ALIF_TPFLAGS_MANAGED_DICT flag "
-			//	"but tp_dictoffset is set to incompatible value",
-			//	type->name);
+			alifErr_format(_alifExcSystemError_,
+				"نوع %s يملك علم ALIF_TPFLAGS_MANAGED_DICT "
+				"ولكن dictOffset مضبوط ك قيمة غير متوافقة",
+				type->name);
 			return -1;
 		}
 	}
 	else if (type->dictOffset < (AlifSizeT)sizeof(AlifObject)) {
 		if (type->dictOffset + type->basicSize <= 0) {
-			//alifErr_format(_alifExcSystemError_,
-			//	"type %s has a dictOffset that is too small",
-			//	type->name);
+			alifErr_format(_alifExcSystemError_,
+				"نوع %s يملك dictOffset ذو قيمة صغيرة جدا",
+				type->name);
 		}
 	}
 	return 0;
@@ -3966,18 +4070,36 @@ static AlifIntT add_subClass(AlifTypeObject* _base, AlifTypeObject* _type) { // 
 }
 
 
-static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8748
+static AlifIntT check_numArgs(AlifObject* _ob, AlifIntT _n) { // 8763
 	if (!ALIFTUPLE_CHECKEXACT(_ob)) {
 		alifErr_setString(_alifExcSystemError_,
-			"alifArg_unpackTuple() argument list is not a tuple");
+			"alifArg_unpackTuple() سلسلة المعاملات ليست مترابطة");
 		return 0;
 	}
 	if (_n == ALIFTUPLE_GET_SIZE(_ob))
 		return 1;
 	alifErr_format(
 		_alifExcTypeError_,
-		"expected %d argument%s, got %zd", _n, _n == 1 ? "" : "s", ALIFTUPLE_GET_SIZE(_ob));
+		"متوقع %d معامل%s, ولكن %zd", _n, _n == 1 ? "" : "ات", ALIFTUPLE_GET_SIZE(_ob));
 	return 0;
+}
+
+static AlifSizeT check_powArgs(AlifObject* ob) { // 8779
+	AlifIntT min = 1;
+	AlifIntT max = 2;
+	if (!ALIFTUPLE_CHECKEXACT(ob)) {
+		alifErr_setString(_alifExcSystemError_,
+			"alifArg_unpackTuple() مصفوفة المعاملات ليست من نوع مصفوفة");
+		return -1;
+	}
+	AlifSizeT size = ALIFTUPLE_GET_SIZE(ob);
+	if (size >= min and size <= max) {
+		return size;
+	}
+	alifErr_format(
+		_alifExcTypeError_,
+		"من المتوقع المعاملات %d او %d, ولكن الممرر %zd", min, max, ALIFTUPLE_GET_SIZE(ob));
+	return -1;
 }
 
 static AlifObject* wrap_binaryFuncL(AlifObject* _self,
@@ -3990,6 +4112,58 @@ static AlifObject* wrap_binaryFuncL(AlifObject* _self,
 	other = ALIFTUPLE_GET_ITEM(_args, 0);
 	return (*func)(_self, other);
 }
+
+static AlifObject* wrap_binaryFuncR(AlifObject* _self,
+	AlifObject* _args, void* _wrapped) { // 8860
+	BinaryFunc func = (BinaryFunc)_wrapped;
+	AlifObject* other{};
+
+	if (!check_numArgs(_args, 1))
+		return nullptr;
+	other = ALIFTUPLE_GET_ITEM(_args, 0);
+	return (*func)(other, _self);
+}
+
+static AlifObject* wrap_ternaryFunc(AlifObject* _self,
+	AlifObject* _args, void* _wrapped) { // 8872
+	TernaryFunc func = (TernaryFunc)_wrapped;
+	AlifObject* other{};
+	AlifObject* third = ALIF_NONE;
+
+	/* ملاحظة: هذه الدالة تستخدم فقط مع __اس__() */
+
+	AlifSizeT size = check_powArgs(_args);
+	if (size == -1) {
+		return nullptr;
+	}
+	other = ALIFTUPLE_GET_ITEM(_args, 0);
+	if (size == 2) {
+		third = ALIFTUPLE_GET_ITEM(_args, 1);
+	}
+
+	return (*func)(_self, other, third);
+}
+
+static AlifObject* wrap_ternaryFuncR(AlifObject* _self,
+	AlifObject* _args, void* _wrapped) { // 8893
+	TernaryFunc func = (TernaryFunc)_wrapped;
+	AlifObject* other{};
+	AlifObject* third = ALIF_NONE;
+
+	/* ملاحظة: هذه الدالة تستخدم فقط مع __اس_ع__() */
+
+	AlifSizeT size = check_powArgs(_args);
+	if (size == -1) {
+		return nullptr;
+	}
+	other = ALIFTUPLE_GET_ITEM(_args, 0);
+	if (size == 2) {
+		third = ALIFTUPLE_GET_ITEM(_args, 1);
+	}
+
+	return (*func)(other, _self, third);
+}
+
 
 static AlifObject* wrap_unaryFunc(AlifObject* _self,
 	AlifObject* _args, void* _wrapped) { // 8899
@@ -4023,8 +4197,8 @@ static AlifObject* tpNew_wrapper(AlifObject* _self,
 	AlifObject* arg0{}, * res{};
 
 	if (_self == nullptr or !ALIFTYPE_CHECK(_self)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"__new__() called with non-type 'self'");
+		alifErr_format(_alifExcSystemError_,
+			"__جديد__() مستدعى مع ليس-نوع 'هذا'");
 		return nullptr;
 	}
 	AlifTypeObject* type = (AlifTypeObject*)_self;
@@ -4103,6 +4277,17 @@ static AlifIntT add_tpNewWrapper(AlifTypeObject* _type) { // 9302
 	ALIF_DECREF(func);
 	return r_;
 }
+
+
+// 9460
+#define SLOT0(_funcName, _dunder) \
+static AlifObject * \
+_funcName(AlifObject *self) \
+{ \
+    AlifObject* stack[1] = {self}; \
+    return vectorcall_method(&ALIF_STR(_dunder), stack, 1); \
+}
+
 
 static AlifIntT method_isOverloaded(AlifObject* _left,
 	AlifObject* _right, AlifObject* _name) { // 9463
@@ -4183,10 +4368,35 @@ _funcName(AlifObject *self, AlifObject *other) \
 
 
 
-SLOT1BIN(slot_nbAdd, add_, __add__, __radd__) // 9669
+SLOT1BIN(slot_nbAdd, add_, __add__, __radd__) // 9684
+SLOT1BIN(slot_nbSubtract, subtract, __sub__, __rsub__)
+SLOT1BIN(slot_nbMultiply, multiply, __mul__, __rmul__)
 
 
-static AlifObject* slot_tpRepr(AlifObject* self) { // 9793
+static AlifObject* slot_nbPower(AlifObject*, AlifObject*, AlifObject*); // 9691
+
+SLOT1BINFULL(slot_nbPowerBinary, slot_nbPower, power, __pow__, __rpow__)
+
+static AlifObject* slot_nbPower(AlifObject* _self,
+	AlifObject* _other, AlifObject* _modulus) { // 9695
+	if (_modulus == ALIF_NONE)
+		return slot_nbPowerBinary(_self, _other);
+	if (ALIF_TYPE(_self)->asNumber != nullptr and
+		ALIF_TYPE(_self)->asNumber->power == slot_nbPower) {
+		AlifObject* stack[3] = {_self, _other, _modulus};
+		return vectorcall_method(&ALIF_STR(__pow__), stack, 3);
+	}
+	ALIF_RETURN_NOTIMPLEMENTED;
+}
+
+
+SLOT0(slot_nbNegative, __neg__) // 9711
+SLOT0(slot_nbAbsolute, __abs__) // 9713
+
+
+
+
+static AlifObject* slot_tpRepr(AlifObject* self) { // 9808
 	AlifObject* func{}, * res{};
 	AlifIntT unbound{};
 
@@ -4202,7 +4412,8 @@ static AlifObject* slot_tpRepr(AlifObject* self) { // 9793
 }
 
 
-static AlifObject* slot_tpCall(AlifObject* self, AlifObject* args, AlifObject* kwds) { // 9740
+static AlifObject* slot_tpCall(AlifObject* self, AlifObject* args,
+	AlifObject* kwds) { // 9740
 	AlifThread* thread = _alifThread_get();
 	AlifIntT unbound{};
 
@@ -4246,9 +4457,9 @@ static AlifIntT slot_tpInit(AlifObject* _self,
 	if (res == nullptr)
 		return -1;
 	if (res != ALIF_NONE) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"__init__() should return None, not '%.200s'",
-		//	ALIF_TYPE(res)->name);
+		alifErr_format(_alifExcTypeError_,
+			"__تهيئة__() يجب أن يرجع عدم, وليس '%.200s'",
+			ALIF_TYPE(res)->name);
 		ALIF_DECREF(res);
 		return -1;
 	}
@@ -4286,7 +4497,7 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 #undef BINSLOT
 #undef RBINSLOT
 
-// 10497
+// 10512
 #define TPSLOT(_name, _slot, _function, _wrapper, _doc) \
     {.name = #_name, .offset = offsetof(AlifTypeObject, _slot), .function = (void *)(_function), .wrapper = _wrapper, \
      .doc = ALIFDOC_STR(_doc), .nameStrObj = &ALIF_STR(_name)}
@@ -4296,11 +4507,19 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 #define ETSLOT(_name, _slot, _function, _wrapper, _doc) \
     {.name = #_name, .offset = offsetof(AlifHeapTypeObject, _slot), .function = (void *)(_function), .wrapper = _wrapper, \
      .doc = ALIFDOC_STR(_doc), .nameStrObj = &ALIF_STR(_name) }
+#define NBSLOT(_name, _slot, _function, _wrapper, _doc) \
+    ETSLOT(_name, number._slot, _function, _wrapper, _doc)
+#define UNSLOT(_name, _slot, _function, _wrapper, _doc) \
+    ETSLOT(_name, number._slot, _function, _wrapper, \
+           #_name "(هذا, /)\n--\n\n" _doc)
 #define BINSLOT(_name, _slot, _function, _doc) \
     ETSLOT(_name, number._slot, _function, wrap_binaryFuncL, \
            nullptr)
+#define RBINSLOT(_name, _slot, _function, _doc) \
+    ETSLOT(_name, number._slot, _function, wrap_binaryFuncR, \
+           nullptr)
 
-static AlifTypeSlotDef _slotDefs_[] = { // 10416
+static AlifTypeSlotDef _slotDefs_[] = { // 10550
 	TPSLOT(__repr__, repr, slot_tpRepr, wrap_unaryFunc, nullptr),
 	FLSLOT(__call__, call, slot_tpCall, (WrapperFunc)(void(*)(void))wrap_call,
 		nullptr, ALIFWRAPPERFLAG_KEYWORDS),
@@ -4309,7 +4528,18 @@ static AlifTypeSlotDef _slotDefs_[] = { // 10416
 
 
 	BINSLOT(__add__, add_, slot_nbAdd, "+"),
-
+	RBINSLOT(__radd__, add_, slot_nbAdd, "+"),
+	BINSLOT(__sub__, subtract, slot_nbSubtract, "-"),
+	RBINSLOT(__rsub__, subtract, slot_nbSubtract, "-"),
+	BINSLOT(__mul__, multiply, slot_nbMultiply, "*"),
+	RBINSLOT(__rmul__, multiply, slot_nbMultiply, "*"),
+	NBSLOT(__pow__, power, slot_nbPower, wrap_ternaryFunc,
+		"__اس__"),
+	NBSLOT(__rpow__, power, slot_nbPower, wrap_ternaryFuncR,
+		"__اس_ع__"),
+	UNSLOT(__neg__, negative, slot_nbNegative, wrap_unaryFunc, "-هذا"),
+	UNSLOT(__abs__, absolute, slot_nbAbsolute, wrap_unaryFunc,
+		"مطلق(هذا)"),
 	{nullptr}
 };
 
@@ -4404,7 +4634,7 @@ static AlifTypeSlotDef* update_oneSlot(AlifTypeObject* type, AlifTypeSlotDef* p)
 		descr = findName_inMro(type, p->nameStrObj, &error);
 		if (descr == nullptr) {
 			if (error == -1) {
-				//alifErr_clear();
+				alifErr_clear();
 			}
 			if (ptr == (void**)&type->iterNext) {
 				specific = (void*)_alifObject_nextNotImplemented;
@@ -4478,9 +4708,9 @@ static AlifIntT typeNew_setNames(AlifTypeObject* _type) { // 10973
 		AlifObject* set_name = alifObject_lookupSpecial(value,
 			&ALIF_ID(__setName__));
 		if (set_name == nullptr) {
-			//if (alifErr_occurred()) {
-			//	goto error;
-			//}
+			if (alifErr_occurred()) {
+				goto error;
+			}
 			continue;
 		}
 
@@ -4770,8 +5000,8 @@ static AlifTypeObject* super_check(AlifTypeObject* type, AlifObject* obj) { // 1
 static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObject* co,
 	AlifTypeObject** type_p, AlifObject** obj_p) { // 11460
 	if (co->argCount == 0) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"super(): no arguments");
+		alifErr_setString(_alifExcRuntimeError_,
+			"اصل(): بدون تمرير معاملات");
 		return -1;
 	}
 
@@ -4783,8 +5013,8 @@ static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObje
 		}
 	}
 	if (firstarg == nullptr) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"super(): arg[0] deleted");
+		alifErr_setString(_alifExcRuntimeError_,
+			"اصل(): المعامل[0] محذوف");
 		return -1;
 	}
 
@@ -4796,28 +5026,28 @@ static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObje
 		if (_alifUStr_equal(name, &ALIF_ID(__class__))) {
 			AlifObject* cell = alifStackRef_asAlifObjectBorrow(_alifFrame_getLocalsArray(cframe)[i]);
 			if (cell == nullptr or !ALIFCELL_CHECK(cell)) {
-				//alifErr_setString(_alifExcRuntimeError_,
-				//	"super(): bad __class__ cell");
+				alifErr_setString(_alifExcRuntimeError_,
+					"اصل(): خلية __صنف__ غير فعالة");
 				return -1;
 			}
 			type = (AlifTypeObject*)ALIFCELL_GET(cell);
 			if (type == nullptr) {
-				//alifErr_setString(_alifExcRuntimeError_,
-				//	"super(): empty __class__ cell");
+				alifErr_setString(_alifExcRuntimeError_,
+					"اصل(): خلية __صنف__ فارغة");
 				return -1;
 			}
 			if (!ALIFTYPE_CHECK(type)) {
-				//alifErr_format(_alifExcRuntimeError_,
-				//	"super(): __class__ is not a type (%s)",
-				//	ALIF_TYPE(type)->name);
+				alifErr_format(_alifExcRuntimeError_,
+					"اصل(): __صنف__ ليس نوع (%s)",
+					ALIF_TYPE(type)->name);
 				return -1;
 			}
 			break;
 		}
 	}
 	if (type == nullptr) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"super(): __class__ cell not found");
+		alifErr_setString(_alifExcRuntimeError_,
+			"اصل(): خلية __صنف__ غير موجودة");
 		return -1;
 	}
 
@@ -4854,8 +5084,8 @@ static inline AlifIntT super_initImpl(AlifObject* self,
 		AlifThread* tstate = _alifThread_get();
 		AlifInterpreterFrame* frame = _alifThreadState_getFrame(tstate);
 		if (frame == nullptr) {
-			//alifErr_setString(_alifExcRuntimeError_,
-			//	"اصل(): no current frame");
+			alifErr_setString(_alifExcRuntimeError_,
+				"اصل(): الإطار الحالي مفقود");
 			return -1;
 		}
 		AlifIntT res = super_initWithoutArgs(frame, _alifFrame_getCode(frame), &type, &obj);

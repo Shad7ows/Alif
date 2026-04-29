@@ -2100,8 +2100,8 @@ static AlifIntT dict_dictMerge(AlifInterpreter* interp, AlifDictObject* mp, Alif
 			return -1;
 
 		if (orig_size != other->keys->nentries) {
-			//alifErr_setString(_alifExcRuntimeError_,
-			//	"dict mutated during update");
+			alifErr_setString(_alifExcRuntimeError_,
+				"إجراء تغيير على الفهرس أثناء تحديثه");
 			return -1;
 		}
 	}
@@ -2200,7 +2200,14 @@ AlifIntT alifDict_update(AlifObject* _a, AlifObject* _b) { // 3881
 }
 
 
-static AlifDictValues* copy_values(AlifDictValues* values) { // 3857
+
+AlifIntT _alifDict_mergeEx(AlifObject* _a,
+	AlifObject* _b, AlifIntT _override) { // 3952
+	AlifInterpreter* interp = _alifInterpreter_get();
+	return dict_merge(interp, _a, _b, _override);
+}
+
+static AlifDictValues* copy_values(AlifDictValues* values) { // 3975
 	AlifDictValues* newvalues = new_values(values->capacity);
 	if (newvalues == nullptr) {
 		return nullptr;
@@ -2215,7 +2222,7 @@ static AlifDictValues* copy_values(AlifDictValues* values) { // 3857
 	return newvalues;
 }
 
-static AlifObject* copy_lockHeld(AlifObject* o) { // 3876
+static AlifObject* copy_lockHeld(AlifObject* o) { // 3993
 	AlifObject* copy{};
 	AlifDictObject* mp{};
 	AlifInterpreter* interp = _alifInterpreter_get();
@@ -2702,8 +2709,8 @@ static AlifIntT dictIter_iterNextItemLockHeld(AlifDictObject* d, AlifObject* sel
 	AlifSizeT i{};
 
 	if (di->used != d->used) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"dictionary changed size during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير حجم الفهرس اثناء التكرار عليه");
 		di->used = -1; /* Make this state sticky */
 		return -1;
 	}
@@ -2744,8 +2751,8 @@ static AlifIntT dictIter_iterNextItemLockHeld(AlifDictObject* d, AlifObject* sel
 	}
 	// We found an element, but did not expect it
 	if (di->len == 0) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"dictionary keys changed during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير مفاتيح الفهرس اثناء التكرار عليه");
 		goto fail;
 	}
 	di->pos = i + 1;
@@ -2794,8 +2801,8 @@ static AlifIntT dictIter_iterNextThreadSafe(AlifDictObject* _d, AlifObject* _sel
 	AlifDictKeysObject* k{};
 
 	if (di->used != alifAtomic_loadSizeRelaxed(&_d->used)) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"dictionary changed size during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير حجم الفهرس اثناء التكرار عليه");
 		di->used = -1; /* Make this state sticky */
 		return -1;
 	}
@@ -2869,8 +2876,8 @@ static AlifIntT dictIter_iterNextThreadSafe(AlifDictObject* _d, AlifObject* _sel
 	return 0;
 
 concurrent_modification:
-	//alifErr_setString(_alifExcRuntimeError_,
-	//	"dictionary keys changed during iteration");
+	alifErr_setString(_alifExcRuntimeError_,
+		"تم تغيير مفاتيح الفهرس اثناء التكرار عليه");
 
 fail:
 	di->dict = nullptr;
@@ -3470,8 +3477,8 @@ AlifObject* alifObject_genericGetDict(AlifObject* _obj, void* _context) { // 720
 	else {
 		AlifObject** dictptr = alifObject_computedDictPointer(_obj);
 		if (dictptr == nullptr) {
-			//alifErr_setString(_alifExcAttributeError_,
-			//	"This object has no __dict__");
+			alifErr_setString(_alifExcAttributeError_,
+				"هذا الكائن لا يحتوي __فهرس__");
 			return nullptr;
 		}
 

@@ -371,7 +371,7 @@ AlifIntT _alifSys_updateConfig(AlifThread* _thread) { // 3645
 	flags = _alifSys_getObject(interp, "flags"); // borrowed ref
 	if (flags == nullptr) {
 		if (!_alifErr_occurred(_thread)) {
-			//_alifErr_setString(_thread, _alifExcRuntimeError_, "lost sys.flags");
+			_alifErr_setString(_thread, _alifExcRuntimeError_, "النظام.أعلام مفقود");
 		}
 		return -1;
 	}

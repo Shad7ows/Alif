@@ -364,6 +364,18 @@
     <ClCompile Include="..\source\AlifCore\Objects\Intrinsics.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Modules\_RandomModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\BootstrapHash.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\Suggestions.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\EnumObject.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -1046,6 +1058,18 @@
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_ObjectState.h">
       <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Modules\clinic\_RandomModule.cpp.h">
+      <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\EnumObject.h">
+      <Filter>Include\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\LocaleUtil.h">
+      <Filter>Include\Main\StringLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\LongObject.cpp.h">
+      <Filter>Objects\clinic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -690,6 +690,10 @@ static AlifIntT astFold_expr(ExprTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.unaryOp.operand);
 		CALL(fold_unaryOp, ExprTy, _node);
 		break;
+	case ExprK_::LambdaK:
+		CALL(astFold_arguments, ArgumentsTy, _node->V.lambda.args);
+		CALL(astFold_expr, ExprTy, _node->V.lambda.body);
+		break;
 	case ExprK_::IfExprK:
 		CALL(astFold_expr, ExprTy, _node->V.ifExpr.condition);
 		CALL(astFold_expr, ExprTy, _node->V.ifExpr.body);
@@ -706,15 +710,15 @@ static AlifIntT astFold_expr(ExprTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.listComp.elt);
 		CALL_SEQ(astFold_comprehension, Comprehension, _node->V.listComp.generators);
 		break;
-	//case ExprK_::SetCompK:
-	//	CALL(astFold_expr, ExprTy, _node->V.setComp.elts);
-	//	CALL_SEQ(astFold_comprehension, Comprehension, _node->V.setComp.generators);
-	//	break;
-	//case ExprK_::DictCompK:
-	//	CALL(astFold_expr, ExprTy, _node->V.dictComp.key);
-	//	CALL(astFold_expr, ExprTy, _node->V.dictComp.val);
-	//	CALL_SEQ(astFold_comprehension, Comprehension, _node->V.dictComp.generators);
-	//	break;
+	case ExprK_::SetCompK:
+		CALL(astFold_expr, ExprTy, _node->V.setComp.elts);
+		CALL_SEQ(astFold_comprehension, Comprehension, _node->V.setComp.generators);
+		break;
+	case ExprK_::DictCompK:
+		CALL(astFold_expr, ExprTy, _node->V.dictComp.key);
+		CALL(astFold_expr, ExprTy, _node->V.dictComp.val);
+		CALL_SEQ(astFold_comprehension, Comprehension, _node->V.dictComp.generators);
+		break;
 	case ExprK_::AwaitK:
 		CALL(astFold_expr, ExprTy, _node->V.await.val);
 		break;
@@ -863,6 +867,11 @@ static AlifIntT astFold_stmt(StmtTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.augAssign.target);
 		CALL(astFold_expr, ExprTy, _node->V.augAssign.val);
 		break;
+	case StmtK_::TypeAliasK:
+		CALL(astFold_expr, ExprTy, _node->V.typeAlias.name);
+		CALL_SEQ(astFold_typeParam, TypeParam, _node->V.typeAlias.typeParams);
+		CALL(astFold_expr, ExprTy, _node->V.typeAlias.val);
+		break;
 	case StmtK_::ForK:
 		CALL(astFold_expr, ExprTy, _node->V.for_.target);
 		CALL(astFold_expr, ExprTy, _node->V.for_.iter);
@@ -950,13 +959,13 @@ static AlifIntT astFold_typeParam(TypeParamTy _node,
 	switch (_node->type) {
 	case TypeParamK::TypeVarK:
 		CALL_OPT(astFold_expr, ExprTy, _node->V.typeVar.bound);
-		//CALL_OPT(astFold_expr, ExprTy, _node->V.typeVar.defaultValue);
+		CALL_OPT(astFold_expr, ExprTy, _node->V.typeVar.defaultValue);
 		break;
 	case TypeParamK::ParamSpecK:
-		//CALL_OPT(astFold_expr, ExprTy, _node->V.paramSpec.defaultValue);
+		CALL_OPT(astFold_expr, ExprTy, _node->V.paramSpec.defaultValue);
 		break;
 	case TypeParamK::TypeVarTupleK:
-		//CALL_OPT(astFold_expr, ExprTy, _node->V.typeVarTuple.defaultValue);
+		CALL_OPT(astFold_expr, ExprTy, _node->V.typeVarTuple.defaultValue);
 		break;
 	}
 	return 1;
@@ -993,9 +1002,9 @@ AlifIntT alifAST_optimize(ModuleTy _mod, AlifASTMem* _astMem,
 
 	/* Check that the recursion depth counting balanced correctly */
 	if (ret and state.recursionDepth != startingRecursionDepth) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"AST optimizer recursion depth mismatch (before=%d, after=%d)",
-		//	startingRecursionDepth, state.recursionDepth);
+		alifErr_format(_alifExcSystemError_,
+			"يوجد عدم تطابق عمق التكرار في محسن AST (قبل=%d, بعد=%d)",
+			startingRecursionDepth, state.recursionDepth);
 		return 0;
 	}
 

@@ -80,8 +80,86 @@ AlifObject* _alifBuildSlice_consumeRefs(AlifObject* _start, AlifObject* _stop) {
 
 
 
+AlifIntT alifSlice_unpack(AlifObject* _r,
+	AlifSizeT* start, AlifSizeT* stop, AlifSizeT* step) { // 214
+	AlifSliceObject *r = (AlifSliceObject*)_r;
+	/* this is harder to get right than you might think */
+
+	if (r->step == ALIF_NONE) {
+		*step = 1;
+	}
+	else {
+		if (!_alifEval_sliceIndex(r->step, step)) return -1;
+		if (*step == 0) {
+			alifErr_setString(_alifExcValueError_,
+				"خطوة القطعة لا يمكن أن تكون صفر");
+			return -1;
+		}
+		/* Here *step might be -PY_SSIZE_T_MAX-1; in this case we replace it
+		* with -PY_SSIZE_T_MAX.  This doesn't affect the semantics, and it
+		* guards against later undefined behaviour resulting from code that
+		* does "step = -step" as part of a slice reversal.
+		*/
+		if (*step < -ALIF_SIZET_MAX)
+			*step = -ALIF_SIZET_MAX;
+	}
+
+	if (r->start == ALIF_NONE) {
+		*start = *step < 0 ? ALIF_SIZET_MAX : 0;
+	}
+	else {
+		if (!_alifEval_sliceIndex(r->start, start)) return -1;
+	}
+
+	if (r->stop == ALIF_NONE) {
+		*stop = *step < 0 ? ALIF_SIZET_MIN : ALIF_SIZET_MAX;
+	}
+	else {
+		if (!_alifEval_sliceIndex(r->stop, stop)) return -1;
+	}
+
+	return 0;
+}
 
 
+
+
+AlifSizeT alifSlice_adjustIndices(AlifSizeT length,
+	AlifSizeT *start, AlifSizeT *stop, AlifSizeT step) { // 260
+	/* this is harder to get right than you might think */
+
+	if (*start < 0) {
+		*start += length;
+		if (*start < 0) {
+			*start = (step < 0) ? -1 : 0;
+		}
+	}
+	else if (*start >= length) {
+		*start = (step < 0) ? length - 1 : length;
+	}
+
+	if (*stop < 0) {
+		*stop += length;
+		if (*stop < 0) {
+			*stop = (step < 0) ? -1 : 0;
+		}
+	}
+	else if (*stop >= length) {
+		*stop = (step < 0) ? length - 1 : length;
+	}
+
+	if (step < 0) {
+		if (*stop < *start) {
+			return (*start - *stop - 1) / (-step) + 1;
+		}
+	}
+	else {
+		if (*start < *stop) {
+			return (*stop - *start - 1) / step + 1;
+		}
+	}
+	return 0;
+}
 
 
 

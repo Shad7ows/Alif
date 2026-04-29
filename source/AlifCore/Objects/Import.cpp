@@ -60,9 +60,9 @@ static inline AlifObject* get_modulesDict(AlifThread* tstate, bool fatal) { // 1
 	AlifObject* modules = MODULES(tstate->interpreter);
 	if (modules == nullptr) {
 		if (fatal) {
-			//alif_fatalError("interpreter has no modules dictionary");
+			alif_fatalError("المفسر لا يحتوي على فهرس مكتبات");
 		}
-		//alifErr_setString(tstate, _alifExcRuntimeError_, "unable to get sys.modules");
+		_alifErr_setString(tstate, _alifExcRuntimeError_, "لم يتمكن من الحصول على النظام.مكتبات");
 		return nullptr;
 	}
 	return modules;
@@ -850,7 +850,7 @@ static AlifObject* import_runExtension(AlifThread* tstate, AlifModInitFunction p
 				alifUStr_internImmortal(interp, &filename);
 
 				if (alifModule_addObjectRef(mod, "__file__", filename) < 0) {
-					//alifErr_clear(); /* Not important enough to report */
+					alifErr_clear(); /* Not important enough to report */
 				}
 			}
 
@@ -1121,9 +1121,9 @@ static AlifObject* execCode_inModule(AlifThread* _thread, AlifObject* _name,
 
 	m = import_getModule(_thread, _name);
 	if (m == nullptr and !_alifErr_occurred(_thread)) {
-		//_alifErr_format(_thread, _alifExcImportError_,
-		//	"Loaded module %R not found in sys.modules",
-		//	_name);
+		_alifErr_format(_thread, _alifExcImportError_,
+			"تحميل مكتبة %R غير موجودة في النظام.الوحدات",
+			_name);
 	}
 
 	return m;
@@ -1208,7 +1208,7 @@ static FrozenStatus find_frozen(AlifObject* nameobj, FrozenInfo* info) { // 2922
 	}
 	const char* name = alifUStr_asUTF8(nameobj);
 	if (name == nullptr) {
-		//alifErr_clear();
+		alifErr_clear();
 		return FrozenStatus::Frozen_Bad_Name;
 	}
 
@@ -1246,7 +1246,7 @@ static AlifObject* unmarshal_frozenCode(AlifInterpreter* _interp,
 	AlifObject* co = alifMarshal_readObjectFromString(_info->data, _info->size);
 	if (co == nullptr) {
 		/* Does not contain executable code. */
-		//alifErr_clear();
+		alifErr_clear();
 		//set_frozenError(FROZEN_INVALID, _info->nameobj);
 		return nullptr;
 	}
@@ -1661,7 +1661,7 @@ AlifObject* alifImport_importModuleLevel(const char* name, AlifObject* globals,
 
 
 AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
-	AlifThread* tstate = _alifThread_get();
+	AlifThread* thread = _alifThread_get();
 	AlifObject* globals = nullptr;
 	AlifObject* import = nullptr;
 	AlifObject* builtins = nullptr;
@@ -1714,8 +1714,8 @@ AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
 		goto err;
 	ALIF_DECREF(r);
 
-	r = import_getModule(tstate, _moduleName);
-	if (r == nullptr and !_alifErr_occurred(tstate)) {
+	r = import_getModule(thread, _moduleName);
+	if (r == nullptr and !_alifErr_occurred(thread)) {
 		//_alifErr_setObject(tstate, _alifExcKeyError_, module_name);
 	}
 
@@ -1961,8 +1961,8 @@ AlifObject* _alifImport_fixupExtension(const char* _name) { // 546
 	AlifObject* name = alifUStr_fromString(_name); //* alif
 	mod = alifDict_getItemWithError(modules, name);
 	if (mod == nullptr or !ALIFMODULE_CHECK(mod)) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"_alifImport_fixupExtension: module %.200s not loaded", name);
+		alifErr_format(_alifExcSystemError_,
+			"_alifImport_fixupExtension: لم يتم تحميل المكتبة %.200s", name);
 		return nullptr;
 	}
 	dict = alifModule_getDict(mod);
@@ -2033,9 +2033,9 @@ AlifObject* alifImport_execCodeModuleEx(const char* name, AlifObject* co, const 
 	ALIF_DECREF(v);
 
 	if ((alifDict_getItemStringRef(modules, name, &m)) < 0) {
-		//alifErr_format(_alifExcImportError_,
-		//	"Loaded module %.200s not found in sys.modules",
-		//	name);
+		alifErr_format(_alifExcImportError_,
+			"تحميل مكتبة %.200s غير موجودة في النظام.الوحدات",
+			name);
 		return nullptr;
 	}
 
@@ -2117,13 +2117,13 @@ static AlifObject* load_package(const char* name, char* pathname) { // 1035
 	buf[0] = '\0';
 	fdp = find_module(name, "__تهيئة__", path, buf, sizeof(buf), &fp, nullptr);
 	if (fdp == nullptr) {
-		//if (alifErr_exceptionMatches(_alifExcImportError_)) {
-		//	alifErr_clear();
-		//	ALIF_INCREF(m);
-		//}
-		//else {
+		if (alifErr_exceptionMatches(_alifExcImportError_)) {
+			alifErr_clear();
+			ALIF_INCREF(m);
+		}
+		else {
 		m = nullptr;
-		//}
+		}
 		goto cleanup;
 	}
 	m = load_module(name, fp, buf, fdp->type, nullptr);
@@ -2156,8 +2156,8 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 	char name[MAXPATHLEN + 1]{};
 
 	if (strlen(_subname) > MAXPATHLEN) {
-		//alifErr_setString(_alifExcOverflowError_,
-		//	"module name is too long");
+		alifErr_setString(_alifExcOverflowError_,
+			"اسم المكتبة كبير جداً");
 		return nullptr;
 	}
 	strcpy(name, _subname);
@@ -2193,8 +2193,8 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 	}
 
 	if (_path == nullptr or !ALIFLIST_CHECK(_path)) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"sys.path must be a list of directory names");
+		alifErr_setString(_alifExcRuntimeError_,
+			"النظام.المسار يجب أن يكون اسماء مصفوفة او فهرس");
 		return nullptr;
 	}
 
@@ -2266,8 +2266,8 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 			break;
 	}
 	if (fp == nullptr) {
-		//alifErr_format(_alifExcImportError_,
-		//	"No module named %.200s", name);
+		alifErr_format(_alifExcImportError_,
+			"لا يوجد مكتبة باسم %.200s", name);
 		return nullptr;
 	}
 	*_pFP = fp;
@@ -2429,8 +2429,8 @@ static AlifObject* load_module(const char* _name, FILE* fp,
 		alifDict_getItemStringRef(modules, _name, &m);
 		if (m == nullptr) {
 			alifErr_format(_alifExcImportError_,
-				"%s module %.200s not properly initialized",
-				"builtin", _name);
+				"%s المكتبة %.200s لم يتم تهيئتها بشكل صحيح",
+				"المكتبات-الضمنية", _name);
 			return nullptr;
 		}
 
@@ -2438,7 +2438,7 @@ static AlifObject* load_module(const char* _name, FILE* fp,
 		break;
 	default:
 		alifErr_format(_alifExcImportError_,
-			"Don't know how to import %.200s (type code %d)",
+			"لا يوجد طريقة لإستيراد %.200s (رمز النوع %d)",
 			_name, type);
 		m = nullptr;
 	}
@@ -2458,9 +2458,9 @@ static AlifIntT init_builtin(const char* _name) { // 1897
 	for (p = _alifImportInitTab_; p->name != nullptr; p++) {
 		if (strcmp(_name, p->name) == 0) {
 			if (p->initFunc == nullptr) {
-				//alifErr_format(_alifExcImportError_,
-				//	"Cannot re-init internal module %.200s",
-				//	name);
+				alifErr_format(_alifExcImportError_,
+					"لم يستطع إعادة تهيئة المكتبة الداخلية %.200s",
+					_name);
 				return -1;
 			}
 			//(*p->initFunc)();
@@ -2534,8 +2534,8 @@ static AlifObject* import_moduleLevel(const char* _name, AlifObject* _globals, A
 		or strchr(_name, '\\') != nullptr
 	#endif
 		) {
-		//alifErr_setString(_alifExcImportError_,
-		//	"Import by filename is not supported.");
+		alifErr_setString(_alifExcImportError_,
+			"الاستيراد باستخدام مسار الملف غير مدعوم.");
 		return nullptr;
 	}
 
@@ -2758,9 +2758,9 @@ static AlifObject* get_parent(AlifObject* globals, char* buf,
 			//ALIF_DECREF(err_msg);
 		}
 		else {
-			//alifErr_format(_alifExcSystemError_,
-			//	"Parent module '%.200s' not loaded, "
-			//	"cannot perform relative import", buf);
+			alifErr_format(_alifExcSystemError_,
+				"المكتبة الأصل '%.200s' لم يتم تحميلها, "
+				"لا يمكن إجراء استيراد نسبي", buf);
 		}
 	}
 	return parent;
@@ -2830,8 +2830,8 @@ static AlifObject* load_next(AlifObject* mod, AlifObject* altmod,
 
 	if (result == ALIF_NONE) {
 		ALIF_DECREF(result);
-		//alifErr_format(_alifExcImportError_,
-		//	"No module named %.200s", name);
+		alifErr_format(_alifExcImportError_,
+			"لا يوجد مكتبة باسم %.200s", name);
 		return nullptr;
 	}
 
@@ -2875,7 +2875,7 @@ static AlifIntT ensure_fromList(AlifObject* mod, AlifObject* fromlist,
 				continue; /* Avoid endless recursion */
 			all = alifObject_getAttrString(mod, "__all__");
 			if (all == nullptr) {
-				//alifErr_clear();
+				alifErr_clear();
 			}
 			else {
 				int ret = ensure_fromList(mod, all, buf, buflen, 1);
@@ -2964,7 +2964,7 @@ static AlifObject* import_submodule(AlifObject* mod,
 		else {
 			path = alifObject_getAttrString(mod, "__path__");
 			if (path == nullptr) {
-				//alifErr_clear();
+				alifErr_clear();
 				ALIF_INCREF(ALIF_NONE);
 				return ALIF_NONE;
 			}
@@ -2977,7 +2977,7 @@ static AlifObject* import_submodule(AlifObject* mod,
 		if (fdp == nullptr) {
 			if (!alifErr_exceptionMatches(_alifExcImportError_))
 				return nullptr;
-			//alifErr_clear();
+			alifErr_clear();
 			ALIF_INCREF(ALIF_NONE);
 			return ALIF_NONE;
 		}

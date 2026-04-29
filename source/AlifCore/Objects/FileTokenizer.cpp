@@ -209,7 +209,7 @@ char* _alifTokenizer_findEncodingFilename(AlifIntT _fd, AlifObject* _filename) {
 		tok->fn = ALIF_NEWREF(_filename);
 	}
 	else {
-		tok->fn = alifUStr_fromString("<string>");
+		tok->fn = alifUStr_fromString("<نص>");
 		if (tok->fn == nullptr) {
 			fclose(fp);
 			alifTokenizer_free(tok);

@@ -13,10 +13,10 @@
 
 
 static AlifObject* null_error(AlifThread* _tstate) { // 13
-	//if (!alifErr_occurred(_tstate)) {
-		//alifErr_setString(_tstate, _alifExcSystemError_,
-			//"null argument to internal routine");
-	//}
+	if (!_alifErr_occurred(_tstate)) {
+		_alifErr_setString(_tstate, _alifExcSystemError_,
+			"معامل عدم ضمن إجراء داخلي");
+	}
 	return nullptr;
 }
 
@@ -24,32 +24,32 @@ AlifObject* _alif_checkFunctionResult(AlifThread* _thread,
 	AlifObject* _callable, AlifObject* _result, const wchar_t* _where) { // 24
 
 	if (_result == nullptr) {
-		//if (!alifErr_occurred(_thread)) {
-		//	if (_callable)
-		//		alifErr_format(_thread, alifExcSystemError,
-		//			"%R returned nullptr without setting an exception", _callable);
-		//	else
-		//		alifErr_format(_thread, alifExcSystemError,
-		//			"%s returned nullptr without setting an exception", _where);
-		//	return nullptr;
-		//}
+		if (!_alifErr_occurred(_thread)) {
+			if (_callable)
+				_alifErr_format(_thread, _alifExcSystemError_,
+					"%R قام بالإرجاع بدون ضبط خطأ", _callable);
+			else
+				_alifErr_format(_thread, _alifExcSystemError_,
+					"%s قام بالإرجاع بدون ضبط خطأ", _where);
+			return nullptr;
+		}
 	}
 	else {
-		//if (alifErr_occurred(_thread)) {
-		//	ALIF_DECREF(_result);
+		if (_alifErr_occurred(_thread)) {
+			ALIF_DECREF(_result);
 
-		//	if (_callable) {
-		//		alifErr_formatFromCauseThread(
-		//			_thread, alifExcSystemError,
-		//			"%R returned a result with an exception set", _callable);
-		//	}
-		//	else {
-		//		alifErr_formatFromCauseTstate(
-		//			_thread, alifExcSystemError,
-		//			"%s returned a result with an exception set", _where);
-		//	}
-		//	return nullptr;
-		//}
+			//if (_callable) {
+			//	alifErr_formatFromCauseThread(
+			//		_thread, _alifExcSystemError_,
+			//		"%R returned a result with an exception set", _callable);
+			//}
+			//else {
+			//	alifErr_formatFromCauseThread(
+			//		_thread, _alifExcSystemError_,
+			//		"%s returned a result with an exception set", _where);
+			//}
+			return nullptr;
+		}
 	}
 	return _result;
 }
@@ -94,19 +94,19 @@ static void object_isNotCallable(AlifThread* _thread, AlifObject* _callable) { /
 	if (ALIF_IS_TYPE(_callable, &_alifModuleType_)) {
 		AlifObject* name = alifModule_getNameObject(_callable);
 		if (name == nullptr) {
-			//alifErr_clear(_thread);
+			_alifErr_clear(_thread);
 			goto basic_type_error;
 		}
 		AlifObject* attr{};
 		AlifIntT res = alifObject_getOptionalAttr(_callable, name, &attr);
 		if (res < 0) {
-			//alifErr_clear(_thread);
+			_alifErr_clear(_thread);
 		}
 		else if (res > 0 and alifCallable_check(attr)) {
-			//alifErr_format(_thread, alifExcTypeError,
-			//	"'%.200s' object is not callable. "
-			//	"Did you mean: '%U.%U(...)'?",
-			//	ALIF_TYPE(_callable)->name_, name, name);
+			_alifErr_format(_thread, _alifExcTypeError_,
+				"الكائن '%.200s' غير قابل للإستدعاء. "
+				"هل تقصد: '%U.%U(...)'?",
+				ALIF_TYPE(_callable)->name, name, name);
 			ALIF_DECREF(attr);
 			ALIF_DECREF(name);
 			return;
@@ -115,8 +115,7 @@ static void object_isNotCallable(AlifThread* _thread, AlifObject* _callable) { /
 		ALIF_DECREF(name);
 	}
 basic_type_error:
-	//alifErr_format(_thread, alifExcTypeError, "'%.200s' object is not callable", ALIF_TYPE(_callable)->name_);
-	return; //* alif
+	_alifErr_format(_thread, _alifExcTypeError_, "الكائن '%.200s' غير قابل للإستدعاء", ALIF_TYPE(_callable)->name);
 }
 
 AlifObject* alifObject_makeTpCall(AlifThread* _thread, AlifObject* _callable,
@@ -202,18 +201,18 @@ AlifObject* alifVectorCall_call(AlifObject* _callable,
 
 	AlifSizeT offset = ALIF_TYPE(_callable)->vectorCallOffset;
 	if (offset <= 0) {
-		//_alifErr_format(tstate, _alifExcTypeError_,
-		//	"'%.200s' object does not support vectorcall",
-		//	ALIF_TYPE(_callable)->name);
+		_alifErr_format(tstate, _alifExcTypeError_,
+			"الكائن '%.200s' لا يدعم vectorCall",
+			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
 
 	VectorCallFunc func{};
 	memcpy(&func, (char*)_callable + offset, sizeof(func));
 	if (func == nullptr) {
-		//_alifErr_format(tstate, _alifExcTypeError_,
-		//	"'%.200s' object does not support vectorcall",
-		//	ALIF_TYPE(_callable)->name);
+		_alifErr_format(tstate, _alifExcTypeError_,
+			"الكائن '%.200s' لا يدعم vectorCall",
+			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
 
@@ -243,7 +242,7 @@ AlifObject* _alifObject_call(AlifThread* _thread, AlifObject* _callable,
 			return nullptr;
 		}
 
-		if (_alif_enterRecursiveCallThread(_thread, " while calling a Alif object")) {
+		if (_alif_enterRecursiveCallThread(_thread, " عند إستدعاء كائن ألف")) {
 			return nullptr;
 		}
 
@@ -293,7 +292,7 @@ AlifObject* alifObject_callObject(AlifObject* _callable, AlifObject* _args) { //
 	}
 	if (!ALIFTUPLE_CHECK(_args)) {
 		_alifErr_setString(thread, _alifExcTypeError_,
-			"argument list must be a tuple");
+			"مصفوفة المعاملات يجب أن تكون مترابطة");
 		return nullptr;
 	}
 	return _alifObject_call(thread, _callable, _args, nullptr);
@@ -399,9 +398,9 @@ AlifObject* alifObject_callFunction(AlifObject* _callable, const char* _format, 
 
 static AlifObject* call_method(AlifThread* _tstate, AlifObject* _callable, const char* _format, va_list _va) { // 616
 	if (!alifCallable_check(_callable)) {
-		//alifErr_format(tstate, _alifExcTypeError_,
-			//"attribute of type '%.200s' is not callable",
-			//ALIF_TYPE(callable)->name);
+		_alifErr_format(_tstate, _alifExcTypeError_,
+			"الخاصية من نوع '%.200s' غير قابلة للإستدعاء",
+			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
 
@@ -614,17 +613,17 @@ AlifObject* const* _alifStack_unpackDict(AlifThread* _thread,
 	AlifObject** kwstack = stack + _nargs;
 	AlifSizeT pos = 0, i = 0;
 	AlifObject* key{}, * value{};
-	unsigned long keys_are_strings = ALIF_TPFLAGS_UNICODE_SUBCLASS;
+	unsigned long keysAreStrings = ALIF_TPFLAGS_UNICODE_SUBCLASS;
 	while (alifDict_next(_kwargs, &pos, &key, &value)) {
-		keys_are_strings &= ALIF_TYPE(key)->flags;
+		keysAreStrings &= ALIF_TYPE(key)->flags;
 		ALIFTUPLE_SET_ITEM(kwnames, i, ALIF_NEWREF(key));
 		kwstack[i] = ALIF_NEWREF(value);
 		i++;
 	}
 
-	if (!keys_are_strings) {
-		//_alifErr_setString(_thread, _alifExcTypeError_,
-		//	"keywords must be strings");
+	if (!keysAreStrings) {
+		_alifErr_setString(_thread, _alifExcTypeError_,
+			"الكلمات المفتاحية يجب أن تكون من نوع نص");
 		_alifStack_unpackDictFree(stack, _nargs, kwnames);
 		return nullptr;
 	}

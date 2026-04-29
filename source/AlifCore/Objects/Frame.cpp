@@ -45,7 +45,7 @@ static void take_ownership(AlifFrameObject* _f, AlifInterpreterFrame* _frame) { 
 	if (prev) {
 		AlifFrameObject* back = _alifFrame_getFrameObject(prev);
 		if (back == nullptr) {
-			//alifErr_clear();
+			alifErr_clear();
 		}
 		else {
 			_f->back = (AlifFrameObject*)ALIF_NEWREF(back);

@@ -23,6 +23,7 @@ AlifIntT alifList_append(AlifObject*, AlifObject*); // 37
 
 AlifIntT alifList_setSlice(AlifObject* , AlifSizeT , AlifSizeT , AlifObject*); // 40
 AlifIntT alifList_sort(AlifObject*); // 42
+AlifIntT alifList_reverse(AlifObject*); // 43
 AlifObject* alifList_asTuple(AlifObject*); // 44
 
 /* -------------------------------------------------------------------------------------- */

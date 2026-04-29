@@ -18,7 +18,7 @@ static AlifObject* config_dictGet(AlifObject* _dict, const char* _name) {
 	AlifObject* item{};
 	if (_config_dictGet(_dict, _name, &item) < 0) {
 		if (!alifErr_occurred()) {
-			alifErr_format(_alifExcValueError_, "missing config key: %s", _name);
+			alifErr_format(_alifExcValueError_, "مفتاح التكوين مفقود: %s", _name);
 		}
 		return nullptr;
 	}
@@ -26,5 +26,5 @@ static AlifObject* config_dictGet(AlifObject* _dict, const char* _name) {
 }
 
 static void config_dictInvalidType(const char* _name) {
-	alifErr_format(_alifExcTypeError_, "invalid config type: %s", _name);
+	alifErr_format(_alifExcTypeError_, "نوع التكوين غير صالح: %s", _name);
 }

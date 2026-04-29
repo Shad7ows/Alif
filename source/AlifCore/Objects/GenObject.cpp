@@ -96,9 +96,9 @@ static AlifSendResult gen_sendEx2(AlifGenObject* gen, AlifObject* arg,
 	}
 	if (FRAME_STATE_FINISHED(gen->giFrameState)) {
 		if (ALIFCORO_CHECKEXACT(gen) && !closing) {
-			//alifErr_setString(
-			//	_alifExcRuntimeError_,
-			//	"cannot reuse already awaited coroutine");
+			alifErr_setString(
+				_alifExcRuntimeError_,
+				"لا يمكن إعادة الإستخدام لأن إجراء فرعي ينتظر بالفعل");
 		}
 		else if (arg and !exc) {
 			*presult = ALIF_NEWREF(ALIF_NONE);
@@ -174,7 +174,7 @@ AlifIntT _alifGen_setStopIterationValue(AlifObject* _value) { // 627
 
 static AlifObject* gen_repr(AlifObject* self) { // 684
 	AlifGenObject* gen = ALIFGEN_CAST(self);
-	return alifUStr_fromFormat("<generator object %S at %p>",
+	return alifUStr_fromFormat("<كائن مولد %S في %p>",
 		gen->giQualname, gen);
 }
 
@@ -211,9 +211,9 @@ static AlifObject* make_gen(AlifTypeObject* type, AlifFunctionObject* func) { //
 		return nullptr;
 	}
 	gen->giFrameState = AlifFrameState_::Frame_Cleared;
-	gen->giWeakRefList = NULL;
-	gen->giExcState.excValue = NULL;
-	gen->giExcState.previousItem = NULL;
+	gen->giWeakRefList = nullptr;
+	gen->giExcState.excValue = nullptr;
+	gen->giExcState.previousItem = nullptr;
 	gen->giName = ALIF_NEWREF(func->name);
 	gen->giQualname = ALIF_NEWREF(func->qualname);
 	ALIFOBJECT_GC_TRACK(gen);

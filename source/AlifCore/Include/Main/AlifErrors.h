@@ -87,7 +87,7 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
 #endif /* _WINDOWS */ // 210
 
 
-
+AlifObject* alifErr_newException(const char*, AlifObject*, AlifObject*); // 229
 
 /* --------------------------------------------------------------------------------- */
 

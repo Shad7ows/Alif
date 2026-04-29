@@ -438,7 +438,7 @@ static AlifStatus alifCore_initTypes(AlifInterpreter* _interp) { // 718
 }
 
 
-static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 775
+static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 785
 
 	AlifObject* modules{};
 	AlifObject* builtinsDict{};
@@ -457,6 +457,11 @@ static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 775
 	if (builtinsDict == nullptr) goto error;
 	interp->builtins = ALIF_NEWREF(builtinsDict);
 
+
+
+	if (_alifBuiltins_addExceptions(biMod) < 0) {
+		return ALIFSTATUS_ERR("فشل في إضافة الأخطاء إلى فهرس الضمنيات");
+	}
 
 	interp->builtinsCopy = alifDict_copy(interp->builtins);
 	if (interp->builtinsCopy == nullptr) {
@@ -887,10 +892,10 @@ error:
 	ALIF_XDECREF(text);
 	ALIF_XDECREF(raw);
 
-	//if (alifErr_exceptionMatches(_alifExcOSError_) and !_alif_isValidFD(fd)) {
-	//	alifErr_clear();
-	//	return ALIF_NONE;
-	//}
+	if (alifErr_exceptionMatches(_alifExcOSError_) and !_alif_isValidFD(fd)) {
+		alifErr_clear();
+		return ALIF_NONE;
+	}
 	return nullptr;
 }
 
@@ -919,7 +924,7 @@ static AlifStatus init_setBuiltinsOpen(void) { // 2709
 	goto done;
 
 error:
-	res = ALIFSTATUS_ERR("can't initialize io.open");
+	res = ALIFSTATUS_ERR("لم يستطع تهيئة التبادل.افتح");
 
 done:
 	ALIF_XDECREF(bimod);
@@ -932,7 +937,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	AlifObject* iomod = nullptr;
 	AlifObject* std = nullptr;
 	AlifIntT fd{};
-	AlifObject* encodingAttr;
+	AlifObject* encodingAttr{};
 	AlifStatus res = ALIFSTATUS_OK();
 	const AlifConfig* config = alifInterpreter_getConfig(_thread->interpreter);
 
@@ -940,7 +945,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	class AlifStatStruct sb;
 	if (_alifFStat_noraise(fileno(stdin), &sb) == 0 and
 		S_ISDIR(sb.st_mode)) {
-		return ALIFSTATUS_ERR("<stdin> is a directory, cannot continue");
+		return ALIFSTATUS_ERR("<stdin> عبارة عن مسار, لا يمكن الإستمرار");
 	}
 #endif
 

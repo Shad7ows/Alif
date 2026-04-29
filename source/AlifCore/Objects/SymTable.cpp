@@ -32,7 +32,7 @@
 #define NONLOCAL_ANNOT \
 "annotated name '%U' can't be nonlocal"
 
-#define IMPORT_STAR_WARNING "import * only allowed at module level"
+#define IMPORT_STAR_WARNING "استيراد * مسموح فقط في مستوى الوحدة"
 
 #define NAMED_EXPR_COMP_IN_CLASS \
 "assignment expression within a comprehension cannot be used in a class body"
@@ -225,7 +225,7 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	AlifSymTable* st_ = symtable_new();
 	ASDLStmtSeq* seq_{};
 	AlifSizeT i_{};
-	AlifThread* tstate{};
+	AlifThread* thread{};
 	AlifIntT startingRecursionDepth{};
 
 	if (st_ == nullptr)
@@ -237,12 +237,12 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	st_->fileName = ALIF_NEWREF(_filename);
 	st_->future = _future;
 
-	tstate = _alifThread_get();
-	if (!tstate) {
+	thread = _alifThread_get();
+	if (!thread) {
 		alifSymtable_free(st_);
 		return nullptr;
 	}
-	AlifIntT recursionDepth = ALIFCPP_RECURSION_LIMIT - tstate->cppRecursionRemaining;
+	AlifIntT recursionDepth = ALIFCPP_RECURSION_LIMIT - thread->cppRecursionRemaining;
 	startingRecursionDepth = recursionDepth;
 	st_->recursionDepth = startingRecursionDepth;
 	st_->recursionLimit = ALIFCPP_RECURSION_LIMIT;
@@ -272,8 +272,8 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 				goto error;
 		break;
 	case ModK_::FunctionK:
-		//alifErr_setString(_alifExcRuntimeError_,
-			//"this compiler does not handle FunctionTypes");
+		alifErr_setString(_alifExcRuntimeError_,
+			"هذا المترجم لا يستطيع معالجة FunctionK");
 		goto error;
 	}
 	if (!symtable_exitBlock(st_)) {
@@ -282,10 +282,10 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 	}
 	/* Check that the recursion depth counting balanced correctly */
 	if (st_->recursionDepth != startingRecursionDepth) {
-		//alifErr_format(_alifExcsystemError_,
-			//"symtable analysis recursion depth mismatch (before=%d, after=%d)",
-			//startingRecursionDepth, st_->recursionDepth);
-		//alifSymtable_free(st_);
+		alifErr_format(_alifExcSystemError_,
+			"يوجد عدم تطابق في عمق التكرار لجدول الاسماء (قبل=%d, بعد=%d)",
+			startingRecursionDepth, st_->recursionDepth);
+		alifSymtable_free(st_);
 		return nullptr;
 	}
 	if (symtable_analyze(st_)) {
@@ -335,9 +335,9 @@ long _alifST_getSymbol(SymTableEntry* _ste, AlifObject* _name) { // 527
 	long symbol = alifLong_asLong(v_);
 	ALIF_DECREF(v_);
 	if (symbol < 0) {
-		//if (!alifErr_occurred()) {
-			//alifErr_setString(_alifExcSystemError_, "invalid symbol");
-		//}
+		if (!alifErr_occurred()) {
+			alifErr_setString(_alifExcSystemError_, "اسم غير صحيح");
+		}
 		return -1;
 	}
 	return symbol;
@@ -375,7 +375,7 @@ static AlifIntT error_atDirective(SymTableEntry* _ste, AlifObject* _name) { // 5
 		}
 	}
 	//alifErr_setString(_alifExcRuntimeError_,
-		//"BUG: internal directive bookkeeping broken");
+	//	"BUG: internal directive bookkeeping broken");
 	return 0;
 }
 
@@ -398,9 +398,9 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 	AlifIntT contains{};
 	if (_flags & DEF_GLOBAL) {
 		if (_flags & DEF_NONLOCAL) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"name '%U' is nonlocal and global",
-				//_name);
+			alifErr_format(_alifExcSyntaxError_,
+				"الاسم '%U' كـ نطاق و عام",
+				_name);
 			return error_atDirective(_ste, _name);
 		}
 		SET_SCOPE(_scopes, _name, GLOBAL_EXPLICIT);
@@ -412,8 +412,8 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 	}
 	if (_flags & DEF_NONLOCAL) {
 		if (!_bound) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"nonlocal declaration not allowed at module level");
+			alifErr_format(_alifExcSyntaxError_,
+				"تعريف 'النطاق' غير مسموح على مستوى المكتبات");
 			return error_atDirective(_ste, _name);
 		}
 		contains = alifSet_contains(_bound, _name);
@@ -421,9 +421,9 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 			return 0;
 		}
 		if (!contains) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"no binding for nonlocal '%U' found",
-				//name);
+			alifErr_format(_alifExcSyntaxError_,
+				"لا يوجد ربط لـ 'النطاق' '%U'",
+				_name);
 
 			return error_atDirective(_ste, _name);
 		}
@@ -432,9 +432,9 @@ static AlifIntT analyze_name(SymTableEntry* _ste, AlifObject* _scopes, AlifObjec
 			return 0;
 		}
 		if (contains) {
-			//alifErr_format(_alifExcSyntaxError_,
-				//"nonlocal binding not allowed for type parameter '%U'",
-				//name);
+			alifErr_format(_alifExcSyntaxError_,
+				"لا يُسمح بربط 'النطاق' لمعلمة من النوع '%U'",
+				_name);
 			return error_atDirective(_ste, _name);
 		}
 		SET_SCOPE(_scopes, _name, FREE);
@@ -557,7 +557,7 @@ static AlifIntT inline_comprehension(SymTableEntry* _ste, SymTableEntry* _comp,
 		}
 		else {
 			long flags = alifLong_asLong(existing);
-			if (flags == -1 /*and alifErr_occurred()*/) {
+			if (flags == -1 and alifErr_occurred()) {
 				return 0;
 			}
 			if ((flags & DEF_BOUND) and _ste->type != BlockType_::Class_Block) {
@@ -589,7 +589,7 @@ static AlifIntT analyze_cells(AlifObject* _scopes, AlifObject* _free, AlifObject
 		return 0;
 	while (alifDict_next(_scopes, &pos_, &name, &v_)) {
 		long scope = alifLong_asLong(v_);
-		if (scope == -1 /*and alifErr_occurred()*/) {
+		if (scope == -1 and alifErr_occurred()) {
 			goto error;
 		}
 		if (scope != LOCAL)
@@ -642,7 +642,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 
 	while (alifDict_next(_symbols, &pos_, &name, &v_)) {
 		long flags = alifLong_asLong(v_);
-		if (flags == -1 /*and alifErr_occurred()*/) {
+		if (flags == -1 and alifErr_occurred()) {
 			return 0;
 		}
 		AlifIntT contains = alifSet_contains(_inlinedCells, name);
@@ -661,7 +661,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 		}
 		long scope = alifLong_asLong(vScope);
 		ALIF_DECREF(vScope);
-		if (scope == -1 /*and alifErr_occurred()*/) {
+		if (scope == -1 and alifErr_occurred()) {
 			return 0;
 		}
 		flags |= (scope << SCOPE_OFFSET);
@@ -692,7 +692,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 
 			if (_classFlag) {
 				long flags = alifLong_asLong(v_);
-				if (flags == -1 /*and alifErr_occurred()*/) {
+				if (flags == -1 and alifErr_occurred()) {
 					goto error;
 				}
 				flags |= DEF_FREE_CLASS;
@@ -709,9 +709,9 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 			ALIF_DECREF(name);
 			continue;
 		}
-		//else if (alifErr_occurred()) {
-			//goto error;
-		//}
+		else if (alifErr_occurred()) {
+			goto error;
+		}
 		if (_bound) {
 			AlifIntT contains = alifSet_contains(_bound, name);
 			if (contains < 0) {
@@ -728,9 +728,9 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 		ALIF_DECREF(name);
 	}
 
-	//if (alifErr_occurred()) {
-		//goto error;
-	//}
+	if (alifErr_occurred()) {
+		goto error;
+	}
 
 	ALIF_DECREF(itr_);
 	ALIF_DECREF(vFree);
@@ -1418,6 +1418,38 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 		_st->private_ = tmp;
 		break;
 	}
+	case StmtK_::TypeAliasK: {
+		VISIT(_st, Expr, _s->V.typeAlias.name);
+		AlifObject* name = _s->V.typeAlias.name->V.name.name;
+		AlifIntT isInClass = _st->cur->type == BlockType_::Class_Block;
+		AlifIntT isGeneric = ASDL_SEQ_LEN(_s->V.typeAlias.typeParams) > 0;
+		if (isGeneric) {
+			if (!symtable_enterTypeParamBlock(
+				_st, name,
+				(void*)_s->V.typeAlias.typeParams,
+				false, false, _s->type,
+				LOCATION(_s))) {
+				return 0;
+			}
+			VISIT_SEQ(_st, TypeParam, _s->V.typeAlias.typeParams);
+		}
+		if (!symtable_enterBlock(_st, name, BlockType_::Type_Alias_Block,
+			(void *)_s, LOCATION(_s))) {
+			return 0;
+		}
+		_st->cur->canSeeClassScope = isInClass;
+		if (isInClass and !symtable_addDef(_st, &ALIF_ID(__classDict__), USE, LOCATION(_s->V.typeAlias.val))) {
+			return 0;
+		}
+		VISIT(_st, Expr, _s->V.typeAlias.val);
+		if (!symtable_exitBlock(_st))
+			return 0;
+		if (isGeneric) {
+			if (!symtable_exitBlock(_st))
+				return 0;
+		}
+		break;
+	}
 	case StmtK_::ReturnK:
 		if (_s->V.return_.val) {
 			VISIT(_st, Expr, _s->V.return_.val);
@@ -1538,6 +1570,20 @@ static AlifIntT symtable_visitExpr(AlifSymTable* _st, ExprTy _e) { // 2334
 		break;
 	case ExprK_::UnaryOpK:
 		VISIT(_st, Expr, _e->V.unaryOp.operand);
+		break;
+	case ExprK_::LambdaK:
+		if (_e->V.lambda.args->defaults)
+			VISIT_SEQ(_st, Expr, _e->V.lambda.args->defaults);
+		if (_e->V.lambda.args->kwDefaults)
+			VISIT_SEQ_WITH_NULL(_st, Expr, _e->V.lambda.args->kwDefaults);
+		if (!symtable_enterBlock(_st, &ALIF_STR(lambda),
+			BlockType_::Function_Block, (void*)_e, LOCATION(_e))) {
+			return 0;
+		}
+		VISIT(_st, Arguments, _e->V.lambda.args);
+		VISIT(_st, Expr, _e->V.lambda.body);
+		if (!symtable_exitBlock(_st))
+			return 0;
 		break;
 	case ExprK_::IfExprK:
 		VISIT(_st, Expr, _e->V.ifExpr.condition);
@@ -1795,7 +1841,7 @@ static AlifIntT symtable_visitAlias(AlifSymTable* _st, AliasTy _a) { // 2825
 	}
 	else {
 		if (_st->cur->type != BlockType_::Module_Block) {
-			//alifErr_setString(_alifExcSyntaxError_, IMPORT_STAR_WARNING);
+			alifErr_setString(_alifExcSyntaxError_, IMPORT_STAR_WARNING);
 			//SET_ERROR_LOCATION(st->filename, LOCATION(a));
 			ALIF_DECREF(storeName);
 			return 0;
@@ -1880,8 +1926,8 @@ static AlifIntT symtable_handleComprehension(AlifSymTable* st, ExprTy e,
 		!IS_ASYNC_DEF(st) and
 		st->cur->comprehension == AlifComprehensionType::No_Comprehension and
 		!allows_topLevelAwait(st)) {
-		//alifErr_setString(_alifExcSyntaxError_, "asynchronous comprehension outside of "
-		//	"an asynchronous function");
+		alifErr_setString(_alifExcSyntaxError_, "الحاويات الضمنية المتزامنة خارج "
+			"الدالة المتزامنة");
 		//SET_ERROR_LOCATION(st->fileName, LOCATION(e));
 		return 0;
 	}
@@ -1942,8 +1988,8 @@ AlifObject* alif_mangle(AlifObject* _privateObj, AlifObject* _ident) { // 3090
 	}
 
 	if (nLen + (pLen - iPriv) >= ALIF_SIZET_MAX - 1) {
-		//alifErr_setString(_alifExcOverflowError_,
-			//"private identifier too large to be mangled");
+		alifErr_setString(_alifExcOverflowError_,
+			"متغير خاص كبير جدًا بحيث لا يمكن تشويهه");
 		return nullptr;
 	}
 

@@ -291,7 +291,7 @@ static AlifIntT get_tmArg(TimeModuleState* _state, AlifObject* _args,
 		return 0;
 
 	if (y < INT_MIN + 1900) {
-		//alifErr_setString(_alifExcOverflowError_, "السنة المدخلة خارج النطاق");
+		alifErr_setString(_alifExcOverflowError_, "السنة المدخلة خارج النطاق");
 		return 0;
 	}
 

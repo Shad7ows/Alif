@@ -51,3 +51,7 @@ void alifEval_releaseThread(AlifThread*); // 117
 
 
 AlifObject* alifEval_evalFrameDefault(AlifThread*, class AlifInterpreterFrame*, AlifIntT); // 15
+
+
+
+AlifIntT _alifEval_sliceIndex(AlifObject*, AlifSizeT*); // 24

@@ -6,9 +6,9 @@
 
 #include <windows.h>
 #include <limits.h>
-//#ifdef HAVE_PROCESS_H
+#ifdef HAVE_PROCESS_H
 #include <process.h>
-//#endif
+#endif
 
 
 #include "CondVar.h" // 26
@@ -46,6 +46,21 @@ static VOID FreeNonRecursiveMutex(PNRMUTEX mutex) { // 55
 		alifMem_dataFree(mutex);
 	}
 }
+
+
+
+static BOOL leave_nonRecursiveMutex(PNRMUTEX _mutex) { // 106
+	BOOL result{};
+	if (alifMutex_LOCK(&_mutex->cs))
+		return FALSE;
+	_mutex->locked = 0;
+	/* condvar APIs return 0 on success. We need to return TRUE on success. */
+	result = !alifCond_SIGNAL(&_mutex->cv);
+	alifMutex_UNLOCK(&_mutex->cs);
+	return result;
+}
+
+
 
 unsigned long alifThread_getThreadID() { // 260
 
@@ -106,7 +121,9 @@ AlifIntT alifThread_acquireLock(AlifThreadTypeLock aLock, AlifIntT waitflag) { /
 	return 0; //
 }
 
-
+void alifThread_releaseLock(AlifThreadTypeLock _aLock) { // 388
+	(void)leave_nonRecursiveMutex((PNRMUTEX) _aLock);
+}
 
 
 

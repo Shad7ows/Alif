@@ -18,7 +18,7 @@ extern AlifStatus alifSys_create(AlifThread*, AlifObject**); // 33
 extern AlifIntT _alifSys_updateConfig(AlifThread*); // 38
 
 
-
+extern AlifIntT _alifBuiltins_addExceptions(AlifObject*); // 40
 
 extern AlifIntT _alifSignal_init(AlifIntT _installSignalHandlers); // 48
 
@@ -29,6 +29,8 @@ extern AlifStatus _alif_preInitializeFromAlifArgv(const AlifPreConfig*, const cl
 extern AlifStatus _alif_preInitializeFromConfig(const AlifConfig*, const AlifArgv*); // 72
 
 extern AlifIntT _alif_handleSystemExit(AlifIntT*); // 78
+
+AlifIntT _alifOS_uRandomNonBlock(void*, AlifSizeT); // 105
 
 extern AlifIntT _alif_coerceLegacyLocale(AlifIntT); // 108
 extern AlifIntT _alif_legacyLocaleDetected(AlifIntT);

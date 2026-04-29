@@ -57,8 +57,8 @@ AlifObject* alifCPPMethod_new(AlifMethodDef* _ml,
 		vectorCall = cfunction_vectorCallFastCallKeyWordsMethod;
 		break;
 	default:
-		//alifErr_format(_alifExcSystemError_,
-		//	"%s() method: bad call flags", ml->name);
+		alifErr_format(_alifExcSystemError_,
+			"الدالة %s(): استدعاء أعلام غير مناسب", _ml->name);
 		return nullptr;
 	}
 
@@ -66,9 +66,9 @@ AlifObject* alifCPPMethod_new(AlifMethodDef* _ml,
 
 	if (_ml->flags & METHOD_METHOD) {
 		if (!_cls) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"attempting to create AlifCMethod with a METH_METHOD "
-			//	"flag but no class");
+			alifErr_setString(_alifExcSystemError_,
+				"محاولة إنشاء AlifCPPMethod مع METHOD_METHOD "
+				"علم وليس صنف");
 			return nullptr;
 		}
 		AlifCPPMethodObject* om = ALIFOBJECT_GC_NEW(AlifCPPMethodObject, &_alifCPPMethodType_);
@@ -80,9 +80,9 @@ AlifObject* alifCPPMethod_new(AlifMethodDef* _ml,
 	}
 	else {
 		if (_cls) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"attempting to create AlifCFunction with class "
-			//	"but no METH_METHOD flag");
+			alifErr_setString(_alifExcSystemError_,
+				"محاولة إنشاء AlifCPPFunction مع صنف "
+				"ولكن ليس علم METHOD_METHOD");
 			return nullptr;
 		}
 		op_ = ALIFOBJECT_GC_NEW(AlifCPPFunctionObject, &_alifCPPFunctionType_);

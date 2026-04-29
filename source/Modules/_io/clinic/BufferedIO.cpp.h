@@ -56,7 +56,7 @@ exit:
 
 // 305
 #define _IO__BUFFERED_SIMPLE_FLUSH_METHODDEF    \
-    {"Flush", (AlifCPPFunction)_io_Buffered_simpleFlush, METHOD_NOARGS},
+    {"مباشر", (AlifCPPFunction)_io_Buffered_simpleFlush, METHOD_NOARGS},
 
 static AlifObject* _io_Buffered_simpleFlushImpl(Buffered*);
 
@@ -173,7 +173,7 @@ static AlifObject* _io_Buffered_fileno(Buffered* self,
 
 // 577
 #define _IO__BUFFERED_FLUSH_METHODDEF    \
-    {"Flush", (AlifCPPFunction)_io_Buffered_flush, METHOD_NOARGS},
+    {"مباشر", (AlifCPPFunction)_io_Buffered_flush, METHOD_NOARGS},
 
 static AlifObject* _io_Buffered_flushImpl(Buffered*);
 
@@ -385,7 +385,7 @@ exit:
 
 // 1085
 #define _IO_BUFFEREDWRITER_WRITE_METHODDEF    \
-    {"Write", (AlifCPPFunction)_ioBufferedWriter_write, METHOD_O},
+    {"اكتب", (AlifCPPFunction)_ioBufferedWriter_write, METHOD_O},
 
 static AlifObject* _ioBufferedWriter_writeImpl(Buffered*, AlifBuffer*);
 
@@ -406,5 +406,73 @@ exit:
 		alifBuffer_release(&buffer);
 	}
 
+	return returnValue;
+}
+
+
+
+
+// 1182
+static AlifIntT _ioBufferedRandom___init__Impl(Buffered*, AlifObject*, AlifSizeT);
+
+static AlifIntT _ioBufferedRandom___init__(AlifObject *self,
+	AlifObject *args, AlifObject *kwargs) { // 1186
+	AlifIntT returnValue = -1;
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
+
+#define NUM_KEYWORDS 2
+	static struct {
+		AlifGCHead _thisIsNotUsed;
+		ALIFOBJECT_VAR_HEAD;
+		AlifObject *item[NUM_KEYWORDS];
+	} _kwtuple = {
+			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
+			.item = { &ALIF_STR(Raw), &ALIF_ID(bufferSize), },
+	};
+#undef NUM_KEYWORDS
+#define KWTUPLE (&_kwtuple.base.base)
+
+#else  // !ALIF_BUILD_CORE
+#  define KWTUPLE nullptr
+#endif  // !ALIF_BUILD_CORE
+
+	static const char * const _keywords[] = {"raw", "bufferSize", nullptr};
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "عشوائي_مخزن",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject *argsbuf[2]{};
+	AlifObject * const *fastargs{};
+	AlifSizeT nargs = ALIFTUPLE_GET_SIZE(args);
+	AlifSizeT noptargs = nargs + (kwargs ? ALIFDICT_GET_SIZE(kwargs) : 0) - 1;
+	AlifObject *raw;
+	AlifSizeT buffer_size = DEFAULT_BUFFER_SIZE;
+
+	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
+	if (!fastargs) {
+		goto exit;
+	}
+	raw = fastargs[0];
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	{
+		AlifSizeT ival = -1;
+		AlifObject *iobj = _alifNumber_index(fastargs[1]);
+		if (iobj != nullptr) {
+			ival = alifLong_asSizeT(iobj);
+			ALIF_DECREF(iobj);
+		}
+		if (ival == -1 and alifErr_occurred()) {
+			goto exit;
+		}
+		buffer_size = ival;
+	}
+skip_optional_pos:
+	returnValue = _ioBufferedRandom___init__Impl((Buffered *)self, raw, buffer_size);
+
+exit:
 	return returnValue;
 }

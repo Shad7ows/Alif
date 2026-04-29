@@ -34,8 +34,8 @@ AlifObject* alifByteArray_fromStringAndSize(const char* _bytes, AlifSizeT _size)
 	AlifSizeT alloc{};
 
 	if (_size < 0) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"Negative size passed to alifByteArray_fromStringAndSize");
+		alifErr_setString(_alifExcSystemError_,
+			"تم تمرير حجم بالقيمة السالبة لـ alifByteArray_fromStringAndSize");
 		return nullptr;
 	}
 

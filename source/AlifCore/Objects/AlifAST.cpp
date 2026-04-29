@@ -582,10 +582,10 @@ static AlifIntT ast_typeInit(AlifObject* self, AlifObject* args, AlifObject* kw)
 
 	res = 0; /* if no error occurs, this stays 0 to the end */
 	if (numfields < ALIFTUPLE_GET_SIZE(args)) {
-		alifErr_format(_alifExcTypeError_, "%.400s constructor takes at most "
-			"%zd positional argument%s",
+		alifErr_format(_alifExcTypeError_, "%.400s المعرف يحتاج على الأكثر "
+			"%zd معاملات مكانية%s",
 			_alifType_name(ALIF_TYPE(self)),
-			numfields, numfields == 1 ? "" : "s");
+			numfields/*, numfields == 1 ? "" : "s"*/);
 		res = -1;
 		goto cleanup;
 	}
@@ -623,7 +623,7 @@ static AlifIntT ast_typeInit(AlifObject* self, AlifObject* args, AlifObject* kw)
 				}
 				if (p == 0) {
 					alifErr_format(_alifExcTypeError_,
-						"%.400s got multiple values for argument '%U'",
+						"%.400s حصل على قيم متعددة للمعامل '%U'",
 						ALIF_TYPE(self)->name, key);
 					res = -1;
 					goto cleanup;
@@ -1717,8 +1717,8 @@ StmtTy alifAST_expr(ExprTy _val,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7321
 	StmtTy p{};
 	if (!_val) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'value' is required for Expr");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'value' مطلوب لـ Expr");
 		return nullptr;
 	}
 	p = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -1738,8 +1738,8 @@ ExprTy alifAST_constant(AlifObject* _val, AlifObject* _type,
 
 	ExprTy p{};
 	if (!_val) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'value' is required for Constant");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'value' مطلوب لـ Constant");
 		return nullptr;
 	}
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -1760,13 +1760,13 @@ StmtTy alifAST_asyncFunctionDef(AlifObject* _name, Arguments* _args,
 
 	StmtTy p_{};
 	if (!_name) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'name' is required for AsyncFunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ AsyncFunctionDef");
 		return nullptr;
 	}
 	if (!_args) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'args' is required for AsyncFunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'args' مطلوب لـ AsyncFunctionDef");
 		return nullptr;
 	}
 	p_ = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p_));
@@ -1790,13 +1790,13 @@ StmtTy alifAST_functionDef(AlifObject* _name, Arguments* _args,
 
 	StmtTy p_{};
 	if (!_name) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'name' is required for FunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ FunctionDef");
 		return nullptr;
 	}
 	if (!_args) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'args' is required for FunctionDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'args' مطلوب لـ FunctionDef");
 		return nullptr;
 	}
 	p_ = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p_));
@@ -1859,8 +1859,8 @@ StmtTy alifAST_classDef(AlifObject* _name, ASDLExprSeq* _bases,
 
 	StmtTy p_{};
 	if (!_name) {
-		//alifErr_setString(_alifExcValueError_,
-		//	"field 'name' is required for ClassDef");
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ ClassDef");
 		return nullptr;
 	}
 	p_ = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p_));
@@ -1988,6 +1988,61 @@ StmtTy alifAST_while(ExprTy _condetion, ASDLStmtSeq* _body,
 	p_->endColOffset = _endColOffset;
 
 	return p_;
+}
+
+StmtTy alifAST_typeAlias(ExprTy _name, ASDLTypeParamSeq* _typeParams, ExprTy
+	_value, AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT
+	_endColOffset, AlifASTMem* _astMem) { // 7115
+	StmtTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'name' مطلوب لـ TypeAlias");
+		return nullptr;
+	}
+	if (!_value) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'value' مطلوب لـ TypeAlias");
+		return nullptr;
+	}
+	p = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = StmtK_::TypeAliasK;
+	p->V.typeAlias.name = _name;
+	p->V.typeAlias.typeParams = _typeParams;
+	p->V.typeAlias.val = _value;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
+ExprTy alifAST_lambda(ArgumentsTy _args, ExprTy _body, AlifIntT _lineNo,
+	AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7725
+	ExprTy p{};
+	if (!_args) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'args' مطلوب لـ Lambda");
+		return nullptr;
+	}
+	if (!_body) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'body' مطلوب لـ Lambda");
+		return nullptr;
+	}
+	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = ExprK_::LambdaK;
+	p->V.lambda.args = _args;
+	p->V.lambda.body = _body;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
 }
 
 ExcepthandlerTy alifAST_exceptHandler(ExprTy _type, Identifier _name,
@@ -2412,7 +2467,7 @@ ExprTy alifAST_generatorExp(ExprTy _elt, ASDLComprehensionSeq* _generators, Alif
 	ExprTy p{};
 	if (!_elt) {
 		alifErr_setString(_alifExcValueError_,
-			"field 'elt' is required for GeneratorExp");
+			"الحقل 'elt' مطلوب لـ GeneratorExp");
 		return nullptr;
 	}
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -2600,7 +2655,8 @@ ExprTy alifAST_attribute(ExprTy _val, AlifObject* _attr, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_subScript(ExprTy _val, ExprTy _slice, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 	ExprTy p{};
 	if (!_val) {
 		// error
@@ -2630,7 +2686,8 @@ ExprTy alifAST_subScript(ExprTy _val, ExprTy _slice, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_star(ExprTy _val, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 	ExprTy p{};
 	if (!_val) {
 		// error
@@ -2653,7 +2710,8 @@ ExprTy alifAST_star(ExprTy _val, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_name(AlifObject* _id, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 	ExprTy p{};
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
 	if (!p) return nullptr;
@@ -2667,8 +2725,24 @@ ExprTy alifAST_name(AlifObject* _id, ExprContext_ _ctx,
 	return p;
 }
 
+ExprTy alifAST_set(ASDLExprSeq* _elts, AlifIntT _lineNo, AlifIntT _colOffset,
+	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7805
+	ExprTy p{};
+	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return NULL;
+	p->type = ExprK_::SetK;
+	p->V.set.elts = _elts;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
 ExprTy alifAST_list(ASDLExprSeq* _elts, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	ExprTy p{};
 	if (!_ctx) {
@@ -2688,7 +2762,8 @@ ExprTy alifAST_list(ASDLExprSeq* _elts, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_tuple(ASDLExprSeq* _elts, ExprContext_ _ctx,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	ExprTy p{};
 	if (!_ctx) {
@@ -2708,7 +2783,8 @@ ExprTy alifAST_tuple(ASDLExprSeq* _elts, ExprContext_ _ctx,
 }
 
 ExprTy alifAST_slice(ExprTy _lower, ExprTy _upper, ExprTy _step,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	ExprTy p{};
 	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
@@ -2766,15 +2842,22 @@ Arguments* alifAST_arguments(ASDLArgSeq* _posOnlyArgs, ASDLArgSeq* _args, Arg* _
 	return p;
 }
 
-Arg* alifAST_arg(AlifObject* _arg,
-	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
+Arg* alifAST_arg(Identifier _arg, ExprTy _annotation,
+	String _typeComment, AlifIntT _lineNo, AlifIntT _colOffset,
+	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
 
 	Arg* p{};
-
+	if (!_arg) {
+		alifErr_setString(_alifExcValueError_,
+			"الحقل 'arg' مطلوب لـ arg");
+		return nullptr;
+	}
 	p = (Arg*)alifASTMem_malloc(_astMem, sizeof(*p));
 	if (!p) return nullptr;
 
 	p->arg = _arg;
+	//p->annotation = _annotation;
+	//p->typeComment = _typeComment;
 	p->lineNo = _lineNo;
 	p->colOffset = _colOffset;
 	p->endLineNo = _endLineNo;
@@ -2856,6 +2939,76 @@ AlifObject* alifAST_getDocString(ASDLStmtSeq* _body) {
 }
 
 
+
+TypeParamTy alifAST_typeVar(Identifier _name, ExprTy _bound,
+	ExprTy _defaultValue, AlifIntT _lineNo, AlifIntT _colOffset,
+	AlifIntT _endLineNo, AlifIntT _endColOffset,
+	AlifASTMem* _astMem) { // 8637
+	TypeParamTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحثل 'name' مطلوب لـ TypeVar");
+		return nullptr;
+	}
+	p = (TypeParamTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = TypeParamK::TypeVarK;
+	p->V.typeVar.name = _name;
+	p->V.typeVar.bound = _bound;
+	p->V.typeVar.defaultValue = _defaultValue;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
+TypeParamTy alifAST_paramSpec(Identifier _name, ExprTy _defaultValue,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
+
+	TypeParamTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحثل 'name' مطلوب لـ ParamSpec");
+		return nullptr;
+	}
+	p = (TypeParamTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = TypeParamK::ParamSpecK;
+	p->V.paramSpec.name = _name;
+	p->V.paramSpec.defaultValue = _defaultValue;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
+TypeParamTy alifAST_typeVarTuple(Identifier _name, ExprTy _defaultValue,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 8685
+
+	TypeParamTy p{};
+	if (!_name) {
+		alifErr_setString(_alifExcValueError_,
+			"الحثل 'name' مطلوب لـ TypeVarTuple");
+		return NULL;
+	}
+	p = (TypeParamTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = TypeParamK::TypeVarTupleK;
+	p->V.typeVarTuple.name = _name;
+	p->V.typeVarTuple.defaultValue = _defaultValue;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
 
 
 
@@ -4540,11 +4693,11 @@ AlifObject* ast2obj_typeParam(ASTState* state, Validator* vstate, void* _o) { //
 		if (alifObject_setAttr(result, state->bound, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_expr(state, vstate, o->V.typeVar.defaultValue);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->default_value, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.typeVar.defaultValue);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->default_value, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	case TypeParamK::ParamSpecK:
 		tp = (AlifTypeObject*)state->ParamSpecType;
@@ -4555,11 +4708,11 @@ AlifObject* ast2obj_typeParam(ASTState* state, Validator* vstate, void* _o) { //
 		if (alifObject_setAttr(result, state->name, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_expr(state, vstate, o->V.paramSpec.defaultValue);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->default_value, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.paramSpec.defaultValue);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->default_value, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	case TypeParamK::TypeVarTupleK:
 		tp = (AlifTypeObject*)state->TypeVarTuple_type;
@@ -4570,11 +4723,11 @@ AlifObject* ast2obj_typeParam(ASTState* state, Validator* vstate, void* _o) { //
 		if (alifObject_setAttr(result, state->name, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_expr(state, vstate, o->V.typeVarTuple.defaultValue);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->default_value, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.typeVarTuple.defaultValue);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->default_value, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	}
 	value = ast2obj_int(state, vstate, o->lineNo);
@@ -4633,7 +4786,7 @@ AlifObject* alifAST_mod2obj(ModuleTy _t) { // 18130
 	/* Check that the recursion depth counting balanced correctly */
 	if (result and vstate.recursionDepth != startingRecursionDepth) {
 		alifErr_format(_alifExcSystemError_,
-			"AST constructor recursion depth mismatch (before=%d, after=%d)",
+			"يوجد عدم تطابق عمق التكرار في منشئ AST (قبل=%d, بعد=%d)",
 			startingRecursionDepth, vstate.recursionDepth);
 		return nullptr;
 	}

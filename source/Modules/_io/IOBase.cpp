@@ -92,6 +92,21 @@ static AlifObject* _io_IOBase_seekableImpl(AlifObject* _self) { // 397
 	ALIF_RETURN_FALSE;
 }
 
+AlifObject* _alifIOBase_checkSeekable(AlifIOState* _state,
+	AlifObject* _self, AlifObject* _args) { // 404
+	AlifObject *res  = alifObject_callMethodNoArgs(_self, &ALIF_ID(Seekable));
+	if (res == nullptr)
+		return nullptr;
+	if (res != ALIF_TRUE) {
+		ALIF_CLEAR(res);
+		//ioBase_unsupported(state, "File or stream is not seekable.");
+		return nullptr;
+	}
+	if (_args == ALIF_TRUE) {
+		ALIF_DECREF(res);
+	}
+	return res;
+}
 
 static AlifObject* _io_IOBase_readableImpl(AlifObject* _self) { // 429
 	ALIF_RETURN_FALSE;
@@ -164,9 +179,9 @@ static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { 
 				goto fail;
 			}
 			if (!ALIFBYTES_CHECK(readahead)) {
-				//alifErr_format(_alifExcOSError_,
-				//	"peek() should have returned a bytes object, "
-				//	"not '%.200s'", ALIF_TYPE(readahead)->name);
+				alifErr_format(_alifExcOSError_,
+					"اختلس() يجب أن تقوم بإرجاع كائن من نوع بايت, "
+					"وليس '%.200s'", ALIF_TYPE(readahead)->name);
 				ALIF_DECREF(readahead);
 				goto fail;
 			}
@@ -204,9 +219,9 @@ static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { 
 			goto fail;
 		}
 		if (!ALIFBYTES_CHECK(b)) {
-			//alifErr_format(_alifExcOSError_,
-			//	"read() should have returned a bytes object, "
-			//	"not '%.200s'", ALIF_TYPE(b)->name);
+			alifErr_format(_alifExcOSError_,
+				"اقرا() يجب أن تقوم بإرجاع كائن من نوع بايت, "
+				"وليس '%.200s'", ALIF_TYPE(b)->name);
 			ALIF_DECREF(b);
 			goto fail;
 		}

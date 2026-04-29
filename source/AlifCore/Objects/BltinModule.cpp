@@ -43,8 +43,8 @@ static AlifObject* update_bases(AlifObject* _bases, AlifObject* const* _args, Al
 			goto error;
 		}
 		if (!ALIFTUPLE_CHECK(new_base)) {
-			//alifErr_setString(_alifExcTypeError_,
-			//	"__mro_entries__ must return a tuple");
+			alifErr_setString(_alifExcTypeError_,
+				"__mroEntries__ يجب أن ترجع مترابطة");
 			ALIF_DECREF(new_base);
 			goto error;
 		}
@@ -89,20 +89,20 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 	AlifThread* thread{}; //* alif
 
 	if (_nargs < 2) {
-		//alifErr_setString(_alifExcTypeError_,
-		//	"__buildClass__: not enough arguments");
+		alifErr_setString(_alifExcTypeError_,
+			"__buildClass__: لم يتم تمرير معاملات كافية");
 		return nullptr;
 	}
 	func = _args[0];   /* Better be callable */
 	if (!ALIFFUNCTION_CHECK(func)) {
-		//alifErr_setString(_alifExcTypeError_,
-		//	"__buildClass__: func must be a function");
+		alifErr_setString(_alifExcTypeError_,
+			"__buildClass__: متغير func يجب أن يكون دالة");
 		return nullptr;
 	}
 	name = _args[1];
 	if (!ALIFUSTR_CHECK(name)) {
-		//alifErr_setString(_alifExcTypeError_,
-		//	"__buildClass__: name is not a string");
+		alifErr_setString(_alifExcTypeError_,
+			"__buildClass__: متغير name يجب أن يكون نص");
 		return nullptr;
 	}
 	orig_bases = _alifTuple_fromArray(_args + 2, _nargs - 2);
@@ -176,20 +176,19 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 		goto error;
 	}
 	if (!alifMapping_check(ns)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"%.200s.__prepare__() must return a mapping, not %.200s",
-		//	isclass ? ((AlifTypeObject*)meta)->name : "<metaclass>",
-		//	ALIF_TYPE(ns)->name);
+		alifErr_format(_alifExcTypeError_,
+			"%.200s.__prepare__() يجب أن ترجع فهرس, وليس %.200s",
+			isclass ? ((AlifTypeObject*)meta)->name : "<metaclass>",
+			ALIF_TYPE(ns)->name);
 		goto error;
 	}
 	thread = _alifThread_get();
 	cell = alifEval_vector(thread, (AlifFunctionObject*)func, ns, nullptr, 0, nullptr);
 	if (cell != nullptr) {
 		if (bases != orig_bases) {
-			//if (alifMapping_setItemString(ns, "__origBases__", orig_bases) < 0) {
-			//	goto error;
-			//}
-			printf("تعليق : BltinModule.cpp - builtin___buildClass__"); //* alif
+			if (alifMapping_setItemString(ns, "__origBases__", orig_bases) < 0) {
+				goto error;
+			}
 		}
 		AlifObject* margs[3] = { name, bases, ns };
 		cls = alifObject_vectorCallDict(meta, margs, 3, mkw);
@@ -197,15 +196,15 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 			AlifObject* cell_cls = ALIFCELL_GET(cell);
 			if (cell_cls != cls) {
 				if (cell_cls == nullptr) {
-					//const char* msg =
-					//	"__class__ not set defining %.200R as %.200R. "
-					//	"Was __classCell__ propagated to type.__new__?";
-					//alifErr_format(_alifExcRuntimeError_, msg, name, cls);
+					const char* msg =
+						"__صنف__ غير محدد تعريف %.200R كـ %.200R. "
+						"هل تم نقل __خلية_صنف__ إلى نوع.__جديد__؟";
+					alifErr_format(_alifExcRuntimeError_, msg, name, cls);
 				}
 				else {
-					//const char* msg =
-					//	"__class__ set to %.200R defining %.200R as %.200R";
-					//alifErr_format(_alifExcTypeError_, msg, cell_cls, name, cls);
+					const char* msg =
+						"__صنف__ مضبوط على %.200R مع تعريف %.200R على أنه %.200R";
+					alifErr_format(_alifExcTypeError_, msg, cell_cls, name, cls);
 				}
 				ALIF_SETREF(cls, nullptr);
 				goto error;
@@ -304,7 +303,7 @@ static AlifObject* min_max(AlifObject* const* args, AlifSizeT nargs,
 	AlifArgParser* parser_ = (op == ALIF_LT) ? &parserMin : &parserMax;
 
 	if (nargs == 0) {
-		//alifErr_format(_alifExcTypeError_, "%s expected at least 1 argument, got 0", name);
+		alifErr_format(_alifExcTypeError_, "%s يجب تمرير معامل واحد على الأقل, ولكن تم تمرير 0", name);
 		return nullptr;
 	}
 
@@ -315,9 +314,9 @@ static AlifObject* min_max(AlifObject* const* args, AlifSizeT nargs,
 
 	const AlifIntT positional = nargs > 1;
 	if (positional and defaultval != nullptr) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"Cannot specify a default for %s() with multiple "
-		//	"positional arguments", name);
+		alifErr_format(_alifExcTypeError_,
+			"لا يمكن تحديد قيمة إفتراضية لـ %s() مع "
+			"معاملات مكانية متعددة", name);
 		return nullptr;
 	}
 
@@ -437,7 +436,7 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 		AlifThread* thread = _alifThread_get();
 		_file = _alifSys_getAttr(thread, &ALIF_ID(Stdout));
 		if (_file == nullptr) {
-			//alifErr_setString(_alifExcRuntimeError_, "lost sys.stdout");
+			alifErr_setString(_alifExcRuntimeError_, "مفقود النظام.الإخراج");
 			return nullptr;
 		}
 
@@ -450,18 +449,18 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 		_sep = nullptr;
 	}
 	else if (_sep and !ALIFUSTR_CHECK(_sep)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"sep must be None or a string, not %.200s",
-		//	ALIF_TYPE(sep)->name);
+		alifErr_format(_alifExcTypeError_,
+			"الفاصلة يجب أن تكون عدم او نص, وليس %.200s",
+			ALIF_TYPE(_sep)->name);
 		return nullptr;
 	}
 	if (_end == ALIF_NONE) {
 		_end = nullptr;
 	}
 	else if (_end and !ALIFUSTR_CHECK(_end)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"end must be None or a string, not %.200s",
-		//	ALIF_TYPE(end)->name);
+		alifErr_format(_alifExcTypeError_,
+			"النهاية يجب أن تكون عدم او نص, وليس %.200s",
+			ALIF_TYPE(_end)->name);
 		return nullptr;
 	}
 
@@ -494,9 +493,9 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 	}
 
 	if (_flush) {
-		//if (_alifFile_flush(_file) < 0) {
-		//	return nullptr;
-		//}
+		if (_alifFile_flush(_file) < 0) {
+			return nullptr;
+		}
 	}
 
 	return ALIF_NONE;
@@ -647,7 +646,7 @@ static AlifObject* builtin_inputImpl(AlifObject* module, AlifObject* prompt) { /
 			promptstr = ALIFBYTES_AS_STRING(po);
 			if ((AlifSizeT)strlen(promptstr) != ALIFBYTES_GET_SIZE(po)) {
 				alifErr_setString(_alifExcValueError_,
-					"input: prompt string cannot contain null characters");
+					"ادخل: النص المدخل لا يمكن أن يحتوي على حروف فارغة");
 				goto _readline_errors;
 			}
 		}
@@ -670,8 +669,8 @@ static AlifObject* builtin_inputImpl(AlifObject* module, AlifObject* prompt) { /
 		}
 		else {
 			if (len > ALIF_SIZET_MAX) {
-				//alifErr_setString(_alifExcOverflowError_,
-				//	"input: input too long");
+				alifErr_setString(_alifExcOverflowError_,
+					"ادخل: النص المدخل طويل جداً");
 				result = nullptr;
 			}
 			else {
@@ -719,16 +718,484 @@ _readline_errors:
 }
 
 
+
+class CompensatedSum { // 2534
+public:
+	double hi{};     /* high-order bits for a running sum */
+	double lo{};     /* a running compensation for lost low-order bits */
+};
+
+static inline CompensatedSum cs_fromDouble(double _x) { // 2539
+	return {_x};
+}
+
+static inline CompensatedSum cs_add(CompensatedSum _total,
+	double _x) {
+	double t = _total.hi + _x;
+	if (fabs(_total.hi) >= fabs(_x)) {
+		_total.lo += (_total.hi - t) + _x;
+	}
+	else {
+		_total.lo += (_x - t) + _total.hi;
+	}
+	return {t, _total.lo};
+}
+
+static inline double cs_toDouble(CompensatedSum _total) {
+	/* Avoid losing the sign on a negative result,
+	and don't let adding the compensation convert
+	an infinite or overflowed sum to a NaN (not a number). */
+	if (_total.lo and isfinite(_total.lo)) {
+		return _total.hi + _total.lo;
+	}
+	return _total.hi;
+}
+
+static AlifObject* builtin_sumImpl(AlifObject* module,
+	AlifObject* iterable, AlifObject* start) { // 2584
+	AlifObject* result = start;
+	AlifObject* temp{}, * item{}, * iter{};
+
+	iter = alifObject_getIter(iterable);
+	if (iter == nullptr)
+		return nullptr;
+
+	if (result == nullptr) {
+		result = alifLong_fromLong(0);
+		if (result == nullptr) {
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+	} else {
+		/* reject string values for 'start' parameter */
+		if (ALIFUSTR_CHECK(result)) {
+			alifErr_setString(_alifExcTypeError_,
+				"اجمع() لا تستطيع جمع النصوص [بدل من ذلك استخدم ''.ضم(سلسلة)]");
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+		if (ALIFBYTES_CHECK(result)) {
+			//alifErr_setString(_alifExcTypeError_,
+			//	"اجمع() لا تستطيع جمع البايتات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+		if (ALIFBYTEARRAY_CHECK(result)) {
+			//alifErr_setString(_alifExcTypeError_,
+			//	"اجمع() لا تستطيع جمع مصفوفة البايتات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
+			ALIF_DECREF(iter);
+			return nullptr;
+		}
+		ALIF_INCREF(result);
+	}
+
+#ifndef SLOW_SUM
+	/* Fast addition by keeping temporary sums in CPP instead of new Alif objects.
+	Assumes all inputs are the same type.  If the assumption fails, default
+	to the more general routine.
+	*/
+	if (ALIFLONG_CHECKEXACT(result)) {
+		AlifIntT overflow{};
+		AlifSizeT i_result = alifLong_asLongAndOverflow(result, &overflow);
+		/* If this already overflowed, don't even enter the loop. */
+		if (overflow == 0) {
+			ALIF_SETREF(result, nullptr);
+		}
+		while(result == nullptr) {
+			item = alifIter_next(iter);
+			if (item == nullptr) {
+				ALIF_DECREF(iter);
+				if (alifErr_occurred())
+					return nullptr;
+				return alifLong_fromSizeT(i_result);
+			}
+			if (ALIFLONG_CHECKEXACT(item) or ALIFBOOL_CHECK(item)) {
+				AlifSizeT b{};
+				overflow = 0;
+				/* Single digits are common, fast, and cannot overflow on unpacking. */
+				if (alifLong_isCompact((AlifLongObject*)item)) {
+					b = alifLong_compactValue((AlifLongObject*)item);
+				}
+				else {
+					b = alifLong_asLongAndOverflow(item, &overflow);
+				}
+				if (overflow == 0 and
+					(i_result >= 0 ? (b <= ALIF_SIZET_MAX - i_result)
+						: (b >= ALIF_SIZET_MIN - i_result)))
+				{
+					i_result += b;
+					ALIF_DECREF(item);
+					continue;
+				}
+			}
+			/* Either overflowed or is not an int. Restore real objects and process normally */
+			result = alifLong_fromSizeT(i_result);
+			if (result == nullptr) {
+				ALIF_DECREF(item);
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+			temp = alifNumber_add(result, item);
+			ALIF_DECREF(result);
+			ALIF_DECREF(item);
+			result = temp;
+			if (result == nullptr) {
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+		}
+	}
+
+	if (ALIFFLOAT_CHECKEXACT(result)) {
+		CompensatedSum re_sum = cs_fromDouble(ALIFFLOAT_AS_DOUBLE(result));
+		ALIF_SETREF(result, nullptr);
+		while(result == nullptr) {
+			item = alifIter_next(iter);
+			if (item == nullptr) {
+				ALIF_DECREF(iter);
+				if (alifErr_occurred())
+					return nullptr;
+				return alifFloat_fromDouble(cs_toDouble(re_sum));
+			}
+			if (ALIFFLOAT_CHECKEXACT(item)) {
+				re_sum = cs_add(re_sum, ALIFFLOAT_AS_DOUBLE(item));
+				_alif_decrefSpecialized(item, _alifFloat_exactDealloc);
+				continue;
+			}
+			if (ALIFLONG_CHECK(item)) {
+				double value = alifLong_asDouble(item);
+				if (value != -1.0 or !alifErr_occurred()) {
+					re_sum = cs_add(re_sum, value);
+					ALIF_DECREF(item);
+					continue;
+				}
+				else {
+					ALIF_DECREF(item);
+					ALIF_DECREF(iter);
+					return nullptr;
+				}
+			}
+			result = alifFloat_fromDouble(cs_toDouble(re_sum));
+			if (result == nullptr) {
+				ALIF_DECREF(item);
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+			temp = alifNumber_add(result, item);
+			ALIF_DECREF(result);
+			ALIF_DECREF(item);
+			result = temp;
+			if (result == nullptr) {
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+		}
+	}
+
+	/*if (ALIFCOMPLEX_CHECKEXACT(result)) {
+		AlifComplex z = alifComplex_asCComplex(result);
+		CompensatedSum re_sum = cs_fromDouble(z.real);
+		CompensatedSum im_sum = cs_fromDouble(z.imag);
+		ALIF_SETREF(result, nullptr);
+		while (result == nullptr) {
+			item = alifIter_next(iter);
+			if (item == nullptr) {
+				ALIF_DECREF(iter);
+				if (alifErr_occurred()) {
+					return nullptr;
+				}
+				return alifComplex_fromDoubles(cs_toDouble(re_sum),
+					cs_toDouble(im_sum));
+			}
+			if (ALIFCOMPLEX_CHECKEXACT(item)) {
+				z = alifComplex_asCComplex(item);
+				re_sum = cs_add(re_sum, z.real);
+				im_sum = cs_add(im_sum, z.imag);
+				ALIF_DECREF(item);
+				continue;
+			}
+			if (ALIFLONG_CHECK(item)) {
+				double value = alifLong_asDouble(item);
+				if (value != -1.0 or !alifErr_occurred()) {
+					re_sum = cs_add(re_sum, value);
+					im_sum.hi += 0.0;
+					ALIF_DECREF(item);
+					continue;
+				}
+				else {
+					ALIF_DECREF(item);
+					ALIF_DECREF(iter);
+					return nullptr;
+				}
+			}
+			if (ALIFFLOAT_CHECK(item)) {
+				double value = alifFLOAT_AS_DOUBLE(item);
+				re_sum = cs_add(re_sum, value);
+				im_sum.hi += 0.0;
+				_alif_decRefSpecialized(item, _alifFloat_exactDealloc);
+				continue;
+			}
+			result = alifComplex_fromDoubles(cs_toDouble(re_sum),
+				cs_toDouble(im_sum));
+			if (result == nullptr) {
+				ALIF_DECREF(item);
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+			temp = alifNumber_add(result, item);
+			ALIF_DECREF(result);
+			ALIF_DECREF(item);
+			result = temp;
+			if (result == nullptr) {
+				ALIF_DECREF(iter);
+				return nullptr;
+			}
+		}
+	}*/
+#endif
+
+	for(;;) {
+		item = alifIter_next(iter);
+		if (item == nullptr) {
+			/* error, or end-of-sequence */
+			if (alifErr_occurred()) {
+				ALIF_SETREF(result, nullptr);
+			}
+			break;
+		}
+		/* It's tempting to use alifNumber_inPlaceAdd instead of
+		alifNumber_add here, to avoid quadratic running time
+		when doing 'sum(list_of_lists, [])'.  However, this
+		would produce a change in behaviour: a snippet like
+
+		empty = []
+		sum([[x] for x in range(10)], empty)
+
+		would change the value of empty. In fact, using
+		in-place addition rather that binary addition for
+		any of the steps introduces subtle behavior changes: */
+		temp = alifNumber_add(result, item);
+		ALIF_DECREF(result);
+		ALIF_DECREF(item);
+		result = temp;
+		if (result == nullptr)
+			break;
+	}
+	ALIF_DECREF(iter);
+	return result;
+}
+
+
+static AlifObject * builtin_isInstanceImpl(AlifObject *_module, AlifObject *_obj,
+	AlifObject *_classOrTuple) { // 2837
+	AlifIntT retval{};
+
+	retval = alifObject_isInstance(_obj, _classOrTuple);
+	if (retval < 0)
+		return nullptr;
+	return alifBool_fromLong(retval);
+}
+
+
+class ZipObject { // 2878
+public:
+	ALIFOBJECT_HEAD{};
+	AlifSizeT tupleSize{};
+	AlifObject* itTuple{};     /* tuple of iterators */
+	AlifObject* result;
+	AlifIntT strict{};
+};
+
+static AlifObject* zip_new(AlifTypeObject* type,
+	AlifObject* args, AlifObject* kwds) { // 2886
+	ZipObject* lz{};
+	AlifSizeT i{};
+	AlifObject* ittuple{};  /* tuple of iterators */
+	AlifObject* result{};
+	AlifSizeT tupleSize{};
+	AlifIntT strict = 0;
+
+	if (kwds) {
+		AlifObject* empty = alifTuple_new(0);
+		if (empty == nullptr) {
+			return nullptr;
+		}
+		static char* kwlist[] = { (char*)"دقيق", nullptr };
+		AlifIntT parsed = alifArg_parseTupleAndKeywords(
+			empty, kwds, "|$p:مقرون", kwlist, &strict);
+		ALIF_DECREF(empty);
+		if (!parsed) {
+			return nullptr;
+		}
+	}
+
+	/* args must be a tuple */
+	tupleSize = ALIFTUPLE_GET_SIZE(args);
+
+	/* obtain iterators */
+	ittuple = alifTuple_new(tupleSize);
+	if (ittuple == nullptr)
+		return nullptr;
+	for (i=0; i < tupleSize; ++i) {
+		AlifObject* item = ALIFTUPLE_GET_ITEM(args, i);
+		AlifObject* it = alifObject_getIter(item);
+		if (it == nullptr) {
+			ALIF_DECREF(ittuple);
+			return nullptr;
+		}
+		ALIFTUPLE_SET_ITEM(ittuple, i, it);
+	}
+
+	/* create a result holder */
+	result = alifTuple_new(tupleSize);
+	if (result == nullptr) {
+		ALIF_DECREF(ittuple);
+		return nullptr;
+	}
+	for (i=0 ; i < tupleSize ; i++) {
+		ALIFTUPLE_SET_ITEM(result, i, ALIF_NEWREF(ALIF_NONE));
+	}
+
+	/* create zipobject structure */
+	lz = (ZipObject*)type->alloc(type, 0);
+	if (lz == nullptr) {
+		ALIF_DECREF(ittuple);
+		ALIF_DECREF(result);
+		return nullptr;
+	}
+	lz->itTuple = ittuple;
+	lz->tupleSize = tupleSize;
+	lz->result = result;
+	lz->strict = strict;
+
+	return (AlifObject*)lz;
+}
+
+static void zip_dealloc(ZipObject* lz) { // 2953
+	alifObject_gcUnTrack(lz);
+	ALIF_XDECREF(lz->itTuple);
+	ALIF_XDECREF(lz->result);
+	ALIF_TYPE(lz)->free(lz);
+}
+
+
+static AlifObject* zip_next(ZipObject* lz) { // 2970
+	AlifSizeT i{};
+	AlifSizeT tuplesize = lz->tupleSize;
+	AlifObject *result = lz->result;
+	AlifObject *it{};
+	AlifObject *item{};
+	AlifObject *olditem{};
+
+	if (tuplesize == 0)
+		return nullptr;
+
+	if (_alifObject_isUniquelyReferenced(result)) {
+		ALIF_INCREF(result);
+		for (i=0 ; i < tuplesize ; i++) {
+			it = ALIFTUPLE_GET_ITEM(lz->itTuple, i);
+			item = (*ALIF_TYPE(it)->iterNext)(it);
+			if (item == nullptr) {
+				ALIF_DECREF(result);
+				if (lz->strict) {
+					goto check;
+				}
+				return nullptr;
+			}
+			olditem = ALIFTUPLE_GET_ITEM(result, i);
+			ALIFTUPLE_SET_ITEM(result, i, item);
+			ALIF_DECREF(olditem);
+		}
+		if (!ALIFOBJECT_GC_IS_TRACKED(result)) {
+			ALIFOBJECT_GC_TRACK(result);
+		}
+	} else {
+		result = alifTuple_new(tuplesize);
+		if (result == nullptr)
+			return nullptr;
+		for (i=0 ; i < tuplesize ; i++) {
+			it = ALIFTUPLE_GET_ITEM(lz->itTuple, i);
+			item = (*ALIF_TYPE(it)->iterNext)(it);
+			if (item == nullptr) {
+				ALIF_DECREF(result);
+				if (lz->strict) {
+					goto check;
+				}
+				return nullptr;
+			}
+			ALIFTUPLE_SET_ITEM(result, i, item);
+		}
+	}
+	return result;
+check:
+	if (alifErr_occurred()) {
+		if (!alifErr_exceptionMatches(_alifExcStopIteration_)) {
+			// next() on argument i raised an exception (not StopIteration)
+			return nullptr;
+		}
+		alifErr_clear();
+	}
+	if (i) {
+		// خطأ_قيمة: zip() argument 2 is shorter than argument 1
+		// خطأ_قيمة: zip() argument 3 is shorter than arguments 1-2
+		const char* plural = i == 1 ? " " : "ات 1-";
+		return alifErr_format(_alifExcValueError_,
+			"مقرون() المعامل %d اقصر من المعامل%s%d",
+			i + 1, plural, i);
+	}
+	for (i = 1; i < tuplesize; i++) {
+		it = ALIFTUPLE_GET_ITEM(lz->itTuple, i);
+		item = (*ALIF_TYPE(it)->iterNext)(it);
+		if (item) {
+			ALIF_DECREF(item);
+			const char* plural = i == 1 ? " " : "ات 1-";
+			return alifErr_format(_alifExcValueError_,
+				"مقرون() المعامل %d اطول من المعامل%s%d",
+				i + 1, plural, i);
+		}
+		if (alifErr_occurred()) {
+			if (!alifErr_exceptionMatches(_alifExcStopIteration_)) {
+				// next() on argument i raised an exception (not StopIteration)
+				return nullptr;
+			}
+			alifErr_clear();
+		}
+		// Argument i is exhausted. So far so good...
+	}
+	// All arguments are exhausted. Success!
+	return nullptr;
+}
+
+AlifTypeObject _alifZipType_ = { // 3105
+	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
+	.name = "مقرون",
+	.basicSize = sizeof(ZipObject),
+	/* methods */
+	.dealloc = (Destructor)zip_dealloc,
+	.getAttro = alifObject_genericGetAttr,
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
+	ALIF_TPFLAGS_BASETYPE,
+	//.traverse = (TraverseProc)zip_traverse,
+	.iter = alifObject_selfIter,
+	.iterNext = (IterNextFunc)zip_next,
+	//.methods = _zipMethods_,
+	.alloc = alifType_genericAlloc,
+	.new_ = zip_new,
+	.free = alifObject_gcDel,
+};
+
 static AlifMethodDef _builtinMethods_[] = { // 3141
 	{"__buildClass__", ALIF_CPPFUNCTION_CAST(builtin___buildClass__),
 	 METHOD_FASTCALL | METHOD_KEYWORDS},
 	BUILTIN___IMPORT___METHODDEF,
 	BUILTIN_ANY_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,
+	BUILTIN_ISINSTANCE_METHODDEF,
 	BUILTIN_LEN_METHODDEF,
 	{"اقصى", ALIF_CPPFUNCTION_CAST(builtin_max), METHOD_FASTCALL | METHOD_KEYWORDS},
 	{"ادنى", ALIF_CPPFUNCTION_CAST(builtin_min), METHOD_FASTCALL | METHOD_KEYWORDS},
 	BUILTIN_PRINT_METHODDEF,
+	BUILTIN_SUM_METHODDEF,
 	{nullptr, nullptr},
 };
 
@@ -783,14 +1250,15 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	//SETBUILTIN("map", &_alifMapType_);
 	SETBUILTIN("كائن", &_alifBaseObjectType_);
 	SETBUILTIN("مدى", &_alifRangeType_);
-	//SETBUILTIN("reversed", &_alifReversedType_);
-	SETBUILTIN("set", &_alifSetType_);
-	SETBUILTIN("slice", &_alifSliceType_);
+	SETBUILTIN("معكوس", &_alifReversedType_);
+	SETBUILTIN("مميزة", &_alifSetType_);
+	SETBUILTIN("قطع", &_alifSliceType_);
 	//SETBUILTIN("staticmethod", &_alifStaticMethodType_);
 	SETBUILTIN("نص", &_alifUStrType_);
 	SETBUILTIN("اصل", &_alifSuperType_);
 	SETBUILTIN("مترابطة", &_alifTupleType_);
 	SETBUILTIN("نوع", &_alifTypeType_);
+	SETBUILTIN("مقرون", &_alifZipType_);
 	debug = alifBool_fromLong(config->optimizationLevel == 0);
 	if (alifDict_setItemString(dict, "__debug__", debug) < 0) {
 		ALIF_DECREF(debug);

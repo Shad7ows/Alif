@@ -59,9 +59,9 @@ static AlifObject* float_fromStringInner(const char* s, AlifSizeT len, void* obj
 
 	x = alifOS_stringToDouble(s, (char**)&end, nullptr);
 	if (end != last) {
-		//alifErr_format(_alifExcValueError_,
-		//	"could not convert string to float: "
-		//	"%R", obj);
+		alifErr_format(_alifExcValueError_,
+			"لا يمكن تحويل النص إلى عدد عشري: "
+			"%R", obj);
 		return nullptr;
 	}
 	else if (x == -1.0 and alifErr_occurred()) {
@@ -119,6 +119,16 @@ AlifObject* alifFloat_fromString(AlifObject* v) { // 177
 }
 
 
+void _alifFloat_exactDealloc(AlifObject* _obj) { // 262
+	ALIF_FREELIST_FREE(floats, FLOATS, _obj, alifMem_objFree);
+}
+
+static void float_dealloc(AlifObject* _op) { // 269
+	if (ALIFFLOAT_CHECKEXACT(_op))
+		_alifFloat_exactDealloc(_op);
+	else
+		ALIF_TYPE(_op)->free(_op);
+}
 
 double alifFloat_asDouble(AlifObject* _op) { // 250
 	AlifNumberMethods* nb_{};
@@ -191,7 +201,7 @@ static AlifIntT convert_toDouble(AlifObject** _v, double* _dbl) { // 322
 
 	if (ALIFLONG_CHECK(obj)) {
 		*_dbl = alifLong_asDouble(obj);
-		if (*_dbl == -1.0 /*and alifErr_occurred()*/) {
+		if (*_dbl == -1.0 and alifErr_occurred()) {
 			*_v = nullptr;
 			return -1;
 		}
@@ -667,11 +677,11 @@ static AlifObject* float___format___impl(AlifObject* _self, AlifObject* _formatS
 	AlifUStrWriter writer{};
 	AlifIntT ret{};
 
-	alifUStrWriter_init(&writer);
+	_alifUStrWriter_init(&writer);
 	ret = _alifFloat_formatAdvancedWriter(&writer, _self,
 		_formatSpec, 0, ALIFUSTR_GET_LENGTH(_formatSpec));
 	if (ret == -1) {
-		alifUStrWriter_dealloc(&writer);
+		_alifUStrWriter_dealloc(&writer);
 		return nullptr;
 	}
 	return _alifUStrWriter_finish(&writer);
@@ -737,6 +747,7 @@ AlifTypeObject _alifFloatType_ = { // 1847
 	.name = "عشري",
 	.basicSize = sizeof(AlifFloatObject),
 	.itemSize = 0,
+	.dealloc = (Destructor)float_dealloc,
 	.repr = (ReprFunc)float_repr,
 	.asNumber = &_floatAsNumber_,
 	.hash = (HashFunc)float_hash,
@@ -805,7 +816,7 @@ AlifIntT alifFloat_pack8(double _x, char* _data, AlifIntT _le) { // 2236
 			e = 0;
 		else {
 			alifErr_setString(_alifExcSystemError_,
-				"frexp() result out of range");
+				"frexp() النتيجة خارج النطاق");
 			return -1;
 		}
 
@@ -878,7 +889,7 @@ AlifIntT alifFloat_pack8(double _x, char* _data, AlifIntT _le) { // 2236
 
 Overflow:
 		alifErr_setString(_alifExcOverflowError_,
-			"float too large to pack with d format");
+			"العدد العشري كبير جداً ولا يمكن تغليفه في تنسيق d (عشري مضاعف)");
 		return -1;
 	}
 	else {

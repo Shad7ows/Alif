@@ -82,5 +82,7 @@ int64_t _alifLong_numBits(AlifObject*); // 77
 
 
 AlifObject* _alifLong_fromByteArray(const unsigned char*, AlifUSizeT, AlifIntT, AlifIntT); // 94
+AlifIntT _alifLong_asByteArray(AlifLongObject*, unsigned char*,
+	AlifUSizeT, AlifIntT, AlifIntT, AlifIntT); // 117
 
 AlifObject* alifLong_gcd(AlifObject*, AlifObject*); // 122

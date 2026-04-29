@@ -31,6 +31,8 @@ AlifThreadTypeLock alifThread_allocateLock(void); // 50
 void alifThread_freeLock(AlifThreadTypeLock); // 51
 
 
+void alifThread_releaseLock(AlifThreadTypeLock); // 77
+
 // Forward Declaration
 class AlifTssT;
 

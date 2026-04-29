@@ -219,9 +219,9 @@ AlifIntT _alifStructSequence_initBuiltinWithFlags(AlifInterpreter* _interp,
 	}
 
 	if (alifStaticType_initBuiltin(_interp, _type) < 0) {
-		//alifErr_format(_alifExcRuntimeError_,
-		//	"Can't initialize builtin type %s",
-		//	desc->name);
+		alifErr_format(_alifExcRuntimeError_,
+			"لا يمكن تهيئة النوع الضمني %s",
+			_desc->name);
 		goto error;
 	}
 

@@ -77,19 +77,19 @@ double alifOS_stringToDouble(const char* _s,
 		failPos = (char*)_s;
 	}
 	else if (!_endPtr and (failPos == _s or *failPos != '\0')) {
-		//alifErr_format(_alifExcValueError_,
-		//	"could not convert string to float: "
-		//	"'%.200s'", _s);
+		alifErr_format(_alifExcValueError_,
+			"لا يمكن تحويل النص إلى عدد عشري: "
+			"'%.200s'", _s);
 	}
 	else if (failPos == _s) {
-		//alifErr_format(_alifExcValueError_,
-		//	"could not convert string to float: "
-		//	"'%.200s'", _s);
+		alifErr_format(_alifExcValueError_,
+			"لا يمكن تحويل النص إلى عدد عشري: "
+			"'%.200s'", _s);
 	}
-	else if (errno == ERANGE and fabs(x) >= 1.0 && _overflowException) {
-		//alifErr_format(_overflowException,
-		//	"value too large to convert to float: "
-		//	"'%.200s'", _s);
+	else if (errno == ERANGE and fabs(x) >= 1.0 and _overflowException) {
+		alifErr_format(_overflowException,
+			"القيمة كبيرة جداً ولا يمكن تحويلها إلى عدد عشري: "
+			"'%.200s'", _s);
 	}
 	else result = x;
 
@@ -150,9 +150,9 @@ AlifObject* _alifString_toNumberWithUnderscores(const char* _s,
 
 error:
 	alifMem_dataFree(dup);
-	//alifErr_format(_alifExcValueError_,
-	//	"could not convert string to %s: "
-	//	"%R", what, obj);
+	alifErr_format(_alifExcValueError_,
+		"لا يمكن تحويل النص إلى %s: "
+		"%R", _what, _obj);
 	return nullptr;
 }
 
@@ -171,14 +171,14 @@ error:
 
 /* The lengths of these are known to the code below, so don't change them */
 static const char* const _lcFloatStrings_[] = { // 928
-	"inf",
+	"لانهائي",
 	"nan",
-	"e",
+	"هـ",
 };
 static const char* const _ucFloatStrings_[] = { // 933
-	"INF",
+	"لانهائي",
 	"NAN",
-	"E",
+	"هـ",
 };
 
 
@@ -215,7 +215,7 @@ static char* format_floatShort(double _d, char _formatCode,
 		if (digits[0] == 'n' or digits[0] == 'N')
 			sign = 0;
 
-		bufsize = 5;
+		bufsize = 16; //* alif
 		buf = (char*)alifMem_dataAlloc(bufsize);
 		if (buf == nullptr) {
 			//alifErr_noMemory();
@@ -230,8 +230,8 @@ static char* format_floatShort(double _d, char _formatCode,
 			*p++ = '+';
 		}
 		if (digits[0] == 'i' or digits[0] == 'I') {
-			strncpy(p, _floatStrings[OFS_INF], 3);
-			p += 3;
+			strncpy(p, _floatStrings[OFS_INF], 14); //* alif
+			p += 14; //* alif
 
 			if (_type)
 				*_type = ALIF_DTST_INFINITE;
@@ -289,7 +289,7 @@ static char* format_floatShort(double _d, char _formatCode,
 		vdigits_end = vdigits_end > decpt ? vdigits_end : decpt;
 
 
-	bufsize = 3 + (vdigits_end - vdigits_start) + (use_exp ? 5 : 0);
+	bufsize = 3 + (vdigits_end - vdigits_start) + (use_exp ? 8 : 0); //* alif
 
 	buf = (char*)alifMem_dataAlloc(bufsize);
 	if (buf == nullptr) {
@@ -343,7 +343,8 @@ static char* format_floatShort(double _d, char _formatCode,
 		p--;
 
 	if (use_exp) {
-		*p++ = _floatStrings[OFS_E][0];
+		strncpy(p, _floatStrings[OFS_E], 4); //* alif
+		p += 4; //* alif
 		exp_len = sprintf(p, "%+.02d", exp);
 		p += exp_len;
 	}

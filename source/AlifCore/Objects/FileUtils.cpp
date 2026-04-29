@@ -636,6 +636,25 @@ AlifIntT _alif_wStat(const wchar_t* path, struct stat* buf) { // 1332
 }
 
 
+AlifIntT _alif_fStat(AlifIntT _fd, class AlifStatStruct *_status) { // 1309
+	AlifIntT res{};
+
+	ALIF_BEGIN_ALLOW_THREADS
+	res = _alifFStat_noraise(_fd, _status);
+	ALIF_END_ALLOW_THREADS
+
+		if (res != 0) {
+		//#ifdef _WINDOWS
+		//	alifErr_setFromWindowsErr(0);
+		//#else
+		//	alifErr_setFromErrno(_alifExcOSError_);
+		//#endif
+			return -1;
+		}
+	return 0;
+}
+
+
 static AlifIntT get_inheritable(AlifIntT fd, AlifIntT raise) { // 1405
 #ifdef _WINDOWS
 	HANDLE handle;
@@ -784,6 +803,77 @@ static AlifIntT make_nonInheritable(AlifIntT _fd) { // 1582
 //	AlifIntT inheritable, AlifIntT* atomic_flag_works) { // 1604
 //	return set_inheritable(fd, inheritable, 1, atomic_flag_works);
 //}
+
+
+static AlifIntT _alif_openImpl(const char *pathname,
+	AlifIntT flags, AlifIntT gil_held) { // 1619
+	AlifIntT fd{};
+	AlifIntT async_err = 0;
+#ifndef _WINDOWS
+	AlifIntT *atomic_flag_works{};
+#endif
+
+#ifdef _WINDOWS
+	flags |= O_NOINHERIT;
+#elif defined(O_CLOEXEC)
+	atomic_flag_works = &_alifOpenCloExecWorks_;
+	flags |= O_CLOEXEC;
+#else
+	atomic_flag_works = nullptr;
+#endif
+
+	if (gil_held) {
+		AlifObject *pathname_obj = alifUStr_decodeFSDefault(pathname);
+		if (pathname_obj == nullptr) {
+			return -1;
+		}
+		//if (alifSys_audit("افتح", "OOi", pathname_obj, ALIF_NONE, flags) < 0) {
+		//	ALIF_DECREF(pathname_obj);
+		//	return -1;
+		//}
+
+		do {
+			ALIF_BEGIN_ALLOW_THREADS
+				fd = open(pathname, flags);
+			ALIF_END_ALLOW_THREADS
+		} while (fd < 0
+			and errno == EINTR /*and !(async_err = alifErr_checkSignals())*/);
+			if (async_err) {
+				ALIF_DECREF(pathname_obj);
+				return -1;
+			}
+			if (fd < 0) {
+				alifErr_setFromErrnoWithFilenameObjects(_alifExcOSError_, pathname_obj, NULL);
+				ALIF_DECREF(pathname_obj);
+				return -1;
+			}
+			ALIF_DECREF(pathname_obj);
+	}
+	else {
+		fd = open(pathname, flags);
+		if (fd < 0)
+			return -1;
+	}
+
+#ifndef _WINDOWS
+	if (set_inheritable(fd, 0, gil_held, atomic_flag_works) < 0) {
+		close(fd);
+		return -1;
+	}
+#endif
+
+	return fd;
+}
+
+
+AlifIntT _alif_open(const char *_pathName, AlifIntT _flags) { // 1690
+	return _alif_openImpl(_pathName, _flags, 1);
+}
+
+
+AlifIntT _alifOpen_noraise(const char *_pathName, AlifIntT _flags) { // 1704
+	return _alif_openImpl(_pathName, _flags, 0);
+}
 
 
 FILE* _alif_wfOpen(const wchar_t* _path, const wchar_t* _mode) { // 1716
@@ -1559,7 +1649,79 @@ AlifIntT _alifOpen_osfHandleNoRaise(void* handle, AlifIntT flags) { // 2856
 
 #endif // 2875 
 
+AlifIntT _alif_getLocaleConvNumeric(lconv *lc,
+	AlifObject** decimal_point, AlifObject** thousands_sep) { // 2877
 
+#ifndef _WINDOWS
+	AlifIntT change_locale = 0;
+	if ((strlen(lc->decimal_point) > 1 or ((unsigned char)lc->decimal_point[0]) > 127)) {
+		change_locale = 1;
+	}
+	if ((strlen(lc->thousands_sep) > 1 or ((unsigned char)lc->thousands_sep[0]) > 127)) {
+		change_locale = 1;
+	}
+
+	/* Keep a copy of the LC_CTYPE locale */
+	char *oldloc = nullptr, *loc = nullptr;
+	if (change_locale) {
+		oldloc = setlocale(LC_CTYPE, nullptr);
+		if (!oldloc) {
+			//alifErr_setString(_alifExcRuntimeWarning_,
+			//	"failed to get LC_CTYPE locale");
+			return -1;
+		}
+
+		oldloc = alifMem_strDup(oldloc);
+		if (!oldloc) {
+			//alifErr_noMemory();
+			return -1;
+		}
+
+		loc = setlocale(LC_NUMERIC, nullptr);
+		if (loc != nullptr && strcmp(loc, oldloc) == 0) {
+			loc = nullptr;
+		}
+
+		if (loc != nullptr) {
+			/* Only set the locale temporarily the LC_CTYPE locale
+			if LC_NUMERIC locale is different than LC_CTYPE locale and
+			decimal_point and/or thousands_sep are non-ASCII or longer than
+			1 byte */
+			setlocale(LC_CTYPE, loc);
+		}
+	}
+
+#define GET_LOCALE_STRING(ATTR) alifUStr_decodeLocale(lc->ATTR, nullptr)
+#else /* _WINDOWS */
+	/* Use _W_* fields of Windows strcut lconv */
+#define GET_LOCALE_STRING(ATTR) alifUStr_fromWideChar(lc->_W_ ## ATTR, -1)
+#endif /* _WINDOWS */
+
+	AlifIntT res = -1;
+
+	*decimal_point = GET_LOCALE_STRING(decimal_point);
+	if (*decimal_point == nullptr) {
+		goto done;
+	}
+
+	*thousands_sep = GET_LOCALE_STRING(thousands_sep);
+	if (*thousands_sep == nullptr) {
+		goto done;
+	}
+
+	res = 0;
+
+done:
+#ifndef _WINDOWS
+	if (loc != nullptr) {
+		setlocale(LC_CTYPE, oldloc);
+	}
+	alifMem_dataFree(oldloc);
+#endif
+	return res;
+
+#undef GET_LOCALE_STRING
+}
 
 
 

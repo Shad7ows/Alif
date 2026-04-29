@@ -23,13 +23,13 @@ public:
 static inline AlifObject* set_origClass(AlifObject* _obj, AlifObject* _self) { // 534
 	if (_obj != nullptr) {
 		if (alifObject_setAttr(_obj, &ALIF_ID(__origClass__), _self) < 0) {
-			//if (!alifErr_exceptionMatches(_alifExcAttributeError_) and
-			//	!alifErr_exceptionMatches(_alifExcTypeError_))
-			//{
-			//	ALIF_DECREF(obj);
-			//	return nullptr;
-			//}
-			//alifErr_clear();
+			if (!alifErr_exceptionMatches(_alifExcAttributeError_) and
+				!alifErr_exceptionMatches(_alifExcTypeError_))
+			{
+				ALIF_DECREF(_obj);
+				return nullptr;
+			}
+			alifErr_clear();
 		}
 	}
 	return _obj;

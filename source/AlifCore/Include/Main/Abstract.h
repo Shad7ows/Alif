@@ -27,7 +27,10 @@ AlifObject* alifObject_vectorCall(AlifObject*, AlifObject* const*, AlifUSizeT, A
 
 AlifObject* alifObject_vectorCallMethod(AlifObject*, AlifObject* const*, AlifUSizeT, AlifObject*); // 287
 
-AlifSizeT alifObject_size(AlifObject*); // 328
+
+AlifObject* alifObject_type(AlifObject*); // 328
+
+AlifSizeT alifObject_size(AlifObject*); // 337
 
 
 #undef ALIFOBJECT_LENGTH
@@ -137,6 +140,8 @@ AlifObject* alifMapping_keys(AlifObject*); // 867
 AlifIntT alifMapping_getOptionalItem(AlifObject*, AlifObject*, AlifObject**); // 895
 
 AlifIntT alifMapping_setItemString(AlifObject*, const char*, AlifObject*); // 903
+
+AlifIntT alifObject_isInstance(AlifObject*, AlifObject*); // 907
 
 AlifIntT alifObject_isSubclass(AlifObject*, AlifObject*); // 910
 

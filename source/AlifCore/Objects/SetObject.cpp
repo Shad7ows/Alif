@@ -327,6 +327,59 @@ static void set_dealloc(AlifObject* _self) { // 492
 	ALIF_TRASHCAN_END;
 }
 
+
+static AlifObject * setRepr_lockHeld(AlifSetObject *_so) { // 520
+	AlifObject *result=nullptr, *keys{}, * listrepr{}, * tmp{};
+	AlifIntT status = alif_reprEnter((AlifObject*)_so);
+
+	if (status != 0) {
+		if (status < 0)
+			return nullptr;
+		return alifUStr_fromFormat("%s(...)", ALIF_TYPE(_so)->name);
+	}
+
+	/* shortcut for the empty set */
+	if (!_so->used) {
+		alif_reprLeave((AlifObject*)_so);
+		return alifUStr_fromFormat("%s()", ALIF_TYPE(_so)->name);
+	}
+
+	keys = alifSequence_list((AlifObject *)_so);
+	if (keys == nullptr)
+		goto done;
+
+	/* repr(keys)[1:-1] */
+	listrepr = alifObject_repr(keys);
+	ALIF_DECREF(keys);
+	if (listrepr == nullptr)
+		goto done;
+	tmp = alifUStr_subString(listrepr, 1, ALIFUSTR_GET_LENGTH(listrepr)-1);
+	ALIF_DECREF(listrepr);
+	if (tmp == nullptr)
+		goto done;
+	listrepr = tmp;
+
+	if (!ALIFSET_CHECKEXACT(_so))
+		result = alifUStr_fromFormat("%s({%U})",
+			ALIF_TYPE(_so)->name,
+			listrepr);
+	else
+		result = alifUStr_fromFormat("{%U}", listrepr);
+	ALIF_DECREF(listrepr);
+done:
+	alif_reprLeave((AlifObject*)_so);
+	return result;
+}
+
+static AlifObject* set_repr(AlifObject *_self) { // 565
+	AlifSetObject *so = ALIFSET_CAST(_self);
+	AlifObject* result{};
+	ALIF_BEGIN_CRITICAL_SECTION(so);
+	result = setRepr_lockHeld(so);
+	ALIF_END_CRITICAL_SECTION();
+	return result;
+}
+
 static AlifSizeT set_len(AlifObject* _self) { // 571
 	AlifSetObject* so = ALIFSET_CAST(_self);
 	return alifAtomic_loadSizeRelaxed(&so->used);
@@ -445,8 +498,8 @@ static AlifObject* setIter_iterNext(AlifObject* _self) { // 839
 	AlifSizeT soUsed = alifAtomic_loadSize(&so->used);
 	AlifSizeT siUsed = alifAtomic_loadSize(&si->used);
 	if (siUsed != soUsed) {
-		//alifErr_setString(_alifExcRuntimeError_,
-		//	"Set changed size during iteration");
+		alifErr_setString(_alifExcRuntimeError_,
+			"تم تغيير حجم المميزة اثناء التكرار");
 		si->used = -1;
 		return nullptr;
 	}
@@ -636,6 +689,52 @@ static AlifObject* make_newSet(AlifTypeObject* _type, AlifObject* _iterable) { /
 	return (AlifObject*)so_;
 }
 
+
+
+static AlifObject* make_newFrozenSet(AlifTypeObject* _type,
+	AlifObject* _iterable) { // 1122
+	if (_type != &_alifFrozenSetType_) {
+		return make_newSet(_type, _iterable);
+	}
+
+	if (_iterable != nullptr and ALIFFROZENSET_CHECKEXACT(_iterable)) {
+		return ALIF_NEWREF(_iterable);
+	}
+	return make_newSet(_type, _iterable);
+}
+
+static AlifObject* frozenSet_new(AlifTypeObject* _type,
+	AlifObject* _args, AlifObject* _kwds) { // 1136
+	AlifObject* iterable{};
+
+	if ((_type == &_alifFrozenSetType_ or
+		_type->init == _alifFrozenSetType_.init) and
+		!_ALIFARG_NOKEYWORDS("مميزة_ساكنة", _kwds)) {
+		return nullptr;
+	}
+
+	if (!alifArg_unpackTuple(_args, _type->name, 0, 1, &iterable)) {
+		return nullptr;
+	}
+
+	return make_newFrozenSet(_type, iterable);
+}
+
+static AlifObject* frozenSet_vectorCall(AlifObject* _type, AlifObject* const* _args,
+	AlifUSizeT _nargsf, AlifObject* _kwNames) { // 1154
+	if (!_ALIFARG_NOKWNAMES("مميزة_ساكنة", _kwNames)) {
+		return nullptr;
+	}
+
+	AlifSizeT nargs = ALIFVECTORCALL_NARGS(_nargsf);
+	if (!_ALIFARG_CHECKPOSITIONAL("مميزة_ساكنة", nargs, 0, 1)) {
+		return nullptr;
+	}
+
+	AlifObject* iterable = (nargs ? _args[0] : nullptr);
+	return make_newFrozenSet(ALIFTYPE_CAST(_type), iterable);
+}
+
 static AlifObject* set_new(AlifTypeObject* _type,
 	AlifObject* _args, AlifObject* _kwds) { // 1166
 	return make_newSet(_type, nullptr);
@@ -654,6 +753,46 @@ static AlifObject* set_ior(AlifObject* _self, AlifObject* _other) { // 1331
 }
 
 
+
+
+
+
+static AlifObject* set_addImpl(AlifSetObject* _so, AlifObject* _key) { // 2154
+	if (set_addKey(_so, _key))
+		return nullptr;
+	return ALIF_NONE;
+}
+
+
+
+static AlifObject* set_vectorCall(AlifObject *type, AlifObject * const*args,
+	AlifUSizeT nargsf, AlifObject *kwnames) { // 2375
+	if (!_ALIFARG_NOKWNAMES("مميزة", kwnames)) {
+		return nullptr;
+	}
+
+	AlifSizeT nargs = ALIFVECTORCALL_NARGS(nargsf);
+	if (!_ALIFARG_CHECKPOSITIONAL("مميزة", nargs, 0, 1)) {
+		return nullptr;
+	}
+
+	if (nargs) {
+		return make_newSet(ALIFTYPE_CAST(type), args[0]);
+	}
+
+	return make_newSet(ALIFTYPE_CAST(type), nullptr);
+}
+
+static AlifMethodDef _setMethods_[] = { // 2410
+	SET_ADD_METHODDEF
+	SET_POP_METHODDEF
+	{nullptr, nullptr}   /* sentinel */
+};
+
+static AlifSequenceMethods _setAsSequence_ = { // 2397
+	.length = set_len,
+	//.contains = set_contains,
+};
 
 static AlifNumberMethods _asNumber_ = { // 2411
 	.add_ = 0,
@@ -688,34 +827,47 @@ static AlifNumberMethods _asNumber_ = { // 2411
 };
 
 
-AlifTypeObject _alifSetType_ = { // 2449
+AlifTypeObject _alifSetType_ = { // 2473
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "مميزة",
 	.basicSize = sizeof(AlifSetObject),
-	.itemSize = 0,
 	.dealloc = set_dealloc,
 
+	.repr = set_repr,
 	.asNumber = &_asNumber_,
 
 
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
 		ALIF_TPFLAGS_BASETYPE | _ALIF_TPFLAGS_MATCH_SELF,
 
-
+	.weakListOffset = offsetof(AlifSetObject, weakRefList),
 	.iter = set_iter,
-
+	.methods = _setMethods_,
 	.alloc = alifType_genericAlloc,
 	.new_ = set_new,
 	.free = alifObject_gcDel,
+	.vectorCall = set_vectorCall,
 };
 
 
 
 AlifTypeObject _alifFrozenSetType_ = { // 2539
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "مميزة_مجمدة",
+	.name = "مميزة_ساكنة",
 	.basicSize = sizeof(AlifSetObject),
-	.itemSize = 0,
+	.dealloc = set_dealloc,
+	.repr = set_repr,
+	.getAttro = alifObject_genericGetAttr,
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
+	ALIF_TPFLAGS_BASETYPE | _ALIF_TPFLAGS_MATCH_SELF,
+
+	.weakListOffset = offsetof(AlifSetObject, weakRefList),
+	.iter = set_iter,
+
+	.alloc = alifType_genericAlloc,
+	.new_ = frozenSet_new,
+	.free = alifObject_gcDel,
+	.vectorCall = frozenSet_vectorCall,
 };
 
 
@@ -818,6 +970,17 @@ AlifObject* alifSet_pop(AlifObject* _set) { // 2730
 	return set_pop((AlifSetObject*)_set, nullptr);
 }
 
+AlifIntT _alifSet_update(AlifObject* _set, AlifObject* _iterable) { // 2740
+	if (!ALIFSET_CHECK(_set)) {
+		//ALIFERR_BADINTERNALCALL();
+		return -1;
+	}
+	return set_updateInternal((AlifSetObject*)_set, _iterable);
+}
+
+
+
+/* ------------------------- Dummy Struct ------------------------- */
 
 static AlifTypeObject _alifSetDummyType_ = { // 2743
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),

@@ -97,13 +97,13 @@ static AlifObject* range_fromArray(AlifTypeObject* type,
 		step = _alifLong_getOne();
 		break;
 	case 0:
-		//alifErr_setString(_alifExcTypeError_,
-		//	"range expected at least 1 argument, got 0");
+		alifErr_setString(_alifExcTypeError_,
+			"مدى تحتاج على الأقل معامل واحد, ولكن لم يتم تمرير أي معامل");
 		return nullptr;
 	default:
-		//alifErr_format(_alifExcTypeError_,
-		//	"range expected at most 3 arguments, got %zd",
-		//	num_args);
+		alifErr_format(_alifExcTypeError_,
+			"مدى تتوقع تمرير 3 معاملات كحد أقصى , ولكن تم تمرير %zd",
+			num_args);
 		return nullptr;
 	}
 	obj = make_rangeObject(type, start, stop, step);
@@ -143,21 +143,21 @@ static long compute_rangeLengthLong(AlifObject* start,
 	if (overflow) {
 		return -2;
 	}
-	if (long_start == -1 /*and alifErr_occurred()*/) {
+	if (long_start == -1 and alifErr_occurred()) {
 		return -1;
 	}
 	long long_stop = alifLong_asLongAndOverflow(stop, &overflow);
 	if (overflow) {
 		return -2;
 	}
-	if (long_stop == -1 /*and alifErr_occurred()*/) {
+	if (long_stop == -1 and alifErr_occurred()) {
 		return -1;
 	}
 	long long_step = alifLong_asLongAndOverflow(step, &overflow);
 	if (overflow) {
 		return -2;
 	}
-	if (long_step == -1 /*and alifErr_occurred()*/) {
+	if (long_step == -1 and alifErr_occurred()) {
 		return -1;
 	}
 
@@ -382,18 +382,18 @@ static AlifObject* range_iter(AlifObject* _seq) { // 1126
 	unsigned long ulen{};
 
 	lstart = alifLong_asLong(r->start);
-	if (lstart == -1 /*and alifErr_occurred()*/) {
-		//alifErr_clear();
+	if (lstart == -1 and alifErr_occurred()) {
+		alifErr_clear();
 		goto long_range;
 	}
 	lstop = alifLong_asLong(r->stop);
-	if (lstop == -1 /*and alifErr_occurred()*/) {
-		//alifErr_clear();
+	if (lstop == -1 and alifErr_occurred()) {
+		alifErr_clear();
 		goto long_range;
 	}
 	lstep = alifLong_asLong(r->step);
-	if (lstep == -1 /*and alifErr_occurred()*/) {
-		//alifErr_clear();
+	if (lstep == -1 and alifErr_occurred()) {
+		alifErr_clear();
 		goto long_range;
 	}
 	ulen = get_lenOfRange(lstart, lstop, lstep);

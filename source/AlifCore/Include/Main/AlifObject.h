@@ -342,6 +342,9 @@ extern AlifObject _alifNotImplementedClass_;  // 642
 #define ALIF_NOTIMPLEMENTED (&_alifNotImplementedClass_) // 647
 
 
+#define ALIF_RETURN_NOTIMPLEMENTED return ALIF_NOTIMPLEMENTED
+
+
 // 654
 #define ALIF_LT 0
 #define ALIF_LE 1

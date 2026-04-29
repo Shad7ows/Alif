@@ -6,6 +6,8 @@
 extern AlifObject* alifInit_math(void); // 16
 extern AlifObject* alifInit_time(void);
 
+extern AlifObject* alifInit__random(void); // 41
+
 extern AlifObject* alifInit__io(void);
 
 
@@ -17,6 +19,9 @@ class InitTable _alifImportInitTab_[] = { // 87
 
 	{"الوقت", alifInit_time},
 
+
+
+	{"عشوائي", alifInit__random},
 
 	{"_imp", alifInit__imp},
 

@@ -6,6 +6,7 @@
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_State.h"
 #include "AlifCore_Tuple.h"
+#include "AlifCore_Errors.h"
 
 
 #define FLAG_COMPAT 1 // 23
@@ -41,6 +42,8 @@ static const char* convert_item(AlifObject*, const char**, va_list*, AlifIntT,
 static AlifSizeT convert_buffer(AlifObject*, const void**, const char**); // 56
 static AlifIntT get_buffer(AlifObject*, AlifBuffer*, const char**); // 57
 
+static AlifIntT vGet_argsKeywords(AlifObject*, AlifObject*, const char*,
+	const char * const*, va_list*, AlifIntT); // 59
 
 static AlifIntT vGetArgsKeywordsFast_impl(AlifObject* const*, AlifSizeT,
 	AlifObject*, AlifObject*, AlifArgParser*, va_list*, AlifIntT); // 63
@@ -188,18 +191,18 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 		if (max == 0) {
 			if (_compatArgs == nullptr)
 				return 1;
-			//alifErr_format(_alifExcTypeError_,
-			//	"%.200s%s takes no arguments",
-			//	fname == nullptr ? "function" : fname,
-			//	fname == nullptr ? "" : "()");
+			alifErr_format(_alifExcTypeError_,
+				"%.200s%s لا يحتاج تمرير أي معاملات",
+				fname == nullptr ? "الدالة " : fname,
+				fname == nullptr ? "" : "()");
 			return clean_return(0, &freelist);
 		}
 		else if (min == 1 and max == 1) {
 			if (_compatArgs == nullptr) {
-				//alifErr_format(_alifExcTypeError_,
-				//	"%.200s%s takes at least one argument",
-				//	fname == nullptr ? "function" : fname,
-				//	fname == nullptr ? "" : "()");
+				alifErr_format(_alifExcTypeError_,
+					"%.200s%s يحتاج على الأقل تمرير معامل واحد",
+					fname == nullptr ? "دالة" : fname,
+					fname == nullptr ? "" : "()");
 				return clean_return(0, &freelist);
 			}
 			msg = convert_item(_compatArgs, &_format, _pVa, _flags, levels,
@@ -210,25 +213,25 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 			return clean_return(0, &freelist);
 		}
 		else {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"old style getargs format uses new features");
+			alifErr_setString(_alifExcSystemError_,
+				"تنسيق قديم لجلب المعاملات يستخدم مميزات حديثة");
 			return clean_return(0, &freelist);
 		}
 	}
 
 	if (_nargs < min or max < _nargs) {
-		//if (message == nullptr)
-			//alifErr_format(_alifExcTypeError_,
-			//	"%.150s%s takes %s %d argument%s (%zd given)",
-			//	fname == nullptr ? "function" : fname,
-			//	fname == nullptr ? "" : "()",
-			//	min == max ? "exactly"
-			//	: _nargs < min ? "at least" : "at most",
-			//	_nargs < min ? min : max,
-			//	(_nargs < min ? min : max) == 1 ? "" : "s",
-			//	_nargs);
-		//else
-			//alifErr_setString(_alifExcTypeError_, message);
+		if (message == nullptr)
+			alifErr_format(_alifExcTypeError_,
+				"%.150s%s تحتاج %s %d معامل%s (%zd المعطى)",
+				fname == nullptr ? "دالة" : fname,
+				fname == nullptr ? "" : "()",
+				min == max ? "بالتحديد"
+				: _nargs < min ? "على الأقل" : "على الأكثر",
+				_nargs < min ? min : max,
+				(_nargs < min ? min : max) == 1 ? "" : "ات",
+				_nargs);
+		else
+			alifErr_setString(_alifExcTypeError_, message);
 		return clean_return(0, &freelist);
 	}
 
@@ -247,8 +250,8 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 	if (*_format != '\0' and !ALIF_ISALPHA(*_format) and
 		*_format != '(' and
 		*_format != '|' and *_format != ':' and *_format != ';') {
-		//alifErr_format(_alifExcSystemError_,
-		//	"bad format string: %.200s", formatsave);
+		alifErr_format(_alifExcSystemError_,
+			"تنسيق نصي غير مناسب: %.200s", formatsave);
 		return clean_return(0, &freelist);
 	}
 
@@ -264,8 +267,8 @@ static AlifIntT vGetArgs1(AlifObject* _args, const char* _format,
 	if (!(_flags & FLAG_COMPAT)) {
 
 		if (!ALIFTUPLE_CHECK(_args)) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"new style getargs format but argument is not a tuple");
+			alifErr_setString(_alifExcSystemError_,
+				"تنسيق جديد لجلب المعاملات ولكن المعامل ليس مترابطة");
 			return 0;
 		}
 
@@ -333,7 +336,7 @@ static const char* convert_tuple(AlifObject* _arg, const char** _pFormat,
 		AlifObject* item{};
 		item = alifSequence_getItem(_arg, i);
 		if (item == nullptr) {
-			//alifErr_clear();
+			alifErr_clear();
 			_levels[0] = i + 1;
 			_levels[1] = 0;
 			strncpy(_msgbuf, "is not retrievable", _bufsize);
@@ -391,16 +394,16 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'b': { /* unsigned byte -- very short AlifIntT */
 		unsigned char* p_ = va_arg(*_pVa, unsigned char*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		if (iVal < 0) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"unsigned byte integer is less than minimum");
+			alifErr_setString(_alifExcOverflowError_,
+				"بايت العدد الصحيح الذي لا يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal > UCHAR_MAX) {
-			//alifErr_setString(_alifExcoverflowError_,
-				//"unsigned byte integer is greater than maximum");
+			alifErr_setString(_alifExcOverflowError_,
+				"بايت العدد الصحيح الذي لا يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -411,7 +414,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'B': {
 		unsigned char* p_ = va_arg(*_pVa, unsigned char*);
 		unsigned long iVal = alifLong_asUnsignedLongMask(_arg);
-		if (iVal == (unsigned long)-1 /*and alifErr_occurred()*/)
+		if (iVal == (unsigned long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = (unsigned char)iVal;
@@ -421,16 +424,16 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'h': {
 		short* p_ = va_arg(*_pVa, short*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		if (iVal < SHRT_MIN) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed short integer is less than minimum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح القصير الذي يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal > SHRT_MAX) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed short integer is greater than maximum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح القصير الذي يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -441,7 +444,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'H': {
 		unsigned short* p_ = va_arg(*_pVa, unsigned short*);
 		unsigned long iVal = alifLong_asUnsignedLongMask(_arg);
-		if (iVal == (unsigned long)-1 /*and alifErr_occurred()*/)
+		if (iVal == (unsigned long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = (unsigned short)iVal;
@@ -451,16 +454,16 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'i': {/* signed AlifIntT */
 		AlifIntT* p_ = va_arg(*_pVa, AlifIntT*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		if (iVal > INT_MAX) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed integer is greater than maximum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح الذي يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal < INT_MIN) {
-			//alifErr_setString(_alifExcOverflowError_,
-				//"signed integer is less than minimum");
+			alifErr_setString(_alifExcOverflowError_,
+				"العدد الصحيح الذي يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -471,7 +474,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'I': {
 		unsigned int* p_ = va_arg(*_pVa, unsigned int*);
 		unsigned long iVal = alifLong_asUnsignedLongMask(_arg);
-		if (iVal == (unsigned long)-1 /*and alifErr_occurred()*/)
+		if (iVal == (unsigned long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = (unsigned int)iVal;
@@ -488,7 +491,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 			iVal = alifLong_asSizeT(iObj);
 			ALIF_DECREF(iObj);
 		}
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		*p_ = iVal;
 		break;
@@ -496,7 +499,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'l': {/* long AlifIntT */
 		long* p_ = va_arg(*_pVa, long*);
 		long iVal = alifLong_asLong(_arg);
-		if (iVal == -1 /*and alifErr_occurred()*/)
+		if (iVal == -1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p_ = iVal;
@@ -515,7 +518,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'L': {/* long long */
 		long long* p = va_arg(*_pVa, long long*);
 		long long ival = alifLong_asLongLong(_arg);
-		if (ival == (long long)-1 /*and alifErr_occurred()*/)
+		if (ival == (long long)-1 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p = ival;
@@ -534,7 +537,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'f': {/* float */
 		float* p = va_arg(*_pVa, float*);
 		double dval = alifFloat_asDouble(_arg);
-		if (dval == -1.0 /*and alifErr_occurred()*/)
+		if (dval == -1.0 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p = (float)dval;
@@ -544,7 +547,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 	case 'd': {/* double */
 		double* p = va_arg(*_pVa, double*);
 		double dval = alifFloat_asDouble(_arg);
-		if (dval == -1.0 /*and alifErr_occurred()*/)
+		if (dval == -1.0 and alifErr_occurred())
 			RETURN_ERR_OCCURRED;
 		else
 			*p = dval;
@@ -937,7 +940,7 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 		format++;
 
 		if (alifObject_getBuffer(_arg, (AlifBuffer*)p, ALIFBUF_WRITABLE) < 0) {
-			//alifErr_clear();
+			alifErr_clear();
 			//return convert_err("read-write bytes-like object",
 			//	_arg, _mSGBuf, _bufSize);
 		}
@@ -970,7 +973,7 @@ static AlifSizeT convert_buffer(AlifObject* arg,
 	*errmsg = nullptr;
 	*p = nullptr;
 	if (pb != nullptr and pb->releaseBuffer != nullptr) {
-		*errmsg = "read-only bytes-like object";
+		*errmsg = "كائن بايت للقراءة-فقط";
 		return -1;
 	}
 
@@ -984,12 +987,34 @@ static AlifSizeT convert_buffer(AlifObject* arg,
 
 static AlifIntT get_buffer(AlifObject* arg, AlifBuffer* view, const char** errmsg) { // 1259
 	if (alifObject_getBuffer(arg, view, ALIFBUF_SIMPLE) != 0) {
-		*errmsg = "bytes-like object";
+		*errmsg = "كائن بايت";
 		return -1;
 	}
 	return 0;
 }
 
+
+AlifIntT alifArg_parseTupleAndKeywords(AlifObject* args,
+	AlifObject* _keywords,
+	const char* format,
+	const char* const *kwlist, ...) { // 1275
+	AlifIntT retval{};
+	va_list va{};
+
+	if ((args == nullptr or !ALIFTUPLE_CHECK(args)) or
+		(_keywords != nullptr and !ALIFDICT_CHECK(_keywords)) or
+		format == nullptr or
+		kwlist == nullptr)
+	{
+		//ALIFERR_BADINTERNALCALL();
+		return 0;
+	}
+
+	va_start(va, kwlist);
+	retval = vGet_argsKeywords(args, _keywords, format, kwlist, &va, 0);
+	va_end(va);
+	return retval;
+}
 
 
 AlifIntT _alifArg_parseStackAndKeywords(AlifObject* const* _args,
@@ -1003,10 +1028,298 @@ AlifIntT _alifArg_parseStackAndKeywords(AlifObject* const* _args,
 	return retval;
 }
 
+static AlifObject* new_kwTuple(const char * const *, AlifIntT, AlifIntT); // 1507
 
 #define IS_END_OF_FORMAT(_c) (_c == '\0' or _c == ';' or _c == ':') // 1510
 
+static AlifIntT vGet_argsKeywords(AlifObject* args, AlifObject* kwargs,
+	const char* format, const char * const* kwlist,
+	va_list* p_va, AlifIntT flags) { // 1512
+	char msgbuf[512]{};
+	int levels[32]{};
+	const char *fname{}, *msg{}, *custom_msg{};
+	AlifIntT min = INT_MAX;
+	AlifIntT max = INT_MAX;
+	AlifIntT i{}, pos{}, len{};
+	AlifIntT skip = 0;
+	AlifSizeT nargs{}, nkwargs{};
+	FreeListEntryT static_entries[STATIC_FREELIST_ENTRIES]{};
+	FreeListT freelist{};
 
+	freelist.entries = static_entries;
+	freelist.first_available = 0;
+	freelist.entries_malloced = 0;
+
+	/* grab the function name or custom error msg first (mutually exclusive) */
+	fname = strchr(format, ':');
+	if (fname) {
+		fname++;
+		custom_msg = nullptr;
+	}
+	else {
+		custom_msg = strchr(format,';');
+		if (custom_msg)
+			custom_msg++;
+	}
+
+	/* scan kwlist and count the number of positional-only parameters */
+	for (pos = 0; kwlist[pos] && !*kwlist[pos]; pos++) {
+	}
+	/* scan kwlist and get greatest possible nbr of args */
+	for (len = pos; kwlist[len]; len++) {
+		if (!*kwlist[len]) {
+			alifErr_setString(_alifExcSystemError_,
+				"اسم الكلمة المفتاحية للمعامل فارغ");
+			return clean_return(0, &freelist);
+		}
+	}
+
+	if (len > STATIC_FREELIST_ENTRIES) {
+		freelist.entries = ((AlifUSizeT)len > ALIF_SIZET_MAX / sizeof(FreeListEntryT)) ? nullptr : \
+			(FreeListEntryT*)alifMem_dataAlloc(len * sizeof(FreeListEntryT)); //* alif
+		if (freelist.entries == nullptr) {
+			//alifErr_noMemory();
+			return 0;
+		}
+		freelist.entries_malloced = 1;
+	}
+
+	nargs = ALIFTUPLE_GET_SIZE(args);
+	nkwargs = (kwargs == nullptr) ? 0 : ALIFDICT_GET_SIZE(kwargs);
+	if (nargs + nkwargs > len) {
+		alifErr_format(_alifExcTypeError_,
+			"%.200s%s تحتاج على الأقل %d %sمعامل%s (المعطى %zd)",
+			(fname == nullptr) ? "دالة" : fname,
+			(fname == nullptr) ? "" : "()",
+			len,
+			(nargs == 0) ? "كلمة مفتاحية " : "",
+			(len == 1) ? "" : "ات",
+			nargs + nkwargs);
+		return clean_return(0, &freelist);
+	}
+
+	/* convert tuple args and keyword args in same loop, using kwlist to drive process */
+	for (i = 0; i < len; i++) {
+		if (*format == '|') {
+			if (min != INT_MAX) {
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير صالح (| محدد مرتين)");
+				return clean_return(0, &freelist);
+			}
+
+			min = i;
+			format++;
+
+			if (max != INT_MAX) {
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير صالح ($ قبل |)");
+				return clean_return(0, &freelist);
+			}
+		}
+		if (*format == '$') {
+			if (max != INT_MAX) {
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير صالح ($ محدد مرتين)");
+				return clean_return(0, &freelist);
+			}
+
+			max = i;
+			format++;
+
+			if (max < pos) {
+				alifErr_setString(_alifExcSystemError_,
+					"اسم معامل فارغ بعد $");
+				return clean_return(0, &freelist);
+			}
+			if (skip) {
+				/* Now we know the minimal and the maximal numbers of
+				* positional arguments and can raise an exception with
+				* informative message (see below). */
+				break;
+			}
+			if (max < nargs) {
+				if (max == 0) {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s لا تحتاج إلى أي معاملات مكانية",
+						(fname == nullptr) ? "دالة" : fname,
+						(fname == nullptr) ? "" : "()");
+				}
+				else {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s تحتاج %s %d معامل%s مكانية"
+						" (المعطى %zd)",
+						(fname == nullptr) ? "دالة" : fname,
+						(fname == nullptr) ? "" : "()",
+						(min != INT_MAX) ? "على الأقل" : "تماماً",
+						max,
+						max == 1 ? "" : "ات",
+						nargs);
+				}
+				return clean_return(0, &freelist);
+			}
+		}
+		if (IS_END_OF_FORMAT(*format)) {
+			alifErr_format(_alifExcSystemError_,
+				"إدخال مصفوفة كلمات مفتاحية (%d) اكبر من "
+				"محددات التنسيق (%d)", len, i);
+			return clean_return(0, &freelist);
+		}
+		if (!skip) {
+			AlifObject* current_arg{};
+			if (i < nargs) {
+				current_arg = ALIF_NEWREF(ALIFTUPLE_GET_ITEM(args, i));
+			}
+			else if (nkwargs and i >= pos) {
+				if (alifDict_getItemStringRef(kwargs, kwlist[i], &current_arg) < 0) {
+					return clean_return(0, &freelist);
+				}
+				if (current_arg) {
+					--nkwargs;
+				}
+			}
+			else {
+				current_arg = nullptr;
+			}
+
+			if (current_arg) {
+				msg = convert_item(current_arg, &format, p_va, flags,
+					levels, msgbuf, sizeof(msgbuf), &freelist);
+				ALIF_DECREF(current_arg);
+				if (msg) {
+					//set_error(i+1, msg, levels, fname, custom_msg);
+					return clean_return(0, &freelist);
+				}
+				continue;
+			}
+
+			if (i < min) {
+				if (i < pos) {
+					skip = 1;
+				}
+				else {
+					alifErr_format(_alifExcTypeError_,  "%.200s%s معامل مطلوب "
+						"مفقود '%s' (الموقع %d)",
+						(fname == nullptr) ? "دالة" : fname,
+						(fname == nullptr) ? "" : "()",
+						kwlist[i], i+1);
+					return clean_return(0, &freelist);
+				}
+			}
+			if (!nkwargs and !skip) {
+				return clean_return(1, &freelist);
+			}
+		}
+
+		/* We are into optional args, skip through to any remaining
+		* keyword args */
+		msg = skip_item(&format, p_va, flags);
+		if (msg) {
+			alifErr_format(_alifExcSystemError_, "%s: '%s'", msg,
+				format);
+			return clean_return(0, &freelist);
+		}
+	}
+
+	if (skip) {
+		alifErr_format(_alifExcTypeError_,
+			"%.200s%s تحتاج %s %d معامل%s مكاني"
+			" (%zd given)",
+			(fname == nullptr) ? "دالة" : fname,
+			(fname == nullptr) ? "" : "()",
+			(ALIF_MIN(pos, min) < i) ? "على الأقل" : "تماماً",
+			ALIF_MIN(pos, min),
+			ALIF_MIN(pos, min) == 1 ? "" : "ات",
+			nargs);
+		return clean_return(0, &freelist);
+	}
+
+	if (!IS_END_OF_FORMAT(*format) && (*format != '|') && (*format != '$')) {
+		alifErr_format(_alifExcSystemError_,
+			"محددات المعاملات أكثر من إدخالات مصفوفة الكلمات المفتاحية "
+			"(التنسيق المتبقي:'%s')", format);
+		return clean_return(0, &freelist);
+	}
+
+	if (nkwargs > 0) {
+		AlifObject* key{};
+		AlifSizeT j{};
+		/* make sure there are no arguments given by name and position */
+		for (i = pos; i < nargs; i++) {
+			AlifObject *current_arg;
+			if (alifDict_getItemStringRef(kwargs, kwlist[i], &current_arg) < 0) {
+				return clean_return(0, &freelist);
+			}
+			if (current_arg) {
+				ALIF_DECREF(current_arg);
+				/* arg present in tuple and in dict */
+				alifErr_format(_alifExcTypeError_,
+					"معامل لـ %.200s%s معطى بالأسم ('%s') "
+					"والموقع (%d)",
+					(fname == nullptr) ? "دالة" : fname,
+					(fname == nullptr) ? "" : "()",
+					kwlist[i], i+1);
+				return clean_return(0, &freelist);
+			}
+		}
+		/* make sure there are no extraneous keyword arguments */
+		j = 0;
+		while (alifDict_next(kwargs, &j, &key, nullptr)) {
+			int match = 0;
+			if (!ALIFUSTR_CHECK(key)) {
+				alifErr_setString(_alifExcTypeError_,
+					"الكلمات المفتاحية يجب أن تكون من نوع نص");
+				return clean_return(0, &freelist);
+			}
+			for (i = pos; i < len; i++) {
+				if (alifUStr_equalToUTF8(key, kwlist[i])) {
+					match = 1;
+					break;
+				}
+			}
+			if (!match) {
+				AlifObject *alifKWTuple = new_kwTuple(kwlist, len, pos);
+				if (!alifKWTuple) {
+					return clean_return(0, &freelist);
+				}
+				AlifObject *alifKWList = alifSequence_list(alifKWTuple);
+				ALIF_DECREF(alifKWTuple);
+				if (!alifKWList) {
+					return clean_return(0, &freelist);
+				}
+				AlifObject* suggestionKeyword = _alif_calculateSuggestions(alifKWList, key);
+				ALIF_DECREF(alifKWList);
+
+				if (suggestionKeyword) {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s حصلت على معامل كلمة مفتاحية غير متوقعة '%S'."
+						" هل تقصد '%S'؟",
+						(fname == nullptr) ? "هذه الدالة" : fname,
+						(fname == nullptr) ? "" : "()",
+						key,
+						suggestionKeyword);
+					ALIF_DECREF(suggestionKeyword);
+				}
+				else {
+					alifErr_format(_alifExcTypeError_,
+						"%.200s%s حصلت على معامل كلمة مفتاحية غير متوقعة '%S'",
+						(fname == nullptr) ? "هذه الدالة" : fname,
+						(fname == nullptr) ? "" : "()",
+						key);
+				}
+				return clean_return(0, &freelist);
+			}
+		}
+		/* Something wrong happened. There are extraneous keyword arguments,
+		* but we don't know what. And we don't bother. */
+		alifErr_format(_alifExcTypeError_,
+			"معامل كلمة مفتاحية غير صالحة لـ %.200s%s",
+			(fname == nullptr) ? "هذه الدالة" : fname,
+			(fname == nullptr) ? "" : "()");
+		return clean_return(0, &freelist);
+	}
+
+	return clean_return(1, &freelist);
+}
 
 
 
@@ -1019,8 +1332,8 @@ static AlifIntT scan_keywords(const char* const* _keywords,
 
 	for (; _keywords[i]; i++) {
 		if (!*_keywords[i]) {
-			//alifErr_setString(_alifExcSystemError_,
-			//	"Empty keyword parameter name");
+			alifErr_setString(_alifExcSystemError_,
+				"اسم كلمة مفتاحية فارغ");
 			return -1;
 		}
 	}
@@ -1049,13 +1362,13 @@ static AlifIntT parse_format(const char* _format, AlifIntT _total,
 	for (AlifIntT i = 0; i < _total; i++) {
 		if (*_format == '|') {
 			if (min != INT_MAX) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Invalid format string (| specified twice)");
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير مناسب (| محددة مرتين)");
 				return -1;
 			}
 			if (max != INT_MAX) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Invalid format string ($ before |)");
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير مناسب ($ قبل |)");
 				return -1;
 			}
 			min = i;
@@ -1063,39 +1376,39 @@ static AlifIntT parse_format(const char* _format, AlifIntT _total,
 		}
 		if (*_format == '$') {
 			if (max != INT_MAX) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Invalid format string ($ specified twice)");
+				alifErr_setString(_alifExcSystemError_,
+					"تنسيق نصي غير مناسب ($ محددة مرتين)");
 				return -1;
 			}
 			if (i < _npos) {
-				//alifErr_setString(_alifExcSystemError_,
-				//	"Empty parameter name after $");
+				alifErr_setString(_alifExcSystemError_,
+					"اسم معامل فارغ بعد $");
 				return -1;
 			}
 			max = i;
 			_format++;
 		}
 		if (IS_END_OF_FORMAT(*_format)) {
-			//alifErr_format(_alifExcSystemError_,
-			//	"More keyword list entries (%d) than "
-			//	"format specifiers (%d)", _total, i);
+			alifErr_format(_alifExcSystemError_,
+				"مصفوفة كلمات مفتاحية مدخلة (%d) اكثر من "
+				"محددات التنسيق (%d)", _total, i);
 			return -1;
 		}
 
-		//const char* msg = skipitem(&_format, nullptr, 0);
-		//if (msg) {
-		//	//alifErr_format(_alifExcSystemError_, "%s: '%s'", msg,
-		//	//	_format);
-		//	return -1;
-		//}
+		const char* msg = skip_item(&_format, nullptr, 0);
+		if (msg) {
+			alifErr_format(_alifExcSystemError_, "%s: '%s'", msg,
+				_format);
+			return -1;
+		}
 	}
 	min = ALIF_MIN(min, _total);
 	max = ALIF_MIN(max, _total);
 
 	if (!IS_END_OF_FORMAT(*_format) and (*_format != '|') and (*_format != '$')) {
-		//alifErr_format(_alifExcSystemError_,
-		//	"more argument specifiers than keyword list entries "
-		//	"(remaining format:'%s')", _format);
+		alifErr_format(_alifExcSystemError_,
+			"محددات معاملات اكثر من مصفوفة الكلمات المفتاحية المدخلة "
+			"(النسق المتبقي:'%s')", _format);
 		return -1;
 	}
 
@@ -1104,6 +1417,28 @@ static AlifIntT parse_format(const char* _format, AlifIntT _total,
 	*_pmin = min;
 	*_pmax = max;
 	return 0;
+}
+
+
+static AlifObject* new_kwTuple(const char * const* _keywords,
+	AlifIntT total, AlifIntT pos) { // 1922
+	AlifIntT nkw = total - pos;
+	AlifObject* kwtuple = alifTuple_new(nkw);
+	if (kwtuple == nullptr) {
+		return nullptr;
+	}
+	_keywords += pos;
+	for (AlifIntT i = 0; i < nkw; i++) {
+		AlifObject* str = alifUStr_fromString(_keywords[i]);
+		if (str == nullptr) {
+			ALIF_DECREF(kwtuple);
+			return nullptr;
+		}
+		AlifInterpreter* interp = _alifInterpreter_get();
+		alifUStr_internImmortal(interp, &str);
+		ALIFTUPLE_SET_ITEM(kwtuple, i, str);
+	}
+	return kwtuple;
 }
 
 
@@ -1133,19 +1468,19 @@ static AlifIntT _parser_init(void* _arg) { // 1944
 	if (kwtuple == nullptr) {
 		AlifThread* saveThread = nullptr;
 		AlifThread* tempThread = nullptr;
-		//if (!alif_isMainInterpreter(alifInterpreter_get())) {
-		//	tempThread = alifThreadState_new(alifInterpreter_main());
-		//	if (tempThread == nullptr) {
-		//		return -1;
-		//	}
+		if (!alif_isMainInterpreter(alifInterpreter_get())) {
+			tempThread = alifThreadState_new(alifInterpreter_main());
+			if (tempThread == nullptr) {
+				return -1;
+			}
 		//	saveThread = alifThreadState_swap(tempThread);
-		//}
-		//kwtuple = new_kwTuple(keywords, len, pos);
-		//if (tempThread != nullptr) {
+		}
+		kwtuple = new_kwTuple(keywords, len, pos);
+		if (tempThread != nullptr) {
 		//	alifThreadState_clear(tempThread);
 		//	(void)alifThreadState_swap(saveThread);
 		//	alifThreadState_delete(tempThread);
-		//}
+		}
 		if (kwtuple == nullptr) {
 			return -1;
 		}
@@ -1897,8 +2232,8 @@ AlifIntT alifArg_unpackTuple(AlifObject* args,
 	va_list vargs{};
 
 	if (!ALIFTUPLE_CHECK(args)) {
-		//alifErr_setString(_alifExcSystemError_,
-		//	"alifArg_unpackTuple() argument list is not a tuple");
+		alifErr_setString(_alifExcSystemError_,
+			"alifArg_unpackTuple() مصفوفة معاملات ليست من نوع مترابطة");
 		return 0;
 	}
 	stack = ALIFTUPLE_ITEMS(args);

@@ -125,7 +125,7 @@ static AlifObject* _io_WindowsConsoleIO_writable(WinConsoleIO* _self,
 #if defined(HAVE_WINDOWS_CONSOLE_IO) // 345
 
 #define _IO__WINDOWSCONSOLEIO_WRITE_METHODDEF    \
-    {"Write", ALIF_CPPFUNCTION_CAST(_io_WindowsConsoleIO_write), METHOD_METHOD|METHOD_FASTCALL|METHOD_KEYWORDS},
+    {"اكتب", ALIF_CPPFUNCTION_CAST(_io_WindowsConsoleIO_write), METHOD_METHOD|METHOD_FASTCALL|METHOD_KEYWORDS},
 
 static AlifObject* _io_WindowsConsoleIO_writeImpl(WinConsoleIO*, AlifTypeObject*, AlifBuffer*);
 
@@ -141,7 +141,7 @@ static AlifObject* _io_WindowsConsoleIO_write(WinConsoleIO* self,
 	static const char* const _keywords[] = { "", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "write",
+		.fname = "اكتب",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE

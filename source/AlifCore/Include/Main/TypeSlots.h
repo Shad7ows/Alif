@@ -24,3 +24,4 @@
 #define ALIF_TP_TRAVERSE 71
 #define ALIF_TP_MEMBERS 72
 #define ALIF_TP_GETSET 73
+#define ALIF_TP_FREE 74

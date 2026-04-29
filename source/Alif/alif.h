@@ -57,6 +57,7 @@
 #include "SliceObject.h"
 #include "CellObject.h"
 #include "DescrObject.h"
+#include "EnumObject.h"
 #include "SetObject.h"
 #include "Code.h"
 #include "AlifCapsule.h"

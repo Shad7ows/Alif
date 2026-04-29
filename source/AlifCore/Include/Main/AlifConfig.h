@@ -87,6 +87,8 @@
 
 #define HAVE_WCHAR_H 1
 
+#define HAVE_PROCESS_H 1
+
 /* ------------------------------ مترجم مايكروسوفت ------------------------------ */
 #ifdef _MSC_VER
 
@@ -180,6 +182,8 @@
 
 #define HAVE_LANGINFO_H 1 // 663
 
+#define HAVE_UNISTD_H 1
+
 #endif
 
 
@@ -220,6 +224,8 @@
 /* ------------------------------------- Public ------------------------------------- */
 
 
+#define HAVE_GETPID
+
 #define HAVE_SETVBUF
 
 #define FORCE_SWITCHING
@@ -233,3 +239,4 @@
 #define HAVE_SIGNAL_H 1
 
 #define HAVE_SYS_STAT_H 1
+

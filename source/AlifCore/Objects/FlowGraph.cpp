@@ -425,7 +425,7 @@ static AlifIntT check_cfg(CFGBuilder* _g) { // 605
 			AlifIntT opcode = b_->instr[i].opcode;
 			if (IS_TERMINATOR_OPCODE(opcode)) {
 				if (i != b_->iused - 1) {
-					//alifErr_setString(_alifExcSystemError_, "malformed control flow graph.");
+					alifErr_setString(_alifExcSystemError_, "يوجد عيب في الرسم البياني للتحكم بالتدفق cfg.");
 					return ERROR;
 				}
 			}
@@ -576,7 +576,7 @@ ALIF_LOCAL(AlifIntT) stack_effect(AlifIntT _opcode, AlifIntT _oparg, AlifIntT _j
 ALIF_LOCAL_INLINE(AlifIntT) stackDepth_push(BasicBlock*** _sp,
 	BasicBlock* _b, AlifIntT _depth) { // 785
 	if (!(_b->startDepth < 0 or _b->startDepth == _depth)) {
-		//alifErr_format(_alifExcValueError_, "Invalid CFG, inconsistent stackdepth");
+		alifErr_format(_alifExcValueError_, "مخطط التحكم بالتدفق غير صحيح, عمق المكدس غير متسق");
 		return ERROR;
 	}
 	if (_b->startDepth < _depth and _b->startDepth < 100) {
@@ -614,14 +614,14 @@ static AlifIntT calculate_stackDepth(CFGBuilder* _g) { // 803
 			AlifIntT effect = stack_effect(instr_->opcode, instr_->oparg, 0);
 			if (effect == ALIF_INVALID_STACK_EFFECT) {
 				alifErr_format(_alifExcSystemError_,
-					"Invalid stack effect for opcode=%d, arg=%i",
+					"تأثير المراكم غير مناسب الرمز=%d, المعامل=%i",
 					instr_->opcode, instr_->oparg);
 				goto error;
 			}
 			AlifIntT newDepth = depth + effect;
 			if (newDepth < 0) {
 				alifErr_format(_alifExcValueError_,
-					"Invalid CFG, stack underflow");
+					"مخطط التحكم بالتدفق غير صحيح , قيمة المكدس منخفضة");
 				goto error;
 			}
 			if (newDepth > maxDepth) {
@@ -631,7 +631,7 @@ static AlifIntT calculate_stackDepth(CFGBuilder* _g) { // 803
 				effect = stack_effect(instr_->opcode, instr_->oparg, 1);
 				if (effect == ALIF_INVALID_STACK_EFFECT) {
 					alifErr_format(_alifExcSystemError_,
-						"Invalid stack effect for opcode=%d, arg=%i",
+						"تأثير المراكم غير مناسب الرمز=%d, المعامل=%i",
 						instr_->opcode, instr_->oparg);
 					goto error;
 				}
@@ -926,7 +926,7 @@ static AlifIntT remove_redundantJumps(CFGBuilder* _g) { // 1156
 		if (IS_UNCONDITIONAL_JUMP_OPCODE(last->opcode)) {
 			BasicBlock* jumpTarget = next_nonemptyBlock(last->target);
 			if (jumpTarget == nullptr) {
-				//alifErr_setString(_alifExcSystemError_, "jump with nullptr target");
+				alifErr_setString(_alifExcSystemError_, "قفز إلى وجهة ذات قيمة فارغة");
 				return ERROR;
 			}
 			BasicBlock* next = next_nonemptyBlock(b->next);
@@ -1031,8 +1031,8 @@ static AlifObject* get_constValue(AlifIntT _opcode, AlifIntT _oparg, AlifObject*
 	}
 
 	if (constant == nullptr) {
-		//alifErr_setString(_alifExcSystemError_,
-			//"Internal error: failed to get value of a constant");
+		alifErr_setString(_alifExcSystemError_,
+			"خطأ داخلي: فشل في الحصول على قيمة المتغير الثابت");
 		return nullptr;
 	}
 	return ALIF_NEWREF(constant);
@@ -1052,7 +1052,7 @@ static AlifIntT add_const(AlifObject* _newConst, AlifObject* _consts, AlifObject
 	}
 	if (index == ALIFLIST_GET_SIZE(_consts)) {
 		if ((AlifUSizeT)index >= (AlifUSizeT)INT_MAX - 1) {
-			//alifErr_setString(_alifExcOverflowError_, "too many constants");
+			alifErr_setString(_alifExcOverflowError_, "الكثير من القيم الثابتة");
 			ALIF_DECREF(_newConst);
 			return -1;
 		}

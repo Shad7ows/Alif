@@ -681,7 +681,10 @@
 #define ALIF_STR_LITERALS_INIT { \
 	INIT_USTR(_windowsConsoleIO, "طرفية_ويندوز"), \
 	INIT_STR(AnonGenExpr, "<genexpr>"), \
-	INIT_STR(AnonListComp, "<listcomp>"), \
+	INIT_STR(AnonLambda, "<خطية>"), \
+	INIT_STR(AnonListComp, "<مصفوفة_ضمنية>"), \
+	INIT_STR(AnonSetComp, "<مميزة_ضمنية>"), \
+	INIT_STR(AnonDictComp, "<فهرس_ضمني>"), \
 	INIT_USTR(AnonModule, "<وحدة>"), /* //* alif */ \
 	INIT_STR(AnonString, "<string>"), \
     INIT_STR(DblPercent, "%%"), \
@@ -697,6 +700,9 @@
     INIT_STR(TypeParams, ".type_params"),	\
     INIT_STR(True, "صح"), /* //* alif */	\
     INIT_STR(False, "خطأ"), /* //* alif */	\
+    INIT_USTR(Flush, "مباشر"), /* //* alif */	\
+    INIT_STR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
+    INIT_STR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
     INIT_STR(Name, "name"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\
@@ -710,18 +716,29 @@
 	INIT_USTR(Sep, "الفاصل"), /* //* alif */	\
 	INIT_USTR(TextIOWrapper, "غلاف_النص"), /* //* alif */	\
 	INIT_USTR(Write, "اكتب"), /* //* alif */	\
+    INIT_USTR(__abs__, "__مطلق__"), /* //* alif */	\
     INIT_USTR(__add__, "__اجمع__"), /* //* alif */	\
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
+    INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
     INIT_USTR(__import__, "__استورد__"), /* //* alif */	\
+    INIT_USTR(__mul__, "__اضرب__"), /* //* alif */	\
+    INIT_USTR(__neg__, "__سالب__"), /* //* alif */	\
+    INIT_USTR(__pow__, "__اس__"), /* //* alif */	\
+    INIT_USTR(__rpow__, "__اس_ع__"), /* //* alif */	\
     INIT_USTR(__radd__, "__اجمع_ع__"), /* //* alif */	\
     INIT_USTR(__repr__, "__عرض__"), /* //* alif */	\
+    INIT_USTR(__reversed__, "__معكوس__"), /* //* alif */	\
+    INIT_USTR(__rmul__, "__اضرب_ع__"), /* //* alif */	\
+    INIT_USTR(__rsub__, "__اطرح_ع__"), /* //* alif */	\
+    INIT_USTR(__sub__, "__اطرح__"), /* //* alif */	\
     INIT_STR(_io, "تبادل"), /* //* alif // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject() */	\
 }
 
 #define ALIF_STR_IDENTIFIERS_INIT { \
     INIT_ID(CANCELLED), \
     INIT_ID(AlifRepr), \
+    /*INIT_ID(__abs__),*/ \
     INIT_ID(__abstractMethods__), \
     INIT_ID(__annotate__), \
     INIT_ID(__bases__), \
@@ -740,10 +757,11 @@
 	INIT_ID(__eq__), \
 	INIT_ID(__file__), \
 	INIT_ID(__firstLineno__), \
-	INIT_ID(__format__), \
+	/*INIT_ID(__format__),*/ \
 	INIT_ID(__getAttr__), \
 	INIT_ID(__hash__), \
 	INIT_ID(__initSubclass__), \
+	INIT_ID(__instanceCheck__), \
 	INIT_ID(__IOBaseClosed), \
 	INIT_ID(__lengthHint__), \
 	INIT_ID(__loader__), \
@@ -778,7 +796,7 @@
 	INIT_ID(Buffering), \
 	INIT_ID(buffersize), \
 	INIT_ID(Builtins), \
-	INIT_ID(Close), \
+	/*INIT_ID(Close),*/ \
 	INIT_ID(Closed), \
 	INIT_ID(CloseFD), \
 	INIT_ID(Code), \
@@ -792,7 +810,7 @@
 	INIT_ID(File), \
 	INIT_ID(Filename), \
 	INIT_ID(Fileno), \
-	INIT_ID(Flush), \
+	/*INIT_ID(Flush),*/ \
 	INIT_ID(GenExpr), \
 	INIT_ID(GetState), \
 	INIT_ID(HasLocation), \
@@ -815,6 +833,7 @@
 	INIT_ID(Origin), \
 	INIT_ID(Path), \
 	INIT_ID(Peek), \
+	INIT_ID(PrintFileAndLine), \
 	INIT_ID(Readable), \
 	INIT_ID(Read), \
 	INIT_ID(Read1), \
@@ -830,10 +849,10 @@
 	INIT_ID(Stdin), \
 	INIT_ID(Stdout), \
 	INIT_ID(strict), \
-	INIT_ID(TextIOWrapper), \
+	/*INIT_ID(TextIOWrapper),*/ \
 	INIT_ID(Top), \
 	INIT_ID(Translate), \
-	INIT_ID(Write), \
+	/*INIT_ID(Write),*/ \
 	INIT_ID(Writable), \
 	INIT_ID(WriteThrough), \
 }
