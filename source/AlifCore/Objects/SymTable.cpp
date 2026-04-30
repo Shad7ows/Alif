@@ -132,6 +132,8 @@ static SymTableEntry* ste_new(AlifSymTable* _st, AlifObject* _name, BlockType_ _
 	ste_->needsClassDict = 0;
 	ste_->annotationBlock = nullptr;
 
+	ste_->hasDocstring = 0;
+
 	ste_->symbols = alifDict_new();
 	ste_->varNames = alifList_new(0);
 	ste_->children = alifList_new(0);

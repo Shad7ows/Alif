@@ -87,6 +87,7 @@ public:
 	unsigned compInlined : 1; 
 	unsigned compIterTarget : 1; 
 	unsigned canSeeClassScope : 1;
+	unsigned hasDocstring : 1;
 
 	AlifIntT compIterExpr{};
 	AlifSourceLocation loc{};

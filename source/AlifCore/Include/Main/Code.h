@@ -123,11 +123,12 @@ class AlifCodeObject ALIFCODE_DEF(1); // 140
 
 #define CO_NO_MONITORING_EVENTS 0x2000000
 
+#define CO_HAS_DOCSTRING 0x4000000 // 180
 
 
 #define MAXBLOCKS 21
 
-extern AlifTypeObject _alifCodeType_; // 179
+extern AlifTypeObject _alifCodeType_; // 189
 #define ALIFCODE_CHECK(_op) ALIF_IS_TYPE((_op), &_alifCodeType_)
 
 
