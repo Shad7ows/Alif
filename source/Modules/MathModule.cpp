@@ -630,8 +630,6 @@ static AlifMethodDef _alifMathMethods_[] = { // 4087
 	MATH_DIST_METHODDEF
 	{"قيمة_مطلقة",      math_fabs,      METHOD_O},
 	MATH_FACTORIAL_METHODDEF
-	//{"قم_اكبر", ALIF_CPPFUNCTION_CAST(math_gcd),       METHOD_FASTCALL},
-	//{"قم_اصغر", ALIF_CPPFUNCTION_CAST(math_lcm),       METHOD_FASTCALL},
 	MATH_GCD_METHODDEF
 	MATH_LCM_METHODDEF
 	{"لوغ",        ALIF_CPPFUNCTION_CAST(math_log),       METHOD_FASTCALL},
