@@ -100,7 +100,7 @@ AlifObject* alifFunction_newWithQualName(AlifObject* _code,
 
 	AlifObject* consts = codeObj->consts;
 	AlifObject* doc{};
-	if (alifTuple_size(consts) >= 1) {
+	if (codeObj->flags & CO_HAS_DOCSTRING) {
 		doc = alifTuple_getItem(consts, 0);
 		if (!ALIFUSTR_CHECK(doc)) {
 			doc = ALIF_NONE;
