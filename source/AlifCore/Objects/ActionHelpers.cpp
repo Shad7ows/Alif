@@ -788,6 +788,9 @@ ExprTy alifParserEngine_collectCallSeqs(AlifParser* _p, ASDLExprSeq* _a, ASDLSeq
 	if (stars) totalLen += ASDL_SEQ_LEN(stars);
 
 	ASDLExprSeq* args = alifNew_exprSeq(totalLen, _astMem);
+	if (args == nullptr) {
+		return nullptr;
+	}
 
 	AlifSizeT i = 0;
 	for (i = 0; i < argsLen; i++) {
@@ -895,6 +898,9 @@ static ASDLExprSeq* unpackTopLevel_joinedStrs(AlifParser* _p, ASDLExprSeq* _rawE
 	}
 
 	ASDLExprSeq* expressions = alifNew_exprSeq(reqSize, _p->astMem);
+	if (expressions == nullptr) {
+		return nullptr;
+	}
 
 	AlifSizeT rawIndex{}, reqIndex = 0;
 	for (rawIndex = 0; rawIndex < rawSize; rawIndex++) {

@@ -1295,6 +1295,8 @@ static AlifIntT compute_codeFlags(AlifCompiler* _c) {
 			flags |= CO_VARARGS;
 		if (ste->varKeywords)
 			flags |= CO_VARKEYWORDS;
+		if (ste->hasDocstring)
+			flags |= CO_HAS_DOCSTRING;
 	}
 
 	if (ste->coroutine and !ste->generator) {

@@ -76,7 +76,7 @@ static double m_log(double _x) { // 641
 	}
 }
 
-static AlifObject* math_gcd(AlifObject* _module, AlifObject* const* _args, AlifSizeT _nArgs) { // 723
+static AlifObject* math_gcdImpl(AlifObject* _module, AlifSizeT _nArgs, AlifObject* const* _args) { // 730
 	if (_nArgs == 2 and ALIFLONG_CHECKEXACT(_args[0]) and ALIFLONG_CHECKEXACT(_args[1]))
 	{
 		return alifLong_gcd(_args[0], _args[1]);
@@ -141,8 +141,8 @@ static AlifObject* long_lcm(AlifObject* _a, AlifObject* _b) { // 774
 	return ab;
 }
 
-static AlifObject* math_lcm(AlifObject* _module,
-	AlifObject* const* _args, AlifSizeT _nArgs) { // 802
+static AlifObject* math_lcmImpl(AlifObject* _module,
+	AlifSizeT _nArgs, AlifObject* const* _args) { // 802
 	AlifObject* res{}, * x{};
 	AlifSizeT i{};
 
@@ -560,8 +560,8 @@ static AlifObject* math_distImpl(AlifObject* _module, AlifObject* _p, AlifObject
 	m = ALIFTUPLE_GET_SIZE(_p);
 	n = ALIFTUPLE_GET_SIZE(_q);
 	if (m != n) {
-		//alifErr_setString(_alifExcValueError_,
-			//"both points must have the same number of dimensions");
+		alifErr_setString(_alifExcValueError_,
+			"كلا النقطتين يجب أن تمتلك نفس عدد الأبعاد");
 		goto errorExit;
 	}
 	if (n > NUM_STACK_ELEMS) {
@@ -630,8 +630,8 @@ static AlifMethodDef _alifMathMethods_[] = { // 4087
 	MATH_DIST_METHODDEF
 	{"قيمة_مطلقة",      math_fabs,      METHOD_O},
 	MATH_FACTORIAL_METHODDEF
-	{"قم_اكبر", ALIF_CPPFUNCTION_CAST(math_gcd),       METHOD_FASTCALL},
-	{"قم_اصغر", ALIF_CPPFUNCTION_CAST(math_lcm),       METHOD_FASTCALL},
+	MATH_GCD_METHODDEF
+	MATH_LCM_METHODDEF
 	{"لوغ",        ALIF_CPPFUNCTION_CAST(math_log),       METHOD_FASTCALL},
 	MATH_RADIANS_METHODDEF
 	{nullptr,              nullptr}           /* sentinel */

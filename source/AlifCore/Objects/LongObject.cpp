@@ -2810,6 +2810,9 @@ static AlifLongObject* long_add(AlifLongObject* _a, AlifLongObject* _b) { // 376
 	return z;
 }
 
+AlifObject* _alifLong_add(AlifLongObject* _a, AlifLongObject* _b) { // 3782
+	return (AlifObject*)long_add(_a, _b);
+}
 
 static AlifObject* long_addMethod(AlifObject* _a, AlifObject* _b) { // 3795
 	CHECK_BINOP(_a, _b);

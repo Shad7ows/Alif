@@ -1,20 +1,67 @@
 
 #include "AlifCore_ModSupport.h"
 
-// 19
+
+#define MATH_GCD_METHODDEF    \
+    {"قم_اكبر", ALIF_CPPFUNCTION_CAST(math_gcd), METHOD_FASTCALL},
+
+static AlifObject* math_gcdImpl(AlifObject*, AlifSizeT, AlifObject* const*);
+
+static AlifObject* math_gcd(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nArgs) { // 23
+	AlifObject* returnValue{};
+	AlifSizeT nvararg = _nArgs - 0;
+	AlifObject* const* __clinicArgs{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("قم_اكبر", _nArgs, 0, ALIF_SIZET_MAX)) {
+		goto exit;
+	}
+	__clinicArgs = _args + 0;
+	returnValue = math_gcdImpl(_module, nvararg, __clinicArgs);
+
+exit:
+	return returnValue;
+}
+
+#define MATH_LCM_METHODDEF    \
+    {"قم_اصغر", ALIF_CPPFUNCTION_CAST(math_lcm), METHOD_FASTCALL},
+
+static AlifObject* math_lcmImpl(AlifObject*, AlifSizeT, AlifObject *const*);
+
+static AlifObject* math_lcm(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nArgs) { // 52
+	AlifObject* returnValue{};
+	AlifSizeT nvararg = _nArgs - 0;
+	AlifObject* const* __clinicArgs{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("قم_اصغر", _nArgs, 0, ALIF_SIZET_MAX)) {
+		goto exit;
+	}
+	__clinicArgs = _args + 0;
+	returnValue = math_lcmImpl(_module, nvararg, __clinicArgs);
+
+exit:
+	return returnValue;
+}
+
+
+
+
+
+// 77
 #define MATH_CEIL_METHODDEF    \
     {"حد_اعلى", (AlifCPPFunction)math_ceil, METHOD_O},
 
-// 30
+// 88
 #define MATH_FLOOR_METHODDEF    \
     {"حد_ادنى", (AlifCPPFunction)math_floor, METHOD_O},
 
 
-// 61
+// 119
 #define MATH_FACTORIAL_METHODDEF    \
     {"المضروب", (AlifCPPFunction)math_factorial, METHOD_O},
 
-// 330
+// 388
 #define MATH_DIST_METHODDEF    \
     {"مسافة", ALIF_CPPFUNCTION_CAST(math_dist), METHOD_FASTCALL},
 

@@ -1229,37 +1229,36 @@ static AlifIntT codegen_functionBody(AlifCompiler* _c, StmtTy _s,
 	RETURN_IF_ERROR(
 		codegen_enterScope(_c, name, scopeType, (void*)_s, _firstLineNo, nullptr, &umd));
 
-	AlifSizeT first_instr = 0;
+	AlifSizeT firstInstr = 0;
 	AlifObject* docstring = alifAST_getDocString(body);
 	if (docstring) {
-		first_instr = 1;
+		firstInstr = 1;
 		/* add docstring */
 		//docstring = _alifCompile_cleanDoc(docstring);
 		//if (docstring == nullptr) {
 		//	compiler_exitScope(_c);
 		//	return ERROR;
 		//}
+		AlifSizeT idx = _alifCompiler_addConst(_c, docstring);
+		ALIF_DECREF(docstring);
+		RETURN_IF_ERROR_IN_SCOPE(_c, idx < 0 ? ERROR : SUCCESS);
 	}
-
-	AlifSizeT idx = _alifCompiler_addConst(_c, docstring ? docstring : ALIF_NONE);
-	ALIF_XDECREF(docstring);
-	RETURN_IF_ERROR_IN_SCOPE(_c, idx < 0 ? ERROR : SUCCESS);
 
 	NEW_JUMP_TARGET_LABEL(_c, start);
 	USE_LABEL(_c, start);
 	SymTableEntry* ste = SYMTABLE_ENTRY(_c);
-	bool add_stopiteration_handler = ste->coroutine or ste->generator;
-	if (add_stopiteration_handler) {
+	bool addStopIterationHandler = ste->coroutine or ste->generator;
+	if (addStopIterationHandler) {
 		RETURN_IF_ERROR(
 			_alifCompiler_pushFBlock(_c, _noLocation_,
 				AlifCompileFBlockType::Compiler_FBlock_Stop_Iteration,
 				start, NO_LABEL, nullptr));
 	}
 
-	for (AlifSizeT i = first_instr; i < ASDL_SEQ_LEN(body); i++) {
+	for (AlifSizeT i = firstInstr; i < ASDL_SEQ_LEN(body); i++) {
 		VISIT_IN_SCOPE(_c, Stmt, (StmtTy)ASDL_SEQ_GET(body, i));
 	}
-	if (add_stopiteration_handler) {
+	if (addStopIterationHandler) {
 		RETURN_IF_ERROR_IN_SCOPE(_c, codegen_wrapInStopIterationHandler(_c));
 		_alifCompiler_popFBlock(_c, AlifCompileFBlockType::Compiler_FBlock_Stop_Iteration, start);
 	}
