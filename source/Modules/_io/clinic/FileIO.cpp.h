@@ -60,7 +60,7 @@ static AlifIntT _ioFileIO___init__(AlifObject* self,
 	AlifSizeT noptargs = nargs + (kwargs ? ALIFDICT_GET_SIZE(kwargs) : 0) - 1;
 	AlifObject* nameobj{};
 	const char* mode = "r";
-	int closefd = 1;
+	AlifIntT closefd = 1;
 	AlifObject* opener = ALIF_NONE;
 
 	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 4, 0, argsbuf);

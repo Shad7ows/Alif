@@ -724,7 +724,7 @@ const char* _alifParserEngine_getExprName(ExprTy _e) { // 1028
 		return "تعبير توليدي";
 	case YieldK:
 	case YieldFromK:
-		return "تعبير ولد";
+		return "تعبير انتج";
 	case AwaitK:
 		return "تعبير انتظر";
 	case ListCompK:

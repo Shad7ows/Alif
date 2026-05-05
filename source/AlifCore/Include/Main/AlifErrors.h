@@ -169,6 +169,8 @@ public:
 void _alifErr_chainExceptions1(AlifObject*); // 93
 
 
+void alifErr_rangedSyntaxLocationObject(AlifObject*, AlifIntT,
+	AlifIntT, AlifIntT, AlifIntT); // 112
 
 
 AlifObject* alifErr_programTextObject(AlifObject*, AlifIntT); // 119

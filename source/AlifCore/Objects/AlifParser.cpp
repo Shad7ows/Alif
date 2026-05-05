@@ -24,8 +24,8 @@ static KeywordToken* reservedKeywords[7] = {
 	new (KeywordToken[1])  { {nullptr, -1} },  // 0 char
 	new (KeywordToken[3])  { {"ك", 501}, {"و", 502}, {nullptr, -1} },  // 1 char
 	new (KeywordToken[7])  { {"في", 521}, {"او", 522}, {"أو", 522}, {"من", 523}, {"صح", 524}, {"هل", 525}, {nullptr, -1} },  // 2 chars
-	new (KeywordToken[14]) { {"اذا", 541}, {"إذا", 541}, {"ليس", 542}, {"مرر", 543}, {"عدم", 544}, {"ولد", 545},  {"صنف", 546}, {"خطا", 547}, {"خطأ", 547}, {"عام", 548}, {"عند", 549}, {"خلل", 550}, {"لكل", 551}, { nullptr, -1 }},  // 3 chars
-	new (KeywordToken[11])  { {"احذف", 561}, {"دالة", 562}, {"والا", 563}, {"وإلا", 563}, {"توقف", 564}, {"نطاق", 565}, {"ارجع", 566}, {"أرجع", 566}, {"حاول", 567}, {"خطية", 568}, {nullptr, -1}},  // 4 chars
+	new (KeywordToken[13]) { {"اذا", 541}, {"إذا", 541}, {"ليس", 542}, {"مرر", 543}, {"عدم", 544}, {"صنف", 545}, {"خطا", 546}, {"خطأ", 546}, {"عام", 547}, {"عند", 548}, {"خلل", 549}, {"لكل", 550}, { nullptr, -1 }},  // 3 chars
+	new (KeywordToken[12])  { {"احذف", 561}, {"دالة", 562}, {"والا", 563}, {"وإلا", 563}, {"توقف", 564}, {"نطاق", 565}, {"ارجع", 566}, {"أرجع", 566}, {"حاول", 567}, {"خطية", 568}, {"انتج", 569}, {nullptr, -1}},  // 4 chars
 	new (KeywordToken[7])  { {"اواذا", 581}, {"أوإذا", 581}, {"بينما", 582},  {"انتظر", 583}, {"استمر", 584}, {"نهاية", 585}, {nullptr, -1}},  // 5 chars
 	new (KeywordToken[3])  { {"مزامنة", 601}, {"استورد", 602}, {nullptr, -1}}  // 6 chars
 };
@@ -43,13 +43,12 @@ static KeywordToken* reservedKeywords[7] = {
 #define NOT_KW 542
 #define PASS_KW 543
 #define NONE_KW 544
-#define YIELD_KW 545
-#define CLASS_KW 546
-#define FALSE_KW 547
-#define GLOBAL_KW 548
-#define WITH_KW 549
-#define EXCEPT_KW 550
-#define FOR_KW 551
+#define CLASS_KW 545
+#define FALSE_KW 546
+#define GLOBAL_KW 547
+#define WITH_KW 548
+#define EXCEPT_KW 549
+#define FOR_KW 550
 #define DEL_KW 561
 #define FUNC_KW 562
 #define ELSE_KW 563
@@ -58,6 +57,7 @@ static KeywordToken* reservedKeywords[7] = {
 #define RETURN_KW 566
 #define TRY_KW 567
 #define LAMBDA_KW 568
+#define YIELD_KW 569
 #define ELIF_KW 581
 #define WHILE_KW 582
 #define AWAIT_KW 583
@@ -3483,7 +3483,7 @@ done:
 }
 
 
-// ألف20: تعبير_ولد > تعبيرات_نجمة
+// ألف20: تعبير_انتج > تعبيرات_نجمة
 static ExprTy alif20(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -3492,7 +3492,7 @@ static ExprTy alif20(AlifParser* _p) {
 	ExprTy res{};
 	AlifIntT mark = _p->mark;
 
-	{ // تعبير_ولد
+	{ // تعبير_انتج
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		ExprTy a_{};
@@ -3521,7 +3521,7 @@ done:
 // ^
 // |
 // |
-// نص_تنفيذي_مجال  : "{" (تعبير_ولد > تعبيرات_نجمة) "="? نص_تنفيذي_تحويل? نص_تنفيذي_تنسيق_كامل? "}"
+// نص_تنفيذي_مجال  : "{" (تعبير_انتج > تعبيرات_نجمة) "="? نص_تنفيذي_تحويل? نص_تنفيذي_تنسيق_كامل? "}"
 static ExprTy fStringReplacementField_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -3539,7 +3539,7 @@ static ExprTy fStringReplacementField_rule(AlifParser* _p) {
 	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
 	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
 
-	{ // "{" (تعبير_ولد > تعبيرات_نجمة) "="? نص_تنفيذي_تحويل? نص_تنفيذي_تنسيق_كامل? "}"
+	{ // "{" (تعبير_انتج > تعبيرات_نجمة) "="? نص_تنفيذي_تحويل? نص_تنفيذي_تنسيق_كامل? "}"
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* literal{};
@@ -3551,7 +3551,7 @@ static ExprTy fStringReplacementField_rule(AlifParser* _p) {
 		if (
 			(literal = alifParserEngine_expectToken(_p, LBRACE)) // "{"
 			and
-			(a_ = alif20(_p)) // تعبير_ولد > تعبير_نجمة
+			(a_ = alif20(_p)) // تعبير_انتج > تعبير_نجمة
 			and
 			(d_ = alifParserEngine_expectToken(_p, EQUAL), !_p->errorIndicator) // "="?
 			and
@@ -4097,7 +4097,7 @@ done:
 // ^
 // |
 // |
-// ألف29: تعبير_ولد > تعبير
+// ألف29: تعبير_انتج > تعبير
 static ExprTy alif29(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -4106,12 +4106,12 @@ static ExprTy alif29(AlifParser* _p) {
 	ExprTy res{};
 	AlifIntT mark = _p->mark;
 
-	{ // تعبير_ولد
+	{ // تعبير_انتج
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		ExprTy a_{};
 		if (
-			(a_ = yieldExpr_rule(_p)) // تعبير_ولد
+			(a_ = yieldExpr_rule(_p)) // تعبير_انتج
 			) {
 			res = a_;
 			goto done;
@@ -4139,7 +4139,7 @@ done:
 // ^
 // |
 // |
-// مجموعة: "(" تعبير_ولد > تعبير ")"
+// مجموعة: "(" تعبير_انتج > تعبير ")"
 static ExprTy group_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -4147,7 +4147,7 @@ static ExprTy group_rule(AlifParser* _p) {
 
 	ExprTy res{};
 	AlifIntT mark = _p->mark;
-	{ // "(" تعبير_ولد > تعبير ")"
+	{ // "(" تعبير_انتج > تعبير ")"
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* literal{};
@@ -4156,7 +4156,7 @@ static ExprTy group_rule(AlifParser* _p) {
 		if (
 			(literal = alifParserEngine_expectToken(_p, LPAR)) // "("
 			and
-			(a_ = alif29(_p)) // تعبير_ولد > تعبير
+			(a_ = alif29(_p)) // تعبير_انتج > تعبير
 			and
 			(literal1 = alifParserEngine_expectToken(_p, RPAR)) // ")"
 			) {
@@ -7896,7 +7896,7 @@ done:
 }
 
 
-// تعبير_ولد: "ولد" "من" تعبير > "ولد" تعبيرات_نجمة?
+// تعبير_انتج: "انتج" "من" تعبير > "انتج" تعبيرات_نجمة?
 static ExprTy yieldExpr_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -7914,14 +7914,14 @@ static ExprTy yieldExpr_rule(AlifParser* _p) {
 	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
 	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
 
-	{ // "ولد" "من" تعبير
+	{ // "انتج" "من" تعبير
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* keyword{};
 		AlifPToken* keyword1{};
 		ExprTy a_{};
 		if (
-			(keyword = alifParserEngine_expectToken(_p, YIELD_KW)) // "ولد"
+			(keyword = alifParserEngine_expectToken(_p, YIELD_KW)) // "انتج"
 			and
 			(keyword = alifParserEngine_expectToken(_p, FROM_KW)) // "من"
 			and
@@ -7943,13 +7943,13 @@ static ExprTy yieldExpr_rule(AlifParser* _p) {
 		}
 		_p->mark = mark;
 	}
-	{ // "ولد" تعبيرات_نجمة?
+	{ // "انتج" تعبيرات_نجمة?
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* keyword{};
 		ExprTy a_{};
 		if (
-			(keyword = alifParserEngine_expectToken(_p, YIELD_KW)) // "ولد"
+			(keyword = alifParserEngine_expectToken(_p, YIELD_KW)) // "انتج"
 			and
 			(a_ = starExpressions_rule(_p), !_p->errorIndicator) // تعبيرات_نجمة?
 			) {
@@ -11268,7 +11268,7 @@ done:
 }
 
 
-// حالة_ولد: تعبير_ولد
+// حالة_انتج: تعبير_انتج
 static StmtTy yieldStmt_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -11286,7 +11286,7 @@ static StmtTy yieldStmt_rule(AlifParser* _p) {
 	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
 	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
 
-	{ // تعبير_ولد
+	{ // تعبير_انتج
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		ExprTy a_{};
@@ -12431,7 +12431,7 @@ static ASDLSeq* alif2_loop1(AlifParser* _p) {
 //	^
 //	|
 //	|
-// ألف5: تعبير_ولد > تعبيرات_نجمة
+// ألف5: تعبير_انتج > تعبيرات_نجمة
 static ExprTy alif5(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -12440,7 +12440,7 @@ static ExprTy alif5(AlifParser* _p) {
 	ExprTy res{};
 	AlifIntT mark = _p->mark;
 
-	{ // تعبير_ولد
+	{ // تعبير_انتج
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		ExprTy a_{};
@@ -12471,8 +12471,8 @@ done:
 //	|
 /*
 إسناد:
-	> (أهداف_نجمة "=")+ (تعبير_ولد > تعبيرات_نجمة) !"="
-	> هدف إسناد_رجعي ~ (تعبير_ولد > تعبيرات_نجمة)
+	> (أهداف_نجمة "=")+ (تعبير_انتج > تعبيرات_نجمة) !"="
+	> هدف إسناد_رجعي ~ (تعبير_انتج > تعبيرات_نجمة)
 */
 static StmtTy assignment_rule(AlifParser* _p) {
 
@@ -12491,7 +12491,7 @@ static StmtTy assignment_rule(AlifParser* _p) {
 	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
 	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
 
-	{ // (تعبيرات_نجمة "=") + (تعبير_ولد > تعبيرات_نجمة) !"="
+	{ // (تعبيرات_نجمة "=") + (تعبير_انتج > تعبيرات_نجمة) !"="
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		ASDLExprSeq* a_{};
@@ -12499,7 +12499,7 @@ static StmtTy assignment_rule(AlifParser* _p) {
 		if (
 			(a_ = (ASDLExprSeq*)alif2_loop1(_p)) // (أهداف_نجمة "=")+
 			and
-			(b_ = alif5(_p)) // تعبير_ولد > تعبيرات_نجمة
+			(b_ = alif5(_p)) // تعبير_انتج > تعبيرات_نجمة
 			and
 			alifParserEngine_lookaheadWithInt(0, alifParserEngine_expectToken, _p, EQUAL) // !"="
 			) {
@@ -12519,7 +12519,7 @@ static StmtTy assignment_rule(AlifParser* _p) {
 		}
 		_p->mark = mark;
 	}
-	{ // هدف إسناد_رجعي ~ (تعبير_ولد > تعبيرات_نجمة)
+	{ // هدف إسناد_رجعي ~ (تعبير_انتج > تعبيرات_نجمة)
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifIntT cutVar = 0;
@@ -12533,7 +12533,7 @@ static StmtTy assignment_rule(AlifParser* _p) {
 			and
 			(cutVar = 1)
 			and
-			(c_ = alif5(_p)) // تعبير_ولد > تعبير_نجمة
+			(c_ = alif5(_p)) // تعبير_انتج > تعبير_نجمة
 			) {
 			AlifPToken* token_ = alifParserEngine_getLastNonWhitespaceToken(_p);
 			if (token_ == nullptr) { _p->level--; return nullptr; }
@@ -13881,7 +13881,7 @@ done:
 		> &("استورد" > "من") حالة_استورد
 		> "مرر"
 		> &"حذف" حالة_حذف
-		> &"ولد" حالة_ولد
+		> &"انتج" حالة_انتج
 		> "توقف"
 		> "استمر"
 		> &"عام" حالة_عام
@@ -13959,7 +13959,7 @@ static StmtTy simpleStmt_rule(AlifParser* _p) {
 
 		StmtTy a_{};
 		if (
-			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, RETURN_KW) // "return"
+			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, RETURN_KW) // "ارجع"
 			and
 			(a_ = returnStmt_rule(_p)) // حالة_ارجع
 			) {
@@ -14009,7 +14009,7 @@ static StmtTy simpleStmt_rule(AlifParser* _p) {
 
 		StmtTy a_{};
 		if (
-			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, DEL_KW) // "del"
+			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, DEL_KW) // "احذف"
 			and
 			(a_ = delStmt_rule(_p)) // حالة_حذف
 			) {
@@ -14018,14 +14018,14 @@ static StmtTy simpleStmt_rule(AlifParser* _p) {
 		}
 		_p->mark = mark;
 	}
-	{ // &"ولد" حالة_ولد
+	{ // &"انتج" حالة_انتج
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		StmtTy a_{};
 		if (
-			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, YIELD_KW) // "yield"
+			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, YIELD_KW) // "انتج"
 			and
-			(a_ = yieldStmt_rule(_p)) // حالة_ولد
+			(a_ = yieldStmt_rule(_p)) // حالة_انتج
 			) {
 			res = a_;
 			goto done;

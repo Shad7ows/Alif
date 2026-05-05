@@ -4923,7 +4923,7 @@ static AlifIntT codegen_visitExpr(AlifCompiler* _c, ExprTy _e) {
 		return codegen_dictComp(_c, _e);
 	case ExprK_::YieldK:
 		if (!alifST_isFunctionLike(SYMTABLE_ENTRY(_c))) {
-			return _alifCompiler_error(_c, loc, "'ولد' خارج الدالة");
+			return _alifCompiler_error(_c, loc, "'انتج' خارج الدالة");
 		}
 		if (_e->V.yield.val) {
 			VISIT(_c, Expr, _e->V.yield.val);
@@ -4935,10 +4935,10 @@ static AlifIntT codegen_visitExpr(AlifCompiler* _c, ExprTy _e) {
 		break;
 	case ExprK_::YieldFromK:
 		if (!alifST_isFunctionLike(SYMTABLE_ENTRY(_c))) {
-			return _alifCompiler_error(_c, loc, "'ولد من' خارج الدالة");
+			return _alifCompiler_error(_c, loc, "'انتج من' خارج الدالة");
 		}
 		if (SCOPE_TYPE(_c) == ScopeType_::Compiler_Scope_Async_Function) {
-			return _alifCompiler_error(_c, loc, "'ولد من' داخل دالة متزامنة");
+			return _alifCompiler_error(_c, loc, "'انتج من' داخل دالة متزامنة");
 		}
 		VISIT(_c, Expr, _e->V.yieldFrom.val);
 		ADDOP(_c, loc, GET_YIELD_FROM_ITER);

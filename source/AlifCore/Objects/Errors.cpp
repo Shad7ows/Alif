@@ -623,6 +623,129 @@ failure:
 }
 
 
+
+
+
+
+
+
+
+static void alifErr_syntaxLocationObjectEx(AlifObject* _filename,
+	AlifIntT _lineno, AlifIntT _colOffset, AlifIntT _endLineno, AlifIntT _endColOffset) { // 1721
+	AlifThread* thread = _alifThread_get();
+
+	/* add attributes for the line number and filename for the error */
+	AlifObject *exc = _alifErr_getRaisedException(thread);
+	/* XXX check that it is, indeed, a syntax error. It might not
+	* be, though. */
+	AlifObject *tmp = alifLong_fromLong(_lineno);
+	if (tmp == nullptr) {
+		_alifErr_clear(thread);
+	}
+	else {
+		if (alifObject_setAttr(exc, &ALIF_ID(Lineno), tmp)) {
+			_alifErr_clear(thread);
+		}
+		ALIF_DECREF(tmp);
+	}
+	tmp = nullptr;
+	if (_colOffset >= 0) {
+		tmp = alifLong_fromLong(_colOffset);
+		if (tmp == nullptr) {
+			_alifErr_clear(thread);
+		}
+	}
+	if (alifObject_setAttr(exc, &ALIF_ID(Offset), tmp ? tmp : ALIF_NONE)) {
+		_alifErr_clear(thread);
+	}
+	ALIF_XDECREF(tmp);
+
+	tmp = nullptr;
+	if (_endLineno >= 0) {
+		tmp = alifLong_fromLong(_endLineno);
+		if (tmp == nullptr) {
+			_alifErr_clear(thread);
+		}
+	}
+	if (alifObject_setAttr(exc, &ALIF_ID(EndLineno), tmp ? tmp : ALIF_NONE)) {
+		_alifErr_clear(thread);
+	}
+	ALIF_XDECREF(tmp);
+
+	tmp = nullptr;
+	if (_endColOffset >= 0) {
+		tmp = alifLong_fromLong(_endColOffset);
+		if (tmp == nullptr) {
+			_alifErr_clear(thread);
+		}
+	}
+	if (alifObject_setAttr(exc, &ALIF_ID(EndOffset), tmp ? tmp : ALIF_NONE)) {
+		_alifErr_clear(thread);
+	}
+	ALIF_XDECREF(tmp);
+
+	tmp = nullptr;
+	if (_filename != nullptr) {
+		if (alifObject_setAttr(exc, &ALIF_ID(Filename), _filename)) {
+			_alifErr_clear(thread);
+		}
+
+		tmp = alifErr_programTextObject(_filename, _lineno);
+		if (tmp) {
+			if (alifObject_setAttr(exc, &ALIF_ID(Text), tmp)) {
+				_alifErr_clear(thread);
+			}
+			ALIF_DECREF(tmp);
+		}
+		else {
+			_alifErr_clear(thread);
+		}
+	}
+	if ((AlifObject *)ALIF_TYPE(exc) != _alifExcSyntaxError_) {
+		AlifIntT rc = alifObject_hasAttrWithError(exc, &ALIF_ID(Msg));
+		if (rc < 0) {
+			_alifErr_clear(thread);
+		}
+		else if (!rc) {
+			tmp = alifObject_str(exc);
+			if (tmp) {
+				if (alifObject_setAttr(exc, &ALIF_ID(Msg), tmp)) {
+					_alifErr_clear(thread);
+				}
+				ALIF_DECREF(tmp);
+			}
+			else {
+				_alifErr_clear(thread);
+			}
+		}
+
+		rc = alifObject_hasAttrWithError(exc, &ALIF_ID(PrintFileAndLine));
+		if (rc < 0) {
+			_alifErr_clear(thread);
+		}
+		else if (!rc) {
+			if (alifObject_setAttr(exc, &ALIF_ID(PrintFileAndLine), ALIF_NONE)) {
+				_alifErr_clear(thread);
+			}
+		}
+	}
+	_alifErr_setRaisedException(thread, exc);
+}
+
+
+
+
+
+
+
+
+
+void alifErr_rangedSyntaxLocationObject(AlifObject* _filename, AlifIntT _lineno,
+	AlifIntT _colOffset, AlifIntT _endLineno, AlifIntT _endColOffset) { // 1830
+	alifErr_syntaxLocationObjectEx(_filename, _lineno, _colOffset, _endLineno, _endColOffset);
+}
+
+
 void _alifErr_raiseSyntaxError(AlifObject* _msg, AlifObject* _filename, AlifIntT _lineno, AlifIntT _colOffset,
 	AlifIntT _endLineno, AlifIntT _endColOffset) { // 1856
 	AlifObject* text = alifErr_programTextObject(_filename, _lineno);

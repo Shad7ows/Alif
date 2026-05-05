@@ -78,6 +78,10 @@
 
 #define LOCATION(x) SRC_LOCATION_FROM_AST(x) // 79
 
+// 81
+#define SET_ERROR_LOCATION(_fName, _l) \
+    alifErr_rangedSyntaxLocationObject((_fName), \
+        (_l).lineNo, (_l).colOffset + 1, (_l).endLineNo, (_l).endColOffset + 1)
 
 #define IS_ASYNC_DEF(_st) ((_st)->cur->type == BlockType_::Function_Block and (_st)->cur->coroutine)
 
@@ -195,6 +199,7 @@ static AlifIntT symtable_visitExcepthandler(AlifSymTable*, ExcepthandlerTy); // 
 static AlifIntT symtable_visitAlias(AlifSymTable*, AliasTy); // 246
 static AlifIntT symtable_visitKeyword(AlifSymTable*, KeywordTy); // 248
 static AlifIntT symtable_visitAnnotations(AlifSymTable*, StmtTy, ArgumentsTy, ExprTy, SymTableEntry*); // 253
+static AlifIntT symtable_raiseIfComprehensionBlock(AlifSymTable*, ExprTy); // 260
 static AlifIntT symtable_addDef(AlifSymTable*, AlifObject*, AlifIntT, AlifSourceLocation); // 261
 
 
@@ -1065,7 +1070,7 @@ static AlifIntT symtable_addDefHelper(AlifSymTable* _st,
 		}
 		if ((_flag & DEF_TYPE_PARAM) and (val_ & DEF_TYPE_PARAM)) {
 			//alifErr_format(_alifExcSyntaxError_, DUPLICATE_TYPE_PARAM, _name);
-			//SET_ERROR_LOCATION(_st->fileName, _loc);
+			SET_ERROR_LOCATION(_st->fileName, _loc);
 			goto error;
 		}
 		val_ |= _flag;
@@ -1080,7 +1085,7 @@ static AlifIntT symtable_addDefHelper(AlifSymTable* _st,
 		if (val_ & (DEF_GLOBAL | DEF_NONLOCAL)) {
 			//alifErr_format(_alifExcSyntaxError_,
 				//NAMED_EXPR_COMP_INNER_LOOP_CONFLICT, _name);
-			//SET_ERROR_LOCATION(_st->fileName, _loc);
+			SET_ERROR_LOCATION(_st->fileName, _loc);
 			goto error;
 		}
 		val_ |= DEF_COMP_ITER;
@@ -1306,7 +1311,7 @@ static AlifIntT check_importFrom(AlifSymTable* st, StmtTy s) { // 1776
 		//alifErr_setString(_alifExcSyntaxError_,
 		//	"from __future__ imports must occur "
 		//	"at the beginning of the file");
-		//SET_ERROR_LOCATION(st->fileName, LOCATION(s));
+		SET_ERROR_LOCATION(st->fileName, LOCATION(s));
 		return 0;
 	}
 	return 1;
@@ -1534,7 +1539,7 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 				}
 				alifErr_format(_alifExcSyntaxError_,
 					msg, name);
-				//SET_ERROR_LOCATION(_st->fileName, LOCATION(_s));
+				SET_ERROR_LOCATION(_st->fileName, LOCATION(_s));
 				return 0;
 			}
 			if (!symtable_addDef(_st, name, DEF_GLOBAL, LOCATION(_s))) {
@@ -1606,6 +1611,17 @@ static AlifIntT symtable_visitExpr(AlifSymTable* _st, ExprTy _e) { // 2334
 	case ExprK_::ListCompK:
 		if (!symtable_visitListComp(_st, _e))
 			return 0;
+		break;
+	case YieldK:
+		//if (!symtable_raiseIfAnnotationBlock(_st, "حالة انتج", _e)) {
+		//	return 0;
+		//}
+		if (_e->V.yield.val)
+			VISIT(_st, Expr, _e->V.yield.val);
+		_st->cur->generator = 1;
+		if (_st->cur->comprehension) {
+			return symtable_raiseIfComprehensionBlock(_st, _e);
+		}
 		break;
 	case ExprK_::CompareK:
 		VISIT(_st, Expr, _e->V.compare.left);
@@ -1844,7 +1860,7 @@ static AlifIntT symtable_visitAlias(AlifSymTable* _st, AliasTy _a) { // 2825
 	else {
 		if (_st->cur->type != BlockType_::Module_Block) {
 			alifErr_setString(_alifExcSyntaxError_, IMPORT_STAR_WARNING);
-			//SET_ERROR_LOCATION(st->filename, LOCATION(a));
+			SET_ERROR_LOCATION(_st->fileName, LOCATION(_a));
 			ALIF_DECREF(storeName);
 			return 0;
 		}
@@ -1930,7 +1946,7 @@ static AlifIntT symtable_handleComprehension(AlifSymTable* st, ExprTy e,
 		!allows_topLevelAwait(st)) {
 		alifErr_setString(_alifExcSyntaxError_, "الحاويات الضمنية المتزامنة خارج "
 			"الدالة المتزامنة");
-		//SET_ERROR_LOCATION(st->fileName, LOCATION(e));
+		SET_ERROR_LOCATION(st->fileName, LOCATION(e));
 		return 0;
 	}
 	if (is_async) {
@@ -1950,6 +1966,18 @@ static AlifIntT symtable_visitListComp(AlifSymTable* _st, ExprTy _e) { // 2966
 	return symtable_handleComprehension(_st, _e, &ALIF_ID(ListComp),
 		_e->V.listComp.generators,
 		_e->V.listComp.elt, nullptr);
+}
+
+
+static AlifIntT symtable_raiseIfComprehensionBlock(AlifSymTable* _st, ExprTy _e) { // 3029
+	AlifComprehensionType type = _st->cur->comprehension;
+	alifErr_setString(_alifExcSyntaxError_,
+		(type == AlifComprehensionType::List_Comprehension) ? "'انتج' داخل مصفوفة ضمنية" :
+		(type == AlifComprehensionType::Set_Comprehension) ? "'انتج' داخل مميزة ضمنية" :
+		(type == AlifComprehensionType::Dict_Comprehension) ? "'انتج' داخل فهرس ضمني" :
+		"'انتج' داخل تعبير مولد");
+	SET_ERROR_LOCATION(_st->fileName, LOCATION(_e));
+	return 0;
 }
 
 
