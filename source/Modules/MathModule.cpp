@@ -62,7 +62,7 @@ static double m_log(double _x) { // 641
 			return log(_x);
 		errno = EDOM;
 		if (_x == 0.0)
-			return -ALIF_HUGE_VAL; /* log(0) = -inf */
+			return -ALIF_INFINITY; /* log(0) = -inf */
 		else
 			return ALIF_NAN; /* log(-ve) = nan */
 	}
