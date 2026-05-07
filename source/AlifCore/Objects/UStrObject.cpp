@@ -7138,7 +7138,7 @@ static AlifObject* intern_static(AlifInterpreter* interp, AlifObject* s /* stole
 	}
 
 	if (_alifHashTable_set(INTERNED_STRINGS, s, s) < -1) {
-		//alif_fatalError("failed to intern static string");
+		alif_fatalError("فشل أثناء تضمين النصوص الثابتة");
 	}
 
 	ALIFUSTR_STATE(s).interned = SSTATE_INTERNED_IMMORTAL_STATIC;
