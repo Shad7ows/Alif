@@ -176,3 +176,31 @@ success:
 	SET_OPCODE_OR_RETURN(_instr, specializedOp);
 	cache->counter = adaptive_counterCooldown();
 }
+
+
+
+
+void _alifSpecialize_containsOp(AlifStackRef _valueSt, AlifCodeUnit* _instr) { // 2745
+	AlifObject* value = alifStackRef_asAlifObjectBorrow(_valueSt);
+
+	uint8_t specializedOp{};
+	AlifContainsOpCache* cache = (AlifContainsOpCache*)(_instr + 1);
+	if (ALIFDICT_CHECKEXACT(value)) {
+		specializedOp = CONTAINS_OP_DICT;
+		goto success;
+	}
+	if (ALIFSET_CHECKEXACT(value) or ALIFFROZENSET_CHECKEXACT(value)) {
+		specializedOp = CONTAINS_OP_SET;
+		goto success;
+	}
+
+	//SPECIALIZATION_FAIL(CONTAINS_OP, containsOp_failKind(value));
+	//STAT_INC(CONTAINS_OP, failure);
+	SET_OPCODE_OR_RETURN(_instr, CONTAINS_OP);
+	cache->counter = adaptive_counterBackoff(cache->counter);
+	return;
+success:
+	//STAT_INC(CONTAINS_OP, success);
+	SET_OPCODE_OR_RETURN(_instr, specializedOp);
+	cache->counter = adaptive_counterCooldown();
+}

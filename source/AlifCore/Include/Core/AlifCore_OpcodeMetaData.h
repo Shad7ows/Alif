@@ -140,10 +140,10 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		//	return 2;
 	case CONTAINS_OP:
 		return 2;
-		//case CONTAINS_OP_DICT:
-		//	return 2;
-		//case CONTAINS_OP_SET:
-		//	return 2;
+	case CONTAINS_OP_DICT:
+		return 2;
+	case CONTAINS_OP_SET:
+		return 2;
 	case CONVERT_VALUE:
 		return 1;
 	case COPY:
@@ -608,10 +608,10 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		//	return 1;
 	case CONTAINS_OP:
 		return 1;
-		//case CONTAINS_OP_DICT:
-		//	return 1;
-		//case CONTAINS_OP_SET:
-		//	return 1;
+	case CONTAINS_OP_DICT:
+		return 1;
+	case CONTAINS_OP_SET:
+		return 1;
 	case CONVERT_VALUE:
 		return 1;
 	case COPY:

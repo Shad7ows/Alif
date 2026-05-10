@@ -158,8 +158,8 @@
 //#define COMPARE_OP_FLOAT                       185
 //#define COMPARE_OP_INT                         186
 //#define COMPARE_OP_STR                         187
-//#define CONTAINS_OP_DICT                       188
-//#define CONTAINS_OP_SET                        189
+#define CONTAINS_OP_DICT                       188
+#define CONTAINS_OP_SET                        189
 //#define FOR_ITER_GEN                           190
 //#define FOR_ITER_LIST                          191
 //#define FOR_ITER_RANGE                         192

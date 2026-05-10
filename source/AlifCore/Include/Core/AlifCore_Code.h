@@ -56,6 +56,13 @@ public:
 #define INLINE_CACHE_ENTRIES_SEND CACHE_ENTRIES(AlifSendCache)
 
 
+class AlifContainsOpCache { // 187
+public:
+	AlifBackoffCounter counter{};
+};
+
+#define INLINE_CACHE_ENTRIES_CONTAINS_OP CACHE_ENTRIES(AlifContainsOpCache)
+
 
 class AlifCallCache { // 153
 public:
@@ -145,6 +152,9 @@ extern AlifIntT _alifLineTable_previousAddressRange(AlifCodeAddressRange*); // 3
 
 extern void _alifSpecialize_binaryOp(AlifStackRef, AlifStackRef,
 	AlifCodeUnit*, AlifIntT, AlifStackRef*); // 348
+
+extern void _alifSpecialize_containsOp(AlifStackRef, AlifCodeUnit*); // 357
+
 
 
 static inline uint16_t read_u16(uint16_t* _p) { // 439

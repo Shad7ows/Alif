@@ -888,7 +888,7 @@ AlifIntT _alifCompiler_lookupArg(AlifCompiler* _c,
 		//	"compiler_lookupArg(name=%R) with reftype=%d failed in %S; "
 		//	"freevars of code %S: %R",
 		//	_name, reftype, _c->u_->metadata.name, _co->name, freevars);
-		//ALIF_DECREF(freevars);
+		//ALIF_XDECREF(freevars);
 		return ERROR;
 	}
 	return arg;

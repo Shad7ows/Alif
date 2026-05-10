@@ -1602,8 +1602,8 @@ resume_frame:
 				// _SPECIALIZE_CONTAINS_OP
 				{
 					right = stackPointer[-1];
-					//uint16_t counter = read_u16(&thisInstr[1].cache);
-				#if ENABLE_SPECIALIZATION
+					uint16_t counter = read_u16(&thisInstr[1].cache);
+				#if ENABLE_SPECIALIZATION_FT
 					if (ADAPTIVE_COUNTER_TRIGGERS(counter)) {
 						nextInstr = thisInstr;
 						_alifFrame_setStackPointer(_frame, stackPointer);
@@ -1611,7 +1611,7 @@ resume_frame:
 						stackPointer = _alifFrame_getStackPointer(_frame);
 						DISPATCH_SAME_OPARG();
 					}
-					OPCODE_DEFERRED_INC(CONTAINS_OP);
+					//OPCODE_DEFERRED_INC(CONTAINS_OP);
 					ADVANCE_ADAPTIVE_COUNTER(thisInstr[1].counter);
 				#endif  /* ENABLE_SPECIALIZATION */
 				}
@@ -2425,7 +2425,7 @@ resume_frame:
 						stackPointer = _alifFrame_getStackPointer(_frame);
 						if (bytecode == nullptr) goto error;
 						_alifFrame_setStackPointer(_frame, stackPointer);
-						AlifIntT off = thisInstr - _alifFrame_getBytecode(_frame);
+						ptrdiff_t off = thisInstr - _alifFrame_getBytecode(_frame);
 						stackPointer = _alifFrame_getStackPointer(_frame);
 						_frame->tlbcIndex = ((AlifThreadImpl*)_thread)->tlbcIndex;
 						_frame->instrPtr = bytecode + off;
