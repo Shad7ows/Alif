@@ -114,6 +114,7 @@ public:
 
 	AlifIntT cpuCount{};
 
+	AlifIntT tlbcEnabled{}; // thread-local bytecode
 
 	/* ------- path config inputs ------- */
 	AlifIntT pathConfigWarnings{};

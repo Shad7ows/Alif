@@ -4,7 +4,7 @@
 #define CACHE                                    0
 #define BINARY_SLICE                             1
 #define BINARY_SUBSCR                            2
-//#define BINARY_OP_INPLACE_ADD_UNICODE            3
+#define BINARY_OP_INPLACE_ADD_UNICODE            3
 #define CHECK_EG_MATCH                           4
 #define CHECK_EXC_MATCH                          5
 #define CLEANUP_THROW                            6
@@ -120,13 +120,13 @@
 #define UNARY_SQRT							   116 //* alif //* review
 
 #define RESUME                                 149
-//#define BINARY_OP_ADD_FLOAT                    150
-//#define BINARY_OP_ADD_INT                      151
-//#define BINARY_OP_ADD_UNICODE                  152
-//#define BINARY_OP_MULTIPLY_FLOAT               153
-//#define BINARY_OP_MULTIPLY_INT                 154
-//#define BINARY_OP_SUBTRACT_FLOAT               155
-//#define BINARY_OP_SUBTRACT_INT                 156
+#define BINARY_OP_ADD_FLOAT                    150
+#define BINARY_OP_ADD_INT                      151
+#define BINARY_OP_ADD_UNICODE                  152
+#define BINARY_OP_MULTIPLY_FLOAT               153
+#define BINARY_OP_MULTIPLY_INT                 154
+#define BINARY_OP_SUBTRACT_FLOAT               155
+#define BINARY_OP_SUBTRACT_INT                 156
 //#define BINARY_SUBSCR_DICT                     157
 //#define BINARY_SUBSCR_GETITEM                  158
 //#define BINARY_SUBSCR_LIST_INT                 159
@@ -182,7 +182,7 @@
 //#define LOAD_GLOBAL_MODULE                     209
 //#define LOAD_SUPER_ATTR_ATTR                   210
 //#define LOAD_SUPER_ATTR_METHOD                 211
-//#define RESUME_CHECK                           212
+#define RESUME_CHECK                           212
 //#define SEND_GEN                               213
 //#define STORE_ATTR_INSTANCE_VALUE              214
 //#define STORE_ATTR_SLOT                        215

@@ -69,3 +69,8 @@ static inline AlifUSizeT alifObject_varSize(AlifTypeObject* _type, AlifSizeT _nI
 
 
 
+
+
+
+
+typedef AlifIntT (*GCVisitObjectsT)(AlifObject*, void*); // 103

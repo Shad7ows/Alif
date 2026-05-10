@@ -4997,18 +4997,20 @@ static AlifTypeObject* super_check(AlifTypeObject* type, AlifObject* obj) { // 1
 }
 
 
-static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObject* co,
-	AlifTypeObject** type_p, AlifObject** obj_p) { // 11460
+static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* _cframe,
+	AlifTypeObject** _typeP, AlifObject** _objP) { // 11460
+
+	AlifCodeObject* co = _alifFrame_getCode(_cframe);
 	if (co->argCount == 0) {
 		alifErr_setString(_alifExcRuntimeError_,
 			"اصل(): بدون تمرير معاملات");
 		return -1;
 	}
 
-	AlifObject* firstarg = alifStackRef_asAlifObjectBorrow(_alifFrame_getLocalsArray(cframe)[0]);
+	AlifObject* firstarg = alifStackRef_asAlifObjectBorrow(_alifFrame_getLocalsArray(_cframe)[0]);
 	// The first argument might be a cell.
 	if (firstarg != nullptr and (_alifLocals_getKind(co->localsPlusKinds, 0) & CO_FAST_CELL)) {
-		if (ALIFINTERPRETERFRAME_LASTI(cframe) >= 0) {
+		if (ALIFINTERPRETERFRAME_LASTI(_cframe) >= 0) {
 			firstarg = ALIFCELL_GET(firstarg);
 		}
 	}
@@ -5024,7 +5026,7 @@ static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObje
 	for (; i < co->nLocalsPlus; i++) {
 		AlifObject* name = ALIFTUPLE_GET_ITEM(co->localsPlusNames, i);
 		if (_alifUStr_equal(name, &ALIF_ID(__class__))) {
-			AlifObject* cell = alifStackRef_asAlifObjectBorrow(_alifFrame_getLocalsArray(cframe)[i]);
+			AlifObject* cell = alifStackRef_asAlifObjectBorrow(_alifFrame_getLocalsArray(_cframe)[i]);
 			if (cell == nullptr or !ALIFCELL_CHECK(cell)) {
 				alifErr_setString(_alifExcRuntimeError_,
 					"اصل(): خلية __صنف__ غير فعالة");
@@ -5051,8 +5053,8 @@ static AlifIntT super_initWithoutArgs(AlifInterpreterFrame* cframe, AlifCodeObje
 		return -1;
 	}
 
-	*type_p = type;
-	*obj_p = firstarg;
+	*_typeP = type;
+	*_objP = firstarg;
 	return 0;
 }
 
@@ -5088,7 +5090,7 @@ static inline AlifIntT super_initImpl(AlifObject* self,
 				"اصل(): الإطار الحالي مفقود");
 			return -1;
 		}
-		AlifIntT res = super_initWithoutArgs(frame, _alifFrame_getCode(frame), &type, &obj);
+		AlifIntT res = super_initWithoutArgs(frame, &type, &obj);
 
 		if (res < 0) {
 			return -1;

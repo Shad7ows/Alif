@@ -54,6 +54,16 @@ public:
 };
 
 
+class AlifCodeArray { // 82
+public:
+	AlifSizeT size{};
+	char *entries[1]{};
+};
+
+#define _ALIFCODE_DEF_THREAD_LOCAL_BYTECODE() \
+    AlifCodeArray *coTlbc{};
+
+
 // 73
 #define ALIFCODE_DEF(_size) {                                                    \
 public:																			\
@@ -90,7 +100,8 @@ public:																			\
     AlifCoMonitoringData *monitoring{}; /* Monitoring data */                 \
     AlifSizeT uniqueID{};     /* ID used for per-thread refcounting */   \
     AlifIntT firstTraceable{};       /* index of first traceable instruction */   \
-    void *extra{};                                                            \
+    void *extra{};                                                           \
+	_ALIFCODE_DEF_THREAD_LOCAL_BYTECODE()                                     \
     char codeAdaptive[(_size)]{};                                             \
 }
 

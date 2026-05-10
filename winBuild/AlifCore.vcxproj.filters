@@ -376,6 +376,12 @@
     <ClCompile Include="..\source\AlifCore\Objects\EnumObject.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\IndexPool.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\Specialize.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -1070,6 +1076,9 @@
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Objects\clinic\LongObject.cpp.h">
       <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_IndexPool.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

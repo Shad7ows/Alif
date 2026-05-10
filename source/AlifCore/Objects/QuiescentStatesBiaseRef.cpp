@@ -140,11 +140,11 @@ AlifSizeT alifQSBR_reserve(AlifInterpreter* _interp) { // 190
 	QSBRThreadState* qsbr = qsbr_allocate(shared);
 
 	if (qsbr == nullptr) {
-		alifEval_stopTheWorld(_interp);
+		_alifEval_stopTheWorld(_interp);
 		if (grow_threadArray(shared) == 0) {
 			qsbr = qsbr_allocate(shared);
 		}
-		alifEval_startTheWorld(_interp);
+		_alifEval_startTheWorld(_interp);
 	}
 	ALIFMUTEX_UNLOCK(&shared->mutex);
 

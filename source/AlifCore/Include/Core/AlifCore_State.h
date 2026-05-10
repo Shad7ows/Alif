@@ -60,8 +60,8 @@ extern void alifThread_attach(AlifThread*); // 151
 
 
 
-extern void alifEval_stopTheWorld(AlifInterpreter*); // 179
-extern void alifEval_startTheWorld(AlifInterpreter*); // 180
+extern void _alifEval_stopTheWorld(AlifInterpreter*); // 179
+extern void _alifEval_startTheWorld(AlifInterpreter*); // 180
 
 
 

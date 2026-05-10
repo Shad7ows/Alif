@@ -62,6 +62,16 @@ static inline AlifIntT alifEval_isGILEnabled(AlifThread* _thread) { // 145
 }
 
 
+static inline AlifCodeUnit* _alifEval_getExecutableCode(AlifThread* _thread,
+	AlifCodeObject* _co) { // 179
+	AlifCodeUnit* bc = _alifCode_getTLBCFast(_thread, _co);
+	if (bc != nullptr) {
+		return bc;
+	}
+	return _alifCode_getTLBC(_co);
+}
+
+
 #ifdef USE_STACKCHECK // 187
 static inline AlifIntT alif_makeRecCheck(AlifThread* _thread) {
 	return (_thread->cppRecursionRemaining-- < 0

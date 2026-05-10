@@ -307,6 +307,9 @@ static inline void alifAtomic_storeUint8Relaxed(uint8_t* _obj, uint8_t _value) {
 	__atomic_store_n(_obj, _value, __ATOMIC_RELAXED);
 }
 
+static inline void alifAtomic_storeUint16Relaxed(uint16_t* _obj, uint16_t _value) { // 455
+	__atomic_store_n(_obj, _value, __ATOMIC_RELAXED); }
+
 static inline void alifAtomic_storeUint32Relaxed(uint32_t* _obj, uint32_t _value) { // 459
 	__atomic_store_n(_obj, _value, __ATOMIC_RELAXED);
 }

@@ -149,3 +149,6 @@ extern void alifGC_initState(GCRuntimeState*); // 364
 
 
 extern void alif_scheduleGC(AlifThread*); // 381
+
+
+//extern void _alifGC_visitObjectsWorldStopped(AlifInterpreter*, GCVisitObjectsT, void*);

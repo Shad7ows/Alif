@@ -405,6 +405,11 @@ static AlifThread* new_thread(AlifInterpreter* _interpreter) { // 1533
 		alifMem_dataFree(newThread);
 		return nullptr;
 	}
+	int32_t tlbcIdx = _alif_reserveTLBCIndex(_interpreter);
+	if (tlbcIdx < 0) {
+		alifMem_dataFree(newThread);
+		return nullptr;
+	}
 
 	HEAD_LOCK(runtime);
 
@@ -433,6 +438,7 @@ static AlifThread* new_thread(AlifInterpreter* _interpreter) { // 1533
 
 	// Must be called with lock unlocked to avoid lock ordering deadlocks.
 	alifQSBR_register(thread, _interpreter, qsbrIDx);
+	thread->tlbcIndex = tlbcIdx;
 
 	return (AlifThread*)thread;
 }
@@ -657,11 +663,11 @@ static void start_theWorld(class StopTheWorldState* _stw) { // 2294
 }
 
 
-void alifEval_stopTheWorld(AlifInterpreter* _interp) { // 2342
+void _alifEval_stopTheWorld(AlifInterpreter* _interp) { // 2342
 	stop_theWorld(&_interp->stopTheWorld);
 }
 
-void alifEval_startTheWorld(AlifInterpreter* _interp) { // 2350
+void _alifEval_startTheWorld(AlifInterpreter* _interp) { // 2350
 	start_theWorld(&_interp->stopTheWorld);
 }
 

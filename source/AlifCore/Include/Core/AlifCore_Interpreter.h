@@ -16,6 +16,7 @@
 #include "AlifCore_ThreadState.h"
 #include "AlifCore_GlobalObjects.h"
 #include "AlifCore_Import.h"
+#include "AlifCore_IndexPool.h"
 #include "AlifCore_Tuple.h"
 #include "AlifCore_TypeObject.h"
 #include "AlifCore_Exceptions.h"
@@ -115,7 +116,8 @@ public:
 	MimallocInterpState mimalloc{};
 	BRCState brc{};  // biased reference counting state
 	AlifUniqueIDPool uniqueIDs{};
-	AlifMutex weakrefLocks[NUM_WEAKREF_LIST_LOCKS];
+	AlifMutex weakrefLocks[NUM_WEAKREF_LIST_LOCKS]{};
+	AlifIndexPool tlbcIndices{}; // thread-local bytecode
 
 	StopTheWorldState stopTheWorld{};
 

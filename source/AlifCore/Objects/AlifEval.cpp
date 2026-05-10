@@ -916,7 +916,7 @@ resume_frame:
 				_frame->instrPtr = nextInstr;
 				nextInstr += 2;
 				PREDICTED(BINARY_OP);
-				AlifCodeUnit* this_instr = nextInstr - 2;
+				AlifCodeUnit* thisInstr = nextInstr - 2;
 				AlifStackRef lhs{};
 				AlifStackRef rhs{};
 				AlifStackRef res{};
@@ -924,18 +924,18 @@ resume_frame:
 				{
 					rhs = stackPointer[-1];
 					lhs = stackPointer[-2];
-					//uint16_t counter = read_u16(&this_instr[1].cache);
-				#if ENABLE_SPECIALIZATION
+					uint16_t counter = read_u16(&thisInstr[1].cache);
+				#if ENABLE_SPECIALIZATION_FT
 					if (ADAPTIVE_COUNTER_TRIGGERS(counter)) {
-						nextInstr = this_instr;
+						nextInstr = thisInstr;
 						_alifFrame_setStackPointer(_frame, stackPointer);
 						_alifSpecialize_binaryOp(lhs, rhs, nextInstr, oparg, LOCALS_ARRAY);
 						stackPointer = _alifFrame_getStackPointer(_frame);
 						DISPATCH_SAME_OPARG();
 					}
-					OPCODE_DEFERRED_INC(BINARY_OP);
+					//OPCODE_DEFERRED_INC(BINARY_OP);
 					ADVANCE_ADAPTIVE_COUNTER(thisInstr[1].counter);
-				#endif  /* ENABLE_SPECIALIZATION */
+				#endif  /* ENABLE_SPECIALIZATION_FT */
 				}
 				// _BINARY_OP
 				{
@@ -2127,9 +2127,7 @@ resume_frame:
 				/* Skip 1 cache entry */
 				cond = stackPointer[-1];
 				AlifIntT flag = ALIFSTACKREF_IS(cond, ALIFSTACKREF_FALSE);
-			#if ENABLE_SPECIALIZATION
-				this_instr[1].cache = (thisInstr[1].cache << 1) | flag;
-			#endif
+				RECORD_BRANCH_TAKEN(thisInstr[1].cache, flag);
 				JUMPBY(oparg * flag);
 				stackPointer += -1;
 				DISPATCH();
@@ -2141,9 +2139,7 @@ resume_frame:
 				/* Skip 1 cache entry */
 				cond = stackPointer[-1];
 				AlifIntT flag = ALIFSTACKREF_IS(cond, ALIFSTACKREF_TRUE);
-			#if ENABLE_SPECIALIZATION
-				thisInstr[1].cache = (thisInstr[1].cache << 1) | flag;
-			#endif
+				RECORD_BRANCH_TAKEN(thisInstr[1].cache, flag);
 				JUMPBY(oparg * flag);
 				stackPointer += -1;
 				DISPATCH();
@@ -2161,8 +2157,10 @@ resume_frame:
 				if (oparg) {
 					AlifObject *lasti = alifStackRef_asAlifObjectBorrow(values[0]);
 					if (ALIFLONG_CHECK(lasti)) {
-						_frame->instrPtr = ALIFCODE_CODE(_alifFrame_getCode(_frame)) + alifLong_asLong(lasti);
-					}
+						stackPointer += -1;
+						_alifFrame_setStackPointer(_frame, stackPointer);
+						_frame->instrPtr = _alifFrame_getBytecode(_frame) + alifLong_asLong(lasti);
+						stackPointer = _alifFrame_getStackPointer(_frame);					}
 					else {
 						stackPointer += -1;
 						_alifFrame_setStackPointer(_frame, stackPointer);
@@ -2171,6 +2169,7 @@ resume_frame:
 						ALIF_DECREF(exc);
 						goto error;
 					}
+					stackPointer += 1;
 				}
 				stackPointer += -1;
 				_alifFrame_setStackPointer(_frame, stackPointer);
@@ -2416,6 +2415,24 @@ resume_frame:
 				nextInstr += 1;
 				PREDICTED(RESUME);
 				AlifCodeUnit* thisInstr = nextInstr - 1;
+				// _LOAD_BYTECODE
+				{
+					if (_frame->tlbcIndex !=
+						((AlifThreadImpl*)_thread)->tlbcIndex) {
+						_alifFrame_setStackPointer(_frame, stackPointer);
+						AlifCodeUnit* bytecode =
+							_alifEval_getExecutableCode(_thread, _alifFrame_getCode(_frame));
+						stackPointer = _alifFrame_getStackPointer(_frame);
+						if (bytecode == nullptr) goto error;
+						_alifFrame_setStackPointer(_frame, stackPointer);
+						AlifIntT off = thisInstr - _alifFrame_getBytecode(_frame);
+						stackPointer = _alifFrame_getStackPointer(_frame);
+						_frame->tlbcIndex = ((AlifThreadImpl*)_thread)->tlbcIndex;
+						_frame->instrPtr = bytecode + off;
+						nextInstr = _frame->instrPtr;
+						DISPATCH();
+					}
+				}
 				// _MAYBE_INSTRUMENT
 				{
 					if (_thread->tracing == 0) {
@@ -2435,11 +2452,11 @@ resume_frame:
 				}
 				// _QUICKEN_RESUME
 				{
-				#if ENABLE_SPECIALIZATION
+				#if ENABLE_SPECIALIZATION_FT
 					if (_thread->tracing == 0 and thisInstr->op.code == RESUME) {
-						alifAtomic_storeUint8Relaxed(thisInstr->op.code, RESUME_CHECK);
+						alifAtomic_storeUint8Relaxed(&thisInstr->op.code, RESUME_CHECK);
 					}
-				#endif  /* ENABLE_SPECIALIZATION */
+				#endif  /* ENABLE_SPECIALIZATION_FT */
 				}
 				// _CHECK_PERIODIC_IF_NOT_YIELD_FROM
 				{
@@ -2454,6 +2471,60 @@ resume_frame:
 							}
 					}
 				}
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(BINARY_OP_ADD_INT) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 2;
+				//INSTRUCTION_STATS(BINARY_OP_ADD_INT);
+				AlifStackRef left{};
+				AlifStackRef right{};
+				AlifStackRef res{};
+				// _GUARD_BOTH_INT
+				{
+					right = stackPointer[-1];
+					left = stackPointer[-2];
+					AlifObject *leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject *rightObj = alifStackRef_asAlifObjectBorrow(right);
+					DEOPT_IF(!ALIFLONG_CHECKEXACT(leftObj), BINARY_OP);
+					DEOPT_IF(!ALIFLONG_CHECKEXACT(rightObj), BINARY_OP);
+				}
+				/* Skip 1 cache entry */
+				// _BINARY_OP_ADD_INT
+				{
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					//STAT_INC(BINARY_OP, hit);
+					AlifObject* resObj = _alifLong_add((AlifLongObject*)leftObj, (AlifLongObject*)rightObj);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(right, (Destructor)alifMem_objFree);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(left, (Destructor)alifMem_objFree);
+					if (resObj == nullptr) goto pop_2_error;
+					res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
+				}
+				stackPointer[-2] = res;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(LOAD_CONST_IMMORTAL) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				//INSTRUCTION_STATS(LOAD_CONST_IMMORTAL);
+				AlifStackRef value{};
+				AlifObject* obj = GETITEM(FRAME_CO_CONSTS, oparg);
+				value = ALIFSTACKREF_FROMALIFOBJECTIMMORTAL(obj);
+				stackPointer[0] = value;
+				stackPointer += 1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(RESUME_CHECK) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				//INSTRUCTION_STATS(RESUME_CHECK);
+				uintptr_t eval_breaker = alifAtomic_loadUintptrRelaxed(&_thread->evalBreaker);
+				uintptr_t version = alifAtomic_loadUintptrAcquire(&_alifFrame_getCode(_frame)->instrumentationVersion);
+				DEOPT_IF(eval_breaker != version, RESUME);
+				DEOPT_IF(_frame->tlbcIndex !=
+					((AlifThreadImpl*)_thread)->tlbcIndex, RESUME);
 				DISPATCH();
 			} // ------------------------------------------------------------ //
 		}
@@ -2524,7 +2595,7 @@ exception_unwind:
 
 			AlifObject* exc = _alifErr_getRaisedException(_thread);
 			PUSH(ALIFSTACKREF_FROMALIFOBJECTSTEAL(exc));
-			nextInstr = ALIFCODE_CODE(_alifFrame_getCode(_frame)) + handler;
+			nextInstr = _alifFrame_getBytecode(_frame) + handler;
 
 			//if (monitor_handled(_thread, _frame, nextInstr, exc) < 0) {
 			//	goto exception_unwind;
@@ -3089,7 +3160,7 @@ AlifInterpreterFrame* _alifEval_framePushAndInit(AlifThread* _thread,
 	if (frame == nullptr) {
 		goto fail;
 	}
-	_alifFrame_initialize(frame, _func, _locals, code, 0, _previous);
+	_alifFrame_initialize(_thread, frame, _func, _locals, code, 0, _previous);
 	if (initialize_locals(_thread, funcObj, frame->localsPlus, _args, _argCount, _kwNames)) {
 		clear_threadFrame(_thread, frame);
 		return nullptr;

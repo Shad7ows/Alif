@@ -162,9 +162,9 @@ static void free_delayed(uintptr_t _ptr) { // 1107
 	}
 
 	if (buf == nullptr) {
-		alifEval_stopTheWorld(tstate->base.interpreter);
+		_alifEval_stopTheWorld(tstate->base.interpreter);
 		free_workItem(_ptr);
-		alifEval_startTheWorld(tstate->base.interpreter);
+		_alifEval_startTheWorld(tstate->base.interpreter);
 		return;
 	}
 

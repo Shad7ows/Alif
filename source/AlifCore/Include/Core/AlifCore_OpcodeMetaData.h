@@ -24,22 +24,22 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 	switch (_opcode) {
 	case BINARY_OP:
 		return 2;
-		//case BINARY_OP_ADD_FLOAT:
-		//	return 2;
-		//case BINARY_OP_ADD_INT:
-		//	return 2;
-		//case BINARY_OP_ADD_UNICODE:
-		//	return 2;
-		//case BINARY_OP_INPLACE_ADD_UNICODE:
-		//	return 2;
-		//case BINARY_OP_MULTIPLY_FLOAT:
-		//	return 2;
-		//case BINARY_OP_MULTIPLY_INT:
-		//	return 2;
-		//case BINARY_OP_SUBTRACT_FLOAT:
-		//	return 2;
-		//case BINARY_OP_SUBTRACT_INT:
-		//	return 2;
+	case BINARY_OP_ADD_FLOAT:
+		return 2;
+	case BINARY_OP_ADD_INT:
+		return 2;
+	case BINARY_OP_ADD_UNICODE:
+		return 2;
+	case BINARY_OP_INPLACE_ADD_UNICODE:
+		return 2;
+	case BINARY_OP_MULTIPLY_FLOAT:
+		return 2;
+	case BINARY_OP_MULTIPLY_INT:
+		return 2;
+	case BINARY_OP_SUBTRACT_FLOAT:
+		return 2;
+	case BINARY_OP_SUBTRACT_INT:
+		return 2;
 	case BINARY_SLICE:
 		return 3;
 	case BINARY_SUBSCR:
@@ -380,8 +380,8 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		//	return 0;
 	case RESUME:
 		return 0;
-		//case RESUME_CHECK:
-		//	return 0;
+	case RESUME_CHECK:
+		return 0;
 	case RETURN_GENERATOR:
 		return 0;
 	case RETURN_VALUE:
@@ -492,22 +492,22 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 	switch (_opcode) {
 	case BINARY_OP:
 		return 1;
-		//case BINARY_OP_ADD_FLOAT:
-		//	return 1;
-		//case BINARY_OP_ADD_INT:
-		//	return 1;
-		//case BINARY_OP_ADD_UNICODE:
-		//	return 1;
-		//case BINARY_OP_INPLACE_ADD_UNICODE:
-		//	return 0;
-		//case BINARY_OP_MULTIPLY_FLOAT:
-		//	return 1;
-		//case BINARY_OP_MULTIPLY_INT:
-		//	return 1;
-		//case BINARY_OP_SUBTRACT_FLOAT:
-		//	return 1;
-		//case BINARY_OP_SUBTRACT_INT:
-		//	return 1;
+	case BINARY_OP_ADD_FLOAT:
+		return 1;
+	case BINARY_OP_ADD_INT:
+		return 1;
+	case BINARY_OP_ADD_UNICODE:
+		return 1;
+	case BINARY_OP_INPLACE_ADD_UNICODE:
+		return 0;
+	case BINARY_OP_MULTIPLY_FLOAT:
+		return 1;
+	case BINARY_OP_MULTIPLY_INT:
+		return 1;
+	case BINARY_OP_SUBTRACT_FLOAT:
+		return 1;
+	case BINARY_OP_SUBTRACT_INT:
+		return 1;
 	case BINARY_SLICE:
 		return 1;
 	case BINARY_SUBSCR:
@@ -848,8 +848,8 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		//	return 0;
 	case RESUME:
 		return 0;
-		//case RESUME_CHECK:
-		//	return 0;
+	case RESUME_CHECK:
+		return 0;
 	case RETURN_GENERATOR:
 		return 1;
 	case RETURN_VALUE:
