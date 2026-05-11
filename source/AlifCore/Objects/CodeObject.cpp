@@ -646,13 +646,12 @@ AlifTypeObject _alifCodeType_ = { // 2292
 };
 
 
-AlifObject* alifCode_constantKey(AlifObject* _op) { // 2331
+AlifObject* _alifCode_constantKey(AlifObject* _op) { // 2331
 	AlifObject* key_{};
 
 	if (_op == ALIF_NONE or _op == ALIF_ELLIPSIS
 		or ALIFLONG_CHECKEXACT(_op)
 		or ALIFUSTR_CHECKEXACT(_op)
-		or ALIFSLICE_CHECK(_op)
 		or ALIFCODE_CHECK(_op)) {
 		key_ = ALIF_NEWREF(_op);
 	}
@@ -698,7 +697,7 @@ AlifObject* alifCode_constantKey(AlifObject* _op) { // 2331
 			AlifObject* item{}, * itemKey{};
 
 			item = ALIFTUPLE_GET_ITEM(_op, i_);
-			itemKey = alifCode_constantKey(item);
+			itemKey = _alifCode_constantKey(item);
 			if (itemKey == nullptr) {
 				ALIF_DECREF(tuple);
 				return nullptr;
@@ -726,7 +725,7 @@ AlifObject* alifCode_constantKey(AlifObject* _op) { // 2331
 		while (alifSet_nextEntry(_op, &pos_, &item, &hash)) {
 			AlifObject* itemKey{};
 
-			itemKey = alifCode_constantKey(item);
+			itemKey = _alifCode_constantKey(item);
 			if (itemKey == nullptr) {
 				ALIF_DECREF(tuple);
 				return nullptr;
@@ -742,6 +741,40 @@ AlifObject* alifCode_constantKey(AlifObject* _op) { // 2331
 		key_ = alifTuple_pack(2, set_, _op);
 		ALIF_DECREF(set_);
 		return key_;
+	}
+	else if (ALIFSLICE_CHECK(_op)) {
+		AlifSliceObject *slice = (AlifSliceObject*)_op;
+		AlifObject *start_key = nullptr;
+		AlifObject *stop_key = nullptr;
+		AlifObject *step_key = nullptr;
+		key_ = nullptr;
+
+		start_key = _alifCode_constantKey(slice->start);
+		if (start_key == nullptr) {
+			goto slice_exit;
+		}
+
+		stop_key = _alifCode_constantKey(slice->stop);
+		if (stop_key == nullptr) {
+			goto slice_exit;
+		}
+
+		step_key = _alifCode_constantKey(slice->step);
+		if (step_key == nullptr) {
+			goto slice_exit;
+		}
+
+		AlifObject* sliceKey; sliceKey = alifSlice_new(start_key, stop_key, step_key);
+		if (sliceKey == nullptr) {
+			goto slice_exit;
+		}
+
+		key_ = alifTuple_pack(2, sliceKey, _op);
+		ALIF_DECREF(sliceKey);
+slice_exit:
+		ALIF_XDECREF(start_key);
+		ALIF_XDECREF(stop_key);
+		ALIF_XDECREF(step_key);
 	}
 	else {
 		AlifObject* objID = alifLong_fromVoidPtr(_op);

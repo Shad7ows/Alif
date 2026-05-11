@@ -304,7 +304,7 @@ static AlifObject* const_cacheInsert(AlifObject* _constCache,
 		return _o;
 	}
 
-	AlifObject* key_ = alifCode_constantKey(_o);
+	AlifObject* key_ = _alifCode_constantKey(_o);
 	if (key_ == nullptr) {
 		return nullptr;
 	}

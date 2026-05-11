@@ -188,7 +188,7 @@ typedef AlifCodeAddressRange LineOffsets;
 AlifIntT _alifCode_checkLineNumber(AlifIntT, AlifCodeAddressRange*); // 304
 
 
-AlifObject* alifCode_constantKey(AlifObject*); // 309
+AlifObject* _alifCode_constantKey(AlifObject*); // 309
 
 enum AlifCodeLocationInfoKind { // 340
 	AlifCode_Location_Info_Short = 0,
