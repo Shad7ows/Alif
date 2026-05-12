@@ -8,7 +8,7 @@
 #include "AlifCore_Long.h" 
 #include "AlifCore_ModuleObject.h"
 #include "AlifCore_Object.h"
-#include "AlifCore_OpcodeMetadata.h"
+#include "AlifCore_OpcodeMetaData.h"
 #include "AlifCore_OpcodeUtils.h"
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_Runtime.h"
