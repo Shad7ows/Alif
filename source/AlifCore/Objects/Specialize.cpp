@@ -6,7 +6,7 @@
 #include "AlifCore_Dict.h" 
 #include "AlifCore_Function.h" 
 #include "AlifCore_Long.h" 
-#include "AlifCore_Moduleobject.h"
+#include "AlifCore_ModuleObject.h"
 #include "AlifCore_Object.h"
 #include "AlifCore_OpcodeMetadata.h"
 #include "AlifCore_OpcodeUtils.h"
