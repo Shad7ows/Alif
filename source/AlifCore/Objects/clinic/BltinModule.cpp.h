@@ -144,7 +144,7 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 	AlifObject* file = ALIF_NONE;
 	AlifIntT flush = 0;
 
-	fastargs = _ALIFARG_UNPACKKEYWORDSWITHVARARG(_args, _nargs, nullptr, _kwnames, &parser, 0, 0, 0, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDSWITHVARARG(_args, _nargs, nullptr, _kwnames, &parser, 0, 0, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}
