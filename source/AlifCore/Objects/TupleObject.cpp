@@ -276,7 +276,7 @@ AlifObject* _alifTuple_fromArray(AlifObject* const* _src, AlifSizeT _n) { // 371
 
 
 
-AlifObject* alifTuple_fromStackRefSteal(const AlifStackRef* _src, AlifSizeT _n) { // 392
+AlifObject* _alifTuple_fromStackRefSteal(const AlifStackRef* _src, AlifSizeT _n) { // 392
 	if (_n == 0) {
 		return tuple_getEmpty();
 	}

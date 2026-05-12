@@ -31,17 +31,18 @@ extern AlifObject* alifModule_createInitialized(AlifModuleDef*); // 44
 AlifIntT _alifArg_parseStackAndKeywords(AlifObject* const*,
 	AlifSizeT, AlifObject*, AlifArgParser*, ...); // 71
 
-AlifObject* const* _alifArg_unpackKeywords(AlifObject* const*, AlifSizeT,
-	AlifObject*, AlifObject*, AlifArgParser*, AlifIntT, AlifIntT, AlifIntT, AlifObject**); // 79
+AlifObject* const* _alifArg_unpackKeywordsEx(AlifObject* const*, AlifSizeT,
+	AlifObject*, AlifObject*, AlifArgParser*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifObject**); // 79
 
- // 89
-#define ALIFARG_UNPACKKEYWORDS(args, nargs, kwargs, kwnames, parser, minpos, maxpos, minkw, buf) \
+// 90
+#define _ALIFARG_UNPACKKEYWORDS(args, nargs, kwargs, kwnames, parser, minpos, maxpos, minkw, buf) \
     (((minkw) == 0 and (kwargs) == nullptr and (kwnames) == nullptr and \
-      (minpos) <= (nargs) and (nargs) <= (maxpos) and (args) != nullptr) ? (args) : \
-     _alifArg_unpackKeywords((args), (nargs), (kwargs), (kwnames), (parser), \
-                           (minpos), (maxpos), (minkw), (buf)))
-
-
-
-AlifObject* const* _alifArg_unpackKeywordsWithVarArg(AlifObject* const*, AlifSizeT, AlifObject*,
-	AlifObject*, AlifArgParser*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifObject**); // 96
+      (minpos) <= (nargs) and (nargs) <= (maxpos) and (args) != nullptr) ? \
+      (args) : \
+     _alifArg_unpackKeywordsEx((args), (nargs), (kwargs), (kwnames), (parser), \
+                           (minpos), (maxpos), (minkw), 0, (buf)))
+#define _ALIFARG_UNPACKKEYWORDSWITHVARARG(args, nargs, kwargs, kwnames, parser, minpos, maxpos, minkw, buf) \
+    (((minkw) == 0 and (kwargs) == nullptr and (kwnames) == nullptr and \
+      (minpos) <= (nargs) and (args) != nullptr) ? (args) : \
+     _alifArg_unpackKeywordsEx((args), (nargs), (kwargs), (kwnames), (parser), \
+                           (minpos), (maxpos), (minkw), 1, (buf)))

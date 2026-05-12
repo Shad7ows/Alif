@@ -1077,7 +1077,7 @@ resume_frame:
 				AlifStackRef* values{};
 				AlifStackRef tup{};
 				values = &stackPointer[-oparg];
-				AlifObject* tupObj = alifTuple_fromStackRefSteal(values, oparg);
+				AlifObject* tupObj = _alifTuple_fromStackRefSteal(values, oparg);
 				if (tupObj == nullptr) {
 					stackPointer += -oparg;
 					goto error;
@@ -2937,7 +2937,7 @@ static AlifIntT initialize_locals(AlifThread* _thread, AlifFunctionObject* _func
 			u = (AlifObject*)&ALIF_SINGLETON(tupleEmpty);
 		}
 		else {
-			u = alifTuple_fromStackRefSteal(_args + n, _argCount - n);
+			u = _alifTuple_fromStackRefSteal(_args + n, _argCount - n);
 		}
 		if (u == nullptr) {
 			goto fail_post_positional;

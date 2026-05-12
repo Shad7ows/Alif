@@ -60,7 +60,7 @@ static AlifIntT _ioIncrementalNewlineDecoder___init__(AlifObject* self,
 	AlifIntT translate{};
 	AlifObject* errors = nullptr;
 
-	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 2, 3, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 2, 3, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}
@@ -134,7 +134,7 @@ static AlifIntT _ioTextIOWrapper___init__(AlifObject* self,
 	AlifIntT line_buffering = 0;
 	AlifIntT write_through = 0;
 
-	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 6, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 6, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}

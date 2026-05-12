@@ -36,7 +36,7 @@ static AlifObject* _io_BufferedIOBase_read1(AlifObject* _self,
 	AlifObject* argsbuf[1];
 	AlifIntT size = -1;
 
-	_args = ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser, 0, 1, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser, 0, 1, 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}
@@ -288,7 +288,7 @@ static AlifIntT _ioBufferedReader___init__(AlifObject* self, AlifObject* args, A
 	AlifObject* raw{};
 	AlifSizeT buffer_size = DEFAULT_BUFFER_SIZE;
 
-	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}
@@ -355,7 +355,7 @@ static AlifIntT _ioBufferedWriter___init__(AlifObject* _self,
 	AlifObject* raw{};
 	AlifSizeT buffer_size = DEFAULT_BUFFER_SIZE;
 
-	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(_args)->item, nargs, _kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(_args)->item, nargs, _kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}
@@ -450,7 +450,7 @@ static AlifIntT _ioBufferedRandom___init__(AlifObject *self,
 	AlifObject *raw;
 	AlifSizeT buffer_size = DEFAULT_BUFFER_SIZE;
 
-	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 2, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}

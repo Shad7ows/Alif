@@ -2,6 +2,7 @@
 
 
 #include "AlifCore_ModSupport.h"
+#include "AlifCore_Tuple.h"
 
 
 
@@ -47,7 +48,7 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 	AlifObject* fromlist = nullptr;
 	AlifIntT level = 0;
 
-	_args = ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 5, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 5, 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}
@@ -134,49 +135,53 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
-	AlifObject* argsbuf[5]{};
+	AlifObject* argsbuf[4]{};
+	AlifObject* const* fastargs{};
 	AlifSizeT noptargs = 0 + (_kwnames ? ALIFTUPLE_GET_SIZE(_kwnames) : 0) - 0;
-	AlifObject* __clinic_args = nullptr;
+	AlifObject* __clinicArgs = nullptr;
 	AlifObject* sep = ALIF_NONE;
 	AlifObject* end = ALIF_NONE;
 	AlifObject* file = ALIF_NONE;
 	AlifIntT flush = 0;
 
-	_args = _alifArg_unpackKeywordsWithVarArg(_args, _nargs, nullptr, _kwnames, &parser, 0, 0, 0, 0, argsbuf);
-	if (!_args) {
+	fastargs = _ALIFARG_UNPACKKEYWORDSWITHVARARG(_args, _nargs, nullptr, _kwnames, &parser, 0, 0, 0, 0, argsbuf);
+	if (!fastargs) {
 		goto exit;
 	}
-	__clinic_args = _args[0];
 	if (!noptargs) {
 		goto skip_optional_kwonly;
 	}
-	if (_args[1]) {
-		sep = _args[1];
+	if (fastargs[0]) {
+		sep = fastargs[0];
 		if (!--noptargs) {
 			goto skip_optional_kwonly;
 		}
 	}
-	if (_args[2]) {
-		end = _args[2];
+	if (fastargs[1]) {
+		end = fastargs[1];
 		if (!--noptargs) {
 			goto skip_optional_kwonly;
 		}
 	}
-	if (_args[3]) {
-		file = _args[3];
+	if (fastargs[2]) {
+		file = fastargs[2];
 		if (!--noptargs) {
 			goto skip_optional_kwonly;
 		}
 	}
-	flush = alifObject_isTrue(_args[4]);
+	flush = alifObject_isTrue(fastargs[3]);
 	if (flush < 0) {
 		goto exit;
 	}
 skip_optional_kwonly:
-	returnValue = builtin_printImpl(_module, __clinic_args, sep, end, file, flush);
+	__clinicArgs = _alifTuple_fromArray(_args, _nargs);
+	if (__clinicArgs == nullptr) {
+		goto exit;
+	}
+	returnValue = builtin_printImpl(_module, __clinicArgs, sep, end, file, flush);
 
 exit:
-	ALIF_XDECREF(__clinic_args);
+	ALIF_XDECREF(__clinicArgs);
 	return returnValue;
 }
 
@@ -250,7 +255,7 @@ static AlifObject* builtin_sum(AlifObject* _module, AlifObject *const* _args,
 	AlifObject* iterable{};
 	AlifObject* start{};
 
-	_args = ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 2, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 2, 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}

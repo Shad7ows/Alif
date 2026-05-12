@@ -63,7 +63,7 @@ static AlifIntT _ioFileIO___init__(AlifObject* self,
 	AlifIntT closefd = 1;
 	AlifObject* opener = ALIF_NONE;
 
-	fastargs = ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 4, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser, 1, 4, 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}
@@ -173,7 +173,7 @@ static AlifObject* _ioFileIO_readinto(FileIO* self, AlifTypeObject* cls,
 	AlifObject* argsbuf[1];
 	AlifBuffer buffer = { nullptr, nullptr };
 
-	args = ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 1, 1, 0, argsbuf);
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 1, 1, 0, argsbuf);
 	if (!args) {
 		goto exit;
 	}
@@ -230,7 +230,7 @@ static AlifObject* _ioFileIO_write(FileIO* self, AlifTypeObject* cls,
 	AlifObject* argsbuf[1];
 	AlifBuffer b = { nullptr, nullptr };
 
-	args = ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 1, 1, 0, argsbuf);
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 1, 1, 0, argsbuf);
 	if (!args) {
 		goto exit;
 	}

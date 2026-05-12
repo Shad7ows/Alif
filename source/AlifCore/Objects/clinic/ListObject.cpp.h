@@ -98,7 +98,7 @@ static AlifObject* list_sort(AlifListObject* _self, AlifObject* const* _args, Al
 	AlifObject* keyfunc = ALIF_NONE;
 	AlifIntT reverse = 0;
 
-	_args = _alifArg_unpackKeywords(_args, _nArgs, nullptr, _kwNames, &_parser, 0, 0, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nArgs, nullptr, _kwNames, &_parser, 0, 0, 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}

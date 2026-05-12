@@ -76,13 +76,16 @@ static double m_log(double _x) { // 641
 	}
 }
 
-static AlifObject* math_gcdImpl(AlifObject* _module, AlifSizeT _nArgs, AlifObject* const* _args) { // 730
-	if (_nArgs == 2 and ALIFLONG_CHECKEXACT(_args[0]) and ALIFLONG_CHECKEXACT(_args[1]))
+static AlifObject* math_gcdImpl(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _argsLength) { // 730
+	if (_argsLength == 2
+		and ALIFLONG_CHECKEXACT(_args[0])
+		and ALIFLONG_CHECKEXACT(_args[1]))
 	{
 		return alifLong_gcd(_args[0], _args[1]);
 	}
 
-	if (_nArgs == 0) {
+	if (_argsLength == 0) {
 		return alifLong_fromLong(0);
 	}
 
@@ -90,13 +93,13 @@ static AlifObject* math_gcdImpl(AlifObject* _module, AlifSizeT _nArgs, AlifObjec
 	if (res ==  nullptr) {
 		return nullptr;
 	}
-	if (_nArgs == 1) {
+	if (_argsLength == 1) {
 		ALIF_SETREF(res, alifNumber_absolute(res));
 		return res;
 	}
 
 	AlifObject* one = _alifLong_getOne();  // borrowed ref
-	for (AlifSizeT i = 1; i < _nArgs; i++) {
+	for (AlifSizeT i = 1; i < _argsLength; i++) {
 		AlifObject* x = alifNumber_index(_args[i]);
 		if (x == nullptr) {
 			ALIF_DECREF(res);
@@ -141,25 +144,25 @@ static AlifObject* long_lcm(AlifObject* _a, AlifObject* _b) { // 774
 	return ab;
 }
 
-static AlifObject* math_lcmImpl(AlifObject* _module,
-	AlifSizeT _nArgs, AlifObject* const* _args) { // 802
+static AlifObject* math_lcmImpl(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _argsLength) { // 802
 	AlifObject* res{}, * x{};
 	AlifSizeT i{};
 
-	if (_nArgs == 0) {
+	if (_argsLength == 0) {
 		return alifLong_fromLong(1);
 	}
 	res = alifNumber_index(_args[0]);
 	if (res == nullptr) {
 		return nullptr;
 	}
-	if (_nArgs == 1) {
+	if (_argsLength == 1) {
 		ALIF_SETREF(res, alifNumber_absolute(res));
 		return res;
 	}
 
 	AlifObject* zero = _alifLong_getZero();  // borrowed ref
-	for (i = 1; i < _nArgs; i++) {
+	for (i = 1; i < _argsLength; i++) {
 		x = alifNumber_index(_args[i]);
 		if (x == nullptr) {
 			ALIF_DECREF(res);
