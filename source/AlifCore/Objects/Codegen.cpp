@@ -50,17 +50,20 @@
 #define SUCCESS 0
 #define ERROR -1
 
-#define RETURN_IF_ERROR(_x)  \
-    if ((_x) == -1) {        \
-        return ERROR;       \
-    }
+#define RETURN_IF_ERROR(_x)    \
+    do {                       \
+		if ((_x) == -1) {      \
+			return ERROR;      \
+		}                      \
+    } while (0)
 
-#define RETURN_IF_ERROR_IN_SCOPE(_c, _call) { \
-    if (_call < 0) { \
-        _alifCompiler_exitScope(_c); \
-        return ERROR; \
-    } \
-}
+#define RETURN_IF_ERROR_IN_SCOPE(_c, _call)  \
+    do {                                     \
+		if (_call < 0) {                     \
+			_alifCompiler_exitScope(_c);     \
+			return ERROR;                    \
+		}                                    \
+    } while (0)
 
 class AlifCompiler;
 
@@ -261,7 +264,7 @@ static AlifIntT codegen_addOpI(InstrSequence* seq,
     RETURN_IF_ERROR(codegen_addOpI(INSTR_SEQUENCE(_c), _op, _o, _loc))
 
 #define ADDOP_I_IN_SCOPE(_c, _loc, _op, _o) \
-    RETURN_IF_ERROR_IN_SCOPE(_c, codegen_addOpI(INSTR_SEQUENCE(_c), _op, _o, _loc));
+    RETURN_IF_ERROR_IN_SCOPE(_c, codegen_addOpI(INSTR_SEQUENCE(_c), _op, _o, _loc))
 
 static AlifIntT codegen_addOpNoArg(InstrSequence* _seq,
 	AlifIntT _opcode, Location _loc) {
@@ -303,17 +306,18 @@ static AlifIntT codegen_addOpLoadConst(AlifCompiler* _c,
     RETURN_IF_ERROR_IN_SCOPE((_c), codegen_addOpLoadConst((_c), (_loc), (_o)))
 
 
-#define ADDOP_LOAD_CONST_NEW(_c, _loc, _o) { \
-    AlifObject *__new_const = _o; \
-    if (__new_const == nullptr) { \
-        return ERROR; \
-    } \
-    if (codegen_addOpLoadConst(_c, _loc, __new_const) < 0) { \
-        ALIF_DECREF(__new_const); \
-        return ERROR; \
-    } \
-    ALIF_DECREF(__new_const); \
-}
+#define ADDOP_LOAD_CONST_NEW(_c, _loc, _o)                          \
+    do {                                                            \
+		AlifObject* __newConst = _o;                                \
+		if (__newConst == nullptr) {                                \
+			return ERROR;                                           \
+		}                                                           \
+		if (codegen_addOpLoadConst(_c, _loc, __newConst) < 0) {     \
+			ALIF_DECREF(__newConst);                                \
+			return ERROR;                                           \
+		}                                                           \
+		ALIF_DECREF(__newConst);                                    \
+    } while (0)
 
 static AlifIntT codegen_addOpO(AlifCompiler* _c, Location _loc,
 	AlifIntT _opcode, AlifObject* _dict, AlifObject* _o) {
@@ -325,18 +329,20 @@ static AlifIntT codegen_addOpO(AlifCompiler* _c, Location _loc,
 
 
 
-#define ADDOP_N(_c, _loc, _op, _o, _type) { \
-    AlifIntT ret = codegen_addOpO(_c, _loc, _op, METADATA(_c)->_type, _o); \
-    ALIF_DECREF(_o); \
-    RETURN_IF_ERROR(ret); \
-}
+#define ADDOP_N(_c, _loc, _op, _o, _type)                                       \
+    do {                                                                        \
+		AlifIntT ret = codegen_addOpO(_c, _loc, _op, METADATA(_c)->_type, _o);  \
+		ALIF_DECREF(_o);                                                        \
+		RETURN_IF_ERROR(ret);                                                   \
+    } while (0)
 
 
-#define ADDOP_N_IN_SCOPE(_c, _loc, _op, _o, _type) { \
-    AlifIntT ret = codegen_addOpO(_c, _loc, _op, METADATA(_c)->_type, _o); \
-    ALIF_DECREF(_o); \
-    RETURN_IF_ERROR_IN_SCOPE(_c, ret); \
-}
+#define ADDOP_N_IN_SCOPE(_c, _loc, _op, _o, _type)                              \
+    do {                                                                        \
+		AlifIntT ret = codegen_addOpO(_c, _loc, _op, METADATA(_c)->_type, _o);  \
+		ALIF_DECREF(_o);                                                        \
+		RETURN_IF_ERROR_IN_SCOPE(_c, ret);                                      \
+    } while (0)
 
 
 #define LOAD_METHOD -1
@@ -431,14 +437,14 @@ static AlifIntT codegen_addOpJ(InstrSequence* _seq, Location _loc,
 #define VISIT_IN_SCOPE(_c, _type, _v) \
     RETURN_IF_ERROR_IN_SCOPE(_c, codegen_visit ## _type(_c, _v))
 
-#define VISIT_SEQ(_c, _type, _sequ) { \
-    AlifIntT i_{}; \
-    ASDL ## _type ## Seq *_seq = (_sequ); /* avoid variable capture */ \
-    for (i_ = 0; i_ < ASDL_SEQ_LEN(_seq); i_++) { \
-        _type ## Ty elt = (_type ## Ty)ASDL_SEQ_GET(_seq, i_); \
-        RETURN_IF_ERROR(codegen_visit ## _type(_c, elt)); \
-    } \
-}
+#define VISIT_SEQ(_c, _type, _sequ)                                             \
+    do {                                                                        \
+		ASDL ## _type ## Seq *_seq = (_sequ); /* avoid variable capture */      \
+		for (AlifIntT i_ = 0; i_ < ASDL_SEQ_LEN(_seq); i_++) {                  \
+			_type ## Ty elt = (_type ## Ty)ASDL_SEQ_GET(_seq, i_);              \
+			RETURN_IF_ERROR(codegen_visit ## _type(_c, elt));                   \
+		}                                                                       \
+    } while (0)
 
 
 
@@ -2860,8 +2866,8 @@ static AlifIntT codegen_visitStmt(AlifCompiler* _c, StmtTy _s) {
 	case StmtK_::ReturnK:
 		return codegen_return(_c, _s);
 	case StmtK_::DeleteK:
-		VISIT_SEQ(_c, Expr, _s->V.delete_.targets)
-			break;
+		VISIT_SEQ(_c, Expr, _s->V.delete_.targets);
+		break;
 	case StmtK_::AssignK:
 	{
 		AlifSizeT n = ASDL_SEQ_LEN(_s->V.assign.targets);

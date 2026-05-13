@@ -428,8 +428,9 @@ static AlifObject* builtin_max(AlifObject* _self, AlifObject* const* _args,
 
 
 
-static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
-	AlifObject* _sep, AlifObject* _end, AlifObject* _file, AlifIntT _flush) { // 2058
+static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _argsLength, AlifObject* _sep, AlifObject* _end,
+	AlifObject* _file, AlifIntT _flush) { // 2058
 	AlifIntT i{}, err{};
 
 	if (_file == ALIF_NONE) {
@@ -464,7 +465,7 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 		return nullptr;
 	}
 
-	for (i = 0; i < ALIFTUPLE_GET_SIZE(_args); i++) {
+	for (i = 0; i < _argsLength; i++) {
 		if (i > 0) {
 			if (_sep == nullptr) {
 				err = alifFile_writeString(" ", _file);
@@ -476,7 +477,7 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* _args,
 				return nullptr;
 			}
 		}
-		err = alifFile_writeObject(ALIFTUPLE_GET_ITEM(_args, i), _file, ALIF_PRINT_RAW);
+		err = alifFile_writeObject(_args[i], _file, ALIF_PRINT_RAW);
 		if (err) {
 			return nullptr;
 		}

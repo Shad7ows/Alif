@@ -30,10 +30,12 @@
 #define SUCCESS 0
 #define ERROR -1
 
-#define RETURN_IF_ERROR(_x)  \
-    if ((_x) == -1) {        \
-        return ERROR;       \
-    }
+#define RETURN_IF_ERROR(_x)     \
+    do {                        \
+		if ((_x) == -1) {       \
+			return ERROR;       \
+		}                       \
+	} while (0)
 
 typedef AlifSourceLocation Location;
 typedef AlifJumpTargetLabel JumpTargetLabel;

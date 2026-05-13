@@ -2,7 +2,6 @@
 
 
 #include "AlifCore_ModSupport.h"
-#include "AlifCore_Tuple.h"
 
 
 
@@ -107,8 +106,8 @@ exit:
 
 
 
-static AlifObject* builtin_printImpl(AlifObject*, AlifObject*,
-	AlifObject*, AlifObject*, AlifObject*, AlifIntT); // 904
+static AlifObject* builtin_printImpl(AlifObject*, AlifObject* const*,
+	AlifSizeT, AlifObject*, AlifObject*, AlifObject*, AlifIntT); // 904
 
 static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 	AlifSizeT _nargs, AlifObject* _kwnames) { // 907
@@ -138,7 +137,8 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 	AlifObject* argsbuf[4]{};
 	AlifObject* const* fastargs{};
 	AlifSizeT noptargs = 0 + (_kwnames ? ALIFTUPLE_GET_SIZE(_kwnames) : 0) - 0;
-	AlifObject* __clinicArgs = nullptr;
+	AlifObject* const* __clinicArgs{};
+	AlifSizeT argsLength{};
 	AlifObject* sep = ALIF_NONE;
 	AlifObject* end = ALIF_NONE;
 	AlifObject* file = ALIF_NONE;
@@ -174,14 +174,11 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 		goto exit;
 	}
 skip_optional_kwonly:
-	__clinicArgs = _alifTuple_fromArray(_args, _nargs);
-	if (__clinicArgs == nullptr) {
-		goto exit;
-	}
-	returnValue = builtin_printImpl(_module, __clinicArgs, sep, end, file, flush);
+	__clinicArgs = _args;
+	argsLength = _nargs;
+	returnValue = builtin_printImpl(_module, __clinicArgs, argsLength, sep, end, file, flush);
 
 exit:
-	ALIF_XDECREF(__clinicArgs);
 	return returnValue;
 }
 
