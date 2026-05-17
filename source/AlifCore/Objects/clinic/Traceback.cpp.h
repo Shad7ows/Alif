@@ -44,7 +44,7 @@ static AlifObject* tb_new(AlifTypeObject* type, AlifObject* args, AlifObject* kw
 	AlifIntT tb_lineno{};
 
 	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs,
-		kwargs, nullptr, &parser, 4, 4, 0, argsbuf);
+		kwargs, nullptr, &parser, /*minpos*/ 4, /*maxpos*/ 4, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}

@@ -47,7 +47,8 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 	AlifObject* fromlist = nullptr;
 	AlifIntT level = 0;
 
-	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 5, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 5, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}
@@ -128,7 +129,7 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 
 
 	static const char* const keywords[] = { "الفاصل", "النهاية", "File", "مباشر", nullptr };
-	static AlifArgParser parser = {
+	static AlifArgParser _parser = {
 		.keywords = keywords,
 		.fname = "اطبع",
 		.kwTuple = KWTUPLE,
@@ -144,7 +145,8 @@ static AlifObject* builtin_print(AlifObject* _module, AlifObject* const* _args,
 	AlifObject* file = ALIF_NONE;
 	AlifIntT flush = 0;
 
-	fastargs = _ALIFARG_UNPACKKEYWORDSWITHVARARG(_args, _nargs, nullptr, _kwnames, &parser, 0, 0, 0, argsbuf);
+	fastargs = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser,
+		/*minpos*/ 0, /*maxpos*/ 0, /*minkw*/ 0, /*varpos*/ 1, argsbuf);
 	if (!fastargs) {
 		goto exit;
 	}
@@ -252,7 +254,8 @@ static AlifObject* builtin_sum(AlifObject* _module, AlifObject *const* _args,
 	AlifObject* iterable{};
 	AlifObject* start{};
 
-	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser, 1, 2, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwNames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 2, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}

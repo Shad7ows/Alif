@@ -1731,7 +1731,7 @@ static AlifIntT vGetArgsKeywordsFast_impl(AlifObject* const* args, AlifSizeT nar
 
 
 
-AlifObject* const* _alifArg_unpackKeywordsEx(AlifObject* const* args, AlifSizeT nargs,
+AlifObject* const* _alifArg_unpackKeywords(AlifObject* const* args, AlifSizeT nargs,
 	AlifObject* kwargs, AlifObject* kwnames, AlifArgParser* parser,
 	AlifIntT minpos, AlifIntT maxpos, AlifIntT minkw, AlifIntT varpos, AlifObject** buf) { // 2313
 	AlifObject* kwtuple{};

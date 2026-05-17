@@ -146,7 +146,8 @@ static AlifObject* unicode_replace(AlifObject* self, AlifObject* const* args,
 	AlifObject* new_{};
 	AlifSizeT count = -1;
 
-	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 2, 3, 0, argsbuf);
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser,
+		/*minpos*/ 2, /*maxpos*/ 3, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!args) {
 		goto exit;
 	}
@@ -222,7 +223,8 @@ static AlifObject* uStr_split(AlifObject* _self, AlifObject* const* _args,
 	AlifObject* sep = ALIF_NONE;
 	AlifSizeT maxsplit = -1;
 
-	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser, 0, 2, 0, argsbuf);
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser,
+		/*minpos*/ 0, /*maxpos*/ 2, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!_args) {
 		goto exit;
 	}
@@ -304,7 +306,8 @@ static AlifObject* uStr_rsplit(AlifObject* self, AlifObject *const* args,
 	AlifObject* sep = ALIF_NONE;
 	AlifSizeT maxsplit = -1;
 
-	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 0, 2, 0, argsbuf);
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser,
+		/*minpos*/ 0, /*maxpos*/ 2, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!args) {
 		goto exit;
 	}

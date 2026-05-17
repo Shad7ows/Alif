@@ -48,7 +48,8 @@ static AlifObject* _io_open(AlifObject* module, AlifObject* const* args,
 	AlifIntT closefd = 1;
 	AlifObject* opener = ALIF_NONE;
 
-	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser, 1, 8, 0, argsbuf);
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 8, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 	if (!args) {
 		goto exit;
 	}
