@@ -2505,6 +2505,37 @@ resume_frame:
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(BINARY_OP_MULTIPLY_INT) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 2;
+				//INSTRUCTION_STATS(BINARY_OP_MULTIPLY_INT);
+				AlifStackRef left{};
+				AlifStackRef right{};
+				AlifStackRef res{};
+				// _GUARD_BOTH_INT
+				{
+					right = stackPointer[-1];
+					left = stackPointer[-2];
+					AlifObject *leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject *rightObj = alifStackRef_asAlifObjectBorrow(right);
+					DEOPT_IF(!ALIFLONG_CHECKEXACT(leftObj), BINARY_OP);
+					DEOPT_IF(!ALIFLONG_CHECKEXACT(rightObj), BINARY_OP);
+				}
+				/* Skip 1 cache entry */
+				// _BINARY_OP_MULTIPLY_INT
+				{
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					AlifObject* resObj = _alifLong_multiply((AlifLongObject*)leftObj, (AlifLongObject*)rightObj);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(right, (Destructor)alifMem_objFree);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(left, (Destructor)alifMem_objFree);
+					if (resObj == nullptr) goto pop_2_error;
+					res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
+				}
+				stackPointer[-2] = res;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(LOAD_CONST_IMMORTAL) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;

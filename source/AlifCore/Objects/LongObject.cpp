@@ -3117,6 +3117,10 @@ static AlifLongObject* long_mul(AlifLongObject* _a, AlifLongObject* _b) { // 425
 	return z_;
 }
 
+AlifObject* _alifLong_multiply(AlifLongObject* _a, AlifLongObject* _b) { // 4272
+	return (AlifObject*)long_mul(_a, _b);
+}
+
 static AlifObject* long_mulMethod(AlifObject* _a, AlifObject* _b) { // 4275
 	CHECK_BINOP(_a, _b);
 	return (AlifObject*)long_mul((AlifLongObject*)_a, (AlifLongObject*)_b);
