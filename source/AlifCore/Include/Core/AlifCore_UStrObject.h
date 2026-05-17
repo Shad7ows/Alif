@@ -10,7 +10,7 @@
 extern AlifIntT _alifUStr_isXIDStart(AlifUCS4); // 18
 extern AlifIntT _alifUStr_isXIDContinue(AlifUCS4); // 19
 
-
+void _alifUStr_exactDealloc(AlifObject*); // 34
 
 AlifObject* _alifUStr_copy(AlifObject*); // 40
 

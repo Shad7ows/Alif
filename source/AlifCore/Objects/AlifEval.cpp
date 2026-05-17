@@ -243,6 +243,13 @@ void _alifObjectArray_free(AlifObject** _array, AlifObject** _scratch) { // 713
 
 #define ALIF_EVAL_CPP_STACK_UNITS 2 // 724
 
+//  هذه يجب أن تكون في ملف منفصل مع الأوامر
+#ifdef TIER_TWO
+#error "This file is for Tier 1 only"
+#endif
+#define TIER_ONE 1
+
+
 
 AlifObject* ALIF_HOT_FUNCTION alifEval_evalFrameDefault(AlifThread* _thread,
 	AlifInterpreterFrame* _frame, AlifIntT _throwflag) { // 726
@@ -406,6 +413,51 @@ resume_frame:
 				}
 				stackPointer[-2] = res;
 				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(BINARY_OP_INPLACE_ADD_UNICODE) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 2;
+				//INSTRUCTION_STATS(BINARY_OP_INPLACE_ADD_UNICODE);
+				AlifStackRef left{};
+				AlifStackRef right{};
+				// _GUARD_BOTH_UNICODE
+				{
+					right = stackPointer[-1];
+					left = stackPointer[-2];
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					DEOPT_IF(!ALIFUSTR_CHECKEXACT(leftObj), BINARY_OP);
+					DEOPT_IF(!ALIFUSTR_CHECKEXACT(rightObj), BINARY_OP);
+				}
+				/* Skip 1 cache entry */
+				// _BINARY_OP_INPLACE_ADD_UNICODE
+				{
+				#ifndef NDEBUG
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+				#endif
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					AlifIntT nextOpArg;
+				#if TIER_ONE
+					nextOpArg = nextInstr->op.arg;
+				#else
+					next_oparg = CURRENT_OPERAND();
+				#endif
+					AlifStackRef* targetLocal = &GETLOCAL(nextOpArg);
+					DEOPT_IF(!ALIFSTACKREF_IS(*targetLocal, left), BINARY_OP);
+					ALIFSTACKREF_CLOSE(left);
+					AlifObject* temp = alifStackRef_asAlifObjectBorrow(*targetLocal);
+					alifUStr_append(&temp, rightObj);
+					*targetLocal = ALIFSTACKREF_FROMALIFOBJECTSTEAL(temp);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(right, _alifUStr_exactDealloc);
+					if (ALIFSTACKREF_ISNULL(*targetLocal)) goto pop_2_error;
+				#if TIER_ONE
+					// The STORE_FAST is already done. This is done here in tier one,
+					// and during trace projection in tier two:
+					SKIP_OVER(1);
+				#endif
+				}
+				stackPointer += -2;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
 			TARGET(CHECK_EG_MATCH) {

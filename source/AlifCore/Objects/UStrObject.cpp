@@ -969,7 +969,7 @@ static AlifIntT find_maxCharSurrogates(const wchar_t* _begin, const wchar_t* _en
 	return 0;
 }
 
-static void ustr_dealloc(AlifObject* _uStr) { // 1633
+static void uStr_dealloc(AlifObject* _uStr) { // 1633
 	if (ALIFUSTR_STATE(_uStr).staticallyAllocated) {
 		alif_setImmortal(_uStr);
 		return;
@@ -7088,6 +7088,13 @@ static AlifMappingMethods _uStrAsMapping_ = { // 14137
 	(BinaryFunc)uStr_subScript,
 };
 
+
+
+void _alifUStr_exactDealloc(AlifObject* _op) { // 15256
+	uStr_dealloc(_op);
+}
+
+
 static AlifObject* uStr_iter(AlifObject*); // 15275
 
 AlifTypeObject _alifUStrType_ = { // 15235
@@ -7095,7 +7102,7 @@ AlifTypeObject _alifUStrType_ = { // 15235
 	.name = "نص",
 	.basicSize = sizeof(AlifUStrObject),
 	.itemSize = 0,
-	.dealloc = ustr_dealloc,
+	.dealloc = uStr_dealloc,
 	.repr = uStr_repr,
 	.asNumber = &_uStrAsNumber_,
 	.asSequence = &_uStrAsSequence_,
