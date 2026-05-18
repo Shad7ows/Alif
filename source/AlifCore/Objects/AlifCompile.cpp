@@ -49,7 +49,7 @@ typedef AlifCompileFBlockType FBlockType;
 
 class CompilerUnit {
 public:
-	SymTableEntry* ste{};
+	AlifSTEntryObject* ste{};
 
 	AlifIntT scopeType{};
 
@@ -832,7 +832,7 @@ AlifIntT _alifCompiler_getRefType(AlifCompiler* _c, AlifObject* _name) {
 			alifUStr_equalToASCIIString(_name, "__classDict__"))) {
 		return CELL;
 	}
-	SymTableEntry* ste = _c->u_->ste;
+	AlifSTEntryObject* ste = _c->u_->ste;
 	AlifIntT scope = alifST_getScope(ste, _name);
 	if (scope == 0) {
 		alifErr_format(_alifExcSystemError_,
@@ -975,7 +975,7 @@ AlifIntT _alifCompiler_resolveNameOp(AlifCompiler* _c, AlifObject* _mangled,
 
 
 AlifIntT _alifCompiler_tweakInlinedComprehensionScopes(AlifCompiler* _c, Location _loc,
-	SymTableEntry* _entry, AlifCompilerInlinedComprehensionState* _state) {
+	AlifSTEntryObject* _entry, AlifCompilerInlinedComprehensionState* _state) {
 	AlifIntT in_class_block = (_c->u_->ste->type == BlockType_::Class_Block)
 		and !_c->u_->inInlinedComp;
 	_c->u_->inInlinedComp++;
@@ -1178,7 +1178,7 @@ AlifSymTable* _alifCompiler_symTable(AlifCompiler* _c) {
 
 
 
-SymTableEntry* _alifCompiler_symTableEntry(AlifCompiler* _c) {
+AlifSTEntryObject* _alifCompiler_symTableEntry(AlifCompiler* _c) {
 	return _c->u_->ste;
 }
 
@@ -1283,7 +1283,7 @@ static AlifObject* constsDict_keysInorder(AlifObject* _dict) {
 
 
 static AlifIntT compute_codeFlags(AlifCompiler* _c) {
-	SymTableEntry* ste = _c->u_->ste;
+	AlifSTEntryObject* ste = _c->u_->ste;
 	AlifIntT flags = 0;
 	if (alifST_isFunctionLike(ste)) {
 		flags |= CO_NEWLOCALS | CO_OPTIMIZED;

@@ -668,9 +668,6 @@ static AlifIntT codegen_setupAnnotationsScope(AlifCompiler* _c, Location _loc,
 		codegen_enterScope(_c, _name, ScopeType_::Compiler_Scope_Annotations,
 			_key, _loc.lineNo, nullptr, &umd));
 
-	// Insert None into consts to prevent an annotation
-	// appearing to be a docstring
-	_alifCompiler_addConst(_c, ALIF_NONE);
 	// if .format != 1: raise NotImplementedError
 	ALIF_DECLARE_STR(format, ".format");
 	ADDOP_I(_c, _loc, LOAD_FAST, 0);
@@ -761,7 +758,8 @@ AlifIntT _alifCodegen_expression(AlifCompiler* _c, ExprTy _e) {
 
 AlifIntT _alifCodegen_body(AlifCompiler* _c,
 	Location _loc, ASDLStmtSeq* _stmts, bool _isInteractive) {
-	//if ((FUTURE_FEATURES(_c) & CO_FUTURE_ANNOTATIONS) and SYMTABLE_ENTRY(_c)->annotationsUsed) {
+	AlifSTEntryObject* ste = SYMTABLE_ENTRY(_c);
+	//if ((FUTURE_FEATURES(_c) & CO_FUTURE_ANNOTATIONS) and ste->annotationsUsed) 
 	//	ADDOP(_c, _loc, SETUP_ANNOTATIONS);
 	//}
 	if (!ASDL_SEQ_LEN(_stmts)) {
@@ -769,8 +767,8 @@ AlifIntT _alifCodegen_body(AlifCompiler* _c,
 	}
 	AlifSizeT firstInstr = 0;
 	//if (!_isInteractive) {
-	//	AlifObject* docString = alifAST_getDocString(_stmts);
-	//	if (docString) {
+	//  if (ste->hasDocstring) {
+	//		AlifObject* docString = alifAST_getDocString(_stmts);
 	//		firstInstr = 1;
 	//		/* set docstring */
 	//		AlifObject* cleanDoc = alifCompile_cleanDoc(docString);
@@ -1235,9 +1233,10 @@ static AlifIntT codegen_functionBody(AlifCompiler* _c, StmtTy _s,
 	RETURN_IF_ERROR(
 		codegen_enterScope(_c, name, scopeType, (void*)_s, _firstLineNo, nullptr, &umd));
 
+	AlifSTEntryObject* ste = SYMTABLE_ENTRY(_c);
 	AlifSizeT firstInstr = 0;
-	AlifObject* docstring = alifAST_getDocString(body);
-	if (docstring) {
+	if (ste->hasDocstring) {
+		AlifObject* docstring = alifAST_getDocString(body);
 		firstInstr = 1;
 		/* add docstring */
 		//docstring = _alifCompile_cleanDoc(docstring);
@@ -1252,7 +1251,6 @@ static AlifIntT codegen_functionBody(AlifCompiler* _c, StmtTy _s,
 
 	NEW_JUMP_TARGET_LABEL(_c, start);
 	USE_LABEL(_c, start);
-	SymTableEntry* ste = SYMTABLE_ENTRY(_c);
 	bool addStopIterationHandler = ste->coroutine or ste->generator;
 	if (addStopIterationHandler) {
 		RETURN_IF_ERROR(
@@ -1596,8 +1594,6 @@ static AlifIntT codegen_typeAliasBody(AlifCompiler* _c, StmtTy _s) {
 	RETURN_IF_ERROR(
 		codegen_setupAnnotationsScope(_c, LOC(_s), _s, name));
 
-
-	RETURN_IF_ERROR(_alifCompiler_addConst(_c, ALIF_NONE));
 	VISIT_IN_SCOPE(_c, Expr, _s->V.typeAlias.val);
 	ADDOP_IN_SCOPE(_c, loc, RETURN_VALUE);
 	AlifCodeObject *co = _alifCompiler_optimizeAndAssemble(_c, 0);
@@ -1892,8 +1888,6 @@ static AlifIntT codegen_lambda(AlifCompiler* _c, ExprTy _e) {
 		codegen_enterScope(_c, &ALIF_STR(AnonLambda), ScopeType_::Compiler_Scope_Lambda,
 			(void *)_e, _e->lineNo, nullptr, &umd));
 
-	RETURN_IF_ERROR(_alifCompiler_addConst(_c, ALIF_NONE));
-
 	VISIT_IN_SCOPE(_c, Expr, _e->V.lambda.body);
 	if (SYMTABLE_ENTRY(_c)->generator) {
 		co = _alifCompiler_optimizeAndAssemble(_c, 0);
@@ -2070,7 +2064,7 @@ static AlifIntT codegen_return(AlifCompiler* _c, StmtTy _s) {
 	AlifIntT preserve_tos = ((_s->V.return_.val != nullptr) and
 		(_s->V.return_.val->type != ExprK_::ConstantK));
 
-	SymTableEntry* ste = SYMTABLE_ENTRY(_c);
+	AlifSTEntryObject* ste = SYMTABLE_ENTRY(_c);
 	if (!alifST_isFunctionLike(ste)) {
 		//return _alifCompiler_error(_c, loc, "'return' outside function");
 	}
@@ -3022,7 +3016,7 @@ static AlifIntT addop_binary(AlifCompiler* _c, Location _loc,
 
 
 static AlifIntT codegen_addOpYield(AlifCompiler* _c, Location _loc) {
-	SymTableEntry* ste = SYMTABLE_ENTRY(_c);
+	AlifSTEntryObject* ste = SYMTABLE_ENTRY(_c);
 	if (ste->generator and ste->coroutine) {
 		ADDOP_I(_c, _loc, CALL_INTRINSIC_1, INTRINSIC_ASYNC_GEN_WRAP);
 	}
@@ -4352,10 +4346,10 @@ static AlifIntT codegen_asyncComprehensionGenerator(AlifCompiler* _c, Location _
 
 
 static AlifIntT codegen_pushInlinedComprehensionLocals(AlifCompiler* _c, Location _loc,
-	SymTableEntry* _comp, AlifCompilerInlinedComprehensionState* _state) {
+	AlifSTEntryObject* _comp, AlifCompilerInlinedComprehensionState* _state) {
 	AlifIntT inClassBlock = (SYMTABLE_ENTRY(_c)->type == BlockType_::Class_Block)
 		and !_alifCompiler_isInInlinedComp(_c);
-	SymTableEntry* outer = SYMTABLE_ENTRY(_c);
+	AlifSTEntryObject* outer = SYMTABLE_ENTRY(_c);
 	AlifObject* k{}, * v{};
 	AlifSizeT pos = 0;
 	while (alifDict_next(_comp->symbols, &pos, &k, &v)) {
@@ -4420,7 +4414,7 @@ static AlifIntT codegen_pushInlinedComprehensionLocals(AlifCompiler* _c, Locatio
 
 
 static AlifIntT pushInlined_comprehensionState(AlifCompiler* _c, Location _loc,
-	SymTableEntry* _comp, AlifCompilerInlinedComprehensionState* _state) {
+	AlifSTEntryObject* _comp, AlifCompilerInlinedComprehensionState* _state) {
 	RETURN_IF_ERROR(
 		_alifCompiler_tweakInlinedComprehensionScopes(_c, _loc, _comp, _state));
 	RETURN_IF_ERROR(
@@ -4511,7 +4505,7 @@ static AlifIntT codegen_comprehension(AlifCompiler* _c, ExprTy _e, AlifIntT _typ
 	AlifCompilerInlinedComprehensionState inline_state =
 	{ nullptr, nullptr, nullptr, NO_LABEL };
 	ComprehensionTy outermost{};
-	SymTableEntry* entry = _alifSymtable_lookup(SYMTABLE(_c), (void*)_e);
+	AlifSTEntryObject* entry = _alifSymtable_lookup(SYMTABLE(_c), (void*)_e);
 	if (entry == nullptr) {
 		goto error;
 	}
