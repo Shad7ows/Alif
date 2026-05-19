@@ -4018,7 +4018,9 @@ static AlifIntT init_staticType(AlifInterpreter* _interp, AlifTypeObject* _self,
 		_self->flags |= ALIF_TPFLAGS_STATIC_BUILTIN;
 		_self->flags |= ALIF_TPFLAGS_IMMUTABLETYPE;
 
-		alifType_setVersion(_self, NEXT_GLOBAL_VERSION_TAG++);
+		if (_self->versionTag == 0) {
+			alifType_setVersion(_self, NEXT_GLOBAL_VERSION_TAG++);
+		}
 	}
 
 	managedStatic_typeStateInit(_interp, _self, _isBuiltin, _initial);

@@ -356,6 +356,7 @@ AlifTypeObject _alifBytesType_ = { // 3028
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
 		ALIF_TPFLAGS_BYTES_SUBCLASS | _ALIF_TPFLAGS_MATCH_SELF,
 	.free = alifMem_objFree,
+	.versionTag = _ALIF_TYPE_VERSION_BYTES,
 };
 
 void alifBytes_concat(AlifObject** _pv, AlifObject* _w) { // 3072

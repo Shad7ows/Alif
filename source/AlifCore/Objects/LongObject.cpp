@@ -4473,6 +4473,7 @@ AlifTypeObject _alifLongType_ = { // 6597
 	.methods = _longMethods_,
 
 	.free = alifMem_objFree,
+	.versionTag = _ALIF_TYPE_VERSION_INT,
 	.vectorCall = long_vectorCall,
 };
 

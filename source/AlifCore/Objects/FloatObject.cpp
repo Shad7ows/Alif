@@ -756,6 +756,7 @@ AlifTypeObject _alifFloatType_ = { // 1847
 		_ALIF_TPFLAGS_MATCH_SELF,
 	.richCompare = float_richCompare,
 	.methods = _floatMethods_,
+	.versionTag = _ALIF_TYPE_VERSION_FLOAT,
 	.vectorCall = (VectorCallFunc)float_vectorCall,
 };
 

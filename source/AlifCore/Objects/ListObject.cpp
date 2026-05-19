@@ -2281,5 +2281,6 @@ AlifTypeObject _alifListType_ = { // 3737
 	.methods = _listMethods_,
 	.alloc = alifType_genericAlloc,
 	.free = alifObject_gcDel,
+	.versionTag = _ALIF_TYPE_VERSION_LIST,
 	.vectorCall = list_vectorCall,
 };

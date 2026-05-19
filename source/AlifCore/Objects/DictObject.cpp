@@ -2572,6 +2572,7 @@ AlifTypeObject _alifDictType_ = { // 4760
 	.alloc = alifType_allocNoTrack,
 	//.new_ = dict_new,
 	.free = alifObject_gcDel,
+	.versionTag = _ALIF_TYPE_VERSION_DICT,
 };
 
 

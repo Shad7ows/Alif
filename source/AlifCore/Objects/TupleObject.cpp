@@ -409,6 +409,7 @@ AlifTypeObject _alifTupleType_ = { // 865
 		_ALIF_TPFLAGS_MATCH_SELF | ALIF_TPFLAGS_SEQUENCE,
 	.iter = tuple_iter,
 	.free = alifObject_gcDel,
+	.versionTag = _ALIF_TYPE_VERSION_TUPLE,
 	.vectorCall = tuple_vectorCall,
 };
 

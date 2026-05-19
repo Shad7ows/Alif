@@ -846,6 +846,7 @@ AlifTypeObject _alifSetType_ = { // 2473
 	.alloc = alifType_genericAlloc,
 	.new_ = set_new,
 	.free = alifObject_gcDel,
+	.versionTag = _ALIF_TYPE_VERSION_SET,
 	.vectorCall = set_vectorCall,
 };
 

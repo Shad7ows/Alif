@@ -166,4 +166,5 @@ AlifTypeObject _alifByteArrayType_ = { // 2389
 	.itemSize = 0,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
 		_ALIF_TPFLAGS_MATCH_SELF,
+	.versionTag = _ALIF_TYPE_VERSION_BYTEARRAY,
 };

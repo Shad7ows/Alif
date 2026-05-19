@@ -92,4 +92,5 @@ AlifTypeObject _alifComplexType_ = { // 1211
 	.alloc = alifType_genericAlloc,
 
 	.free = alifMem_objFree,
+	.versionTag = _ALIF_TYPE_VERSION_COMPLEX,
 };
