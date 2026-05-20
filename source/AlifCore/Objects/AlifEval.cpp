@@ -441,7 +441,7 @@ resume_frame:
 				#if TIER_ONE
 					nextOpArg = nextInstr->op.arg;
 				#else
-					next_oparg = CURRENT_OPERAND();
+					nextOpArg = CURRENT_OPERAND0();
 				#endif
 					AlifStackRef* targetLocal = &GETLOCAL(nextOpArg);
 					DEOPT_IF(!ALIFSTACKREF_IS(*targetLocal, left), BINARY_OP);
