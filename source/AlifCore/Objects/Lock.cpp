@@ -175,7 +175,7 @@ void alifRawMutex_lockSlow(AlifRawMutex* m) { // 186
 			continue;
 		}
 
-		alifSemaphore_wait(&waiter.sema, -1, /*detach=*/0);
+		_alifSemaphore_wait(&waiter.sema, -1, /*detach=*/0);
 	}
 
 	alifSemaphore_destroy(&waiter.sema);
@@ -196,7 +196,7 @@ void alifRawMutex_unlockSlow(AlifRawMutex* _m) { // 217
 		if (waiter) {
 			uintptr_t next_waiter = (uintptr_t)waiter->next;
 			if (alifAtomic_compareExchangeUintptr(&_m->v, &v, next_waiter)) {
-				alifSemaphore_wakeup(&waiter->sema);
+				_alifSemaphore_wakeup(&waiter->sema);
 				return;
 			}
 		}

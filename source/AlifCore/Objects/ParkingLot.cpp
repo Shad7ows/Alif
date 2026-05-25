@@ -212,13 +212,12 @@ static inline void alifRawMutex_lock(AlifRawMutex* m) { // 111
 	alifRawMutex_lockSlow(m);
 }
 
-AlifIntT alifSemaphore_wait(AlifSemaphore* _sema,
+AlifIntT _alifSemaphore_wait(AlifSemaphore* _sema,
 	AlifTimeT _timeout, AlifIntT _detach) { // 198
 	AlifThread* thread = nullptr;
 	if (_detach) {
 		thread = _alifThread_get();
-		if (thread and alifAtomic_loadIntRelaxed(&thread->state) ==
-			ALIF_THREAD_ATTACHED) {
+		if (thread and _alifThreadState_isAttached(thread)) {
 			// Only detach if we are attached
 			alifEval_releaseThread(thread);
 		}
@@ -233,7 +232,7 @@ AlifIntT alifSemaphore_wait(AlifSemaphore* _sema,
 	return res;
 }
 
-void alifSemaphore_wakeup(AlifSemaphore* _sema) { // 220
+void _alifSemaphore_wakeup(AlifSemaphore* _sema) { // 220
 #if defined(_WINDOWS)
 	if (!ReleaseSemaphore(_sema->platformSem, 1, nullptr)) {
 		//alif_fatalError("ParkingLot: ReleaseSemaphore failed");
@@ -319,7 +318,7 @@ AlifIntT alifParkingLot_park(const void* addr, const void* expected, AlifUSizeT 
 	enqueue(bucket, addr, &wait);
 	alifRawMutex_unlock(&bucket->mutex);
 
-	AlifIntT res = alifSemaphore_wait(&wait.sema, timeout_ns, detach);
+	AlifIntT res = _alifSemaphore_wait(&wait.sema, timeout_ns, detach);
 	if (res == Alif_Park_Ok) {
 		goto done;
 	}
@@ -329,7 +328,7 @@ AlifIntT alifParkingLot_park(const void* addr, const void* expected, AlifUSizeT 
 	if (wait.isUnparking) {
 		alifRawMutex_unlock(&bucket->mutex);
 		do {
-			res = alifSemaphore_wait(&wait.sema, -1, detach);
+			res = _alifSemaphore_wait(&wait.sema, -1, detach);
 		}
 		while (res != Alif_Park_Ok);
 		goto done;
@@ -363,7 +362,7 @@ void alifParkingLot_unpark(const void* addr, AlifUnparkFnT* fn, void* arg) { // 
 	alifRawMutex_unlock(&bucket->mutex);
 
 	if (waiter) {
-		alifSemaphore_wakeup(&waiter->sema);
+		_alifSemaphore_wakeup(&waiter->sema);
 	}
 }
 
@@ -379,6 +378,6 @@ void alifParkingLot_unparkAll(const void* _addr) { // 367
 	LLIST_FOR_EACH_SAFE(node, &head) {
 		WaitEntry* waiter = LLIST_DATA(node, WaitEntry, node);
 		llist_remove(node);
-		alifSemaphore_wakeup(&waiter->sema);
+		_alifSemaphore_wakeup(&waiter->sema);
 	}
 }

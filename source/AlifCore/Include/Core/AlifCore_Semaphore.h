@@ -24,9 +24,9 @@ public:
 #endif
 };
 
-AlifIntT alifSemaphore_wait(AlifSemaphore*, AlifTimeT, AlifIntT); // 50
+AlifIntT _alifSemaphore_wait(AlifSemaphore*, AlifTimeT, AlifIntT); // 50
 
-void alifSemaphore_wakeup(AlifSemaphore*); // 54
+void _alifSemaphore_wakeup(AlifSemaphore*); // 54
 
 void alifSemaphore_init(AlifSemaphore*); // 58
 void alifSemaphore_destroy(AlifSemaphore*); // 59

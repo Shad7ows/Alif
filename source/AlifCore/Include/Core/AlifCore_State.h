@@ -55,7 +55,14 @@ static inline AlifThread* _alifThread_get() { // 134
 #endif // HAVE_LOCAL_THREAD
 }
 
-extern void alifThread_attach(AlifThread*); // 151
+
+
+static inline AlifIntT _alifThreadState_isAttached(AlifThread* _thread) { // 144
+	return (alifAtomic_loadIntRelaxed(&_thread->state) == ALIF_THREAD_ATTACHED);
+}
+
+
+extern void alifThread_attach(AlifThread*); // 157
 
 
 
