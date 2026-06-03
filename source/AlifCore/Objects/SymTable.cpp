@@ -1335,8 +1335,8 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 			VISIT_SEQ(_st, Expr, _s->V.functionDef.args->defaults);
 		if (_s->V.functionDef.args->kwDefaults)
 			VISIT_SEQ_WITH_NULL(_st, Expr, _s->V.functionDef.args->kwDefaults);
-		//if (_s->V.functionDef.decoratorList)
-		//	VISIT_SEQ(_st, Expr, _s->V.functionDef.decoratorList);
+		if (_s->V.functionDef.decoratorList)
+			VISIT_SEQ(_st, Expr, _s->V.functionDef.decoratorList);
 		if (ASDL_SEQ_LEN(_s->V.functionDef.typeParams) > 0) {
 			//if (!symtable_enterTypeParamBlock(
 			//	_st, _s->V.functionDef.name,
@@ -1381,8 +1381,8 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 		AlifObject* tmp{};
 		if (!symtable_addDef(_st, _s->V.classDef.name, DEF_LOCAL, LOCATION(_s)))
 			return 0;
-		//if (_s->V.classDef.decoratorList)
-		//	VISIT_SEQ(_st, Expr, _s->V.classDef.decoratorList);
+		if (_s->V.classDef.decoratorList)
+			VISIT_SEQ(_st, Expr, _s->V.classDef.decoratorList);
 		tmp = _st->private_;
 		if (ASDL_SEQ_LEN(_s->V.classDef.typeParams) > 0) {
 			if (!symtable_enterTypeParamBlock(_st, _s->V.classDef.name,

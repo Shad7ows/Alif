@@ -97,6 +97,7 @@ AlifIntT alifToken_oneChar(AlifIntT _c1) {
 	case L'{': return LBRACE;
 	case L'}': return RBRACE;
 	case L'|': return VBAR;
+	case L'@': return AT;
 	}
 	return OP;
 }

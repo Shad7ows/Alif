@@ -857,23 +857,30 @@ static AlifIntT codegen_makeClosure(AlifCompiler* _c, Location _loc,
 
 
 
+static AlifIntT codegen_decorators(AlifCompiler* _c, ASDLExprSeq* _decos) {
+	if (!_decos) {
+		return SUCCESS;
+	}
+
+	for (AlifSizeT i = 0; i < ASDL_SEQ_LEN(_decos); i++) {
+		VISIT(_c, Expr, (ExprTy)ASDL_SEQ_GET(_decos, i));
+	}
+	return SUCCESS;
+}
 
 
 
+static AlifIntT codegen_applyDecorators(AlifCompiler* _c, ASDLExprSeq* decos) {
+	if (!decos) {
+		return SUCCESS;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	for (AlifSizeT i = ASDL_SEQ_LEN(decos) - 1; i > -1; i--) {
+		Location loc = LOC((ExprTy)ASDL_SEQ_GET(decos, i));
+		ADDOP_I(_c, loc, CALL, 0);
+	}
+	return SUCCESS;
+}
 
 
 
@@ -1285,7 +1292,7 @@ static AlifIntT codegen_function(AlifCompiler* _c, StmtTy _s, AlifIntT _isAsync)
 	ArgumentsTy args{};
 	ExprTy returns{};
 	Identifier name{};
-	//ASDLExprSeq* decos{};
+	ASDLExprSeq* decos{};
 	ASDLTypeParamSeq* typeParams{};
 	AlifSizeT funcflags{};
 	AlifIntT firstlineno{};
@@ -1293,24 +1300,24 @@ static AlifIntT codegen_function(AlifCompiler* _c, StmtTy _s, AlifIntT _isAsync)
 	if (_isAsync) {
 		args = _s->V.asyncFunctionDef.args;
 		//returns = _s->V.asyncFunctionDef.returns;
-		//decos = _s->V.asyncFunctionDef.decoratorList;
+		decos = _s->V.asyncFunctionDef.decoratorList;
 		name = _s->V.asyncFunctionDef.name;
 		typeParams = _s->V.asyncFunctionDef.typeParams;
 	}
 	else {
 		args = _s->V.functionDef.args;
 		returns = _s->V.functionDef.returns;
-		//decos = _s->V.functionDef.decoratorList;
+		decos = _s->V.functionDef.decoratorList;
 		name = _s->V.functionDef.name;
 		typeParams = _s->V.functionDef.typeParams;
 	}
 
-	//RETURN_IF_ERROR(codegen_decorators(_c, decos));
+	RETURN_IF_ERROR(codegen_decorators(_c, decos));
 
 	firstlineno = _s->lineNo;
-	//if (ASDL_SEQ_LEN(decos)) {
-	//	firstlineno = ((ExprTy)ASDL_SEQ_GET(decos, 0))->lineNo;
-	//}
+	if (ASDL_SEQ_LEN(decos)) {
+		firstlineno = ((ExprTy)ASDL_SEQ_GET(decos, 0))->lineNo;
+	}
 
 	Location loc = LOC(_s);
 
@@ -1387,7 +1394,7 @@ static AlifIntT codegen_function(AlifCompiler* _c, StmtTy _s, AlifIntT _isAsync)
 		}
 	}
 
-	//RETURN_IF_ERROR(codegen_applyDecorators(_c, decos));
+	RETURN_IF_ERROR(codegen_applyDecorators(_c, decos));
 	return codegen_nameOp(_c, loc, name, ExprContext_::Store);
 }
 
@@ -1511,14 +1518,14 @@ static AlifIntT codegen_classBody(AlifCompiler* _c,
 
 
 static AlifIntT codegen_class(AlifCompiler* _c, StmtTy _s) {
-	//ASDLExprSeq* decos = _s->V.classDef.decoratorList;
+	ASDLExprSeq* decos = _s->V.classDef.decoratorList;
 
-	//RETURN_IF_ERROR(codegen_decorators(_c, decos));
+	RETURN_IF_ERROR(codegen_decorators(_c, decos));
 
 	AlifIntT firstlineno = _s->lineNo;
-	//if (ASDL_SEQ_LEN(decos)) {
-	//	firstlineno = ((ExprTy)ASDL_SEQ_GET(decos, 0))->lineNo;
-	//}
+	if (ASDL_SEQ_LEN(decos)) {
+		firstlineno = ((ExprTy)ASDL_SEQ_GET(decos, 0))->lineNo;
+	}
 	Location loc = LOC(_s);
 
 	ASDLTypeParamSeq* typeParams = _s->V.classDef.typeParams;
@@ -1576,7 +1583,7 @@ static AlifIntT codegen_class(AlifCompiler* _c, StmtTy _s) {
 	}
 
 	/* 6. apply decorators */
-	//RETURN_IF_ERROR(codegen_applyDecorators(_c, decos));
+	RETURN_IF_ERROR(codegen_applyDecorators(_c, decos));
 
 	/* 7. store into <name> */
 	RETURN_IF_ERROR(codegen_nameOp(_c, loc, _s->V.classDef.name, ExprContext_::Store));

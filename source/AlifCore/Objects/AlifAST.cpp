@@ -1755,7 +1755,7 @@ ExprTy alifAST_constant(AlifObject* _val, AlifObject* _type,
 }
 
 StmtTy alifAST_asyncFunctionDef(AlifObject* _name, Arguments* _args,
-	ASDLStmtSeq* _body, AlifIntT _lineNo, AlifIntT _colOffset,
+	ASDLStmtSeq* _body, ASDLExprSeq* _decoratorList, AlifIntT _lineNo, AlifIntT _colOffset,
 	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) { // 6770
 
 	StmtTy p_{};
@@ -1773,9 +1773,10 @@ StmtTy alifAST_asyncFunctionDef(AlifObject* _name, Arguments* _args,
 	if (!p_) return nullptr;
 
 	p_->type = StmtK_::AsyncFunctionDefK;
-	p_->V.functionDef.name = _name;
-	p_->V.functionDef.args = _args;
-	p_->V.functionDef.body = _body;
+	p_->V.asyncFunctionDef.name = _name;
+	p_->V.asyncFunctionDef.args = _args;
+	p_->V.asyncFunctionDef.body = _body;
+	p_->V.asyncFunctionDef.decoratorList;
 	p_->lineNo = _lineNo;
 	p_->colOffset = _colOffset;
 	p_->endLineNo = _endLineNo;
@@ -1785,7 +1786,7 @@ StmtTy alifAST_asyncFunctionDef(AlifObject* _name, Arguments* _args,
 }
 
 StmtTy alifAST_functionDef(AlifObject* _name, Arguments* _args,
-	ASDLStmtSeq* _body, AlifIntT _lineNo, AlifIntT _colOffset,
+	ASDLStmtSeq* _body, ASDLExprSeq* _decoratorList, AlifIntT _lineNo, AlifIntT _colOffset,
 	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) { // 6734
 
 	StmtTy p_{};
@@ -1806,6 +1807,7 @@ StmtTy alifAST_functionDef(AlifObject* _name, Arguments* _args,
 	p_->V.asyncFunctionDef.name = _name;
 	p_->V.asyncFunctionDef.args = _args;
 	p_->V.asyncFunctionDef.body = _body;
+	p_->V.functionDef.decoratorList = _decoratorList;
 	p_->lineNo = _lineNo;
 	p_->colOffset = _colOffset;
 	p_->endLineNo = _endLineNo;
@@ -1853,8 +1855,8 @@ StmtTy alifAST_delete(ASDLExprSeq* _targets,
 }
 
 StmtTy alifAST_classDef(AlifObject* _name, ASDLExprSeq* _bases,
-	ASDLKeywordSeq* _keywords, ASDLStmtSeq* _body, AlifIntT _lineNo,
-	AlifIntT _colOffset, AlifIntT _endLineNo,
+	ASDLKeywordSeq* _keywords, ASDLStmtSeq* _body, ASDLExprSeq* _decoratorList,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 6806
 
 	StmtTy p_{};
@@ -1871,6 +1873,7 @@ StmtTy alifAST_classDef(AlifObject* _name, ASDLExprSeq* _bases,
 	p_->V.classDef.bases = _bases;
 	p_->V.classDef.keywords = _keywords;
 	p_->V.classDef.body = _body;
+	p_->V.classDef.decoratorList = _decoratorList;
 	p_->lineNo = _lineNo;
 	p_->colOffset = _colOffset;
 	p_->endLineNo = _endLineNo;

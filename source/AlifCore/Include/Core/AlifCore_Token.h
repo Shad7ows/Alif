@@ -51,16 +51,17 @@
 #define SLASHCIRCUMFLEX			47  // /^
 #define LBRACE					48  // {
 #define RBRACE					49  // }
-#define EXCLAMATION				50  // !
-#define OP						51
-#define ELLIPSIS				52	// ...
-#define TYPE_COMMENT            53
-#define COMMENT					54
-#define FSTRINGSTART			55	
-#define FSTRINGMIDDLE			56	
-#define FSTRINGEND				57	
-#define NL						58	
-#define ERRORTOKEN				59	
+#define AT                      50  // @
+#define EXCLAMATION				51  // !
+#define OP						52
+#define ELLIPSIS				53	// ...
+#define TYPE_COMMENT            54
+#define COMMENT					55
+#define FSTRINGSTART			56	
+#define FSTRINGMIDDLE			57	
+#define FSTRINGEND				58	
+#define NL						59	
+#define ERRORTOKEN				60	
 #define NTOFFSET				256
 
 

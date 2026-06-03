@@ -151,6 +151,7 @@ public:
 			ASDLExprSeq* bases{};
 			ASDLKeywordSeq* keywords{};
 			ASDLStmtSeq* body{};
+			ASDLExprSeq* decoratorList;
 			ASDLTypeParamSeq* typeParams{};
 		} classDef;
 
@@ -159,6 +160,7 @@ public:
 			Identifier name{};
 			ArgumentsTy args{};
 			ASDLStmtSeq* body{};
+			ASDLExprSeq* decoratorList{};
 			ASDLTypeParamSeq* typeParams{};
 			ExprTy returns{};
 		} functionDef;
@@ -168,6 +170,7 @@ public:
 			Identifier name{};
 			ArgumentsTy args{};
 			ASDLStmtSeq* body{};
+			ASDLExprSeq* decoratorList{};
 			ASDLTypeParamSeq* typeParams{};
 		} asyncFunctionDef;
 
@@ -589,11 +592,11 @@ StmtTy alifAST_assign(ASDLExprSeq*, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIn
 StmtTy alifAST_typeAlias(ExprTy, ASDLTypeParamSeq*, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_expr(ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_constant(Constant, String, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
-StmtTy alifAST_asyncFunctionDef(Identifier, ArgumentsTy, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
-StmtTy alifAST_functionDef(Identifier, ArgumentsTy, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+StmtTy alifAST_asyncFunctionDef(Identifier, ArgumentsTy, ASDLStmtSeq*, ASDLExprSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+StmtTy alifAST_functionDef(Identifier, ArgumentsTy, ASDLStmtSeq*, ASDLExprSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_return(ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_delete(ASDLExprSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
-StmtTy alifAST_classDef(Identifier, ASDLExprSeq*, ASDLKeywordSeq*, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+StmtTy alifAST_classDef(Identifier, ASDLExprSeq*, ASDLKeywordSeq*, ASDLStmtSeq*, ASDLExprSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_augAssign(ExprTy, Operator_, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_for(ExprTy, ExprTy, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_asyncFor(ExprTy, ExprTy, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);

@@ -832,26 +832,26 @@ static AlifIntT astFold_stmt(StmtTy _node,
 		CALL_SEQ(astFold_typeParam, TypeParam, _node->V.functionDef.typeParams);
 		CALL(astFold_arguments, ArgumentsTy, _node->V.functionDef.args);
 		CALL(astFold_body, ASDLSeq, _node->V.functionDef.body);
-		//CALL_SEQ(astFold_expr, Expr, _node->V.functionDef.decoratorList);
+		CALL_SEQ(astFold_expr, Expr, _node->V.functionDef.decoratorList);
 		if (!(_state->features & CO_FUTURE_ANNOTATIONS)) {
 			CALL_OPT(astFold_expr, ExprTy, _node->V.functionDef.returns);
 		}
 		break;
-	//case StmtK_::AsyncFunctionDefK:
-	//	CALL_SEQ(astfold_typeParam, TypeParam, _node->V.asyncFunctionDef.typeParams);
-	//	CALL(astFold_arguments, ArgumentsTy, _node->V.asyncFunctionDef.args);
-	//	CALL(astFold_body, ASDLSeq, _node->V.asyncFunctionDef.body);
-	//	CALL_SEQ(astFold_expr, Expr, _node->V.asyncFunctionDef.decoratorList);
-	//	if (!(_state->features & CO_FUTURE_ANNOTATIONS)) {
-	//		CALL_OPT(astFold_expr, ExprTy, _node->V.asyncFunctionDef.returns);
-	//	}
-	//	break;
+	case StmtK_::AsyncFunctionDefK:
+		CALL_SEQ(astFold_typeParam, TypeParam, _node->V.asyncFunctionDef.typeParams);
+		CALL(astFold_arguments, ArgumentsTy, _node->V.asyncFunctionDef.args);
+		CALL(astFold_body, ASDLSeq, _node->V.asyncFunctionDef.body);
+		CALL_SEQ(astFold_expr, Expr, _node->V.asyncFunctionDef.decoratorList);
+		if (!(_state->features & CO_FUTURE_ANNOTATIONS)) {
+			//CALL_OPT(astFold_expr, ExprTy, _node->V.asyncFunctionDef.returns);
+		}
+		break;
 	case StmtK_::ClassDefK:
 		CALL_SEQ(astFold_typeParam, TypeParam, _node->V.classDef.typeParams);
 		CALL_SEQ(astFold_expr, Expr, _node->V.classDef.bases);
 		CALL_SEQ(astFold_keyword, Keyword, _node->V.classDef.keywords);
 		CALL(astFold_body, asdl_seq, _node->V.classDef.body);
-		//CALL_SEQ(astFold_expr, Expr, _node->V.classDef.decoratorList);
+		CALL_SEQ(astFold_expr, Expr, _node->V.classDef.decoratorList);
 		break;
 	case StmtK_::ReturnK:
 		CALL_OPT(astFold_expr, ExprTy, _node->V.return_.val);

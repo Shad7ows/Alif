@@ -519,6 +519,44 @@ static AlifIntT seqNumber_ofStarExprs(ASDLSeq* _seq) { // 777
 	return n_;
 }
 
+
+StmtTy alifParserEngine_functionDefDecorators(AlifParser* _p,
+	ASDLExprSeq* _decorators, StmtTy _functionDef) { // 722
+	if (_functionDef->type == AsyncFunctionDefK) {
+		return alifAST_asyncFunctionDef(
+			_functionDef->V.asyncFunctionDef.name,
+			_functionDef->V.asyncFunctionDef.args,
+			_functionDef->V.asyncFunctionDef.body, _decorators,
+			//function_def->V.asyncFunctionDef.returns,
+			//function_def->V.asyncFunctionDef.typeComment,
+			//function_def->V.asyncFunctionDef.typeParams,
+			_functionDef->lineNo, _functionDef->colOffset,
+			_functionDef->endLineNo, _functionDef->endColOffset, _p->astMem);
+	}
+	
+	return alifAST_functionDef(
+		_functionDef->V.functionDef.name,
+		_functionDef->V.functionDef.args,
+		_functionDef->V.functionDef.body, _decorators,
+		//function_def->V.functionDef.returns,
+		//function_def->V.functionDef.typeComment,
+		//function_def->V.functionDef.typeParams,
+		_functionDef->lineNo, _functionDef->colOffset,
+		_functionDef->endLineNo, _functionDef->endColOffset, _p->astMem);
+}
+
+StmtTy alifParserEngine_classDefDecorators(AlifParser* _p,
+	ASDLExprSeq* _decorators, StmtTy _classDef) { // 750
+	return alifAST_classDef(
+		_classDef->V.classDef.name,
+		_classDef->V.classDef.bases, _classDef->V.classDef.keywords,
+		_classDef->V.classDef.body, _decorators,
+		//_classDef->V.classDef.typeParams,
+		_classDef->lineNo, _classDef->colOffset, _classDef->endLineNo,
+		_classDef->endColOffset, _p->astMem);
+}
+
+
 KeywordOrStar* alifParserEngine_keywordOrStarred(AlifParser* _p,
 	void* _element, AlifIntT _isKeyword) { // 764
 
