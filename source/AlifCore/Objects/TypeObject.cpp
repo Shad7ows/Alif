@@ -507,6 +507,23 @@ static AlifObject* type_qualname(AlifTypeObject* type, void* context) { // 1335
 	}
 }
 
+static AlifIntT type_setQualname(AlifTypeObject* type,
+	AlifObject* value, void* context) {
+	AlifHeapTypeObject* et;
+
+	if (!check_setSpecialTypeAttr(type, value, "__qualname__"))
+		return -1;
+	if (!ALIFUSTR_CHECK(value)) {
+		alifErr_format(_alifExcTypeError_,
+			"يمكن إسناد نص فقط لـ %s.__qualname__, وليس '%s'",
+			type->name, ALIF_TYPE(value)->name);
+		return -1;
+	}
+
+	et = (AlifHeapTypeObject*)type;
+	ALIF_SETREF(et->qualname, ALIF_NEWREF(value));
+	return 0;
+}
 
 static AlifObject* type_module(AlifTypeObject *_type) { // 1396
 	AlifObject* mod{};
@@ -574,7 +591,7 @@ static AlifIntT add_subClass(AlifTypeObject*, AlifTypeObject*); // 1569
 
 static AlifGetSetDef _typeGetSets_[] = { // 2076
 	//{"__name__", (Getter)type_name, (Setter)type_setName, nullptr},
-	//{"__qualname__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
+	{"__qualname__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
 	//{"__bases__", (Getter)type_getBases, (Setter)type_setBases, nullptr},
 	//{"__mro__", (Getter)type_getMro, nullptr, nullptr},
 	{"__module__", (Getter)type_getModule, (Setter)type_setModule, nullptr},

@@ -87,6 +87,9 @@ exit:
 
 
 
+#define BUILTIN_ALL_METHODDEF    \
+    {"تحقق_الكل", (AlifCPPFunction)builtin_all, METHOD_O} // 131
+
 #define BUILTIN_ANY_METHODDEF    \
     {"تحقق_اي", (AlifCPPFunction)builtin_any, METHOD_O} // 141
 
