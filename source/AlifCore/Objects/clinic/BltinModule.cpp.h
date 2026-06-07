@@ -96,6 +96,13 @@ exit:
 
 
 
+
+#define BUILTIN_CHR_METHODDEF    \
+    {"حرف", (AlifCPPFunction)builtin_chr, METHOD_O} // 234
+
+
+
+
 #define BUILTIN_LEN_METHODDEF {"طول", (AlifCPPFunction)builtin_len, METHOD_O} // 771
 
 

@@ -310,6 +310,32 @@ static AlifObject* builtin_any(AlifObject* _module, AlifObject* _iterable) { // 
 
 
 
+static AlifObject* builtin_chr(AlifObject* _module, AlifObject* _i) { // 709
+	AlifIntT overflow{};
+	long v = alifLong_asLongAndOverflow(_i, &overflow);
+	if (v == -1 and alifErr_occurred()) {
+		return nullptr;
+	}
+	if (overflow) {
+		v = overflow < 0 ? INT_MIN : INT_MAX;
+	}
+#if SIZEOF_INT < SIZEOF_LONG
+	else if (v < INT_MIN) {
+		v = INT_MIN;
+	}
+	else if (v > INT_MAX) {
+		v = INT_MAX;
+	}
+#endif
+	return alifUStr_fromOrdinal(v);
+}
+
+
+
+
+
+
+
 static AlifObject* builtin_len(AlifObject* _module, AlifObject* _obj) { // 1762
 	AlifSizeT res{};
 
@@ -1224,6 +1250,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN___IMPORT___METHODDEF,
 	BUILTIN_ALL_METHODDEF,
 	BUILTIN_ANY_METHODDEF,
+	BUILTIN_CHR_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,
 	BUILTIN_ISINSTANCE_METHODDEF,
 	BUILTIN_LEN_METHODDEF,

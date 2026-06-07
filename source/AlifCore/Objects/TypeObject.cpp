@@ -2415,10 +2415,10 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 				if (strcmp(memb->name, "__weakListOffset__") == 0) {
 					weaklistoffset_member = memb;
 				}
-				if (strcmp(memb->name, "__dictOffset__") == 0) {
+				else if(strcmp(memb->name, "__dictOffset__") == 0) {
 					dictoffset_member = memb;
 				}
-				if (strcmp(memb->name, "__vectorCallOffset__") == 0) {
+				else if (strcmp(memb->name, "__vectorCallOffset__") == 0) {
 					vectorcalloffset_member = memb;
 				}
 			}
