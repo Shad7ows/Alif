@@ -3539,8 +3539,39 @@ AlifObject* alifEval_getBuiltins() { // 2455
 }
 
 
+AlifObject* _alifEval_getFrameLocals(void) { // 2617
+	AlifThread* tstate = _alifThread_get();
+	AlifInterpreterFrame* current_frame = _alifThreadState_getFrame(tstate);
+	if (current_frame == nullptr) {
+		_alifErr_setString(tstate, _alifExcSystemError_, "لا يوجد إطار");
+		return nullptr;
+	}
 
-AlifObject* alifEval_getGlobals() { // 2557
+	AlifObject* locals = _alifFrame_getLocals(current_frame);
+	if (locals == nullptr) {
+		return nullptr;
+	}
+
+	if (ALIFFRAMELOCALSPROXY_CHECK(locals)) {
+		AlifObject* ret = alifDict_new();
+		if (ret == nullptr) {
+			ALIF_DECREF(locals);
+			return nullptr;
+		}
+		if (alifDict_update(ret, locals) < 0) {
+			ALIF_DECREF(ret);
+			ALIF_DECREF(locals);
+			return nullptr;
+		}
+		ALIF_DECREF(locals);
+		return ret;
+	}
+
+	return locals;
+}
+
+
+AlifObject* alifEval_getGlobals() { // 2651
 	AlifThread* thread = _alifThread_get();
 	AlifInterpreterFrame* current_frame = _alifThreadState_getFrame(thread);
 	if (current_frame == nullptr) {

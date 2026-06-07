@@ -1073,7 +1073,7 @@ static AlifTypeObject* staticTypes[] = {
 	//&_alifFilterType_,
 	&_alifFloatType_,
 	&_alifFrameType_,
-	//&_alifFrameLocalsProxyType_,
+	&_alifFrameLocalsProxyType_,
 	&_alifFrozenSetType_,
 	&_alifFunctionType_,
 	//&_alifGenType_,

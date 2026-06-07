@@ -334,6 +334,15 @@ static AlifObject* builtin_chr(AlifObject* _module, AlifObject* _i) { // 709
 
 
 
+static AlifObject* builtin_globalsImpl(AlifObject* _module) { // 1236
+	AlifObject* d{};
+
+	d = alifEval_getGlobals();
+	return ALIF_XNEWREF(d);
+}
+
+
+
 
 
 static AlifObject* builtin_len(AlifObject* _module, AlifObject* _obj) { // 1762
@@ -347,6 +356,10 @@ static AlifObject* builtin_len(AlifObject* _module, AlifObject* _obj) { // 1762
 }
 
 
+
+static AlifObject* builtin_localsImpl(AlifObject* _module) { // 1873
+	return _alifEval_getFrameLocals();
+}
 
 
 
@@ -1251,6 +1264,8 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_ALL_METHODDEF,
 	BUILTIN_ANY_METHODDEF,
 	BUILTIN_CHR_METHODDEF,
+	BUILTIN_GLOBALS_METHODDEF,
+	BUILTIN_LOCALS_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,
 	BUILTIN_ISINSTANCE_METHODDEF,
 	BUILTIN_LEN_METHODDEF,

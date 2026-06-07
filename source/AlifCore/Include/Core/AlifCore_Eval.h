@@ -111,6 +111,8 @@ static inline void _alif_leaveRecursiveCall(void) { // 228
 AlifObject* _alif_makeCoro(AlifFunctionObject*); // 235
 
 
+extern AlifObject* _alifEval_getFrameLocals(void); // 250
+
 AlifIntT _alifEval_checkExceptStarTypeValid(AlifThread*, AlifObject*); // 256
 AlifIntT _alifEval_checkExceptTypeValid(AlifThread*, AlifObject*); // 257
 AlifIntT _alifEval_exceptionGroupMatch(AlifObject*, AlifObject*, AlifObject**, AlifObject**); // 258

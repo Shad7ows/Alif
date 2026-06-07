@@ -103,6 +103,28 @@ exit:
 
 
 
+
+#define BUILTIN_GLOBALS_METHODDEF    \
+    {"المتغيرات_العامة", (AlifCPPFunction)builtin_globals, METHOD_NOARGS} // 575
+
+static AlifObject* builtin_globalsImpl(AlifObject*);
+
+static AlifObject* builtin_globals(AlifObject* _module, AlifObject* ALIF_UNUSED(_ignored)) { // 581
+	return builtin_globalsImpl(_module);
+}
+
+
+#define BUILTIN_LOCALS_METHODDEF    \
+    {"المتغيرات_المحلية", (AlifCPPFunction)builtin_locals, METHOD_NOARGS} // 788
+
+static AlifObject* builtin_localsImpl(AlifObject*);
+
+static AlifObject* builtin_locals(AlifObject* _module, AlifObject* ALIF_UNUSED(_ignored)) { // 795
+	return builtin_localsImpl(_module);
+}
+
+
+
 #define BUILTIN_LEN_METHODDEF {"طول", (AlifCPPFunction)builtin_len, METHOD_O} // 771
 
 

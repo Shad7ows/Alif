@@ -250,7 +250,7 @@ extern AlifInterpreterFrame* _alifThreadState_pushFrame(AlifThread*, AlifUSizeT)
 void _alifThreadState_popFrame(AlifThread*, AlifInterpreterFrame*); // 296
 
 
-
+AlifObject* _alifFrame_getLocals(AlifInterpreterFrame*); // 330
 
 AlifInterpreterFrame* _alifEval_framePushAndInit(AlifThread* _thread, AlifStackRef,
 	AlifObject*, AlifStackRef const*, AlifUSizeT, AlifObject*, AlifInterpreterFrame*); // 347
