@@ -4982,6 +4982,70 @@ AlifSizeT alifUStr_findChar(AlifObject* _str, AlifUCS4 _ch,
 }
 
 
+
+
+static AlifIntT tail_match(AlifObject* _self,
+	AlifObject* _subString, AlifSizeT _start,
+	AlifSizeT _end, AlifIntT _direction) { // 9636
+	AlifIntT kindSelf{};
+	AlifIntT kindSub{};
+	const void* dataSelf{};
+	const void* dataSub{};
+	AlifSizeT offset{};
+	AlifSizeT i{};
+	AlifSizeT endSub{};
+
+	ADJUST_INDICES(_start, _end, ALIFUSTR_GET_LENGTH(_self));
+	_end -= ALIFUSTR_GET_LENGTH(_subString);
+	if (_end < _start)
+		return 0;
+
+	if (ALIFUSTR_GET_LENGTH(_subString) == 0)
+		return 1;
+
+	kindSelf = ALIFUSTR_KIND(_self);
+	dataSelf = ALIFUSTR_DATA(_self);
+	kindSub = ALIFUSTR_KIND(_subString);
+	dataSub = ALIFUSTR_DATA(_subString);
+	endSub = ALIFUSTR_GET_LENGTH(_subString) - 1;
+
+	if (_direction > 0)
+		offset = _end;
+	else
+		offset = _start;
+
+	if (ALIFUSTR_READ(kindSelf, dataSelf, offset) ==
+		ALIFUSTR_READ(kindSub, dataSub, 0) &&
+		ALIFUSTR_READ(kindSelf, dataSelf, offset + endSub) ==
+		ALIFUSTR_READ(kindSub, dataSub, endSub)) {
+		/* If both are of the same kind, memcmp is sufficient */
+		if (kindSelf == kindSub) {
+			return ! memcmp((char *)dataSelf +
+				(offset * ALIFUSTR_KIND(_subString)),
+				dataSub,
+				ALIFUSTR_GET_LENGTH(_subString) *
+				ALIFUSTR_KIND(_subString));
+		}
+		/* otherwise we have to compare each character by first accessing it */
+		else {
+			/* We do not need to compare 0 and len(substring)-1 because
+			the if statement above ensured already that they are equal
+			when we end up here. */
+			for (i = 1; i < endSub; ++i) {
+				if (ALIFUSTR_READ(kindSelf, dataSelf, offset + i) !=
+					ALIFUSTR_READ(kindSub, dataSub, i))
+					return 0;
+			}
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+
+
+
 AlifObject* alifUStr_join(AlifObject* _separator, AlifObject* _seq) { // 9910
 	AlifObject* res{};
 	AlifObject* fSeq{};
@@ -6531,6 +6595,46 @@ static AlifObject* uStr_rsplitImpl(AlifObject* self, AlifObject* sep,
 }
 
 
+
+static AlifObject* uStr_startsWithImpl(AlifObject* _self,
+	AlifObject* _subObj, AlifSizeT _start, AlifSizeT _end) { // 13295
+	if (ALIFTUPLE_CHECK(_subObj)) {
+		AlifSizeT i{};
+		for (i = 0; i < ALIFTUPLE_GET_SIZE(_subObj); i++) {
+			AlifObject* substring = ALIFTUPLE_GET_ITEM(_subObj, i);
+			if (!ALIFUSTR_CHECK(substring)) {
+				alifErr_format(_alifExcTypeError_,
+					"المترابطة الخاصة بـ يبدا_ب() يجب أن تحتوي فقط نص, "
+					"وليس %.100s",
+					ALIF_TYPE(substring)->name);
+				return nullptr;
+			}
+			AlifIntT result = tail_match(_self, substring, _start, _end, -1);
+			if (result < 0) {
+				return nullptr;
+			}
+			if (result) {
+				ALIF_RETURN_TRUE;
+			}
+		}
+		/* nothing matched */
+		ALIF_RETURN_FALSE;
+	}
+	if (!ALIFUSTR_CHECK(_subObj)) {
+		alifErr_format(_alifExcTypeError_,
+			"اول معامل في يبدا_ب() يجب ان يكون نص او "
+			"مترابطة من النصوص, وليس %.100s", ALIF_TYPE(_subObj)->name);
+		return nullptr;
+	}
+	AlifIntT result = tail_match(_self, _subObj, _start, _end, -1);
+	if (result < 0) {
+		return nullptr;
+	}
+	return alifBool_fromLong(result);
+}
+
+
+
 static inline void alifUStrWriter_update(AlifUStrWriter* _writer) { // 13364
 	_writer->maxChar = ALIFUSTR_MAX_CHAR_VALUE(_writer->buffer);
 	_writer->data = ALIFUSTR_DATA(_writer->buffer);
@@ -6979,7 +7083,7 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	//UNICODE_LSTRIP_METHODDEF
 	//UNICODE_RSTRIP_METHODDEF
 	//UNICODE_ENDSWITH_METHODDEF
-	//UNICODE_STARTSWITH_METHODDEF
+	UNICODE_STARTSWITH_METHODDEF
 	//UNICODE_ISDECIMAL_METHODDEF
 	UNICODE_PARTITION_METHODDEF
 	UNICODE_RPARTITION_METHODDEF

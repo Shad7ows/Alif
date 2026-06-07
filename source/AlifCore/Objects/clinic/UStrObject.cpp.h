@@ -345,8 +345,41 @@ exit:
 
 
 
+// 1670
+#define UNICODE_STARTSWITH_METHODDEF    \
+    {"يبدا_ب", ALIF_CPPFUNCTION_CAST(uStr_startsWith), METHOD_FASTCALL},
 
+static AlifObject* uStr_startsWithImpl(AlifObject*, AlifObject*, AlifSizeT, AlifSizeT);
 
+static AlifObject* uStr_startsWith(AlifObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 1677
+	AlifObject* returnValue{};
+	AlifObject* subobj{};
+	AlifSizeT start = 0;
+	AlifSizeT end = ALIF_SIZET_MAX;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("يبدا_ب", _nargs, 1, 3)) {
+		goto exit;
+	}
+	subobj = _args[0];
+	if (_nargs < 2) {
+		goto skip_optional;
+	}
+	if (!_alifEval_sliceIndex(_args[1], &start)) {
+		goto exit;
+	}
+	if (_nargs < 3) {
+		goto skip_optional;
+	}
+	if (!_alifEval_sliceIndex(_args[2], &end)) {
+		goto exit;
+	}
+skip_optional:
+	returnValue = uStr_startsWithImpl(_self, subobj, start, end);
+
+exit:
+	return returnValue;
+}
 
 
 
