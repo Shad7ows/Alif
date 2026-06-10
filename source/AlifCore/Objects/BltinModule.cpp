@@ -343,6 +343,14 @@ static AlifObject* builtin_globalsImpl(AlifObject* _module) { // 1236
 
 
 
+static AlifObject* builtin_delattrImpl(AlifObject* _module,
+	AlifObject* _obj, AlifObject* _name) { // 1695
+	if (alifObject_delAttr(_obj, _name) < 0) {
+		return nullptr;
+	}
+	return ALIF_NONE;
+}
+
 
 
 static AlifObject* builtin_len(AlifObject* _module, AlifObject* _obj) { // 1762
@@ -1264,6 +1272,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_ALL_METHODDEF,
 	BUILTIN_ANY_METHODDEF,
 	BUILTIN_CHR_METHODDEF,
+	BUILTIN_DELATTR_METHODDEF,
 	BUILTIN_GLOBALS_METHODDEF,
 	BUILTIN_LOCALS_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,

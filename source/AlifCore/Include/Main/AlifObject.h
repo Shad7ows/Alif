@@ -257,15 +257,18 @@ AlifObject* alifObject_getAttr(AlifObject*, AlifObject*); // 429
 AlifIntT alifObject_getOptionalAttr(AlifObject*, AlifObject*, AlifObject**); // 431
 AlifIntT alifObject_setAttr(AlifObject*, AlifObject*, AlifObject*); // 434
 AlifIntT alifObject_hasAttrWithError(AlifObject*, AlifObject*); // 438
-AlifObject* alifObject_selfIter(AlifObject*); // 441
-AlifObject* alifObject_genericGetAttr(AlifObject*, AlifObject*); // 442
-AlifIntT alifObject_genericSetAttr(AlifObject*, AlifObject*, AlifObject*); // 443
+
+AlifIntT alifObject_delAttr(AlifObject*, AlifObject*); // 445
+
 AlifHashT alifObject_hash(AlifObject*); // 447
 AlifHashT alifObject_hashNotImplemented(AlifObject*); // 448
 AlifIntT alifObject_isTrue(AlifObject*); // 449
 
-AlifIntT alifCallable_check(AlifObject*); // 451
-void alifObject_clearWeakRefs(AlifObject*); // 452
+AlifObject* alifObject_selfIter(AlifObject*); // 451
+AlifObject* alifObject_genericGetAttr(AlifObject*, AlifObject*); // 452
+AlifIntT alifObject_genericSetAttr(AlifObject*, AlifObject*, AlifObject*); // 453
+AlifIntT alifCallable_check(AlifObject*); // 461
+void alifObject_clearWeakRefs(AlifObject*); // 462
 
 
 
