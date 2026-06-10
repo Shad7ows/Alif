@@ -334,6 +334,29 @@ static AlifObject* builtin_chr(AlifObject* _module, AlifObject* _i) { // 709
 
 
 
+
+static AlifObject* builtin_getAttr(AlifObject* self,
+	AlifObject* const* args, AlifSizeT nargs) { // 1197
+	AlifObject* v{}, * name{}, * result{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("احضر_صفة", nargs, 2, 3))
+		return nullptr;
+
+	v = args[0];
+	name = args[1];
+	if (nargs > 2) {
+		if (alifObject_getOptionalAttr(v, name, &result) == 0) {
+			AlifObject* dflt = args[2];
+			return ALIF_NEWREF(dflt);
+		}
+	}
+	else {
+		result = alifObject_getAttr(v, name);
+	}
+	return result;
+}
+
+
 static AlifObject* builtin_globalsImpl(AlifObject* _module) { // 1236
 	AlifObject* d{};
 
@@ -1273,6 +1296,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_ANY_METHODDEF,
 	BUILTIN_CHR_METHODDEF,
 	BUILTIN_DELATTR_METHODDEF,
+	{"احضر_صفة", ALIF_CPPFUNCTION_CAST(builtin_getAttr), METHOD_FASTCALL},
 	BUILTIN_GLOBALS_METHODDEF,
 	BUILTIN_LOCALS_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,

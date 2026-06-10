@@ -2930,7 +2930,7 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 
 	if (!ALIFUSTR_CHECK(_name)) {
 		alifErr_format(_alifExcTypeError_,
-			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			"اسم الصفة يجب أن يكون نص, وليس '%.200s'",
 			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
@@ -2986,7 +2986,7 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 
 	if (_suppressMissingAttribute == nullptr) {
 		alifErr_format(_alifExcAttributeError_,
-			"كائن النوع '%.100s' لا يملك الخاصية '%U'",
+			"كائن النوع '%.100s' لا يملك الصفة '%U'",
 			_type->name, _name);
 	}
 	else {

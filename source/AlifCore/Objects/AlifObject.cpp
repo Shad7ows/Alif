@@ -495,7 +495,7 @@ AlifObject* alifObject_getAttr(AlifObject* _v, AlifObject* _name) { // 1204
 	AlifTypeObject* tp_ = ALIF_TYPE(_v);
 	if (!ALIFUSTR_CHECK(_name)) {
 		alifErr_format(_alifExcTypeError_,
-			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			"اسم الصفة يجب أن يكون نص, وليس '%.200s'",
 			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
@@ -513,7 +513,7 @@ AlifObject* alifObject_getAttr(AlifObject* _v, AlifObject* _name) { // 1204
 	}
 	else {
 		alifErr_format(_alifExcAttributeError_,
-			"الكائن '%.100s' لا يملك هذه الخاصية '%U'",
+			"الكائن '%.100s' لا يملك هذه الصفة '%U'",
 			tp_->name, _name);
 	}
 
@@ -529,7 +529,7 @@ AlifIntT alifObject_getOptionalAttr(AlifObject* _v,
 
 	if (!ALIFUSTR_CHECK(_name)) {
 		alifErr_format(_alifExcTypeError_,
-			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			"اسم الصفة يجب أن يكون نص, وليس '%.200s'",
 			ALIF_TYPE(_name)->name);
 		*_result = nullptr;
 		return -1;
@@ -604,7 +604,7 @@ AlifIntT alifObject_setAttr(AlifObject* _v,
 
 	if (!ALIFUSTR_CHECK(_name)) {
 		alifErr_format(_alifExcTypeError_,
-			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			"اسم الصفة يجب أن يكون نص, وليس '%.200s'",
 			ALIF_TYPE(_name)->name);
 		return -1;
 	}
@@ -761,7 +761,7 @@ AlifIntT _alifObject_getMethod(AlifObject* _obj,
 	}
 
 	alifErr_format(_alifExcAttributeError_,
-		"الكائن '%.100s' لا يملك هذه الخاصية '%U'",
+		"الكائن '%.100s' لا يملك هذه الصفة '%U'",
 		tp->name, _name);
 
 	_alifObject_setAttributeErrorContext(_obj, _name);
@@ -779,7 +779,7 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 
 	if (!ALIFUSTR_CHECK(_name)) {
 		alifErr_format(_alifExcTypeError_,
-			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			"اسم الصفة يجب أن يكون نص, وليس '%.200s'",
 			ALIF_TYPE(_name)->name);
 		return nullptr;
 	}
@@ -868,7 +868,7 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 
 	if (!_suppress) {
 		alifErr_format(_alifExcAttributeError_,
-			"الكائن'%.100s' لا يملك هذه الخاصية '%U'",
+			"الكائن'%.100s' لا يملك هذه الصفة '%U'",
 			tp->name, _name);
 
 		_alifObject_setAttributeErrorContext(_obj, _name);
@@ -892,7 +892,7 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 
 	if (!ALIFUSTR_CHECK(_name)) {
 		alifErr_format(_alifExcTypeError_,
-			"اسم الخاصية يجب أن يكون نص, وليس '%.200s'",
+			"اسم الصفة يجب أن يكون نص, وليس '%.200s'",
 			ALIF_TYPE(_name)->name);
 		return -1;
 	}
@@ -932,20 +932,20 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 			if (descr == nullptr) {
 				if (tp->setAttro == alifObject_genericSetAttr) {
 					alifErr_format(_alifExcAttributeError_,
-						"الكائن '%.100s' لا يملك هذه الخاصية '%U' ولا يملك "
-						"__فهرس__ لإضافة خاصية جديدة",
+						"الكائن '%.100s' لا يملك هذه الصفة '%U' ولا يملك "
+						"__فهرس__ لإضافة صفة جديدة",
 						tp->name, _name);
 				}
 				else {
 					alifErr_format(_alifExcAttributeError_,
-						"الكائن '%.100s' لا يملك هذه الخاصية '%U'",
+						"الكائن '%.100s' لا يملك هذه الصفة '%U'",
 						tp->name, _name);
 				}
 				_alifObject_setAttributeErrorContext(_obj, _name);
 			}
 			else {
 				alifErr_format(_alifExcAttributeError_,
-					"خاصية الكائن '%.100s' '%U' للقراءة-فقط",
+					"صفة الكائن '%.100s' '%U' للقراءة-فقط",
 					tp->name, _name);
 			}
 			goto done;
@@ -965,7 +965,7 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 error_check:
 	//if (res < 0 and alifErr_exceptionMatches(_alifExcKeyError_)) {
 	//	alifErr_format(_alifExcAttributeError_,
-	//		"الكائن '%.100s' لا يملك الخاصية '%U'",
+	//		"الكائن '%.100s' لا يملك الصفة '%U'",
 	//		tp->name, _name);
 	//	_alifObject_setAttributeErrorContext(_obj, _name);
 	//}

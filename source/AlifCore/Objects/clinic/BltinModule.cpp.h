@@ -115,17 +115,17 @@ static AlifObject* builtin_globals(AlifObject* _module, AlifObject* ALIF_UNUSED(
 
 
 #define BUILTIN_DELATTR_METHODDEF    \
-    {"احذف_خاصية", ALIF_CPPFUNCTION_CAST(builtin_delattr), METHOD_FASTCALL} // 674
+    {"احذف_صفة", ALIF_CPPFUNCTION_CAST(builtin_delAttr), METHOD_FASTCALL} // 674
 
 static AlifObject* builtin_delattrImpl(AlifObject*, AlifObject*, AlifObject*);
 
-static AlifObject* builtin_delattr(AlifObject* _module,
+static AlifObject* builtin_delAttr(AlifObject* _module,
 	AlifObject* const* _args, AlifSizeT _nargs) { // 680
 	AlifObject* returnValue{};
 	AlifObject* obj{};
 	AlifObject* name{};
 
-	if (!_ALIFARG_CHECKPOSITIONAL("احذف_خاصية", _nargs, 2, 2)) {
+	if (!_ALIFARG_CHECKPOSITIONAL("احذف_صفة", _nargs, 2, 2)) {
 		goto exit;
 	}
 	obj = _args[0];

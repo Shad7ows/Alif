@@ -3247,7 +3247,7 @@ static AlifIntT storeInstance_attrLockHeld(AlifObject* obj, AlifDictValues* valu
 
 	if (oldValue == nullptr and value == nullptr) {
 		alifErr_format(_alifExcAttributeError_,
-			"'%.100s' الكائن لا يحتوي خاصية '%U'",
+			"'%.100s' الكائن لا يحتوي الصفة '%U'",
 			ALIF_TYPE(obj)->name, name);
 		return -1;
 	}

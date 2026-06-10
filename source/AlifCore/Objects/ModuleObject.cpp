@@ -699,7 +699,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 	if (!modName or !ALIFUSTR_CHECK(modName)) {
 		ALIF_XDECREF(modName);
 		alifErr_format(_alifExcAttributeError_,
-			"الوحدة لا تملك الخاصية '%U'", _name);
+			"الوحدة لا تملك الصفة '%U'", _name);
 		return nullptr;
 	}
 	AlifObject* spec{};
@@ -709,7 +709,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 	}
 	if (spec == nullptr) {
 		alifErr_format(_alifExcAttributeError_,
-			"الوحدة '%U' لا تملك هذه الخاصية '%U'",
+			"الوحدة '%U' لا تملك هذه الصفة '%U'",
 			modName, _name);
 		ALIF_DECREF(modName);
 		return nullptr;
@@ -737,7 +737,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 
 	if (isPossiblyShadowingStdLib) {
 		alifErr_format(_alifExcAttributeError_,
-			"الوحدة '%U' لا تحتوي على الخاصية '%U' "
+			"الوحدة '%U' لا تحتوي على الصفة '%U' "
 			"(يُنصح بإعادة تسمية '%U' لأنها تحمل نفس "
 			"اسم الوحدة النمطية للمكتبة القياسية المسماة '%U' "
 		  "وتمنع استيراد تلك المكتبة القياسية)",
@@ -751,7 +751,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 		else if (rc_ > 0) {
 			if (isPossiblyShadowing) {
 				alifErr_format(_alifExcAttributeError_,
-						"الوحدة '%U' لا تحتوي على الخاصية '%U' "
+						"الوحدة '%U' لا تحتوي على الصفة '%U' "
 							"(يُنصح بإعادة تسمية '%U' إذا كانت تحمل نفس الاسم "
 							"المكتبة التي تحاول استيرادها)",
 							modName, _name, origin);
@@ -759,14 +759,14 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 			else if (origin) {
 				alifErr_format(_alifExcAttributeError_,
 				"مهيئ بشكل جزئي "
-					"الوحدة '%U' من '%U' لا تملك الخاصية '%U' "
+					"الوحدة '%U' من '%U' لا تملك الصفة '%U' "
 					"(على الأرجح بسبب استيراد دائري)",
 					modName, origin, _name);
 			}
 			else {
 					alifErr_format(_alifExcAttributeError_,
 					"مهيئ بشكل جزئي "
-						"الوحدة '%U' لا تملك الخاصية '%U' "
+						"الوحدة '%U' لا تملك الصفة '%U' "
 						"(على الأرجح بسبب استيراد دائري)",
 						modName, _name);
 			}
@@ -781,7 +781,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 			}
 			else if (rc_ == 0) {
 				alifErr_format(_alifExcAttributeError_,
-				"الوحدة '%U' لا تملك الخاصية '%U'",
+				"الوحدة '%U' لا تملك الصفة '%U'",
 					modName, _name);
 			}
 		}

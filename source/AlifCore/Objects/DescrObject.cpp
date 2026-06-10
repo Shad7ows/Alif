@@ -137,7 +137,7 @@ static AlifObject* getset_get(AlifObject* self, AlifObject* obj, AlifObject* typ
 		return DESCR_GET_TRAMPOLINE_CALL(
 			descr->getSet->get, obj, descr->getSet->closure);
 	alifErr_format(_alifExcAttributeError_,
-		"الخاصية '%V' للكائن '%.100s' غير قابلة للقراءة",
+		"الصفة '%V' للكائن '%.100s' غير قابلة للقراءة",
 		descr_name((AlifDescrObject*)descr), "?",
 		ALIFDESCR_TYPE(descr)->name);
 	return nullptr;
@@ -178,7 +178,7 @@ static AlifIntT getset_set(AlifObject* self, AlifObject* obj, AlifObject* value)
 			descr->getSet->closure);
 	}
 	alifErr_format(_alifExcAttributeError_,
-		"الخاصية '%V' للكائن '%.100s' غير قابلة للكتابة",
+		"الصفة '%V' للكائن '%.100s' غير قابلة للكتابة",
 		descr_name((AlifDescrObject*)descr), "?",
 		ALIFDESCR_TYPE(descr)->name);
 	return -1;

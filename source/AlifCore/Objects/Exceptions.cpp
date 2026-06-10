@@ -773,7 +773,7 @@ static AlifIntT attributeError_init(AlifAttributeErrorObject* _self,
 	if (!emptyTuple) {
 		return -1;
 	}
-	if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$OO:خطأ_خاصية", kwlist,
+	if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$OO:خطأ_صفة", kwlist,
 		&name, &obj)) {
 		ALIF_DECREF(emptyTuple);
 		return -1;
@@ -794,9 +794,9 @@ static AlifMemberDef _attributeErrorMembers_[] = { // 2400
 
 // 2412
 COMPLEXEXTENDSEXCEPTION(_excException_, AttributeError,
-	خطأ_خاصية, attributeError, 0,
+	خطأ_صفة, attributeError, 0,
 	/*_attributeErrorMethods_*/ nullptr, _attributeErrorMembers_,
-	0, baseException_str, "لم يتم العثور على الخاصية 'المتغير'.");
+	0, baseException_str, "لم يتم العثور على الصفة 'المتغير'.");
 
 
 static AlifIntT syntaxError_init(AlifSyntaxErrorObject* self,
@@ -977,7 +977,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	// Level 3: Exception(BaseException) subclasses
 	ITEM(ArithmeticError, خطأ_حسابي),
 	//ITEM(AssertionError),
-	ITEM(AttributeError, خطأ_خاصية),
+	ITEM(AttributeError, خطأ_صفة),
 	//ITEM(BufferError),
 	//ITEM(EOFError),
 	//ITEM(ExceptionGroup),

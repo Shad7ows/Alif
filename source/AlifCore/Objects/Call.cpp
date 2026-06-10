@@ -399,7 +399,7 @@ AlifObject* alifObject_callFunction(AlifObject* _callable, const char* _format, 
 static AlifObject* call_method(AlifThread* _tstate, AlifObject* _callable, const char* _format, va_list _va) { // 616
 	if (!alifCallable_check(_callable)) {
 		_alifErr_format(_tstate, _alifExcTypeError_,
-			"الخاصية من نوع '%.200s' غير قابلة للإستدعاء",
+			"الصفة من نوع '%.200s' غير قابلة للإستدعاء",
 			ALIF_TYPE(_callable)->name);
 		return nullptr;
 	}
