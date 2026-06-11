@@ -114,10 +114,37 @@ static AlifObject* builtin_globals(AlifObject* _module, AlifObject* ALIF_UNUSED(
 }
 
 
+
+// 595
+#define BUILTIN_HASATTR_METHODDEF    \
+    {"يملك_صفة", ALIF_CPPFUNCTION_CAST(builtin_hasAttr), METHOD_FASTCALL}
+
+static AlifObject* builtin_hasAttrImpl(AlifObject*, AlifObject*, AlifObject*);
+
+static AlifObject* builtin_hasAttr(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nargs) {
+	AlifObject* returnValue{};
+	AlifObject* obj{};
+	AlifObject* name{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("يملك_صفة", _nargs, 2, 2)) {
+		goto exit;
+	}
+	obj = _args[0];
+	name = _args[1];
+	returnValue = builtin_hasAttrImpl(_module, obj, name);
+
+exit:
+	return returnValue;
+}
+
+
+
+
 #define BUILTIN_DELATTR_METHODDEF    \
     {"احذف_صفة", ALIF_CPPFUNCTION_CAST(builtin_delAttr), METHOD_FASTCALL} // 674
 
-static AlifObject* builtin_delattrImpl(AlifObject*, AlifObject*, AlifObject*);
+static AlifObject* builtin_delAttrImpl(AlifObject*, AlifObject*, AlifObject*);
 
 static AlifObject* builtin_delAttr(AlifObject* _module,
 	AlifObject* const* _args, AlifSizeT _nargs) { // 680
@@ -130,7 +157,7 @@ static AlifObject* builtin_delAttr(AlifObject* _module,
 	}
 	obj = _args[0];
 	name = _args[1];
-	returnValue = builtin_delattrImpl(_module, obj, name);
+	returnValue = builtin_delAttrImpl(_module, obj, name);
 
 exit:
 	return returnValue;
