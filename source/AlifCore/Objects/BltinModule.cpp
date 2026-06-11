@@ -380,6 +380,17 @@ static AlifObject* builtin_hasAttrImpl(AlifObject* _module,
 }
 
 
+
+static AlifObject* builtin_setAttrImpl(AlifObject* _module,
+	AlifObject* _obj, AlifObject* _name,
+	AlifObject* value) { // 1672
+	if (alifObject_setAttr(_obj, _name, value) != 0)
+		return nullptr;
+	return ALIF_NONE;
+}
+
+
+
 static AlifObject* builtin_delAttrImpl(AlifObject* _module,
 	AlifObject* _obj, AlifObject* _name) { // 1695
 	if (alifObject_delAttr(_obj, _name) < 0) {
@@ -1312,6 +1323,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_DELATTR_METHODDEF,
 	{"احضر_صفة", ALIF_CPPFUNCTION_CAST(builtin_getAttr), METHOD_FASTCALL},
 	BUILTIN_HASATTR_METHODDEF,
+	BUILTIN_SETATTR_METHODDEF,
 	BUILTIN_GLOBALS_METHODDEF,
 	BUILTIN_LOCALS_METHODDEF,
 	BUILTIN_INPUT_METHODDEF,

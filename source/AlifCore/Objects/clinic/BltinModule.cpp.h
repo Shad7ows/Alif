@@ -140,6 +140,33 @@ exit:
 
 
 
+// 639
+#define BUILTIN_SETATTR_METHODDEF    \
+    {"اضف_صفة", ALIF_CPPFUNCTION_CAST(builtin_setAttr), METHOD_FASTCALL}
+
+static AlifObject* builtin_setAttrImpl(AlifObject*, AlifObject*, AlifObject*, AlifObject*);
+
+static AlifObject* builtin_setAttr(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 646
+	AlifObject* returnValue{};
+	AlifObject* obj{};
+	AlifObject* name{};
+	AlifObject* value{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("اضف_صفة", _nargs, 3, 3)) {
+		goto exit;
+	}
+	obj = _args[0];
+	name = _args[1];
+	value = _args[2];
+	returnValue = builtin_setAttrImpl(_module, obj, name, value);
+
+exit:
+	return returnValue;
+}
+
+
+
 
 #define BUILTIN_DELATTR_METHODDEF    \
     {"احذف_صفة", ALIF_CPPFUNCTION_CAST(builtin_delAttr), METHOD_FASTCALL} // 674
