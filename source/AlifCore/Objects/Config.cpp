@@ -23,7 +23,7 @@ class InitTable _alifImportInitTab_[] = { // 87
 
 	{"عشوائي", alifInit__random},
 
-	{"_imp", alifInit__imp},
+	{"_ورد", alifInit__imp}, // _imp *import support system
 
 	/* These entries are here for sys.builtin_module_names */
 	{"builtins", nullptr},

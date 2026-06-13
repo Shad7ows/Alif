@@ -720,7 +720,7 @@ AlifStatus alifGILState_init(AlifInterpreter* _interp) { // 2652
 
 
 
-const AlifConfig* alifInterpreter_getConfig(AlifInterpreter* _interpreter) { // 2881
+const AlifConfig* _alifInterpreterState_getConfig(AlifInterpreter* _interpreter) { // 2881
 	return &_interpreter->config;
 }
 
@@ -728,7 +728,7 @@ const AlifConfig* alifInterpreter_getConfig(AlifInterpreter* _interpreter) { // 
 const AlifConfig* alif_getConfig() { // 2903
 	AlifThread* threadState = current_fastGet();
 	ALIF_ENSURETHREADNOTNULL(threadState);
-	return alifInterpreter_getConfig(threadState->interpreter);
+	return _alifInterpreterState_getConfig(threadState->interpreter);
 }
 
 

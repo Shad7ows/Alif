@@ -511,13 +511,13 @@ static AlifStatus alifCore_interpreterInit(AlifThread* _thread) { // 843
 	status = alifCore_builtinsInit(_thread);
 	if (ALIFSTATUS_EXCEPTION(status)) goto done;
 
-	config = &interpreter->config;
+	config = _alifInterpreterState_getConfig(interpreter);
 
 	status = _alifImport_initCore(_thread, sysMod, config->installImportLib);
 	if (ALIFSTATUS_EXCEPTION(status)) goto done;
 
 done:
-	//ALIF_XDECREF(sysmod);
+	ALIF_XDECREF(sysMod);
 	return status;
 
 }
@@ -661,7 +661,7 @@ static AlifStatus initInterpreter_main(AlifThread* _thread) { // 1156
 	AlifStatus status{};
 	AlifIntT isMainInterpreter = alif_isMainInterpreter(_thread->interpreter);
 	AlifInterpreter* interpreter = _thread->interpreter;
-	const AlifConfig* config = alifInterpreter_getConfig(interpreter);
+	const AlifConfig* config = _alifInterpreterState_getConfig(interpreter);
 
 	if (!config->installImportLib) {
 		if (isMainInterpreter) {
@@ -744,7 +744,7 @@ AlifStatus alif_initFromConfig(const AlifConfig* _config) { // 1383
 	status = alifInit_core(runtime, _config, &thread); //* here
 	if (ALIFSTATUS_EXCEPTION(status)) return status;
 
-	_config = alifInterpreter_getConfig(thread->interpreter);
+	_config = _alifInterpreterState_getConfig(thread->interpreter);
 
 	if (_config->initMain) {
 		status = alifInit_main(thread);
@@ -939,7 +939,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	AlifIntT fd{};
 	AlifObject* encodingAttr{};
 	AlifStatus res = ALIFSTATUS_OK();
-	const AlifConfig* config = alifInterpreter_getConfig(_thread->interpreter);
+	const AlifConfig* config = _alifInterpreterState_getConfig(_thread->interpreter);
 
 #ifndef _WINDOWS
 	class AlifStatStruct sb;

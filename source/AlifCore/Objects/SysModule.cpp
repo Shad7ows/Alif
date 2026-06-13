@@ -175,7 +175,7 @@ static void sys_setFlag(AlifObject* _flags, AlifSizeT _pos, AlifObject* _value) 
 
 static AlifIntT setFlags_fromConfig(AlifInterpreter* _interp, AlifObject* _flags) { // 3170
 	const AlifPreConfig* preconfig = &_interp->runtime->preConfig;
-	const AlifConfig* config = alifInterpreter_getConfig(_interp);
+	const AlifConfig* config = _alifInterpreterState_getConfig(_interp);
 
 	AlifSizeT pos = 0;
 #define SetFlagObj(expr) \
@@ -288,7 +288,7 @@ static AlifStatus _alifSys_initCore(AlifThread* tstate, AlifObject* sysdict) { /
 
 
 	/* adding sys.path_hooks and sys.path_importer_cache */
-	SET_SYS("meta_path", alifList_new(0));
+	SET_SYS("مسار_التعريف", alifList_new(0)); // meta_path
 	SET_SYS("path_importer_cache", alifDict_new());
 	SET_SYS("path_hooks", alifList_new(0));
 
@@ -313,7 +313,7 @@ AlifIntT _alifSys_updateConfig(AlifThread* _thread) { // 3645
 	AlifObject* flags{}; //* alif
 	const wchar_t* stdlibdir{}; //* alif
 
-	const AlifConfig* config = alifInterpreter_getConfig(interp);
+	const AlifConfig* config = _alifInterpreterState_getConfig(interp);
 	AlifIntT res{};
 
 #define COPY_LIST(_key, _value) \

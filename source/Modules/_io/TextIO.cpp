@@ -565,7 +565,7 @@ static AlifIntT _ioTextIOWrapper___init__Impl(TextIO* _self, AlifObject* _buffer
 
 	if (_encoding == nullptr) {
 		AlifInterpreter* interp = _alifInterpreter_get();
-		//if (alifInterpreter_getConfig(interp)->warnDefaultEncoding) {
+		//if (_alifInterpreterState_getConfig(interp)->warnDefaultEncoding) {
 		//	//if (alifErr_warnEx(_alifExcEncodingWarning_,
 		//		//"'encoding' argument not specified", 1)) {
 		//		//return -1;

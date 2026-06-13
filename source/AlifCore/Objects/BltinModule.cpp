@@ -1353,7 +1353,7 @@ static AlifModuleDef _alifBuiltinsModule_ = { // 3202
 AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	AlifObject* mod{}, * dict{}, * debug{};
 
-	const AlifConfig* config = alifInterpreter_getConfig(_interpreter);
+	const AlifConfig* config = _alifInterpreterState_getConfig(_interpreter);
 
 	mod = alifModule_createInitialized(&_alifBuiltinsModule_);
 	if (mod == nullptr) return nullptr;

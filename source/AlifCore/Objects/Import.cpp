@@ -796,7 +796,7 @@ static AlifObject* import_findExtension(AlifThread* tstate,
 		return nullptr;
 	}
 
-	//AlifIntT verbose = alifInterpreter_getConfig(tstate->interpreter)->verbose;
+	//AlifIntT verbose = _alifInterpreterState_getConfig(tstate->interpreter)->verbose;
 	//if (verbose) {
 	//	alifSys_formatStderr("import %U # previously loaded (%R)\n",
 	//		info->name, info->path);
@@ -1129,6 +1129,26 @@ static AlifObject* execCode_inModule(AlifThread* _thread, AlifObject* _name,
 	return m;
 }
 
+
+static bool resolve_moduleAlias(const char* _name,
+	const ModuleAlias* _aliases, const char** _alias) { // 2713
+	const ModuleAlias* entry{};
+	for (entry = _aliases; ; entry++) {
+		if (entry->name == nullptr) {
+			/* It isn't an alias. */
+			return false;
+		}
+		if (strcmp(_name, entry->name) == 0) {
+			if (_alias != nullptr) {
+				*_alias = entry->orig;
+			}
+			return true;
+		}
+	}
+}
+
+
+
 enum FrozenStatus { // 2820
 	Frozen_Okay,
 	Frozen_Bad_Name,
@@ -1227,8 +1247,8 @@ static FrozenStatus find_frozen(AlifObject* nameobj, FrozenInfo* info) { // 2922
 			info->isPackage = true;
 		}
 		info->origname = name;
-		//info->isAlias = resolve_moduleAlias(name, _alifImportFrozenAliases_,
-		//	&info->origname); //* todo
+		info->isAlias = resolve_moduleAlias(name, _alifImportFrozenAliases_,
+			&info->origname);
 	}
 	if (p->code == nullptr) {
 		/* It is frozen but marked as un-importable. */
@@ -1320,7 +1340,7 @@ AlifIntT alifImport_importFrozenModuleObject(AlifObject* name) { // 2998
 	else {
 		origname = ALIF_NEWREF(ALIF_NONE);
 	}
-	err = alifDict_setItemString(d, "__origname__", origname);
+	err = alifDict_setItemString(d, "__الاسم_الاصل__", origname); // __origname__
 	ALIF_DECREF(origname);
 	if (err != 0) {
 		goto err_return;
@@ -1352,7 +1372,7 @@ static AlifObject* bootstrap_imp(AlifThread* _thread) { // 3096
 	AlifObject* spec{}; //* alif
 	AlifObject* mod{}; //* alif
 
-	AlifObject* name = alifUStr_fromString("_imp");
+	AlifObject* name = alifUStr_fromString("_ورد");
 	if (name == nullptr) {
 		return nullptr;
 	}
@@ -1389,18 +1409,19 @@ error:
 
 
 static AlifIntT init_importLib(AlifThread* tstate, AlifObject* sysmod) { // 3150
-	AlifInterpreter* interp = tstate->interpreter;
-	//AlifIntT verbose = alifInterpreter_getConfig(interp)->verbose;
 
-	// Import _importlib through its frozen version, _frozen_importlib.
+	AlifInterpreter* interp = tstate->interpreter;
+	AlifIntT verbose = _alifInterpreterState_getConfig(interp)->verbose;
+
+	// استورد مكتبة_الاستيراد بنسختها المجردة, _مكتبة_استيراد_مجردة.
 	//if (verbose) {
-	//	alifSys_formatStderr("import _frozen_importlib # frozen\n");
+	//	alifSys_formatStderr("استورد _مكتبة_استيراد_مجردة # مجردة\n");
 	//}
-	if (alifImport_importFrozenModule("_frozen_importlib") <= 0) {
+	if (alifImport_importFrozenModule("_مكتبة_استيراد_مجردة") <= 0) { // _frozen_importlib
 		return -1;
 	}
 
-	AlifObject* importlib = alifImport_addModuleRef("_frozen_importlib");
+	AlifObject* importlib = alifImport_addModuleRef("_مكتبة_استيراد_مجردة");
 	if (importlib == nullptr) {
 		return -1;
 	}
@@ -1412,19 +1433,19 @@ static AlifIntT init_importLib(AlifThread* tstate, AlifObject* sysmod) { // 3150
 	if (impMod == nullptr) {
 		return -1;
 	}
-	if (_alifImport_setModuleString("_imp", impMod) < 0) {
+	if (_alifImport_setModuleString("_ورد", impMod) < 0) {
 		ALIF_DECREF(impMod);
 		return -1;
 	}
 
 	// Install importlib as the implementation of import
-	//AlifObject* value = alifObject_callMethod(importlib, "_install",
-	//	"OO", sysmod, imp_mod); //* todo
-	//ALIF_DECREF(imp_mod);
-	//if (value == nullptr) {
-	//	return -1;
-	//}
-	//ALIF_DECREF(value);
+	AlifObject* value = alifObject_callMethod(importlib, "_ثبت",
+		"OO", sysmod, impMod);
+	ALIF_DECREF(impMod);
+	if (value == nullptr) {
+		return -1;
+	}
+	ALIF_DECREF(value);
 
 	return 0;
 }
@@ -1450,14 +1471,14 @@ AlifIntT _alifImport_isDefaultImportFunc(AlifInterpreter* _interp, AlifObject* _
 static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) { // 3617
 	AlifObject* mod = nullptr;
 	AlifInterpreter* interp = tstate->interpreter;
-	//AlifIntT import_time = alifInterpreter_getConfig(interp)->importTime;
+	//AlifIntT import_time = _alifInterpreterState_getConfig(interp)->importTime;
 //#define import_level FIND_AND_LOAD(interp).importLevel
 //#define accumulated FIND_AND_LOAD(interp).accumulated
 
 	//AlifTimeT t1 = 0, accumulated_copy = accumulated;
 
 	AlifObject* sysPath = alifSys_getObject("Path");
-	//AlifObject* sysMetaPath = alifSys_getObject("meta_path");
+	//AlifObject* sysMetaPath = alifSys_getObject("مسار_التعريف"); // meta_path
 	//AlifObject* sysPathHooks = alifSys_getObject("path_hooks");
 	//if (_alifSys_audit(tstate, "import", "OOOOO",
 	//	abs_name, ALIF_NONE, sysPath ? sysPath : ALIF_NONE,
@@ -1760,12 +1781,12 @@ AlifStatus alifImport_init() { // 3954
 AlifStatus _alifImport_initCore(AlifThread* _thread,
 	AlifObject* _sysmod, AlifIntT _importLib) { // 4026
 	// XXX Initialize here: interp->modules and interp->importFunc.
-	// XXX Initialize here: sys.modules and sys.meta_path.
+	// XXX Initialize here: sys.modules and sys.مسار_التعريف.
 
 	if (_importLib) {
-		//if (init_importLib(_thread, _sysmod) < 0) { //* todo
-		//	return -1;
-		//}
+		if (init_importLib(_thread, _sysmod) < 0) {
+			return ALIFSTATUS_ERR("failed to initialize importlib");
+		}
 	}
 
 	return ALIFSTATUS_OK();
@@ -1828,10 +1849,14 @@ static AlifMethodDef _impMethods_[] = { // 4788
 };
 
 
-
+/*
+ _ورد
+ تعني وررِد
+ اي أصل كلمة استورد
+*/
 static AlifModuleDef _impModule_ = { // 4838
 	.base = ALIFMODULEDEF_HEAD_INIT,
-	.name = "_imp",
+	.name = "_ورد", // _imp
 	.size = 0,
 	.methods = _impMethods_,
 	//.slots = _impSlots_,

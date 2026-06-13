@@ -163,7 +163,7 @@ static inline unsigned long alifInterpreterState_getFinalizingID(AlifInterpreter
 
 
 
-extern const AlifConfig* alifInterpreter_getConfig(AlifInterpreter*); // 329
+extern const AlifConfig* _alifInterpreterState_getConfig(AlifInterpreter*); // 329
 
 // 379
 #define ALIF_RTFLAGS_USE_ALIFMEM (1UL << 5)

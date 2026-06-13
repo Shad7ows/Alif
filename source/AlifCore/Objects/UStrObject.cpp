@@ -2411,7 +2411,7 @@ AlifObject* alifUStr_encodeFSDefault(AlifObject* _uStr) { // 3806
 	AlifInterpreter* interp = _alifInterpreter_get();
 
 
-	const AlifConfig* config = alifInterpreter_getConfig(interp);
+	const AlifConfig* config = _alifInterpreterState_getConfig(interp);
 	//const wchar_t* fileSystemErrors = config->fileSystemErrors;
 	const wchar_t* fileSystemErrors = nullptr;
 	AlifErrorHandler_ errors = get_errorHandlerWide(fileSystemErrors);
@@ -2588,7 +2588,7 @@ AlifObject* alifUStr_decodeFSDefaultAndSize(const char* s, AlifSizeT size) { // 
 	}
 #endif
 	else {
-		const AlifConfig* config = alifInterpreter_getConfig(interp);
+		const AlifConfig* config = _alifInterpreterState_getConfig(interp);
 		const wchar_t* filesystem_errors = config->fileSystemErrors;
 		AlifErrorHandler_ errors = get_errorHandlerWide(filesystem_errors);
 	#ifdef ALIF_FORCE_UTF8_FS_ENCODING
@@ -7527,7 +7527,7 @@ error:
 }
 
 static AlifStatus init_stdioEncoding(AlifInterpreter* interp) { // 16008
-	AlifConfig* config = (AlifConfig*)alifInterpreter_getConfig(interp);
+	AlifConfig* config = (AlifConfig*)_alifInterpreterState_getConfig(interp);
 	if (config_getCodecName(&config->stdioEncoding) < 0) {
 		return ALIFSTATUS_ERR("failed to get the Alif codec name "
 			"of the stdio encoding");
@@ -7536,7 +7536,7 @@ static AlifStatus init_stdioEncoding(AlifInterpreter* interp) { // 16008
 }
 
 static AlifIntT init_fsCodec(AlifInterpreter* _interp) { // 16021
-	const AlifConfig* config = alifInterpreter_getConfig(_interp);
+	const AlifConfig* config = _alifInterpreterState_getConfig(_interp);
 
 	AlifErrorHandler_ error_handler{};
 	error_handler = get_errorHandlerWide(config->fileSystemErrors);
@@ -7581,7 +7581,7 @@ static AlifIntT init_fsCodec(AlifInterpreter* _interp) { // 16021
 static AlifStatus init_fsEncoding(AlifThread* _thread) { // 16078
 	AlifInterpreter* interp = _thread->interpreter;
 
-	AlifConfig* config = (AlifConfig*)alifInterpreter_getConfig(interp);
+	AlifConfig* config = (AlifConfig*)_alifInterpreterState_getConfig(interp);
 	//if (config_getCodecName(&config->fileSystemEncoding) < 0) {
 	//	//_alif_dumpPathConfig(_thread);
 	//	return ALIFSTATUS_ERR("failed to get the Alif codec "

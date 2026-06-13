@@ -255,7 +255,7 @@ AlifTypeObject _alifFunctionType_ = { // 1142
 	.basicSize = sizeof(AlifFunctionObject),
 	.dealloc = func_dealloc,
 	.vectorCallOffset = offsetof(AlifFunctionObject, vectorCall),
-
+	.call = alifVectorCall_call,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
 	ALIF_TPFLAGS_HAVE_VECTORCALL |
 	ALIF_TPFLAGS_METHOD_DESCRIPTOR,
