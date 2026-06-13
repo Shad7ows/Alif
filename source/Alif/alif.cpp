@@ -317,7 +317,7 @@ static AlifIntT alifMain_runStdin(AlifConfig* _config) { // 542
 static void alifMain_runAlif(AlifIntT* _exitcode) { // 614
 	AlifObject* mainImporterPath = nullptr;
 	AlifInterpreter* interp = _alifInterpreter_get();
-	AlifConfig* config = (AlifConfig*)alifInterpreter_getConfig(interp);
+	AlifConfig* config = (AlifConfig*)_alifInterpreterState_getConfig(interp);
 
 	AlifObject* path0{}; //* alif
 
