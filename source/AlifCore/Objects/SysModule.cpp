@@ -424,7 +424,7 @@ AlifStatus alifSys_create(AlifThread* _thread, AlifObject** _sysModP) { // 3779
 	//	goto error;
 	//}
 
-	if (alifDict_setItemString(sysdict, "modules", modules) < 0) {
+	if (alifDict_setItemString(sysdict, "وحدات", modules) < 0) {
 		goto error;
 	}
 

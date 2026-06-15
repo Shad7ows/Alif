@@ -3340,15 +3340,16 @@ AlifIntT _alif_encodeUTF8Ex(const wchar_t* _text, char** _str, AlifUSizeT* _erro
 
 
 static AlifObject* uStr_encodeUtf8(AlifObject* unicode,
-	AlifErrorHandler_ error_handler, const char* errors) { // 5538
+	AlifErrorHandler_ error_handler, const char* errors) { // 5557
 	if (!ALIFUSTR_CHECK(unicode)) {
 		//alifErr_badArgument();
 		return nullptr;
 	}
 
-	if (ALIFUSTR_UTF8(unicode))
+	if (ALIFUSTR_UTF8(unicode)) {
 		return alifBytes_fromStringAndSize(ALIFUSTR_UTF8(unicode),
 			ALIFUSTR_UTF8_LENGTH(unicode));
+	}
 
 	AlifIntT kind = ALIFUSTR_KIND(unicode);
 	const void* data = ALIFUSTR_DATA(unicode);
