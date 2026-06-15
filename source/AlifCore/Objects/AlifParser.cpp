@@ -23,7 +23,7 @@ static const AlifIntT nKeywordList = 7;
 static KeywordToken* reservedKeywords[7] = {
 	new (KeywordToken[1])  { {nullptr, -1} },  // 0 char
 	new (KeywordToken[3])  { {"ك", 501}, {"و", 502}, {nullptr, -1} },  // 1 char
-	new (KeywordToken[7])  { {"في", 521}, {"او", 522}, {"أو", 522}, {"من", 523}, {"صح", 524}, {"هل", 525}, {nullptr, -1} },  // 2 chars
+	new (KeywordToken[8])  { {"في", 521}, {"او", 522}, {"أو", 522}, {"من", 523}, {"صح", 524}, {"هو", 525}, {"هي", 525}, {nullptr, -1} },  // 2 chars
 	new (KeywordToken[13]) { {"اذا", 541}, {"إذا", 541}, {"ليس", 542}, {"مرر", 543}, {"عدم", 544}, {"صنف", 545}, {"خطا", 546}, {"خطأ", 546}, {"عام", 547}, {"عند", 548}, {"خلل", 549}, {"لكل", 550}, { nullptr, -1 }},  // 3 chars
 	new (KeywordToken[12])  { {"احذف", 561}, {"دالة", 562}, {"والا", 563}, {"وإلا", 563}, {"توقف", 564}, {"نطاق", 565}, {"ارجع", 566}, {"أرجع", 566}, {"حاول", 567}, {"خطية", 568}, {"انتج", 569}, {nullptr, -1}},  // 4 chars
 	new (KeywordToken[7])  { {"اواذا", 581}, {"أوإذا", 581}, {"بينما", 582},  {"انتظر", 583}, {"استمر", 584}, {"نهاية", 585}, {nullptr, -1}},  // 5 chars
@@ -6127,7 +6127,7 @@ static ExprTy bitwiseOr_rule(AlifParser* _p) {
 }
 
 
-// وحدة_او_هل: "هل" وحدة_او
+// وحدة_او_هو: "هو" وحدة_او
 static CompExprPair* isBitwiseOr_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -6136,13 +6136,13 @@ static CompExprPair* isBitwiseOr_rule(AlifParser* _p) {
 	CompExprPair* res{};
 	AlifIntT mark = _p->mark;
 
-	{ // "هل" وحدة_او
+	{ // "هو" وحدة_او
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* keyword{};
 		ExprTy a_{};
 		if (
-			(keyword = alifParserEngine_expectToken(_p, IS_KW))  // "هل"
+			(keyword = alifParserEngine_expectToken(_p, IS_KW))  // "هو"
 			and
 			(a_ = bitwiseOr_rule(_p)) // وحدة_او
 			) {
@@ -6165,7 +6165,7 @@ done:
 }
 
 
-// وحدة_او_هل_ليس: "هل" "ليس" وحدة_او
+// وحدة_او_هل_ليس: "هو" "ليس" وحدة_او
 static CompExprPair* isNotBitwiseOr_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -6174,14 +6174,14 @@ static CompExprPair* isNotBitwiseOr_rule(AlifParser* _p) {
 	CompExprPair* res{};
 	AlifIntT mark = _p->mark;
 
-	{ // "هل" "ليس" وحدة_او
+	{ // "هو" "ليس" وحدة_او
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* keyword{};
 		AlifPToken* keyword1{};
 		ExprTy a_{};
 		if (
-			(keyword = alifParserEngine_expectToken(_p, IS_KW))  // "هل"
+			(keyword = alifParserEngine_expectToken(_p, IS_KW))  // "هو"
 			and
 			(keyword1 = alifParserEngine_expectToken(_p, NOT_KW))  // "ليس"
 			and

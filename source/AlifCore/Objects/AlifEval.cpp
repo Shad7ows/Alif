@@ -1865,6 +1865,26 @@ resume_frame:
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(IS_OP) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				AlifStackRef left{};
+				AlifStackRef right{};
+				AlifStackRef b{};
+				right = stackPointer[-1];
+				left = stackPointer[-2];
+				// On free-threaded builds, objects are conditionally immortalized.
+				// So their bits don't always compare equally.
+				AlifIntT res = ALIF_IS(alifStackRef_asAlifObjectBorrow(left),
+					alifStackRef_asAlifObjectBorrow(right)) ^ oparg;
+
+				ALIFSTACKREF_CLOSE(left);
+				ALIFSTACKREF_CLOSE(right);
+				b = res ? ALIFSTACKREF_TRUE : ALIFSTACKREF_FALSE;
+				stackPointer[-2] = b;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(JUMP_BACKWARD) {
 				AlifCodeUnit* thisInstr = _frame->instrPtr = nextInstr;
 				nextInstr += 2;
@@ -2181,6 +2201,35 @@ resume_frame:
 				AlifIntT flag = ALIFSTACKREF_IS(cond, ALIFSTACKREF_FALSE);
 				RECORD_BRANCH_TAKEN(thisInstr[1].cache, flag);
 				JUMPBY(oparg * flag);
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(POP_JUMP_IF_NOT_NONE) {
+				AlifCodeUnit* const thisInstr = _frame->instrPtr = nextInstr;
+				(void)thisInstr;
+				nextInstr += 2;
+				AlifStackRef value{};
+				AlifStackRef b{};
+				AlifStackRef cond{};
+				/* Skip 1 cache entry */
+				// _IS_NONE
+				{
+					value = stackPointer[-1];
+					if (ALIFSTACKREF_IS(value, ALIFSTACKREF_NONE)) {
+						b = ALIFSTACKREF_TRUE;
+					}
+					else {
+						b = ALIFSTACKREF_FALSE;
+						ALIFSTACKREF_CLOSE(value);
+					}
+				}
+				// _POP_JUMP_IF_FALSE
+				{
+					cond = b;
+					AlifIntT flag = ALIFSTACKREF_IS(cond, ALIFSTACKREF_FALSE);
+					RECORD_BRANCH_TAKEN(thisInstr[1].cache, flag);
+					JUMPBY(oparg * flag);
+				}
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
