@@ -81,21 +81,9 @@ static AlifObject* import_getModule(AlifThread* _thread, AlifObject* _name) { //
 		return nullptr;
 	}
 
-	/* //* alif //* todo
-		تمت إضافة هذا المتغير فقط من اجل
-		هذا السطر في ملف AlifLifeCycle
-		winconsoleio_type = (AlifTypeObject*)_alifImport_getModuleAttr(
-		&ALIF_STR(_io), &ALIF_STR(_windowsConsoleIO));
-		حيث _io ليس بترميز عريض
-		وبالتالي نظام الاستيراد يستطيع التعامل معها
-		ولكن alifMapping_getOptionalItem
-		لا يستطيع التعامل معها إن لم تكن ذات ترميز عريض
-	*/
-	AlifObject* name = alifUStr_fromString(alifUStr_asUTF8(_name));
-
 	AlifObject* m{};
 	ALIF_INCREF(modules);
-	(void)alifMapping_getOptionalItem(modules, name, &m);
+	(void)alifMapping_getOptionalItem(modules, _name, &m);
 	ALIF_DECREF(modules);
 	return m;
 }
@@ -1532,10 +1520,10 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	AlifObject* locals, AlifObject* fromlist, AlifIntT level) { // 3688
 
 	//* alif old implementation
-	//AlifObject* result{};
-	//level = -1;
-	//result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
-	//return result;
+	AlifObject* result{};
+	level = -1;
+	result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
+	return result;
 	//* alif old implementation
  
 	AlifThread* thread = _alifThread_get();

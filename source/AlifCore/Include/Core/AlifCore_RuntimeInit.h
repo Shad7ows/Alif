@@ -686,10 +686,10 @@
 	INIT_USTR(_windowsConsoleIO, "طرفية_ويندوز"), \
 	INIT_USTR(_findAndLoad, "_اوجد_وحمل"), \
 	INIT_STR(AnonGenExpr, "<genexpr>"), \
-	INIT_STR(AnonLambda, "<خطية>"), \
-	INIT_STR(AnonListComp, "<مصفوفة_ضمنية>"), \
-	INIT_STR(AnonSetComp, "<مميزة_ضمنية>"), \
-	INIT_STR(AnonDictComp, "<فهرس_ضمني>"), \
+	INIT_USTR(AnonLambda, "<خطية>"), \
+	INIT_USTR(AnonListComp, "<مصفوفة_ضمنية>"), \
+	INIT_USTR(AnonSetComp, "<مميزة_ضمنية>"), \
+	INIT_USTR(AnonDictComp, "<فهرس_ضمني>"), \
 	INIT_USTR(AnonModule, "<وحدة>"), /* //* alif */ \
 	INIT_STR(AnonString, "<string>"), \
     INIT_STR(DblPercent, "%%"), \
@@ -703,11 +703,11 @@
     INIT_STR(IsAtty, "isatty"),	\
     INIT_STR(KWDefaults, ".kwdefaults"),	\
     INIT_STR(TypeParams, ".type_params"),	\
-    INIT_STR(True, "صح"), /* //* alif */	\
-    INIT_STR(False, "خطأ"), /* //* alif */	\
+    INIT_USTR(True, "صح"), /* //* alif */	\
+    INIT_USTR(False, "خطأ"), /* //* alif */	\
     INIT_USTR(Flush, "مباشر"), /* //* alif */	\
-    INIT_STR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
-    INIT_STR(lambda, "خطية"), /* //* alif */	\
+    INIT_USTR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
+    INIT_USTR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
     INIT_STR(Name, "name"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\
@@ -737,7 +737,7 @@
     INIT_USTR(__rmul__, "__اضرب_ع__"), /* //* alif */	\
     INIT_USTR(__rsub__, "__اطرح_ع__"), /* //* alif */	\
     INIT_USTR(__sub__, "__اطرح__"), /* //* alif */	\
-    INIT_STR(_io, "تبادل"), /* //* alif // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject() */	\
+    INIT_USTR(_io, "تبادل"), /* //* alif // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject() */	\
 }
 
 #define ALIF_STR_IDENTIFIERS_INIT { \

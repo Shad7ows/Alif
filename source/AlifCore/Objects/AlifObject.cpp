@@ -244,17 +244,6 @@ AlifObject* alifObject_repr(AlifObject* _v) { // 662
 		return nullptr;
 	}
 
-	//* alif
-	/*
-		تمت إضافة هذه السطر لضمان تحويل النصوص الثابتة مثل صح وخطأ إلى
-		ترميز صحيح ليتمكن من طباعتها بشكل صحيح ضمن الفهرس
-		س = {"ص": صح} مثال
-		س = م"صح" مثال
-		اطبع(س) مثال
-	*/
-	res = alifUStr_fromString(alifUStr_asUTF8(res)); //* review //* todo
-	//* alif
-
 	return res;
 }
 

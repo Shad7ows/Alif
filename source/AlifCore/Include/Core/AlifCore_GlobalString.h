@@ -46,10 +46,10 @@ public:
 		STRUCT_FOR_USTR(_windowsConsoleIO, "طرفية_ويندوز")
 		STRUCT_FOR_USTR(_findAndLoad, "_اوجد_وحمل")
 		STRUCT_FOR_STR(AnonGenExpr, "<genexpr>")
-		STRUCT_FOR_STR(AnonLambda, "<خطية>")
-		STRUCT_FOR_STR(AnonListComp, "<مصفوفة_ضمنية>")
-		STRUCT_FOR_STR(AnonSetComp, "<مميزة_ضمنية>")
-		STRUCT_FOR_STR(AnonDictComp, "<فهرس_ضمني>")
+		STRUCT_FOR_USTR(AnonLambda, "<خطية>")
+		STRUCT_FOR_USTR(AnonListComp, "<مصفوفة_ضمنية>")
+		STRUCT_FOR_USTR(AnonSetComp, "<مميزة_ضمنية>")
+		STRUCT_FOR_USTR(AnonDictComp, "<فهرس_ضمني>")
 		STRUCT_FOR_USTR(AnonModule, "<وحدة>") //* alif
 		STRUCT_FOR_STR(AnonString, "<string>")
 		STRUCT_FOR_STR(DblPercent, "%%")
@@ -63,11 +63,11 @@ public:
 		STRUCT_FOR_STR(IsAtty, "isatty") //* alif
 		STRUCT_FOR_STR(KWDefaults, ".kwdefaults")
 		STRUCT_FOR_STR(TypeParams, ".type_params")
-		STRUCT_FOR_STR(True, "صح") //* alif
-		STRUCT_FOR_STR(False, "خطأ") //* alif
+		STRUCT_FOR_USTR(True, "صح") //* alif
+		STRUCT_FOR_USTR(False, "خطأ") //* alif
 		STRUCT_FOR_USTR(Flush, "مباشر") //* alif
-		STRUCT_FOR_STR(ListErr, "مؤشر المصفوفة خارج النطاق")
-		STRUCT_FOR_STR(lambda, "خطية") //* alif
+		STRUCT_FOR_USTR(ListErr, "مؤشر المصفوفة خارج النطاق")
+		STRUCT_FOR_USTR(lambda, "خطية") //* alif
 		STRUCT_FOR_STR(Mode, "mode") //* alif
 		STRUCT_FOR_STR(Name, "name") //* alif
 		STRUCT_FOR_STR(Obj, "obj") //* alif
@@ -97,7 +97,7 @@ public:
 		STRUCT_FOR_USTR(__rmul__, "__اضرب_ع__") //* alif
 		STRUCT_FOR_USTR(__rsub__, "__اطرح_ع__") //* alif
 		STRUCT_FOR_USTR(__sub__, "__اطرح__") //* alif
-		STRUCT_FOR_STR(_io, "تبادل") //* alif //* review // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject()
+		STRUCT_FOR_USTR(_io, "تبادل") //* alif //* review // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject()
 	} literals;
 
 	class {
