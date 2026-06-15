@@ -117,9 +117,11 @@
 //* alif //
 // هذا القسم خاص بالنصوص ذات الترميز الحرفي الثنائي
 // فقط "الاحرف العربية" والذي يحتاج الى عملية بحث عنه في القاموس
-// ولكن لا يمكن طباعته قبل تحويله من 16 الى 8
+// ولكن يجب تحويله من 16 الى 8 قبل طباعته
 // طول النص يساوي عدد احرف الكلمة
 // النوع يجب ان يكون 2 لأنه يتم البحث عن الاحرف ك 2 بايت لكل حرف بغض النظر عن النظام المستخدم
+// هذا النظام يعطي كائن ألف مطابق لما ترجعه الدالة alifUStr_fromString("نص")
+// جرب AlifUStrObject* str = (AlifUStrObject*)alifUStr_fromString("نص")
 #define ALIFUSTR_USTR_BASE_INIT(_litr) \
     { \
         .objBase = ALIFOBJECT_HEAD_INIT(&_alifUStrType_), \
@@ -128,13 +130,15 @@
         .state = { \
             .kind = 2, \
             .compact = 1, \
-            .ascii = 1, \
+            .ascii = 0, \
             .staticallyAllocated = 1, \
         }, \
     }
 #define ALIFUSTROBJECT_INIT(_litr)								\
 	{															\
 		.ascii = ALIFUSTR_USTR_BASE_INIT(_litr),				\
+		.utf8Length = 0,										\
+		.utf8 = nullptr,										\
 		.data = u ## _litr										\
 	}
 #define INIT_USTR(_name, _litr) \

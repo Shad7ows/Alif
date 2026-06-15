@@ -16,14 +16,18 @@
 //* alif
 // هذا القسم خاص بالنصوص ذات الترميز الحرفي الثنائي
 // فقط "الاحرف العربية" والذي يحتاج الى عملية بحث عنه في القاموس
-// ولكن لا يمكن طباعته قبل تحويله من 16 الى 8
+// ولكن يجب تحويله من 16 الى 8 قبل طباعته
 // طول النص يساوي عدد احرف الكلمة
 // النوع يجب ان يكون 2 لأنه يتم البحث عن الاحرف ك 2 بايت لكل حرف بغض النظر عن النظام المستخدم
+// هذا النظام يعطي كائن ألف مطابق لما ترجعه الدالة alifUStr_fromString("نص")
+// جرب AlifUStrObject* str = (AlifUStrObject*)alifUStr_fromString("نص")
 #define STRUCT_FOR_USTR_STR(_litr) \
     class {							\
 	public:							\
         AlifASCIIObject ascii{};	\
-        const char16_t data[sizeof(u ## _litr) / 2]{}; \
+        AlifSizeT utf8Length{};        \
+        char* utf8{};        \
+        const char16_t data[sizeof(u ## _litr)]{}; \
     }
 
 #define STRUCT_FOR_USTR(_name, _litr) \
