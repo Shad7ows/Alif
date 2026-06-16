@@ -3634,7 +3634,7 @@ static AlifIntT canOptimize_superCall(AlifCompiler* _c, ExprTy _attr) { // 4617
 	if (e->type != ExprK_::CallK or
 		e->V.call.func->type != ExprK_::NameK or
 		!alifUStr_equalToUTF8(e->V.call.func->V.name.name, "اصل") or
-		alifUStr_equalToASCIIString(_attr->V.attribute.attr, "__class__") or
+		_alifUStr_equalToASCIIString(_attr->V.attribute.attr, "__class__") or
 		ASDL_SEQ_LEN(e->V.call.keywords) != 0) {
 		return 0;
 	}

@@ -531,7 +531,7 @@ static AlifIntT _textIOWrapper_setEncoder(TextIO* self, AlifObject* codec_info,
 	//if (res != nullptr and ALIFUSTR_CHECK(res)) {
 	//	const EncodeFunCentry* e = encodefuncs;
 	//	while (e->name != nullptr) {
-	//		if (alifUStr_equalToASCIIString(res, e->name)) {
+	//		if (_alifUStr_equalToASCIIString(res, e->name)) {
 	//			self->encodeFunc = e->encodeFunc;
 	//			break;
 	//		}

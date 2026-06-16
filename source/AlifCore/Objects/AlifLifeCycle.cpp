@@ -677,8 +677,8 @@ static AlifStatus initInterpreter_main(AlifThread* _thread) { // 1156
 		return ALIFSTATUS_ERR("failed to update the Alif config");
 	}
 
-	//status = alifImport_initExternal(_thread);
-	//if (ALIFSTATUS_EXCEPTION(status)) return status;
+	status = _alifImport_initExternal(_thread);
+	if (ALIFSTATUS_EXCEPTION(status)) return status;
 
 	status = _alifUnicode_initEncodings(_thread);
 	if (ALIFSTATUS_EXCEPTION(status)) return status;
@@ -1007,7 +1007,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	goto done;
 
 error:
-	// res = ALIFSTATUS_ERR("can't initialize sys standard streams");
+	 res = ALIFSTATUS_ERR("can't initialize sys standard streams");
 
 done:
 	ALIF_XDECREF(iomod);

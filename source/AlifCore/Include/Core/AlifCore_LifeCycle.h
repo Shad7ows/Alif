@@ -30,6 +30,8 @@ extern AlifStatus _alif_preInitializeFromConfig(const AlifConfig*, const AlifArg
 
 extern AlifIntT _alif_handleSystemExit(AlifIntT*); // 78
 
+extern void _alifErr_print(AlifThread*); // 82
+
 AlifIntT _alifOS_uRandomNonBlock(void*, AlifSizeT); // 105
 
 extern AlifIntT _alif_coerceLegacyLocale(AlifIntT); // 108

@@ -5996,7 +5996,7 @@ AlifIntT alifUStr_equalToUTF8AndSize(AlifObject* _uStr,
 	return s_ == ends;
 }
 
-AlifIntT alifUStr_equalToASCIIString(AlifObject* _uStr, const char* _str) { // 11135
+AlifIntT _alifUStr_equalToASCIIString(AlifObject* _uStr, const char* _str) { // 11135
 	AlifUSizeT len_{};
 	if (!ALIFUSTR_IS_ASCII(_uStr))
 		return 0;

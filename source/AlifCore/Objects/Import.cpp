@@ -7,6 +7,7 @@
 #include "AlifCore_Errors.h"
 #include "AlifCore_Namespace.h"
 #include "AlifCore_Object.h"
+#include "AlifCore_LifeCycle.h"
 #include "AlifCore_InitConfig.h"
 
 
@@ -961,7 +962,7 @@ static AlifIntT is_builtin(AlifObject* _name) { // 2254
 	AlifIntT i{};
 	InitTable* inittab = INITTABLE;
 	for (i = 0; inittab[i].name != nullptr; i++) {
-		//if (alifUStr_equalToASCIIString(_name, inittab[i].name)) {
+		//if (_alifUStr_equalToASCIIString(_name, inittab[i].name)) {
 		if (alifUStr_equalToUTF8(_name, inittab[i].name)) { //* alif
 			if (inittab[i].initFunc == nullptr)
 				return -1;
@@ -999,7 +1000,7 @@ static AlifObject* create_builtin(AlifThread* _thread,
 
 
 	for (InitTable* p = INITTABLE; p->name != nullptr; p++) {
-		//if (alifUStr_equalToASCIIString(info.name, p->name)) {
+		//if (_alifUStr_equalToASCIIString(info.name, p->name)) {
 		if (alifUStr_equalToUTF8(info.name, p->name)) { //* alif
 			found = p;
 		}
@@ -1438,7 +1439,16 @@ static AlifIntT init_importLib(AlifThread* tstate, AlifObject* sysmod) { // 3150
 	return 0;
 }
 
-
+static AlifIntT init_importlibExternal(AlifInterpreter* _interp) { // 3207
+	AlifObject* value{};
+	value = alifObject_callMethod(IMPORTLIB(_interp),
+		"_ثبت_مستوردات_الخارج", "");
+	if (value == nullptr) {
+		return -1;
+	}
+	ALIF_DECREF(value);
+	return 0;
+}
 
 AlifIntT _alifImport_initDefaultImportFunc(AlifInterpreter* _interp) { // 3338
 	// Get the __import__ function
@@ -1450,10 +1460,78 @@ AlifIntT _alifImport_initDefaultImportFunc(AlifInterpreter* _interp) { // 3338
 	return 0;
 }
 
-AlifIntT _alifImport_isDefaultImportFunc(AlifInterpreter* _interp, AlifObject* _func) { // 3350
+AlifIntT _alifImport_isDefaultImportFunc(AlifInterpreter* _interp,
+	AlifObject* _func) { // 3350
 	return _func == IMPORT_FUNC(_interp);
 }
 
+
+
+static void remove_importLibFrames(AlifThread* _thread) { // 3415
+	const char *importlibFilename = "<جرد Importlib._bootstrap>";
+	const char *externalFilename = "<جرد Importlib._bootstrap_external>";
+	const char *removeFrames = "_استدعي_بدون_إطار";
+	AlifIntT alwaysTrim = 0;
+	AlifIntT inImportlib = 0;
+	AlifObject** prevLink, **outerLink = nullptr;
+	AlifObject* baseTB = nullptr;
+
+	/* Synopsis: if it's an ImportError, we trim all importlib chunks
+	from the traceback. We always trim chunks
+	which end with a call to "_استدعي_بدون_إطار". */
+
+	AlifObject *exc = _alifErr_getRaisedException(_thread);
+	if (exc == nullptr or _alifInterpreterState_getConfig(_thread->interpreter)->verbose) {
+		goto done;
+	}
+
+	if (alifType_isSubType(ALIF_TYPE(exc), (AlifTypeObject*)_alifExcImportError_)) {
+		alwaysTrim = 1;
+	}
+
+	baseTB = alifException_getTraceback(exc);
+	prevLink = &baseTB;
+	AlifObject* tb; tb = baseTB;
+	while (tb != nullptr) {
+		AlifTracebackObject *traceback = (AlifTracebackObject*)tb;
+		AlifObject *next = (AlifObject*)traceback->next;
+		AlifFrameObject *frame = traceback->frame;
+		AlifCodeObject *code = alifFrame_getCode(frame);
+		AlifIntT nowInImportlib{};
+
+		//* alif
+		// here we use alifUStr_equalToUTF8 instade of _alifUStr_equalToASCIIString
+		// because the name contains unicode "Arabic" letters
+		nowInImportlib = alifUStr_equalToUTF8(code->filename, importlibFilename)
+			or
+			alifUStr_equalToUTF8(code->filename, externalFilename);
+		if (nowInImportlib and !inImportlib) {
+			/* This is the link to this chunk of importlib tracebacks */
+			outerLink = prevLink;
+		}
+		inImportlib = nowInImportlib;
+
+		if (inImportlib and
+			(alwaysTrim or
+				alifUStr_equalToUTF8(code->name, removeFrames))) {
+			ALIF_XSETREF(*outerLink, ALIF_XNEWREF(next));
+			prevLink = outerLink;
+		}
+		else {
+			prevLink = (AlifObject**) &traceback->next;
+		}
+		ALIF_DECREF(code);
+		tb = next;
+	}
+	if (baseTB == nullptr) {
+		baseTB = ALIF_NONE;
+		ALIF_INCREF(ALIF_NONE);
+	}
+	alifException_setTraceback(exc, baseTB);
+done:
+	ALIF_XDECREF(baseTB);
+	_alifErr_setRaisedException(_thread, exc);
+}
 
 
 static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) { // 3633
@@ -1520,10 +1598,10 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	AlifObject* locals, AlifObject* fromlist, AlifIntT level) { // 3688
 
 	//* alif old implementation
-	AlifObject* result{};
-	level = -1;
-	result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
-	return result;
+	//AlifObject* result{};
+	//level = -1;
+	//result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
+	//return result;
 	//* alif old implementation
  
 	AlifThread* thread = _alifThread_get();
@@ -1657,7 +1735,7 @@ error:
 	ALIF_XDECREF(mod);
 	ALIF_XDECREF(package);
 	if (finalMod == nullptr) {
-		//remove_importLibFrames(tstate);
+		remove_importLibFrames(thread);
 	}
 	return finalMod;
 }
@@ -1791,7 +1869,23 @@ AlifStatus _alifImport_initCore(AlifThread* _thread,
 
 
 
+AlifStatus _alifImport_initExternal(AlifThread* _thread) { // 4133
+	AlifIntT verbose = _alifInterpreterState_getConfig(_thread->interpreter)->verbose;
 
+	// XXX Initialize here: sys.path_hooks and sys.path_importer_cache.
+
+	if (init_importlibExternal(_thread->interpreter) != 0) {
+		_alifErr_print(_thread);
+		return ALIFSTATUS_ERR("external importer setup failed");
+	}
+
+	//if (init_zipImport(_thread, verbose) != 0) {
+	//	alifErr_print();
+	//	return ALIFSTATUS_ERR("initializing zipimport failed");
+	//}
+
+	return ALIFSTATUS_OK();
+}
 
 
 AlifObject* _alifImport_getModuleAttr(AlifObject* _modName,
@@ -1805,7 +1899,8 @@ AlifObject* _alifImport_getModuleAttr(AlifObject* _modName,
 	return result;
 }
 
-AlifObject* _alifImport_getModuleAttrString(const char* _modName, const char* _attrName) { // 4177
+AlifObject* _alifImport_getModuleAttrString(const char* _modName,
+	const char* _attrName) { // 4177
 	AlifObject* pmodname = alifUStr_fromString(_modName);
 	if (pmodname == nullptr) {
 		return nullptr;

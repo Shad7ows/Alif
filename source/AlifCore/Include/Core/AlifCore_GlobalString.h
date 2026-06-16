@@ -97,7 +97,7 @@ public:
 		STRUCT_FOR_USTR(__rmul__, "__اضرب_ع__") //* alif
 		STRUCT_FOR_USTR(__rsub__, "__اطرح_ع__") //* alif
 		STRUCT_FOR_USTR(__sub__, "__اطرح__") //* alif
-		STRUCT_FOR_USTR(_io, "تبادل") //* alif //* review // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject()
+		STRUCT_FOR_USTR(_io, "تبادل") //* alif
 	} literals;
 
 	class {

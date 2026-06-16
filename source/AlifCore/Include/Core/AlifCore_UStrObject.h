@@ -55,7 +55,7 @@ extern AlifSizeT _alifUStr_insertThousandsGrouping(AlifUStrWriter*, AlifSizeT, A
 
 
 
-AlifIntT alifUStr_equalToASCIIString(AlifObject*, const char*); // 224
+AlifIntT _alifUStr_equalToASCIIString(AlifObject*, const char*); // 224
 
 
 

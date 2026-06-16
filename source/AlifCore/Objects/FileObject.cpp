@@ -192,6 +192,101 @@ char* alifUniversal_newLineFGetsWithSize(char* _buf,
 
 
 
+class AlifStdPrinterObject { // 282
+public:
+	ALIFOBJECT_HEAD;
+	int fd{};
+};
+
+AlifObject* alifFile_newStdPrinter(int fd) { // 287
+	AlifStdPrinterObject* self{};
+
+	if (fd != fileno(stdout) and fd != fileno(stderr)) {
+		return nullptr;
+	}
+
+	self = ALIFOBJECT_NEW(AlifStdPrinterObject,
+		&_alifStdPrinterType_);
+	if (self != nullptr) {
+		self->fd = fd;
+	}
+	return (AlifObject*)self;
+}
+
+
+
+static AlifObject* stdPrinter_write(AlifStdPrinterObject* _self,
+	AlifObject* _args) { // 305
+	AlifObject* unicode{};
+	AlifObject* bytes = nullptr;
+	const char* str;
+	AlifSizeT n{};
+	AlifIntT err{};
+
+	if (_self->fd < 0) {
+		return ALIF_NONE;
+	}
+
+	if (!alifArg_parseTuple(_args, "U", &unicode)) {
+		return nullptr;
+	}
+
+	/* Encode Unicode to UTF-8/backslashreplace */
+	str = alifUStr_asUTF8AndSize(unicode, &n);
+	if (str == nullptr) {
+		alifErr_clear();
+		bytes = _alifUStr_asUTF8String(unicode, "backslashreplace");
+		if (bytes == nullptr)
+			return nullptr;
+		str = ALIFBYTES_AS_STRING(bytes);
+		n = ALIFBYTES_GET_SIZE(bytes);
+	}
+
+	n = _alif_write(_self->fd, str, n);
+	err = errno;
+
+	ALIF_XDECREF(bytes);
+
+	if (n == -1) {
+		if (err == EAGAIN) {
+			alifErr_clear();
+			return ALIF_NONE;
+		}
+		return NULL;
+	}
+
+	return alifLong_fromSizeT(n);
+}
+
+
+
+static AlifMethodDef _stdPrinterMethods_[] = { // 391
+	{"اكتب",           (AlifCPPFunction)stdPrinter_write, METHOD_VARARGS},
+	{nullptr,              nullptr}  /*sentinel */
+};
+
+
+
+
+
+
+
+AlifTypeObject _alifStdPrinterType_ = { // 425
+	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
+	.name = "طابع_الخطأ",
+	.basicSize = sizeof(AlifStdPrinterObject),
+	/* methods */
+	//.repr = (ReprFunc)stdPrinter_repr,
+	.getAttro = alifObject_genericGetAttr,
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_DISALLOW_INSTANTIATION,
+	.methods = _stdPrinterMethods_,
+	//.getSet = _stdPrinterGetSetList_,
+	.alloc = alifType_genericAlloc,
+	.free = alifMem_objFree,
+};
+
+
+
 AlifIntT _alifFile_flush(AlifObject* _file) { // 533
 	AlifObject* tmp = alifObject_callMethodNoArgs(_file, &ALIF_STR(Flush));
 	if (tmp == nullptr) {

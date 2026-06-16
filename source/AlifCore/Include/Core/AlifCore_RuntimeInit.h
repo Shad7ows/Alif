@@ -737,7 +737,7 @@
     INIT_USTR(__rmul__, "__اضرب_ع__"), /* //* alif */	\
     INIT_USTR(__rsub__, "__اطرح_ع__"), /* //* alif */	\
     INIT_USTR(__sub__, "__اطرح__"), /* //* alif */	\
-    INIT_USTR(_io, "تبادل"), /* //* alif // Important! don't use STRUCT_FOR_USTR here because it's lead to wrong unicode in import.cpp alifImport_importModuleLevelObject() */	\
+    INIT_USTR(_io, "تبادل"), /* //* alif */	\
 }
 
 #define ALIF_STR_IDENTIFIERS_INIT { \

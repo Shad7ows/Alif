@@ -19,6 +19,7 @@ extern AlifIntT _alifUTF8Mode_;
 /* ------------------------------------------------------------------------------------------------ */
 
 
-
+AlifObject* alifFile_newStdPrinter(int);
+extern AlifTypeObject _alifStdPrinterType_;
 
 typedef AlifObject* (*AlifOpenCodeHookFunction)(AlifObject*, void*);

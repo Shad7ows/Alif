@@ -546,7 +546,7 @@ static AlifIntT inline_comprehension(AlifSTEntryObject* _ste, AlifSTEntryObject*
 			return 0;
 		}
 		if (scope == FREE and _ste->type == BlockType_::Class_Block and
-			alifUStr_equalToASCIIString(k_, "__class__")) {
+			_alifUStr_equalToASCIIString(k_, "__class__")) {
 			scope = GLOBAL_IMPLICIT;
 			if (alifSet_discard(_compFree, k_) < 0) {
 				return 0;
@@ -1139,12 +1139,12 @@ error:
 
 static AlifIntT check_name(AlifSymTable* _st, AlifObject* _name, AlifSourceLocation _loc,
 	ExprContext_ _ctx) { // 1556
-	//if (_ctx == Store and alifUStr_equalToASCIIString(name, "__debug__")) {
+	//if (_ctx == Store and _alifUStr_equalToASCIIString(name, "__debug__")) {
 		//alifErr_setString(_alifExcSyntaxError_, "cannot assign to __debug__");
 		//SET_ERROR_LOCATION(_st->fileName, _loc);
 		//return 0;
 	//}
-	//if (_ctx == Del and alifUStr_equalToASCIIString(name, "__debug__")) {
+	//if (_ctx == Del and _alifUStr_equalToASCIIString(name, "__debug__")) {
 		//alifErr_setString(_alifExcSyntaxError_, "cannot delete __debug__");
 		//SET_ERROR_LOCATION(_st->fileName, _loc);
 		//return 0;
@@ -1308,7 +1308,7 @@ static AlifIntT symtable_recordDirective(AlifSymTable* _st,
 static AlifIntT check_importFrom(AlifSymTable* st, StmtTy s) { // 1776
 	AlifSourceLocation fut = st->future->location;
 	if (s->V.importFrom.module and s->V.importFrom.level == 0 &&
-		alifUStr_equalToASCIIString(s->V.importFrom.module, "__future__") and
+		_alifUStr_equalToASCIIString(s->V.importFrom.module, "__future__") and
 		((s->lineNo > fut.lineNo) or
 			((s->lineNo == fut.endLineNo) and (s->colOffset > fut.endColOffset)))) {
 		//alifErr_setString(_alifExcSyntaxError_,
@@ -1868,7 +1868,7 @@ static AlifIntT symtable_visitAlias(AlifSymTable* _st, AliasTy _a) { // 2825
 	else {
 		storeName = ALIF_NEWREF(name);
 	}
-	if (!alifUStr_equalToASCIIString(name, "*")) {
+	if (!_alifUStr_equalToASCIIString(name, "*")) {
 		AlifIntT r = symtable_addDef(_st, storeName, DEF_IMPORT, LOCATION(_a));
 		ALIF_DECREF(storeName);
 		return r;

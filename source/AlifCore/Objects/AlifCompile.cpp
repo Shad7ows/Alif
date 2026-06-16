@@ -828,8 +828,8 @@ static AlifCodeObject* compiler_mod(AlifCompiler* _c, ModuleTy _mod) {
 
 AlifIntT _alifCompiler_getRefType(AlifCompiler* _c, AlifObject* _name) {
 	if (_c->u_->scopeType == ScopeType_::Compiler_Scope_Class and
-		(alifUStr_equalToASCIIString(_name, "__class__") or
-			alifUStr_equalToASCIIString(_name, "__classDict__"))) {
+		(_alifUStr_equalToASCIIString(_name, "__class__") or
+			_alifUStr_equalToASCIIString(_name, "__classDict__"))) {
 		return CELL;
 	}
 	AlifSTEntryObject* ste = _c->u_->ste;

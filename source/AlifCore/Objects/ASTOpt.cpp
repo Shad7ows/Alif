@@ -770,7 +770,7 @@ static AlifIntT astFold_expr(ExprTy _node,
 		break;
 	case ExprK_::NameK:
 		if (_node->V.name.ctx == ExprContext_::Load and
-			alifUStr_equalToASCIIString(_node->V.name.name, "__debug__")) {
+			_alifUStr_equalToASCIIString(_node->V.name.name, "__debug__")) {
 			LEAVE_RECURSIVE(_state);
 			return make_const(_node, alifBool_fromLong(!_state->optimize), _ctx);
 		}

@@ -392,6 +392,29 @@ err_occurred:
 #undef SET_SYS
 #undef SET_SYS_FROM_STRING
 
+/* Set up a preliminary stderr printer until we have enough
+infrastructure for the io module in place.
+
+ضرورية لطباعة الأخطاء وذلك قبل تهيئة نظام التبادل
+*/
+static AlifStatus _alifSys_setPreliminaryStderr(AlifObject* _sysDict) { // 3722
+	AlifObject* pstderr = alifFile_newStdPrinter(fileno(stderr));
+	if (pstderr == nullptr) {
+		goto error;
+	}
+	if (alifDict_setItem(_sysDict, &ALIF_ID(Stderr), pstderr) < 0) {
+		goto error;
+	}
+	if (alifDict_setItemString(_sysDict, "__stderr__", pstderr) < 0) {
+		goto error;
+	}
+	ALIF_DECREF(pstderr);
+	return ALIFSTATUS_OK();
+
+error:
+	ALIF_XDECREF(pstderr);
+	return ALIFSTATUS_ERR("can't set preliminary stderr");
+}
 
 AlifStatus alifSys_create(AlifThread* _thread, AlifObject** _sysModP) { // 3779
 
@@ -428,10 +451,10 @@ AlifStatus alifSys_create(AlifThread* _thread, AlifObject** _sysModP) { // 3779
 		goto error;
 	}
 
-	//status = _alifSys_setPreliminaryStderr(sysdict);
-	//if (ALIFSTATUS_EXCEPTION(status)) {
-	//	return status;
-	//}
+	status = _alifSys_setPreliminaryStderr(sysdict);
+	if (ALIFSTATUS_EXCEPTION(status)) {
+		return status;
+	}
 
 	status = _alifSys_initCore(_thread, sysdict);
 	if (ALIFSTATUS_EXCEPTION(status)) {

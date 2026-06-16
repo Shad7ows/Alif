@@ -64,6 +64,8 @@ extern AlifStatus alifImport_init(); // 161
 
 extern AlifStatus _alifImport_initCore(AlifThread*, AlifObject*, AlifIntT); // 165
 
+extern AlifStatus _alifImport_initExternal(AlifThread*); // 170
+
 extern AlifObject* _alifImport_getBuiltinModuleNames(void); // 174
 
 
