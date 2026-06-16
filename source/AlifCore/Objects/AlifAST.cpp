@@ -2091,6 +2091,23 @@ StmtTy alifAST_if(ExprTy _condition, ASDLStmtSeq* _body, ASDLStmtSeq* _else,
 	return p_;
 }
 
+StmtTy alifAST_raise(ExprTy _exc, ExprTy _cause,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	StmtTy p{};
+	p = (StmtTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return nullptr;
+	p->type = RaiseK;
+	p->V.raise.exc = _exc;
+	p->V.raise.cause = _cause;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
 StmtTy alifAST_try(ASDLStmtSeq* _body, ASDLExcepthandlerSeq* _handlers,
 	ASDLStmtSeq* _else, ASDLStmtSeq* _finalBody, AlifIntT _lineNo, AlifIntT
 	_colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7407
@@ -3517,21 +3534,21 @@ AlifObject* ast2obj_stmt(ASTState* state, Validator* vstate, void* _o) { // 8793
 		//		goto failed;
 		//	ALIF_DECREF(value);
 		//	break;
-		//case StmtK_::RaiseK:
-		//	tp = (AlifTypeObject*)state->Raise_type;
-		//	result = alifType_genericNew(tp, nullptr, nullptr);
-		//	if (!result) goto failed;
-		//	value = ast2obj_expr(state, vstate, o->V.raise.exc);
-		//	if (!value) goto failed;
-		//	if (alifObject_setAttr(result, state->exc, value) == -1)
-		//		goto failed;
-		//	ALIF_DECREF(value);
-		//	value = ast2obj_expr(state, vstate, o->V.raise.cause);
-		//	if (!value) goto failed;
-		//	if (alifObject_setAttr(result, state->cause, value) == -1)
-		//		goto failed;
-		//	ALIF_DECREF(value);
-		//	break;
+	case StmtK_::RaiseK:
+		tp = (AlifTypeObject*)state->Raise_type;
+		result = alifType_genericNew(tp, nullptr, nullptr);
+		if (!result) goto failed;
+		value = ast2obj_expr(state, vstate, o->V.raise.exc);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->exc, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
+		value = ast2obj_expr(state, vstate, o->V.raise.cause);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->cause, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
+		break;
 	case StmtK_::TryK:
 		tp = (AlifTypeObject*)state->Try_type;
 		result = alifType_genericNew(tp, nullptr, nullptr);

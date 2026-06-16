@@ -194,6 +194,11 @@ AlifIntT alifException_setTraceback(AlifObject* self, AlifObject* tb) { // 419
 	return baseException_setTB(_alifBaseExceptionObject_cast(self), tb, nullptr);
 }
 
+AlifObject* alifException_getCause(AlifObject* _self) { // 425
+	AlifObject* cause = _alifBaseExceptionObject_cast(_self)->cause;
+	return ALIF_XNEWREF(cause);
+}
+
 /* Steals a reference to cause */
 void alifException_setCause(AlifObject* _self, AlifObject* _cause) { // 433
 	AlifBaseExceptionObject* base_self = _alifBaseExceptionObject_cast(_self);
@@ -354,7 +359,7 @@ AlifObject* _alifExc ## EXCNAME ## _ = (AlifObject*)&_exc ## EXCNAME ## _
 
 
  // 586
-SIMPLEEXTENDSEXCEPTION(_excBaseException_, Exception, خطأ,
+SIMPLEEXTENDSEXCEPTION(_excBaseException_, Exception, الخطأ,
 	"Common base class for all non-exit exceptions.");
 
 // 596
@@ -969,7 +974,7 @@ static StaticException _staticExceptions_[] = { // 3615
 
 	// Level 2: BaseException subclasses
 	ITEM(BaseExceptionGroup, خطأ_اساس_مجموعة),
-	ITEM(Exception, خطأ),
+	ITEM(Exception, الخطأ),
 	//ITEM(GeneratorExit),
 	//ITEM(KeyboardInterrupt),
 	//ITEM(SystemExit),

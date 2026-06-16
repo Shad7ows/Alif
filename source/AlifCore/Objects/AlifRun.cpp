@@ -533,6 +533,63 @@ error:
 	return -1;
 }
 
+// 959
+static const char _causeMessage_[] =
+"الخطأ في الأعلى يعتبر سبب مباشر "
+"لهذا الخطأ:\n";
+
+static const char _contextMessage_[] =
+"بينما يتم التعامل مع الخطأ في الأعلى, "
+"حدث خطأ آخر:\n";
+
+static AlifIntT printException_recursive(ExceptionPrintContext*, AlifObject*); // 967
+
+static AlifIntT print_chained(ExceptionPrintContext* _ctx, AlifObject* _value,
+	const char* _message, const char* _tag) { // 970
+	AlifObject* f = _ctx->file;
+	if (_alif_enterRecursiveCall(" في print_chained")) {
+		return -1;
+	}
+	AlifIntT res = printException_recursive(_ctx, _value);
+	_alif_leaveRecursiveCall();
+	if (res < 0) {
+		return -1;
+	}
+
+	if (alifFile_writeString("\n", f) < 0) {
+		return -1;
+	}
+	if (alifFile_writeString(_message, f) < 0) {
+		return -1;
+	}
+	if (alifFile_writeString("\n", f) < 0) {
+		return -1;
+	}
+	return 0;
+}
+
+static bool printException_seenLookup(ExceptionPrintContext* _ctx,
+	AlifObject* _value) { // 1002
+	AlifObject* checkID = alifLong_fromVoidPtr(_value);
+	if (checkID == nullptr) {
+		alifErr_clear();
+		return true;
+	}
+
+	AlifIntT inSeen = alifSet_contains(_ctx->seen, checkID);
+	ALIF_DECREF(checkID);
+	if (inSeen == -1) {
+		alifErr_clear();
+		return true;
+	}
+
+	if (inSeen == 1) {
+		/* value is in seen */
+		return true;
+	}
+	return false;
+}
+
 static AlifIntT printException_causeAndContext(ExceptionPrintContext* ctx,
 	AlifObject* value) { // 1011
 	AlifObject* value_id = alifLong_fromVoidPtr(value);
@@ -547,31 +604,32 @@ static AlifIntT printException_causeAndContext(ExceptionPrintContext* ctx,
 		return 0;
 	}
 
-	//AlifObject* cause = alifException_getCause(value);
-	//if (cause) {
-	//	int err = 0;
-	//	if (!printException_seenLookup(ctx, cause)) {
-	//		err = print_chained(ctx, cause, _causeMessage_, "cause");
-	//	}
-	//	ALIF_DECREF(cause);
-	//	return err;
-	//}
-	//if (((AlifBaseExceptionObject*)value)->suppressContext) {
-	//	return 0;
-	//}
-	//AlifObject* context = alifException_getContext(value);
-	//if (context) {
-	//	AlifIntT err = 0;
-	//	if (!printException_seenLookup(ctx, context)) {
-	//		err = print_chained(ctx, context, _contextMessage_, "context");
-	//	}
-	//	ALIF_DECREF(context);
-	//	return err;
-	//}
+	AlifObject* cause = alifException_getCause(value);
+	if (cause) {
+		AlifIntT err = 0;
+		if (!printException_seenLookup(ctx, cause)) {
+			err = print_chained(ctx, cause, _causeMessage_, "cause");
+		}
+		ALIF_DECREF(cause);
+		return err;
+	}
+	if (((AlifBaseExceptionObject*)value)->suppressContext) {
+		return 0;
+	}
+	AlifObject* context = alifException_getContext(value);
+	if (context) {
+		AlifIntT err = 0;
+		if (!printException_seenLookup(ctx, context)) {
+			err = print_chained(ctx, context, _contextMessage_, "context");
+		}
+		ALIF_DECREF(context);
+		return err;
+	}
 	return 0;
 }
 
-static AlifIntT printException_recursive(ExceptionPrintContext* ctx, AlifObject* value) { // 1051
+static AlifIntT printException_recursive(ExceptionPrintContext* ctx,
+	AlifObject* value) { // 1051
 	if (_alif_enterRecursiveCall(" في دالة printException_recursive")) {
 		return -1;
 	}

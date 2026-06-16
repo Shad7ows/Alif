@@ -25,7 +25,7 @@ static KeywordToken* reservedKeywords[7] = {
 	new (KeywordToken[3])  { {"ك", 501}, {"و", 502}, {nullptr, -1} },  // 1 char
 	new (KeywordToken[8])  { {"في", 521}, {"او", 522}, {"أو", 522}, {"من", 523}, {"صح", 524}, {"هو", 525}, {"هي", 525}, {nullptr, -1} },  // 2 chars
 	new (KeywordToken[13]) { {"اذا", 541}, {"إذا", 541}, {"ليس", 542}, {"مرر", 543}, {"عدم", 544}, {"صنف", 545}, {"خطا", 546}, {"خطأ", 546}, {"عام", 547}, {"عند", 548}, {"خلل", 549}, {"لكل", 550}, { nullptr, -1 }},  // 3 chars
-	new (KeywordToken[12])  { {"احذف", 561}, {"دالة", 562}, {"والا", 563}, {"وإلا", 563}, {"توقف", 564}, {"نطاق", 565}, {"ارجع", 566}, {"أرجع", 566}, {"حاول", 567}, {"خطية", 568}, {"انتج", 569}, {nullptr, -1}},  // 4 chars
+	new (KeywordToken[13])  { {"احذف", 561}, {"دالة", 562}, {"والا", 563}, {"وإلا", 563}, {"توقف", 564}, {"نطاق", 565}, {"ارجع", 566}, {"أرجع", 566}, {"حاول", 567}, {"خطية", 568}, {"انتج", 569}, {"اطلق", 570}, {nullptr, -1}},  // 4 chars
 	new (KeywordToken[7])  { {"اواذا", 581}, {"أوإذا", 581}, {"بينما", 582},  {"انتظر", 583}, {"استمر", 584}, {"نهاية", 585}, {nullptr, -1}},  // 5 chars
 	new (KeywordToken[3])  { {"مزامنة", 601}, {"استورد", 602}, {nullptr, -1}}  // 6 chars
 };
@@ -58,6 +58,7 @@ static KeywordToken* reservedKeywords[7] = {
 #define TRY_KW 567
 #define LAMBDA_KW 568
 #define YIELD_KW 569
+#define RAISE_KW 570
 #define ELIF_KW 581
 #define WHILE_KW 582
 #define AWAIT_KW 583
@@ -11267,6 +11268,122 @@ done:
 	return res;
 }
 
+// ألف34: 'من' تعبير
+static ExprTy alif34(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ExprTy res{};
+	AlifIntT mark = _p->mark;
+	{ // 'من' تعبير
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* keyword{};
+		ExprTy z{};
+		if (
+			(keyword = alifParserEngine_expectToken(_p, FROM_KW))  // "من"
+			and
+			(z = expression_rule(_p))  // تعبير
+			)
+		{
+			res = z;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
+//	^
+//	|
+//	|
+// حالة_اطلق: 'اطلق' تعبير ['من' تعبير] | 'اطلق'
+static StmtTy raise_stmtRule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	StmtTy res{};
+	AlifIntT mark = _p->mark;
+	if (_p->mark == _p->fill
+		and
+		alifParserEngine_fillToken(_p) < 0) {
+		_p->errorIndicator = 1;
+		_p->level--;
+		return nullptr;
+	}
+	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
+	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
+	{ // 'اطلق' تعبير ['من' تعبير]
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* keyword{};
+		ExprTy a{};
+		ExprTy b{};
+		if (
+			(keyword = alifParserEngine_expectToken(_p, RAISE_KW))  // "اطلق"
+			and
+			(a = expression_rule(_p))  // تعبير
+			and
+			(b = alif34(_p), !_p->errorIndicator)  // ['من' تعبير]
+			)
+		{
+			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token->endLineNo;
+			AlifIntT endColOffset = token->endColOffset;
+			res = alifAST_raise (a, b, EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // 'اطلق'
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* keyword{};
+		if (
+			(keyword = alifParserEngine_expectToken(_p, RAISE_KW))  // "اطلق"
+			)
+		{
+			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token->endLineNo;
+			AlifIntT endColOffset = token->endColOffset;
+			res = alifAST_raise (nullptr, nullptr, EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
 
 // حالة_انتج: تعبير_انتج
 static StmtTy yieldStmt_rule(AlifParser* _p) {
@@ -14259,6 +14376,20 @@ static StmtTy simpleStmt_rule(AlifParser* _p) {
 			(a_ = importStmt_rule(_p)) // حالة_استورد
 			) {
 			res = a_;
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // &"اطلق" حالة_اطلق
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+		StmtTy raiseStmtVar{};
+		if (
+			alifParserEngine_lookaheadWithInt(1, alifParserEngine_expectToken, _p, RAISE_KW)  // "اطلق"
+			and
+			(raiseStmtVar = raise_stmtRule(_p))  // حالة_اطلق
+			)
+		{
+			res = raiseStmtVar;
 			goto done;
 		}
 		_p->mark = mark;

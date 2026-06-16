@@ -1502,6 +1502,14 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 		if (_s->V.if_.else_)
 			VISIT_SEQ(_st, Stmt, _s->V.if_.else_);
 		break;
+	case RaiseK:
+		if (_s->V.raise.exc) {
+			VISIT(_st, Expr, _s->V.raise.exc);
+			if (_s->V.raise.cause) {
+				VISIT(_st, Expr, _s->V.raise.cause);
+			}
+		}
+		break;
 	case TryK:
 		VISIT_SEQ(_st, Stmt, _s->V.try_.body);
 		VISIT_SEQ(_st, Excepthandler, _s->V.try_.handlers);

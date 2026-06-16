@@ -2893,20 +2893,20 @@ static AlifIntT codegen_visitStmt(AlifCompiler* _c, StmtTy _s) {
 	}
 	//case StmtK_::MatchK:
 	//	return codegen_match(_c, _s);
-	//case StmtK_::RaiseK:
-	//{
-	//	AlifSizeT n = 0;
-	//	if (_s->v.Raise.exc) {
-	//		VISIT(_c, expr, _s->v.Raise.exc);
-	//		n++;
-	//		if (_s->v.Raise.cause) {
-	//			VISIT(_c, expr, _s->v.Raise.cause);
-	//			n++;
-	//		}
-	//	}
-	//	ADDOP_I(_c, LOC(_s), RAISE_VARARGS, (AlifIntT)n);
-	//	break;
-	//}
+	case StmtK_::RaiseK:
+	{
+		AlifSizeT n = 0;
+		if (_s->V.raise.exc) {
+			VISIT(_c, Expr, _s->V.raise.exc);
+			n++;
+			if (_s->V.raise.cause) {
+				VISIT(_c, Expr, _s->V.raise.cause);
+				n++;
+			}
+		}
+		ADDOP_I(_c, LOC(_s), RAISE_VARARGS, (AlifIntT)n);
+		break;
+	}
 	case StmtK_::TryK:
 		return codegen_try(_c, _s);
 	case StmtK_::TryStarK:

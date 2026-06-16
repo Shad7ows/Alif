@@ -149,6 +149,7 @@ const AlifUSizeT _alifFunctionAttributeOffsets_[] = { // 396 //* alif
 };
 
 
+static AlifIntT do_raise(AlifThread*, AlifObject*, AlifObject*); // 633
 
 AlifObject* alifEval_evalCode(AlifObject* _co,
 	AlifObject* _globals, AlifObject* _locals) { // 592
@@ -2245,9 +2246,29 @@ resume_frame:
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(RAISE_VARARGS) {
+				AlifCodeUnit* const thisInstr = _frame->instrPtr = nextInstr;
+				(void)thisInstr;
+				nextInstr += 1;
+				AlifStackRef* args{};
+				args = &stackPointer[-oparg];
+				AlifObject* cause = oparg == 2 ? alifStackRef_asAlifObjectSteal(args[1]) : nullptr;
+				AlifObject* exc = oparg > 0 ? alifStackRef_asAlifObjectSteal(args[0]) : nullptr;
+				stackPointer += -oparg;
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifIntT err = do_raise(_thread, exc, cause);
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				if (err) {
+					_alifFrame_setStackPointer(_frame, stackPointer);
+					//monitor_reraise(_thread, _frame, thisInstr);
+					stackPointer = _alifFrame_getStackPointer(_frame);
+					goto exception_unwind;
+				}
+				goto error;
+			} // ------------------------------------------------------------ //
 			TARGET(RERAISE) {
-				AlifCodeUnit* const this_instr = _frame->instrPtr = nextInstr;
-				(void)this_instr;
+				AlifCodeUnit* const thisInstr = _frame->instrPtr = nextInstr;
+				(void)thisInstr;
 				nextInstr += 1;
 				//INSTRUCTION_STATS(RERAISE);
 				AlifStackRef* values{};
@@ -3403,9 +3424,105 @@ static AlifInterpreterFrame* _alifEval_framePushAndInitEx(AlifThread* _thread,
 error:
 	ALIF_DECREF(_callargs);
 	ALIF_XDECREF(_kwargs);
-	return NULL;
+	return nullptr;
 }
 
+
+/* Logic for the raise statement (too complicated for inlining).
+This *consumes* a reference count to each of its arguments. */
+static AlifIntT do_raise(AlifThread* _thread,
+	AlifObject* _exc, AlifObject* _cause) { // 1981
+	AlifObject* type = nullptr, * value = nullptr;
+
+	if (_exc == nullptr) {
+		/* Reraise */
+		AlifErrStackItem* excInfo = _alifErr_getTopMostException(_thread);
+		_exc = excInfo->excValue;
+		if (ALIF_ISNONE(_exc) or _exc == nullptr) {
+			_alifErr_setString(_thread, _alifExcRuntimeError_,
+				"لا يوجد خلل مفعل ليتم من خلاله إعادة إطلاق الخطأ");
+			return 0;
+		}
+		ALIF_INCREF(_exc);
+		_alifErr_setRaisedException(_thread, _exc);
+		return 1;
+	}
+
+	/* We support the following forms of raise:
+	raise
+	raise <instance>
+	raise <type> */
+
+	if (ALIFEXCEPTIONCLASS_CHECK(_exc)) {
+		type = _exc;
+		value = _alifObject_callNoArgs(_exc);
+		if (value == nullptr)
+			goto raise_error;
+		if (!ALIFEXCEPTIONINSTANCE_CHECK(value)) {
+			_alifErr_format(_thread, _alifExcTypeError_,
+				"استدعاء %R يجب أن يرجع نسخة من "
+				"خطأ_اساس, وليس %R",
+				type, ALIF_TYPE(value));
+			goto raise_error;
+		}
+	}
+	else if (ALIFEXCEPTIONINSTANCE_CHECK(_exc)) {
+		value = _exc;
+		type = ALIFEXCEPTIONINSTANCE_CLASS(_exc);
+		ALIF_INCREF(type);
+	}
+	else {
+		/* Not something you can raise.  You get an exception
+		anyway, just not what you specified :-) */
+		ALIF_DECREF(_exc);
+		_alifErr_setString(_thread, _alifExcTypeError_,
+			"الأخطاء يجب أن تستخرج من خطأ_اساس");
+		goto raise_error;
+	}
+
+	if (_cause) {
+		AlifObject* fixedCause{};
+		if (ALIFEXCEPTIONCLASS_CHECK(_cause)) {
+			fixedCause = _alifObject_callNoArgs(_cause);
+			if (fixedCause == nullptr)
+				goto raise_error;
+			if (!ALIFEXCEPTIONINSTANCE_CHECK(fixedCause)) {
+				_alifErr_format(_thread, _alifExcTypeError_,
+					"استدعاء %R يجب أن يرجع نسخة من "
+					"خطأ_اساس, وليس %R",
+					_cause, ALIF_TYPE(fixedCause));
+				goto raise_error;
+			}
+			ALIF_DECREF(_cause);
+		}
+		else if (ALIFEXCEPTIONINSTANCE_CHECK(_cause)) {
+			fixedCause = _cause;
+		}
+		else if (ALIF_ISNONE(_cause)) {
+			ALIF_DECREF(_cause);
+			fixedCause = nullptr;
+		}
+		else {
+			_alifErr_setString(_thread, _alifExcTypeError_,
+				"مسببات الخطأ يجب أن تستخرج من "
+				"خطأ_اساس");
+			goto raise_error;
+		}
+		alifException_setCause(value, fixedCause);
+	}
+
+	_alifErr_setObject(_thread, type, value);
+	/* _alifErr_setObject incref's its arguments */
+	ALIF_DECREF(value);
+	ALIF_DECREF(type);
+	return 0;
+
+raise_error:
+	ALIF_XDECREF(value);
+	ALIF_XDECREF(type);
+	ALIF_XDECREF(_cause);
+	return 0;
+}
 
 
 AlifIntT _alifEval_exceptionGroupMatch(AlifObject* _excValue, AlifObject* _matchType,

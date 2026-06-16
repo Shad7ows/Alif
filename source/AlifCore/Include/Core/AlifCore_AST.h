@@ -138,7 +138,7 @@ public:
 enum StmtK_ { // 187
 	ClassDefK = 1, FunctionDefK, AsyncFunctionDefK, ReturnK,
 	DeleteK, AssignK, TypeAliasK, AugAssignK, ForK, AsyncForK, WhileK,
-	IfK, WithK, AsyncWithK, TryK, TryStarK, ImportK, ImportFromK,
+	IfK, WithK, AsyncWithK, RaiseK, TryK, TryStarK, ImportK, ImportFromK,
 	ExprK, PassK, BreakK, ContinueK, GlobalK, NonlocalK,
 };
 class Stmt { // 196
@@ -243,6 +243,12 @@ public:
 			ASDLStmtSeq* body{};
 			String comment{};
 		} asyncWith;
+
+		class {
+		public:
+			ExprTy exc{};
+			ExprTy cause{};
+		} raise;
 
 		class {
 		public:
@@ -604,6 +610,7 @@ StmtTy alifAST_while(ExprTy, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifInt
 StmtTy alifAST_if(ExprTy, ASDLStmtSeq*, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_with(ASDLWithItemSeq*, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_asyncWith(ASDLWithItemSeq*, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+StmtTy alifAST_raise(ExprTy, ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_try(ASDLStmtSeq*, ASDLExcepthandlerSeq*, ASDLStmtSeq*, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_tryStar(ASDLStmtSeq*, ASDLExcepthandlerSeq*, ASDLStmtSeq*, ASDLStmtSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 StmtTy alifAST_import(ASDLAliasSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
