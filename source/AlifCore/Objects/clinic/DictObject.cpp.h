@@ -52,7 +52,16 @@ static AlifObject* dict_keys(AlifDictObject* self, AlifObject* ALIF_UNUSED(ignor
 	return dict_keysImpl(self);
 }
 
+// 286
+#define DICT_ITEMS_METHODDEF    \
+    {"عناصر", (AlifCPPFunction)dict_items, METHOD_NOARGS},
 
+static AlifObject* dict_itemsImpl(AlifDictObject*);
+
+static AlifObject* dict_items(AlifDictObject* _self,
+	AlifObject* ALIF_UNUSED(ignored)) { // 292
+	return dict_itemsImpl(_self);
+}
 
 
 #define DICT_VALUES_METHODDEF    \

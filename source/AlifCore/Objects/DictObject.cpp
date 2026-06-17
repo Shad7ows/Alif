@@ -2486,7 +2486,7 @@ AlifUSizeT _alifDict_keysSize(AlifDictKeysObject* _keys) { // 4509
 static AlifMethodDef _dictMethods_[] = { // 4570
 	DICT_GET_METHODDEF
 	DICT_KEYS_METHODDEF
-	//DICT_ITEMS_METHODDEF
+	DICT_ITEMS_METHODDEF
 	DICT_VALUES_METHODDEF
 	{nullptr, nullptr}   /* sentinel */
 };
@@ -2998,7 +2998,16 @@ AlifTypeObject _alifDictRevIterValueType_ = { // 5719
 	//.methods = dictIter_methods
 };
 
+/***********************************************/
+/* View objects for مفاتيح(), عناصر(), قيم(). */
+/***********************************************/
 
+static void dictView_dealloc(AlifObject* _self) { // 5850
+	AlifDictViewObject* dv = (AlifDictViewObject*)_self;
+	ALIFOBJECT_GC_UNTRACK(dv);
+	ALIF_XDECREF(dv->dict);
+	alifObject_gcDel(dv);
+}
 
 AlifObject* _alifDictView_new(AlifObject* dict, AlifTypeObject* type) { // 5765
 	AlifDictViewObject* dv{};
@@ -3007,9 +3016,9 @@ AlifObject* _alifDictView_new(AlifObject* dict, AlifTypeObject* type) { // 5765
 		return nullptr;
 	}
 	if (!ALIFDICT_CHECK(dict)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"%s() requires a dict argument, not '%s'",
-		//	type->name, ALIF_TYPE(dict)->name);
+		alifErr_format(_alifExcTypeError_,
+			"%s() يتطلب وسيط من نوع فهرس, وليس '%s'",
+			type->name, ALIF_TYPE(dict)->name);
 		return nullptr;
 	}
 	dv = ALIFOBJECT_GC_NEW(AlifDictViewObject, type);
@@ -3060,14 +3069,30 @@ static AlifObject* dict_keysImpl(AlifDictObject* self) { // 6339
 	return _alifDictView_new((AlifObject*)self, &_alifDictKeysType_);
 }
 
-AlifTypeObject _alifDictItemsType_ = { // 6412
+static AlifObject* dictItems_iter(AlifObject* _self) { // 6471
+	AlifDictViewObject* dv = (AlifDictViewObject*)_self;
+	if (dv->dict == nullptr) {
+		return ALIF_NONE;
+	}
+	return dictIter_new(dv->dict, &_alifDictIterItemType_);
+}
+
+AlifTypeObject _alifDictItemsType_ = { // 6525
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "عناصر_فهرس",
 	.basicSize = sizeof(AlifDictViewObject),
 	/* methods */
+	.dealloc = dictView_dealloc,
+	.repr = dictView_repr,
+	//.asSequence = &_dictItemsAsSequence_,
 	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC,
+	.iter = dictItems_iter,
 };
+
+static AlifObject* dict_itemsImpl(AlifDictObject* _self) { // 6564
+	return _alifDictView_new((AlifObject*)_self, &_alifDictItemsType_);
+}
 
 
 AlifTypeObject _alifDictValuesType_ = { // 6562
