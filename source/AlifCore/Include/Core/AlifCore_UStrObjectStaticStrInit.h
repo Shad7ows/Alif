@@ -97,8 +97,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(_fieldTypes);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(_initializing);
-	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(_isTextEncoding);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(_isAttyOpenOnly);
@@ -230,6 +228,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(_windowsConsoleIO);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(_findAndLoad);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(_initializing);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(AnonGenExpr);
 	_alifUStr_internStatic(interp, &string);

@@ -685,6 +685,7 @@
 #define ALIF_STR_LITERALS_INIT { \
 	INIT_USTR(_windowsConsoleIO, "طرفية_ويندوز"), \
 	INIT_USTR(_findAndLoad, "_اوجد_وحمل"), \
+	INIT_USTR(_initializing, "_تهيئة"), \
 	INIT_STR(AnonGenExpr, "<genexpr>"), \
 	INIT_USTR(AnonLambda, "<خطية>"), \
 	INIT_USTR(AnonListComp, "<مصفوفة_ضمنية>"), \
@@ -793,7 +794,6 @@
 	INIT_ID(_blksize), \
 	INIT_ID(_deallocWarn), \
 	INIT_ID(_fieldTypes), \
-	INIT_ID(_initializing), \
 	INIT_ID(_isTextEncoding), \
 	INIT_ID(_isAttyOpenOnly), \
 	INIT_ID(_WindowsConsoleIO), \

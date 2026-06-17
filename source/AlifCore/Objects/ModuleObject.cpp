@@ -571,7 +571,7 @@ AlifIntT _alifModuleSpec_isInitializing(AlifObject* _spec) { // 793
 		return 0;
 	}
 	AlifObject* value{};
-	AlifIntT rc = alifObject_getOptionalAttr(_spec, &ALIF_ID(_initializing), &value);
+	AlifIntT rc = alifObject_getOptionalAttr(_spec, &ALIF_STR(_initializing), &value);
 	if (rc > 0) {
 		rc = alifObject_isTrue(value);
 		ALIF_DECREF(value);

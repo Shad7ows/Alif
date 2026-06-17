@@ -45,6 +45,7 @@ public:
 	public:
 		STRUCT_FOR_USTR(_windowsConsoleIO, "طرفية_ويندوز")
 		STRUCT_FOR_USTR(_findAndLoad, "_اوجد_وحمل")
+		STRUCT_FOR_USTR(_initializing, "_تهيئة")
 		STRUCT_FOR_STR(AnonGenExpr, "<genexpr>")
 		STRUCT_FOR_USTR(AnonLambda, "<خطية>")
 		STRUCT_FOR_USTR(AnonListComp, "<مصفوفة_ضمنية>")
@@ -151,7 +152,6 @@ public:
 		STRUCT_FOR_ID(_blksize)
 		STRUCT_FOR_ID(_deallocWarn)
 		STRUCT_FOR_ID(_fieldTypes)
-		STRUCT_FOR_ID(_initializing)
 		STRUCT_FOR_ID(_isTextEncoding)
 		STRUCT_FOR_ID(_isAttyOpenOnly)
 		STRUCT_FOR_ID(_WindowsConsoleIO)
