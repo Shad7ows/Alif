@@ -692,6 +692,7 @@
 	INIT_USTR(AnonDictComp, "<فهرس_ضمني>"), \
 	INIT_USTR(AnonModule, "<وحدة>"), /* //* alif */ \
 	INIT_STR(AnonString, "<string>"), \
+	INIT_STR(Builtins, "الضمنيات"), \
     INIT_STR(DblPercent, "%%"), \
     INIT_STR(Defaults, ".defaults"), \
     INIT_STR(DotLocals, ".<locals>"), \
@@ -737,6 +738,7 @@
     INIT_USTR(__rmul__, "__اضرب_ع__"), /* //* alif */	\
     INIT_USTR(__rsub__, "__اطرح_ع__"), /* //* alif */	\
     INIT_USTR(__sub__, "__اطرح__"), /* //* alif */	\
+    INIT_USTR(__main__, "__الرئيسية__"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
 }
 
@@ -770,7 +772,6 @@
 	INIT_ID(__IOBaseClosed), \
 	INIT_ID(__lengthHint__), \
 	INIT_ID(__loader__), \
-	INIT_ID(__main__), \
 	INIT_ID(__module__), \
 	INIT_ID(__mroEntries__), \
     INIT_ID(__name__), \
@@ -799,7 +800,6 @@
 	INIT_ID(Buffer), \
 	INIT_ID(Buffering), \
 	INIT_ID(buffersize), \
-	INIT_ID(Builtins), \
 	/*INIT_ID(Close),*/ \
 	INIT_ID(Closed), \
 	INIT_ID(CloseFD), \

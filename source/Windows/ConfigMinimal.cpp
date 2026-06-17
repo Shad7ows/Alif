@@ -10,7 +10,7 @@ class InitTable _alifImportInitTab_[] = { // 87
 	{"_ورد", alifInit__imp},
 
 	/* These entries are here for sys.builtin_module_names */
-	{"builtins", nullptr},
+	{"الضمنيات", nullptr},
 	{"النظام", nullptr},
 
 

@@ -18,7 +18,7 @@
 
 
 
-
+#include "clinic/Import.cpp.h"
 
 
 extern InitTable _alifImportInitTab_[]; // 55
@@ -617,7 +617,7 @@ static AlifObject* getCore_moduleDict(AlifInterpreter* _interp,
 		if (alifUStr_compareWithASCIIString(_name, "النظام") == 0) {
 			return ALIF_NEWREF(_interp->sysdictCopy);
 		}
-		if (alifUStr_compareWithASCIIString(_name, "builtins") == 0) {
+		if (alifUStr_compareWithASCIIString(_name, "الضمنيات") == 0) {
 			return ALIF_NEWREF(_interp->builtinsCopy);
 		}
 	}
@@ -1778,7 +1778,7 @@ AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
 	}
 	else {
 		/* No globals -- use standard builtins, and fake globals */
-		builtins = alifImport_importModuleLevel("builtins",
+		builtins = alifImport_importModuleLevel("الضمنيات",
 			nullptr, nullptr, nullptr, 0);
 		if (builtins == nullptr) {
 			goto err;
@@ -1917,6 +1917,12 @@ AlifObject* _alifImport_getModuleAttrString(const char* _modName,
 }
 
 
+static AlifObject* _imp_isBuiltinImpl(AlifObject* _module,
+	AlifObject* _name) { // 4531
+	return alifLong_fromLong(is_builtin(_name));
+}
+
+
 static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_EXTENSION_SUFFIXES_METHODDEF
 	//_IMP_LOCK_HELD_METHODDEF
@@ -1927,7 +1933,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_IS_FROZEN_PACKAGE_METHODDEF
 	//_IMP_CREATE_BUILTIN_METHODDEF
 	//_IMP_INIT_FROZEN_METHODDEF
-	//_IMP_IS_BUILTIN_METHODDEF
+	_IMP_IS_BUILTIN_METHODDEF
 	//_IMP_IS_FROZEN_METHODDEF
 	//_IMP__FROZEN_MODULE_NAMES_METHODDEF
 	//_IMP__OVERRIDE_FROZEN_MODULES_FOR_TESTS_METHODDEF

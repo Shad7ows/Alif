@@ -170,6 +170,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\FrameObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FrozenModules\GetPath.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FrozenModules\Importlib._bootstrap.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\FrozenModules\Importlib._bootstrap_external.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FuncObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\GenericAliasObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\GenObject.h" />
@@ -233,6 +234,7 @@
     <ClInclude Include="..\source\AlifCore\Objects\clinic\BltinModule.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\DictObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\FloatObject.cpp.h" />
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\Import.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\ListObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\LongObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\MathModule.cpp.h" />

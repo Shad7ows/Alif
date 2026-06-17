@@ -55,8 +55,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__loader__);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(__main__);
-	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__module__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__mroEntries__);
@@ -112,8 +110,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_ID(Buffering);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(buffersize);
-	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(Builtins);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Closed);
 	_alifUStr_internStatic(interp, &string);
@@ -249,6 +245,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(AnonString);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(Builtins);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(DblPercent);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Defaults);
@@ -338,6 +336,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(__rsub__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__sub__);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__main__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(_io);
 	_alifUStr_internStatic(interp, &string);

@@ -52,6 +52,7 @@ public:
 		STRUCT_FOR_USTR(AnonDictComp, "<فهرس_ضمني>")
 		STRUCT_FOR_USTR(AnonModule, "<وحدة>") //* alif
 		STRUCT_FOR_STR(AnonString, "<string>")
+		STRUCT_FOR_STR(Builtins, "الضمنيات")
 		STRUCT_FOR_STR(DblPercent, "%%")
 		STRUCT_FOR_STR(Defaults, ".defaults")
 		STRUCT_FOR_STR(DotLocals, ".<locals>")
@@ -97,6 +98,7 @@ public:
 		STRUCT_FOR_USTR(__rmul__, "__اضرب_ع__") //* alif
 		STRUCT_FOR_USTR(__rsub__, "__اطرح_ع__") //* alif
 		STRUCT_FOR_USTR(__sub__, "__اطرح__") //* alif
+		STRUCT_FOR_USTR(__main__, "__الرئيسية__") //* alif
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
 	} literals;
 
@@ -128,7 +130,6 @@ public:
 		STRUCT_FOR_ID(__IOBaseClosed)
 		STRUCT_FOR_ID(__lengthHint__)
 		STRUCT_FOR_ID(__loader__)
-		STRUCT_FOR_ID(__main__)
 		STRUCT_FOR_ID(__module__)
 		STRUCT_FOR_ID(__mroEntries__)
 		STRUCT_FOR_ID(__name__)
@@ -157,7 +158,6 @@ public:
 		STRUCT_FOR_ID(Buffer)
 		STRUCT_FOR_ID(Buffering)
 		STRUCT_FOR_ID(buffersize)
-		STRUCT_FOR_ID(Builtins)
 		STRUCT_FOR_ID(Closed)
 		STRUCT_FOR_ID(CloseFD)
 		STRUCT_FOR_ID(Code)

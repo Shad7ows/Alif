@@ -432,7 +432,7 @@ static AlifObject* createException_groupClass(void) { // 1531
 	}
 
 	state->alifExcExceptionGroup = alifErr_newException(
-		"builtins.ExceptionGroup", bases, nullptr);
+		"الضمنيات.ExceptionGroup", bases, nullptr);
 
 	ALIF_DECREF(bases);
 	return state->alifExcExceptionGroup;

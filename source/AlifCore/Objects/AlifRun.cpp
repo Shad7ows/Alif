@@ -81,7 +81,7 @@ AlifIntT alifRun_simpleFileObject(FILE* _fp, AlifObject* _filename,
 	AlifObject* v{};
 	//AlifIntT alifc{};
 
-	AlifObject* mainModule = alifImport_addModuleRef("__main__");
+	AlifObject* mainModule = alifImport_addModuleRef("__الرئيسية__");
 	if (mainModule == nullptr)	return -1;
 	AlifObject* dict = alifModule_getDict(mainModule);  // borrowed ref
 
@@ -118,7 +118,7 @@ AlifIntT alifRun_simpleFileObject(FILE* _fp, AlifObject* _filename,
 	//	}
 
 	//	if (set_mainLoader(dict, _filename, "SourcelessFileLoader") < 0) {
-	//		fprintf(stderr, "alif: failed to set __main__.__loader__\n");
+	//		fprintf(stderr, "alif: failed to set __الرئيسية__.__loader__\n");
 	//		ret = -1;
 	//		fclose(alifcFP);
 	//		goto done;
@@ -129,7 +129,7 @@ AlifIntT alifRun_simpleFileObject(FILE* _fp, AlifObject* _filename,
 		//if ((!ALIFUSTR_CHECK(_filename)
 		//	or !alifUStr_equalToUTF8(_filename, "<stdin>"))
 		//	and set_mainLoader(dict, _filename, "SourceFileLoader") < 0) {
-		//	fprintf(stderr, "alif: failed to set __main__.__loader__\n");
+		//	fprintf(stderr, "alif: failed to set __الرئيسية__.__loader__\n");
 		//	ret = -1;
 		//	goto done;
 		//}
@@ -161,7 +161,7 @@ done:
 
 AlifIntT _alifRun_simpleStringFlagsWithName(const char* _command,
 	const char* _name, AlifCompilerFlags* _flags) { // 530
-	AlifObject* mainModule = alifImport_addModuleRef("__main__");
+	AlifObject* mainModule = alifImport_addModuleRef("__الرئيسية__");
 	if (mainModule == nullptr) {
 		return -1;
 	}
@@ -437,8 +437,8 @@ static AlifIntT printException_message(ExceptionPrintContext* ctx, AlifObject* t
 		}
 	}
 	else {
-		if (!_alifUStr_equal(modulename, &ALIF_ID(Builtins)) and
-			!_alifUStr_equal(modulename, &ALIF_ID(__main__)))
+		if (!_alifUStr_equal(modulename, &ALIF_STR(Builtins)) and
+			!_alifUStr_equal(modulename, &ALIF_STR(__main__)))
 		{
 			AlifIntT res = alifFile_writeObject(modulename, f, ALIF_PRINT_RAW);
 			ALIF_DECREF(modulename);

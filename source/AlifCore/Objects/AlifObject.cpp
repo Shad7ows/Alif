@@ -299,7 +299,7 @@ AlifObject* _alifObject_functionStr(AlifObject* _x) { // 886
 	AlifObject* result = nullptr;
 	ret = alifObject_getOptionalAttr(_x, &ALIF_ID(__module__), &module);
 	if (module != nullptr and module != ALIF_NONE) {
-		ret = alifObject_richCompareBool(module, &ALIF_ID(Builtins), ALIF_NE);
+		ret = alifObject_richCompareBool(module, &ALIF_STR(Builtins), ALIF_NE);
 		if (ret < 0) {
 			// error
 			goto done;

@@ -544,7 +544,7 @@ static AlifObject* type_module(AlifTypeObject *_type) { // 1396
 			}
 		}
 		else {
-			mod = &ALIF_ID(Builtins);
+			mod = &ALIF_STR(Builtins);
 		}
 	}
 	return mod;
@@ -601,6 +601,38 @@ static AlifGetSetDef _typeGetSets_[] = { // 2076
 	{0}
 };
 
+static AlifObject* type_repr(AlifObject* _self) { // 2093
+	AlifTypeObject* type = (AlifTypeObject*)_self;
+	if (type->name == nullptr) {
+		return alifUStr_fromFormat("<صنف في %p>", type);
+	}
+
+	AlifObject* mod = type_module(type);
+	if (mod == nullptr) {
+		alifErr_clear();
+	}
+	else if (!ALIFUSTR_CHECK(mod)) {
+		ALIF_CLEAR(mod);
+	}
+
+	AlifObject* name = type_qualname(type, nullptr);
+	if (name == nullptr) {
+		ALIF_XDECREF(mod);
+		return nullptr;
+	}
+
+	AlifObject* result{};
+	if (mod != nullptr and !_alifUStr_equal(mod, &ALIF_STR(Builtins))) {
+		result = alifUStr_fromFormat("<صنف '%U.%U'>", mod, name);
+	}
+	else {
+		result = alifUStr_fromFormat("<صنف '%s'>", type->name);
+	}
+	ALIF_XDECREF(mod);
+	ALIF_DECREF(name);
+
+	return result;
+}
 
 
 static AlifObject* type_call(AlifObject* _self, AlifObject* _args,
@@ -2184,7 +2216,7 @@ static AlifObject* type_vectorCall(AlifObject* metatype, AlifObject* const* args
 	AlifUSizeT nargsf, AlifObject* kwnames) { // 4527
 	AlifSizeT nargs = ALIFVECTORCALL_NARGS(nargsf);
 	if (nargs == 1 and metatype == (AlifObject*)&_alifTypeType_) {
-		if (!_ALIFARG_NOKWNAMES("type", kwnames)) {
+		if (!_ALIFARG_NOKWNAMES("نوع", kwnames)) {
 			return nullptr;
 		}
 		return ALIF_NEWREF(ALIF_TYPE(args[0]));
@@ -3066,7 +3098,7 @@ AlifTypeObject _alifTypeType_ = { // 6309
 	.itemSize = sizeof(AlifMemberDef),
 	.dealloc = type_dealloc,
 	.vectorCallOffset = offsetof(AlifTypeObject, vectorCall),
-	//.repr = type_repr,
+	.repr = type_repr,
 	.asNumber = &_typeAsNumber_,
 	.call = type_call,
 	.getAttro = alifType_getAttro,

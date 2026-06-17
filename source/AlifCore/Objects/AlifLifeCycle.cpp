@@ -449,7 +449,7 @@ static AlifStatus alifCore_builtinsInit(AlifThread* _thread) { // 785
 	if (biMod == nullptr) goto error;
 
 	modules = _alifImport_getModules(interp);
-	if (_alifImport_fixupBuiltin(_thread, biMod, "builtins", modules) < 0) {
+	if (_alifImport_fixupBuiltin(_thread, biMod, "الضمنيات", modules) < 0) {
 		goto error;
 	}
 
@@ -907,7 +907,7 @@ static AlifStatus init_setBuiltinsOpen(void) { // 2709
 	AlifObject* bimod = nullptr;
 	AlifStatus res = ALIFSTATUS_OK();
 
-	if (!(bimod = alifImport_importModule("builtins"))) {
+	if (!(bimod = alifImport_importModule("الضمنيات"))) {
 		goto error;
 	}
 

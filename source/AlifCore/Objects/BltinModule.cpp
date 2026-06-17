@@ -1339,7 +1339,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 
 static AlifModuleDef _alifBuiltinsModule_ = { // 3202
 	ALIFMODULEDEF_HEAD_INIT,
-	"builtins",
+	"الضمنيات",
 	nullptr,
 	-1,
 	_builtinMethods_,

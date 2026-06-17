@@ -1080,6 +1080,12 @@
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_IndexPool.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\FrozenModules\Importlib._bootstrap_external.h">
+      <Filter>Include\Main\FrozenModules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\Import.cpp.h">
+      <Filter>Objects\clinic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
