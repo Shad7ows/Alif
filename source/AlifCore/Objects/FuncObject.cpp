@@ -265,6 +265,36 @@ AlifTypeObject _alifFunctionType_ = { // 1142
 };
 
 
+static AlifIntT funcTools_copyAttr(AlifObject* _wrapper,
+	AlifObject* _wrapped, AlifObject* _name) { // 1196
+	AlifObject* value{};
+	AlifIntT res = alifObject_getOptionalAttr(_wrapped, _name, &value);
+	if (value != nullptr) {
+		res = alifObject_setAttr(_wrapper, _name, value);
+		ALIF_DECREF(value);
+	}
+	return res;
+}
+
+static AlifIntT funcTools_wraps(AlifObject* _wrapper,
+	AlifObject* _wrapped) { // 1209
+#define COPY_ATTR(ATTR) \
+    do { \
+        if (funcTools_copyAttr(_wrapper, _wrapped, &ALIF_ID(ATTR)) < 0) { \
+            return -1; \
+        } \
+    } while (0) \
+
+	COPY_ATTR(__module__);
+	COPY_ATTR(__name__);
+	COPY_ATTR(__qualname__);
+	COPY_ATTR(__doc__);
+	return 0;
+
+#undef COPY_ATTR
+}
+
+
 class ClassMethod { // 1248
 public:
 	ALIFOBJECT_HEAD{};
@@ -277,6 +307,44 @@ public:
      ALIF_CAST(ClassMethod*, _cm))
 
 
+
+static AlifObject* cm_descrGet(AlifObject* _self,
+	AlifObject* _obj, AlifObject* _type) { // 1352
+	ClassMethod* cm = (ClassMethod*)_self;
+
+	if (cm->callable == nullptr) {
+		alifErr_setString(_alifExcRuntimeError_,
+			"كائن وظيفة_صنف غير مهيئ");
+		return nullptr;
+	}
+	if (_type == nullptr)
+		_type = (AlifObject *)(ALIF_TYPE(_obj));
+	return alifMethod_new(cm->callable, _type);
+}
+
+static AlifIntT cm_init(AlifObject* _self,
+	AlifObject* _args, AlifObject* _kwds) { // 1367
+	ClassMethod* cm = (ClassMethod*)_self;
+	AlifObject* callable{};
+
+	if (!_ALIFARG_NOKEYWORDS("وظيفة_صنف", _kwds))
+		return -1;
+	if (!alifArg_unpackTuple(_args, "وظيفة_صنف", 1, 1, &callable))
+		return -1;
+	ALIF_XSETREF(cm->callable, ALIF_NEWREF(callable));
+
+	if (funcTools_wraps((AlifObject *)cm, cm->callable) < 0) {
+		return -1;
+	}
+	return 0;
+}
+
+static AlifMemberDef _cmMemberList_[] = { // 1385
+	{"__func__", ALIF_T_OBJECT, offsetof(ClassMethod, callable), ALIF_READONLY},
+	{"__wrapped__", ALIF_T_OBJECT, offsetof(ClassMethod, callable), ALIF_READONLY},
+	{nullptr}  /* Sentinel */
+};
+
 AlifTypeObject _alifClassMethodType_ = { // 1395
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "وظيفة_صنف",
@@ -286,11 +354,11 @@ AlifTypeObject _alifClassMethodType_ = { // 1395
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC,
 	//.traverse = cm_traverse,
 	//.clear = cm_clear,                   
-	//.members = _cmMemberList_, 
+	.members = _cmMemberList_, 
 	//.getSet = _cmGetSetList_,
-	//.descrGet = cm_descrGet,
+	.descrGet = cm_descrGet,
 	.dictOffset = offsetof(ClassMethod, dict),
-	//.init = cm_init,
+	.init = cm_init,
 	.alloc = alifType_genericAlloc,
 	.new_ = alifType_genericNew,
 	.free = alifObject_gcDel,

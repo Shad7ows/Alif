@@ -105,8 +105,10 @@ $(TARGET_FREEZE): $(OBJECTS) | $(BUILD_DIR)
 	@echo "جاري بناء ومعالجة البرامج المكتوبة بلغة ألف"
 	@$(shell) ./build/freezemodule GetPath ../source/Modules/تحديد_المسارات.alif GetPath.h
 	@$(shell) mv -f GetPath.h ../source/AlifCore/Include/Main/FrozenModules
-	@$(shell) ./build/freezemodule Importlib._bootstrap ../library/مكتبة_الاستيراد/برنامج_التشغيل.alif Importlib._bootstrap.h
+	@$(shell) ./build/freezemodule Importlib._bootstrap ../library/مكتبة_الاستيراد/برنامج_تشغيل.alif Importlib._bootstrap.h
 	@$(shell) mv -f Importlib._bootstrap.h ../source/AlifCore/Include/Main/FrozenModules
+	@$(shell) ./build/freezemodule Importlib._bootstrap_external ../library/مكتبة_الاستيراد/برنامج_تشغيل_الخارجي.alif Importlib._bootstrap_external.h
+	@$(shell) mv -f Importlib._bootstrap_external.h ../source/AlifCore/Include/Main/FrozenModules
 
 
 $(TARGET_ALIF): $(OBJECTS) | $(BUILD_DIR)

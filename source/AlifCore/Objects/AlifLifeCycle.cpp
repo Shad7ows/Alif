@@ -688,8 +688,8 @@ static AlifStatus initInterpreter_main(AlifThread* _thread) { // 1156
 			//return ALIFSTATUS_ERR("can't initialize signals");
 		}
 
-		//if (config_->tracemalloc) {
-		//	if (alifTraceMalloc_start(config_->tracemalloc) < 0) {
+		//if (config->tracemalloc) {
+		//	if (alifTraceMalloc_start(config->tracemalloc) < 0) {
 		//		return ALIFSTATUS_ERR("can't start tracemalloc");
 		//	}
 		//}

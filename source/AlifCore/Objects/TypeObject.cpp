@@ -1754,9 +1754,9 @@ static AlifIntT typeNew_staticMethod(AlifTypeObject* _type, AlifObject* _attr) {
 	AlifObject* dict = lookup_tpDict(_type);
 	AlifObject* func = alifDict_getItemWithError(dict, _attr);
 	if (func == nullptr) {
-		//if (alifErr_occurred()) {
-		//	return -1;
-		//}
+		if (alifErr_occurred()) {
+			return -1;
+		}
 		return 0;
 	}
 	if (!ALIFFUNCTION_CHECK(func)) {
