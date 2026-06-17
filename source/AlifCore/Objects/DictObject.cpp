@@ -1800,7 +1800,18 @@ AlifIntT alifDict_popString(AlifObject* _op,
 }
 
 
-
+AlifObject* _alifDict_pop(AlifObject* _dict,
+	AlifObject* _key, AlifObject* _defaultValue) { // 3069
+	AlifObject* result{};
+	if (alifDict_pop(_dict, _key, &result) == 0) {
+		if (_defaultValue != nullptr) {
+			return ALIF_NEWREF(_defaultValue);
+		}
+		//_alifErr_setKeyError(_key);
+		return nullptr;
+	}
+	return result;
+}
 
 
 static void dict_dealloc(AlifObject* _self) { // 3089
@@ -2445,6 +2456,16 @@ AlifIntT alifDict_setDefaultRef(AlifObject* _d, AlifObject* _key,
 	return res;
 }
 
+
+
+static AlifObject* dict_popImpl(AlifDictObject* _self,
+	AlifObject* _key, AlifObject* _defaultValue) { // 4450
+	return _alifDict_pop((AlifObject*)_self, _key, _defaultValue);
+}
+
+
+
+
 static AlifObject* dictIter_new(AlifDictObject*, AlifTypeObject*); // 4480
 
 
@@ -2485,6 +2506,7 @@ AlifUSizeT _alifDict_keysSize(AlifDictKeysObject* _keys) { // 4509
 
 static AlifMethodDef _dictMethods_[] = { // 4570
 	DICT_GET_METHODDEF
+	DICT_POP_METHODDEF
 	DICT_KEYS_METHODDEF
 	DICT_ITEMS_METHODDEF
 	DICT_VALUES_METHODDEF

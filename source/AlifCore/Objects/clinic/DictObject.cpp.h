@@ -38,6 +38,32 @@ exit:
 }
 
 
+// 171
+#define DICT_POP_METHODDEF    \
+    {"اسحب", ALIF_CPPFUNCTION_CAST(dict_pop), METHOD_FASTCALL},
+
+static AlifObject* dict_popImpl(AlifDictObject*, AlifObject*, AlifObject*);
+
+static AlifObject* dict_pop(AlifDictObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 177
+	AlifObject* returnValue = nullptr;
+	AlifObject* key{};
+	AlifObject* defaultValue = nullptr;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("اسحب", _nargs, 1, 2)) {
+		goto exit;
+	}
+	key = _args[0];
+	if (_nargs < 2) {
+		goto skip_optional;
+	}
+	defaultValue = _args[1];
+skip_optional:
+	returnValue = dict_popImpl(_self, key, defaultValue);
+
+exit:
+	return returnValue;
+}
 
 
 
