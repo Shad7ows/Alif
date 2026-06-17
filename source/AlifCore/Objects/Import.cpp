@@ -1598,10 +1598,10 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	AlifObject* locals, AlifObject* fromlist, AlifIntT level) { // 3688
 
 	//* alif old implementation
-	//AlifObject* result{};
-	//level = -1;
-	//result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
-	//return result;
+	AlifObject* result{};
+	level = -1;
+	result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
+	return result;
 	//* alif old implementation
  
 	AlifThread* thread = _alifThread_get();

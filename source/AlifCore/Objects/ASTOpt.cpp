@@ -876,7 +876,7 @@ static AlifIntT astFold_stmt(StmtTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.for_.target);
 		CALL(astFold_expr, ExprTy, _node->V.for_.iter);
 		CALL_SEQ(astFold_stmt, Stmt, _node->V.for_.body);
-		//CALL_SEQ(astFold_stmt, Stmt, _node->V.for_.else_);
+		CALL_SEQ(astFold_stmt, Stmt, _node->V.for_.then);
 
 		CALL(fold_iter, ExprTy, _node->V.for_.iter);
 		break;
@@ -884,12 +884,12 @@ static AlifIntT astFold_stmt(StmtTy _node,
 		CALL(astFold_expr, ExprTy, _node->V.asyncFor.target);
 		CALL(astFold_expr, ExprTy, _node->V.asyncFor.iter);
 		CALL_SEQ(astFold_stmt, Stmt, _node->V.asyncFor.body);
-		//CALL_SEQ(astFold_stmt, Stmt, _node->V.asyncFor.else_);
+		CALL_SEQ(astFold_stmt, Stmt, _node->V.asyncFor.then);
 		break;
 	case StmtK_::WhileK:
 		CALL(astFold_expr, ExprTy, _node->V.while_.condition);
 		CALL_SEQ(astFold_stmt, Stmt, _node->V.while_.body);
-		//CALL_SEQ(astFold_stmt, Stmt, _node->V.while_.);
+		CALL_SEQ(astFold_stmt, Stmt, _node->V.while_.then);
 		break;
 	case StmtK_::IfK:
 		CALL(astFold_expr, ExprTy, _node->V.if_.condition);

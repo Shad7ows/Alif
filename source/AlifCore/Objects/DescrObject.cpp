@@ -396,7 +396,7 @@ static AlifObject* method_vectorCallO(AlifObject* _func, AlifObject* const* _arg
 
 AlifTypeObject _alifMethodDescrType_ = { // 716
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "معرف_صفة",
+	.name = "معرف_وظيفة",
 	.basicSize = sizeof(AlifMethodDescrObject),
 	//.dealloc = descr_dealloc,
 	.vectorCallOffset = offsetof(AlifMethodDescrObject, vectorCall),
@@ -411,7 +411,7 @@ AlifTypeObject _alifMethodDescrType_ = { // 716
 
 AlifTypeObject _alifClassMethodDescrType_ = { // 756
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "معرف_صفة_صنف",
+	.name = "معرف_وظيفة_صنف",
 	.basicSize = sizeof(AlifMethodDescrObject),
 	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC,

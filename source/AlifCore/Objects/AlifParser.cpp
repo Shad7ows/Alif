@@ -24,7 +24,7 @@ static KeywordToken* reservedKeywords[7] = {
 	new (KeywordToken[1])  { {nullptr, -1} },  // 0 char
 	new (KeywordToken[3])  { {"ك", 501}, {"و", 502}, {nullptr, -1} },  // 1 char
 	new (KeywordToken[8])  { {"في", 521}, {"او", 522}, {"أو", 522}, {"من", 523}, {"صح", 524}, {"هو", 525}, {"هي", 525}, {nullptr, -1} },  // 2 chars
-	new (KeywordToken[13]) { {"اذا", 541}, {"إذا", 541}, {"ليس", 542}, {"مرر", 543}, {"عدم", 544}, {"صنف", 545}, {"خطا", 546}, {"خطأ", 546}, {"عام", 547}, {"عند", 548}, {"خلل", 549}, {"لكل", 550}, { nullptr, -1 }},  // 3 chars
+	new (KeywordToken[15]) { {"اذا", 541}, {"إذا", 541}, {"ليس", 542}, {"مرر", 543}, {"عدم", 544}, {"صنف", 545}, {"خطا", 546}, {"خطأ", 546}, {"عام", 547}, {"عند", 548}, {"خلل", 549}, {"لكل", 550}, {"اذن", 551}, {"إذن", 551}, { nullptr, -1 }},  // 3 chars
 	new (KeywordToken[13])  { {"احذف", 561}, {"دالة", 562}, {"والا", 563}, {"وإلا", 563}, {"توقف", 564}, {"نطاق", 565}, {"ارجع", 566}, {"أرجع", 566}, {"حاول", 567}, {"خطية", 568}, {"انتج", 569}, {"اطلق", 570}, {nullptr, -1}},  // 4 chars
 	new (KeywordToken[7])  { {"اواذا", 581}, {"أوإذا", 581}, {"بينما", 582},  {"انتظر", 583}, {"استمر", 584}, {"نهاية", 585}, {nullptr, -1}},  // 5 chars
 	new (KeywordToken[3])  { {"مزامنة", 601}, {"استورد", 602}, {nullptr, -1}}  // 6 chars
@@ -49,6 +49,7 @@ static KeywordToken* reservedKeywords[7] = {
 #define WITH_KW 548
 #define EXCEPT_KW 549
 #define FOR_KW 550
+#define THEN_KW 551
 #define DEL_KW 561
 #define FUNC_KW 562
 #define ELSE_KW 563
@@ -147,6 +148,7 @@ static ASDLExprSeq* delTargets_rule(AlifParser*);
 static ExprTy delTarget_rule(AlifParser*);
 static ASDLStmtSeq* finallyBlock_rule(AlifParser*);
 static ASDLStmtSeq* elseBlock_rule(AlifParser*);
+static ASDLStmtSeq* thenBlock_rule(AlifParser*);
 static ExprTy lambdef_rule(AlifParser*);
 static NameDefaultPair* lambdaParamWithDefault_rule(AlifParser*);
 static ArgTy lambdaParamNoDefault_rule(AlifParser*);
@@ -8902,8 +8904,8 @@ done:
 //	|
 /*
 	حالة_لكل:
-		> "لكل" أهداف_نجمة "في" ~ تعبيرات_نجمة ":" كتلة
-		> "مزامنة" "لكل" أهداف_نجمة "في" ~ تعبيرات_نجمة ":" كتلة
+		> "لكل" أهداف_نجمة "في" ~ تعبيرات_نجمة ":" كتلة حالة_والا؟
+		> "مزامنة" "لكل" أهداف_نجمة "في" ~ تعبيرات_نجمة ":" كتلة حالة_والا؟
 */
 static StmtTy forStmt_rule(AlifParser* _p) {
 
@@ -8944,6 +8946,7 @@ static StmtTy forStmt_rule(AlifParser* _p) {
 		ExprTy a_{};
 		ExprTy b_{};
 		ASDLStmtSeq* c_{};
+		ASDLStmtSeq* el{};
 		if (
 			(keyword = alifParserEngine_expectToken(_p, FOR_KW)) // "لكل"
 			and
@@ -8958,13 +8961,15 @@ static StmtTy forStmt_rule(AlifParser* _p) {
 			(literal = alifParserEngine_expectToken(_p, COLON)) // ":"
 			and
 			(c_ = block_rule(_p)) // كتلة
+			and
+			(el = thenBlock_rule(_p), !_p->errorIndicator)  // حالة_اذن؟
 			) {
 			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
 			if (token == nullptr) { _p->level--; return nullptr; }
 
 			AlifIntT endLineNo = token->endLineNo;
 			AlifIntT endColOffset = token->endColOffset;
-			res = alifAST_for(a_, b_, c_, EXTRA);
+			res = alifAST_for(a_, b_, c_, el, EXTRA);
 			if (res == nullptr
 				and alifErr_occurred()) {
 				_p->errorIndicator = 1;
@@ -8987,6 +8992,7 @@ static StmtTy forStmt_rule(AlifParser* _p) {
 		ExprTy a_{};
 		ExprTy b_{};
 		ASDLStmtSeq* c_{};
+		ASDLStmtSeq* el{};
 		if (
 			(keyword = alifParserEngine_expectToken(_p, ASYNC_KW)) // "مزامنة"
 			and
@@ -9003,13 +9009,15 @@ static StmtTy forStmt_rule(AlifParser* _p) {
 			(literal_ = alifParserEngine_expectToken(_p, COLON)) // ":"
 			and
 			(c_ = block_rule(_p)) // كتلة
+			and
+			(el = thenBlock_rule(_p), !_p->errorIndicator)  // حالة_اذن؟
 			) {
 			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
 			if (token == nullptr) { _p->level--; return nullptr; }
 
 			AlifIntT endLineNo = token->endLineNo;
 			AlifIntT endColOffset = token->endColOffset;
-			res = alifAST_asyncFor(a_, b_, c_, EXTRA);
+			res = alifAST_asyncFor(a_, b_, c_, el, EXTRA);
 			if (res == nullptr
 				and alifErr_occurred()) {
 				_p->errorIndicator = 1;
@@ -9148,6 +9156,7 @@ static StmtTy whileStmt_rule(AlifParser* _p) {
 		AlifPToken* literal{};
 		ExprTy a_{};
 		ASDLStmtSeq* b_{};
+		ASDLStmtSeq* c_{};
 		if (
 			(keyword = alifParserEngine_expectToken(_p, WHILE_KW)) // "بينما"
 			and
@@ -9156,13 +9165,15 @@ static StmtTy whileStmt_rule(AlifParser* _p) {
 			(literal = alifParserEngine_expectToken(_p, COLON)) // ":"
 			and
 			(b_ = block_rule(_p)) // كتلة
+			and
+			(c_ = thenBlock_rule(_p), !_p->errorIndicator)  // حالة_اذن؟
 			) {
 			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
 			if (token == nullptr) { _p->level--; return nullptr; }
 
 			AlifIntT endLineNo = token->endLineNo;
 			AlifIntT endColOffset = token->endColOffset;
-			res = alifAST_while(a_, b_, EXTRA);
+			res = alifAST_while(a_, b_, c_, EXTRA);
 			if (res == nullptr
 				and alifErr_occurred()) {
 				_p->errorIndicator = 1;
@@ -9180,6 +9191,46 @@ done:
 	return res;
 }
 
+
+// حالة_اذن "اذن" &":" كتلة
+static ASDLStmtSeq* thenBlock_rule(AlifParser* _p) { //* alif
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ASDLStmtSeq* res{};
+	AlifIntT mark = _p->mark;
+
+	{ // "اذن" &":" كتلة
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* keyword{};
+		AlifPToken* literal{};
+		ASDLStmtSeq* b_{};
+		if (
+			(keyword = alifParserEngine_expectToken(_p, THEN_KW)) // "اذن"
+			and
+			(literal = alifParserEngine_expectTokenForced(_p, COLON, ":")) // ":"
+			and
+			(b_ = block_rule(_p)) // كتلة
+			) {
+			res = b_;
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
 
 // حالة_والا: "والا" &":" كتلة
 static ASDLStmtSeq* elseBlock_rule(AlifParser* _p) {

@@ -1987,7 +1987,7 @@ static AlifIntT codegen_for(AlifCompiler* _c, StmtTy _s) {
 
 	_alifCompiler_popFBlock(_c, AlifCompileFBlockType::Compiler_FBlock_For_Loop, start);
 
-	//VISIT_SEQ(_c, Stmt, _s->V.for_.else_);
+	VISIT_SEQ(_c, Stmt, _s->V.for_.then);
 
 	USE_LABEL(_c, end);
 	return SUCCESS;
@@ -2057,9 +2057,9 @@ static AlifIntT codegen_while(AlifCompiler* _c, StmtTy _s) {
 	_alifCompiler_popFBlock(_c, AlifCompileFBlockType::Compiler_FBlock_While_Loop, loop);
 
 	USE_LABEL(_c, anchor);
-	//if (_s->V.while_.else_) {
-	//	VISIT_SEQ(_c, Stmt, _s->V.while_.else_);
-	//}
+	if (_s->V.while_.then) {
+		VISIT_SEQ(_c, Stmt, _s->V.while_.then);
+	}
 
 	USE_LABEL(_c, end);
 	return SUCCESS;

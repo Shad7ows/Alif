@@ -1487,14 +1487,14 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 		VISIT(_st, Expr, _s->V.for_.target);
 		VISIT(_st, Expr, _s->V.for_.iter);
 		VISIT_SEQ(_st, Stmt, _s->V.for_.body);
-		//if (_s->V.for_.else_)
-		//	VISIT_SEQ(_st, Stmt, _s->V.for_.else_);
+		if (_s->V.for_.then)
+			VISIT_SEQ(_st, Stmt, _s->V.for_.then);
 		break;
 	case StmtK_::WhileK:
 		VISIT(_st, Expr, _s->V.while_.condition);
 		VISIT_SEQ(_st, Stmt, _s->V.while_.body);
-		//if (_s->V.while_.else_)
-		//	VISIT_SEQ(_st, Stmt, _s->V.while_.else_);
+		if (_s->V.while_.then)
+			VISIT_SEQ(_st, Stmt, _s->V.while_.then);
 		break;
 	case StmtK_::IfK:
 		VISIT(_st, Expr, _s->V.if_.condition);

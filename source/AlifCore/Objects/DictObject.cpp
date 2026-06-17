@@ -997,7 +997,7 @@ static void insert_splitValue(AlifInterpreter* _interp,
 }
 
 static AlifIntT insert_dict(AlifInterpreter* _interp, AlifDictObject* _mp,
-	AlifObject* _key, AlifUSizeT _hash, AlifObject* _value) { // 1720
+	AlifObject* _key, AlifUSizeT _hash, AlifObject* _value) { // 1788
 	AlifObject* oldValue{};
 	AlifSizeT ix_{};
 	if (DK_IS_USTR(_mp->keys) and !ALIFUSTR_CHECKEXACT(_key)) {

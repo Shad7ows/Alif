@@ -1915,7 +1915,7 @@ StmtTy alifAST_augAssign(ExprTy _target, Operator_ _op, ExprTy _val,
 }
 
 StmtTy alifAST_for(ExprTy _target, ExprTy _iter,
-	ASDLStmtSeq* _body, AlifIntT _lineNo, AlifIntT _colOffset,
+	ASDLStmtSeq* _body, ASDLStmtSeq* _then, AlifIntT _lineNo, AlifIntT _colOffset,
 	AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) { // 6989
 
 	StmtTy p_{};
@@ -1934,6 +1934,7 @@ StmtTy alifAST_for(ExprTy _target, ExprTy _iter,
 	p_->V.for_.target = _target;
 	p_->V.for_.iter = _iter;
 	p_->V.for_.body = _body;
+	p_->V.for_.then = _then;
 	p_->lineNo = _lineNo;
 	p_->colOffset = _colOffset;
 	p_->endLineNo = _endLineNo;
@@ -1942,7 +1943,7 @@ StmtTy alifAST_for(ExprTy _target, ExprTy _iter,
 	return p_;
 }
 
-StmtTy alifAST_asyncFor(ExprTy _target, ExprTy _iter, ASDLStmtSeq* _body,
+StmtTy alifAST_asyncFor(ExprTy _target, ExprTy _iter, ASDLStmtSeq* _body, ASDLStmtSeq* _then,
 	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7021
 
@@ -1962,6 +1963,7 @@ StmtTy alifAST_asyncFor(ExprTy _target, ExprTy _iter, ASDLStmtSeq* _body,
 	p_->V.asyncFor.target = _target;
 	p_->V.asyncFor.iter = _iter;
 	p_->V.asyncFor.body = _body;
+	p_->V.asyncFor.then = _then;
 	p_->lineNo = _lineNo;
 	p_->colOffset = _colOffset;
 	p_->endLineNo = _endLineNo;
@@ -1970,7 +1972,7 @@ StmtTy alifAST_asyncFor(ExprTy _target, ExprTy _iter, ASDLStmtSeq* _body,
 	return p_;
 }
 
-StmtTy alifAST_while(ExprTy _condetion, ASDLStmtSeq* _body,
+StmtTy alifAST_while(ExprTy _condetion, ASDLStmtSeq* _body, ASDLStmtSeq* _then,
 	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
 	AlifIntT _endColOffset, AlifASTMem* _astMem) { // 7053
 
@@ -1985,6 +1987,7 @@ StmtTy alifAST_while(ExprTy _condetion, ASDLStmtSeq* _body,
 	p_->type = StmtK_::WhileK;
 	p_->V.while_.condition = _condetion;
 	p_->V.while_.body = _body;
+	p_->V.while_.then = _then;
 	p_->lineNo = _lineNo;
 	p_->colOffset = _colOffset;
 	p_->endLineNo = _endLineNo;
@@ -3386,12 +3389,12 @@ AlifObject* ast2obj_stmt(ASTState* state, Validator* vstate, void* _o) { // 8793
 		if (alifObject_setAttr(result, state->body, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.for_.else_,
-		//	ast2obj_stmt);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->else_, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.for_.then,
+			ast2obj_stmt);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->else_, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		//value = AST2OBJ_STRING(state, vstate, o->V.for_.typeComment);
 		//if (!value) goto failed;
 		//if (alifObject_setAttr(result, state->typeComment, value) == -1)
@@ -3418,12 +3421,12 @@ AlifObject* ast2obj_stmt(ASTState* state, Validator* vstate, void* _o) { // 8793
 		if (alifObject_setAttr(result, state->body, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.asyncFor.else_,
-		//	ast2obj_stmt);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->else_, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.asyncFor.then,
+			ast2obj_stmt);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->else_, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		//value = AST2OBJ_STRING(state, vstate, o->V.asyncFor.typeComment);
 		//if (!value) goto failed;
 		//if (alifObject_setAttr(result, state->typeComment, value) == -1)
@@ -3445,12 +3448,12 @@ AlifObject* ast2obj_stmt(ASTState* state, Validator* vstate, void* _o) { // 8793
 		if (alifObject_setAttr(result, state->body, value) == -1)
 			goto failed;
 		ALIF_DECREF(value);
-		//value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.while_.else_,
-		//	ast2obj_stmt);
-		//if (!value) goto failed;
-		//if (alifObject_setAttr(result, state->else_, value) == -1)
-		//	goto failed;
-		//ALIF_DECREF(value);
+		value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.while_.then,
+			ast2obj_stmt);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->else_, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
 		break;
 	case StmtK_::IfK:
 		tp = (AlifTypeObject*)state->If_type;

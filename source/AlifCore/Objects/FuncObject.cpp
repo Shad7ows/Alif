@@ -279,20 +279,20 @@ public:
 
 AlifTypeObject _alifClassMethodType_ = { // 1395
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "صفة_صنف",
+	.name = "وظيفة_صنف",
 	.basicSize = sizeof(ClassMethod),
 	//.dealloc = cm_dealloc,
 	//.repr = cm_repr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC,
 	//.traverse = cm_traverse,
-	//cm_clear,                   
-	//.members = cm_memberlist, 
-	//.getSet = cm_getsetlist,
-	//.descrGet = cm_descr_get,
+	//.clear = cm_clear,                   
+	//.members = _cmMemberList_, 
+	//.getSet = _cmGetSetList_,
+	//.descrGet = cm_descrGet,
 	.dictOffset = offsetof(ClassMethod, dict),
 	//.init = cm_init,
 	.alloc = alifType_genericAlloc,
-	//.new_ = alifType_genericNew,
+	.new_ = alifType_genericNew,
 	.free = alifObject_gcDel,
 };
 
