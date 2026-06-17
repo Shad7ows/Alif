@@ -9,7 +9,7 @@ extern AlifObject* alifInit__io(void);
 class InitTable _alifImportInitTab_[] = { // 87
 	{"_ورد", alifInit__imp},
 
-	/* These entries are here for sys.builtin_module_names */
+	/* These entries are here for النظام.اسماء_ضمنيات_الوحدة */
 	{"الضمنيات", nullptr},
 	{"النظام", nullptr},
 

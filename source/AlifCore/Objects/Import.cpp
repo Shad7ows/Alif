@@ -1917,6 +1917,48 @@ AlifObject* _alifImport_getModuleAttrString(const char* _modName,
 }
 
 
+
+static AlifObject* _imp_findFrozenImpl(AlifObject* _module,
+	AlifObject* _name, AlifIntT _withdata) { // 4405
+	FrozenInfo info{};
+	FrozenStatus status = find_frozen(_name, &info);
+	if (status == FrozenStatus::Frozen_Not_Found or status == FrozenStatus::Frozen_Disabled) {
+		return ALIF_NONE;
+	}
+	else if (status == FrozenStatus::Frozen_Bad_Name) {
+		return ALIF_NONE;
+	}
+	else if (status != FrozenStatus::Frozen_Okay) {
+		//set_frozenError(status, _name);
+		return nullptr;
+	}
+
+	AlifObject* data = nullptr;
+	if (_withdata) {
+		data = alifMemoryView_fromMemory((char *)info.data, info.size, ALIFBUF_READ);
+		if (data == nullptr) {
+			return nullptr;
+		}
+	}
+
+	AlifObject* origname = nullptr;
+	if (info.origname != nullptr and info.origname[0] != '\0') {
+		origname = alifUStr_fromString(info.origname);
+		if (origname == nullptr) {
+			ALIF_XDECREF(data);
+			return nullptr;
+		}
+	}
+
+	AlifObject* result = alifTuple_pack(3, data ? data : ALIF_NONE,
+		info.isPackage ? ALIF_TRUE : ALIF_FALSE,
+		origname ? origname : ALIF_NONE);
+	ALIF_XDECREF(origname);
+	ALIF_XDECREF(data);
+	return result;
+}
+
+
 static AlifObject* _imp_isBuiltinImpl(AlifObject* _module,
 	AlifObject* _name) { // 4531
 	return alifLong_fromLong(is_builtin(_name));
@@ -1942,7 +1984,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_LOCK_HELD_METHODDEF
 	//_IMP_ACQUIRE_LOCK_METHODDEF
 	//_IMP_RELEASE_LOCK_METHODDEF
-	//_IMP_FIND_FROZEN_METHODDEF
+	_IMP_FIND_FROZEN_METHODDEF
 	//_IMP_GET_FROZEN_OBJECT_METHODDEF
 	//_IMP_IS_FROZEN_PACKAGE_METHODDEF
 	//_IMP_CREATE_BUILTIN_METHODDEF

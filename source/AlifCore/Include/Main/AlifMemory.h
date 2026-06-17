@@ -48,6 +48,8 @@ extern AlifTypeObject _alifManagedBufferType_;
 extern AlifTypeObject _alifMemoryViewType_;
 
 
+AlifObject* alifMemoryView_fromMemory(char*, AlifSizeT, AlifIntT);
+
 AlifObject* alifMemoryView_fromBuffer(const AlifBuffer*);
 
 

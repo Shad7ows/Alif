@@ -1183,6 +1183,26 @@ static inline AlifManagedBufferObject* mbuf_alloc(void) {
 	return mbuf;
 }
 
+AlifObject* alifMemoryView_fromMemory(char* _mem,
+	AlifSizeT _size, AlifIntT _flags) {
+	AlifManagedBufferObject* mbuf{};
+	AlifObject* mv{};
+	AlifIntT readonly{};
+
+	mbuf = mbuf_alloc();
+	if (mbuf == nullptr)
+		return nullptr;
+
+	readonly = (_flags == ALIFBUF_WRITE) ? 0 : 1;
+	(void)alifBuffer_fillInfo(&mbuf->master, nullptr, _mem, _size, readonly,
+		ALIFBUF_FULL_RO);
+
+	mv = mbuf_addView(mbuf, nullptr);
+	ALIF_DECREF(mbuf);
+
+	return mv;
+}
+
 AlifObject* alifMemoryView_fromBuffer(const AlifBuffer* _info) {
 	AlifManagedBufferObject* mbuf{};
 	AlifObject* mv{};
