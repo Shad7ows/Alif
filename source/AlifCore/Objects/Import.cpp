@@ -1598,10 +1598,10 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	AlifObject* locals, AlifObject* fromlist, AlifIntT level) { // 3688
 
 	//* alif old implementation
-	AlifObject* result{};
-	level = -1;
-	result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
-	return result;
+	//AlifObject* result{};
+	//level = -1;
+	//result = import_moduleLevel(alifUStr_asUTF8(name), globals, locals, fromlist, level);
+	//return result;
 	//* alif old implementation
  
 	AlifThread* thread = _alifThread_get();
@@ -1922,6 +1922,20 @@ static AlifObject* _imp_isBuiltinImpl(AlifObject* _module,
 	return alifLong_fromLong(is_builtin(_name));
 }
 
+static AlifObject* _imp_isFrozenImpl(AlifObject* _module,
+	AlifObject* _name) { // 4547
+	FrozenInfo info{};
+	FrozenStatus status = find_frozen(_name, &info);
+	if (status != FrozenStatus::Frozen_Okay) {
+		ALIF_RETURN_FALSE;
+	}
+	ALIF_RETURN_TRUE;
+}
+
+static AlifObject* _imp_printImpl(AlifObject* module, AlifObject* msg) { //* alif //* todo //* delete
+	printf("%s\n", alifUStr_asUTF8(msg));
+	return ALIF_NONE;
+}
 
 static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_EXTENSION_SUFFIXES_METHODDEF
@@ -1934,7 +1948,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_CREATE_BUILTIN_METHODDEF
 	//_IMP_INIT_FROZEN_METHODDEF
 	_IMP_IS_BUILTIN_METHODDEF
-	//_IMP_IS_FROZEN_METHODDEF
+	_IMP_IS_FROZEN_METHODDEF
 	//_IMP__FROZEN_MODULE_NAMES_METHODDEF
 	//_IMP__OVERRIDE_FROZEN_MODULES_FOR_TESTS_METHODDEF
 	//_IMP__OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK_METHODDEF
@@ -1943,6 +1957,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_EXEC_BUILTIN_METHODDEF
 	//_IMP__FIX_CO_FILENAME_METHODDEF
 	//_IMP_SOURCE_HASH_METHODDEF
+	_IMP_PRINT //* alif //* delete //* todo
 	{nullptr, nullptr}  /* sentinel */
 };
 

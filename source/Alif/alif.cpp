@@ -377,7 +377,7 @@ static void alifMain_runAlif(AlifIntT* _exitcode) { // 614
 		//*_exitcode = alifMain_runModule(config->runModule, 1);
 	}
 	else if (mainImporterPath != nullptr) {
-		//*_exitcode = alifMain_runModule(L"__main__", 0);
+		//*_exitcode = alifMain_runModule(L"__الرئيسية__", 0);
 	}
 	else if (config->runFilename != nullptr) {
 		*_exitcode = alifMain_runFile(config);
