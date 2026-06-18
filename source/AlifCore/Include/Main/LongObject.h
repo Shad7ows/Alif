@@ -72,12 +72,14 @@ AlifObject* alifLong_fromUStrObject(AlifObject*, AlifIntT); // 5
 
 
 
+AlifIntT alifLong_isPositive(AlifObject*);
+AlifIntT alifLong_isNegative(AlifObject*);
+AlifIntT alifLong_isZero(AlifObject*);
+
+AlifIntT _alifLong_sign(AlifObject*); // 89
 
 
-AlifIntT _alifLong_sign(AlifObject*); // 68
-
-
-int64_t _alifLong_numBits(AlifObject*); // 77
+int64_t _alifLong_numBits(AlifObject*); // 97
 
 
 
