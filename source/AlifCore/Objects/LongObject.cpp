@@ -588,29 +588,6 @@ unsigned long alifLong_asUnsignedLongMask(AlifObject* _op) { // 748
 }
 
 
-AlifIntT alifLong_isPositive(AlifObject* obj) {
-	if (!ALIFLONG_CHECK(obj)) {
-		alifErr_format(_alifExcTypeError_, "يتوقع عدد صحيح, ولكن تم تمرير %T", obj);
-		return -1;
-	}
-	return _alifLong_isPositive((AlifLongObject*)obj);
-}
-
-AlifIntT alifLong_isNegative(AlifObject* obj) {
-	if (!ALIFLONG_CHECK(obj)) {
-		alifErr_format(_alifExcTypeError_, "يتوقع عدد صحيح, ولكن تم تمرير %T", obj);
-		return -1;
-	}
-	return _alifLong_isNegative((AlifLongObject*)obj);
-}
-
-AlifIntT alifLong_isZero(AlifObject* obj) {
-	if (!ALIFLONG_CHECK(obj)) {
-		alifErr_format(_alifExcTypeError_, "يتوقع عدد صحيح, ولكن تم تمرير %T", obj);
-		return -1;
-	}
-	return _alifLong_isZero((AlifLongObject*)obj);
-}
 
 AlifIntT _alifLong_sign(AlifObject* _vv) { // 772
 	AlifLongObject* v = (AlifLongObject*)_vv;
