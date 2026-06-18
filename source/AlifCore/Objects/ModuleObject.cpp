@@ -89,6 +89,15 @@ static void track_module(AlifModuleObject* _m) { // 101
 	alifObject_gcTrack(_m);
 }
 
+static AlifObject* new_module(AlifTypeObject* _mt,
+	AlifObject* _args, AlifObject* _kws) { // 116
+	AlifModuleObject* m = newModule_noTrack(_mt);
+	if (m != nullptr) {
+		track_module(m);
+	}
+	return (AlifObject*)m;
+}
+
 AlifObject* alifModule_newObject(AlifObject* _name) { // 121
 	AlifModuleObject* m = newModule_noTrack(&_alifModuleType_);
 	if (m == nullptr) return nullptr;
@@ -549,6 +558,11 @@ error:
 }
 
 
+
+#include "clinic/ModuleObject.cpp.h"
+
+
+
 AlifModuleDef* alifModule_getDef(AlifObject* m) { // 650
 	if (!ALIFMODULE_CHECK(m)) {
 		//ALIFERR_BADARGUMENT();
@@ -563,6 +577,45 @@ void* alifModule_getState(AlifObject* m) { // 660
 		return nullptr;
 	}
 	return _alifModule_getState(m);
+}
+
+
+
+static AlifIntT module___init__Impl(AlifModuleObject* _self,
+	AlifObject* _name, AlifObject* _doc) { // 760
+	return module_initDict(_self, _self->dict, _name, _doc);
+}
+
+
+static void module_dealloc(AlifObject* self) { // 767
+	AlifModuleObject* m = ALIFMODULE_CAST(self);
+
+	alifObject_gcUnTrack(m);
+
+	AlifIntT verbose = alif_getConfig()->verbose;
+	if (verbose and m->name) {
+		//alifSys_formatStderr("# destroy %U\n", m->name);
+	}
+	if (m->weaklist != nullptr)
+		alifObject_clearWeakRefs((AlifObject*)m);
+
+	if (m->def and m->def->free
+		and (m->def->size <= 0 or m->state != nullptr)) {
+		m->def->free(m);
+	}
+
+	ALIF_XDECREF(m->dict);
+	ALIF_XDECREF(m->name);
+	if (m->state != nullptr)
+		alifMem_dataFree(m->state);
+	ALIF_TYPE(m)->free((AlifObject*)m);
+}
+
+
+static AlifObject* module_repr(AlifObject* self) {
+	AlifModuleObject* m = ALIFMODULE_CAST(self);
+	AlifInterpreter* interp = _alifInterpreter_get();
+	//return _alifImport_importLibModuleRepr(interp, (AlifObject*)m);
 }
 
 
@@ -816,11 +869,12 @@ static AlifIntT module_traverse(AlifObject* _self,
 
 
 
-AlifTypeObject _alifModuleType_ = { // 1290
+AlifTypeObject _alifModuleType_ = { // 1320
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "وحدة",
 	.basicSize = sizeof(AlifModuleObject),
-	//(Destructor)module_dealloc,
+	.dealloc = (Destructor)module_dealloc,
+	//.repr = module_repr,
 	.getAttro = (GetAttroFunc)alifModule_getAttro,
 	.setAttro = alifObject_genericSetAttr,
 
@@ -830,7 +884,7 @@ AlifTypeObject _alifModuleType_ = { // 1290
 	.weakListOffset = offsetof(AlifModuleObject, weaklist),
 
 	.dictOffset = offsetof(AlifModuleObject, dict),
-
-	//.new_ = new_module,
+	.init = module___init__,
+	.new_ = new_module,
 	.free = alifObject_gcDel,
 };
