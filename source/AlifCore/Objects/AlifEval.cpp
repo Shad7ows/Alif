@@ -3898,7 +3898,7 @@ AlifObject* _alifEval_importFrom(AlifThread* _thread,
 		return x;
 	}
 
-	if (alifObject_getOptionalAttr(_v, &ALIF_ID(__name__), &modName) < 0) {
+	if (alifObject_getOptionalAttr(_v, &ALIF_STR(__name__), &modName) < 0) {
 		return nullptr;
 	}
 	if (modName == nullptr or !ALIFUSTR_CHECK(modName)) {
@@ -3929,7 +3929,7 @@ error:
 	}
 
 	origin = nullptr;
-	if (alifObject_getOptionalAttr(_v, &ALIF_ID(__spec__), &spec) < 0) {
+	if (alifObject_getOptionalAttr(_v, &ALIF_STR(__spec__), &spec) < 0) {
 		ALIF_DECREF(modNameOrUnknown);
 		return nullptr;
 	}

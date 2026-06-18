@@ -89,9 +89,13 @@ public:
 		STRUCT_FOR_USTR(__format__, "__تنسيق__") //* alif
 		STRUCT_FOR_USTR(__init__, "__تهيئة__") //* alif
 		STRUCT_FOR_USTR(__import__, "__استورد__") //* alif
+		STRUCT_FOR_USTR(__loader__, "__محمل__")
 		STRUCT_FOR_USTR(__mul__, "__اضرب__") //* alif
+		STRUCT_FOR_USTR(__module__, "__وحدة__")
 		STRUCT_FOR_USTR(__neg__, "__سالب__") //* alif
+		STRUCT_FOR_USTR(__name__, "__اسم__")
 		STRUCT_FOR_USTR(__pow__, "__اس__") //* alif
+		STRUCT_FOR_USTR(__qualname__, "__اسم_مميز__")
 		STRUCT_FOR_USTR(__rpow__, "__اس_ع__") //* alif
 		STRUCT_FOR_USTR(__radd__, "__اجمع_ع__") //* alif
 		STRUCT_FOR_USTR(__repr__, "__عرض__") //* alif
@@ -100,6 +104,8 @@ public:
 		STRUCT_FOR_USTR(__rsub__, "__اطرح_ع__") //* alif
 		STRUCT_FOR_USTR(__sub__, "__اطرح__") //* alif
 		STRUCT_FOR_USTR(__main__, "__الرئيسية__") //* alif
+		STRUCT_FOR_USTR(__dict__, "__فهرس__")
+		STRUCT_FOR_USTR(__spec__, "__خصائص__")
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
 	} literals;
 
@@ -118,7 +124,6 @@ public:
 		STRUCT_FOR_ID(__classDictCell__)
 		STRUCT_FOR_ID(__classGetItem__)
 		STRUCT_FOR_ID(__complex__)
-		STRUCT_FOR_ID(__dict__)
 		STRUCT_FOR_ID(__dictOffset__)
 		STRUCT_FOR_ID(__doc__)
 		STRUCT_FOR_ID(__eq__)
@@ -130,20 +135,15 @@ public:
 		STRUCT_FOR_ID(__instanceCheck__)
 		STRUCT_FOR_ID(__IOBaseClosed)
 		STRUCT_FOR_ID(__lengthHint__)
-		STRUCT_FOR_ID(__loader__)
-		STRUCT_FOR_ID(__module__)
 		STRUCT_FOR_ID(__mroEntries__)
-		STRUCT_FOR_ID(__name__)
 		STRUCT_FOR_ID(__new__)
 		STRUCT_FOR_ID(__notes__)
 		STRUCT_FOR_ID(__origClass__)
 		STRUCT_FOR_ID(__path__)
 		STRUCT_FOR_ID(__package__)
 		STRUCT_FOR_ID(__prepare__)
-		STRUCT_FOR_ID(__qualname__)
 		STRUCT_FOR_ID(__setName__)
 		STRUCT_FOR_ID(__slots__)
-		STRUCT_FOR_ID(__spec__)
 		STRUCT_FOR_ID(__staticAttributes__)
 		STRUCT_FOR_ID(__subClassCheck__)
 		STRUCT_FOR_ID(__typeParams__)

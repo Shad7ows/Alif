@@ -1422,12 +1422,12 @@ static AlifIntT codegen_classBody(AlifCompiler* _c,
 			(void*)_s, _firstLineNo, _s->V.classDef.name, nullptr));
 
 	Location loc = LOCATION(_firstLineNo, _firstLineNo, 0, 0);
-	/* load (global) __name__ ... */
-	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_ID(__name__), ExprContext_::Load));
-	/* ... and store it as __module__ */
-	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_ID(__module__), ExprContext_::Store));
+	/* load (global) __اسم__ ... */
+	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_STR(__name__), ExprContext_::Load));
+	/* ... and store it as __وحدة__ */
+	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_STR(__module__), ExprContext_::Store));
 	ADDOP_LOAD_CONST(_c, loc, QUALNAME(_c));
-	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_ID(__qualname__), ExprContext_::Store));
+	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_STR(__qualname__), ExprContext_::Store));
 	ADDOP_LOAD_CONST_NEW(_c, loc, alifLong_fromLong(METADATA(_c)->firstLineno));
 	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_ID(__firstLineno__), ExprContext_::Store));
 	ASDLTypeParamSeq* typeParams = _s->V.classDef.typeParams;

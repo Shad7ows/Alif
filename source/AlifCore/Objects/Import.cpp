@@ -2781,7 +2781,7 @@ static AlifObject* get_parent(AlifObject* globals, char* buf,
 		return ALIF_NONE;
 
 	if (namestr == nullptr) {
-		namestr = alifUStr_internFromString("__name__");
+		namestr = alifUStr_internFromString("__اسم__");
 		if (namestr == nullptr)
 			return nullptr;
 	}

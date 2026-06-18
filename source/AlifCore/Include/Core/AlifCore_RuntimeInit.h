@@ -729,9 +729,13 @@
     INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
     INIT_USTR(__import__, "__استورد__"), /* //* alif */	\
+    INIT_USTR(__loader__, "__محمل__"), /* //* alif */	\
     INIT_USTR(__mul__, "__اضرب__"), /* //* alif */	\
+    INIT_USTR(__module__, "__وحدة__"), /* //* alif */	\
     INIT_USTR(__neg__, "__سالب__"), /* //* alif */	\
+    INIT_USTR(__name__, "__اسم__"), /* //* alif */	\
     INIT_USTR(__pow__, "__اس__"), /* //* alif */	\
+    INIT_USTR(__qualname__, "__اسم_مميز__"), /* //* alif */	\
     INIT_USTR(__rpow__, "__اس_ع__"), /* //* alif */	\
     INIT_USTR(__radd__, "__اجمع_ع__"), /* //* alif */	\
     INIT_USTR(__repr__, "__عرض__"), /* //* alif */	\
@@ -740,6 +744,8 @@
     INIT_USTR(__rsub__, "__اطرح_ع__"), /* //* alif */	\
     INIT_USTR(__sub__, "__اطرح__"), /* //* alif */	\
     INIT_USTR(__main__, "__الرئيسية__"), /* //* alif */	\
+    INIT_USTR(__dict__, "__فهرس__"), /* //* alif */	\
+    INIT_USTR(__spec__, "__خصائص__"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
 }
 
@@ -759,33 +765,26 @@
     INIT_ID(__classDictCell__), \
     INIT_ID(__classGetItem__), \
     INIT_ID(__complex__), \
-	INIT_ID(__dict__), \
 	INIT_ID(__dictOffset__), \
 	INIT_ID(__doc__), \
 	INIT_ID(__eq__), \
 	INIT_ID(__file__), \
 	INIT_ID(__firstLineno__), \
-	/*INIT_ID(__format__),*/ \
 	INIT_ID(__getAttr__), \
 	INIT_ID(__hash__), \
 	INIT_ID(__initSubclass__), \
 	INIT_ID(__instanceCheck__), \
 	INIT_ID(__IOBaseClosed), \
 	INIT_ID(__lengthHint__), \
-	INIT_ID(__loader__), \
-	INIT_ID(__module__), \
 	INIT_ID(__mroEntries__), \
-    INIT_ID(__name__), \
     INIT_ID(__new__), \
     INIT_ID(__notes__), \
     INIT_ID(__origClass__), \
 	INIT_ID(__path__), \
 	INIT_ID(__package__), \
 	INIT_ID(__prepare__), \
-	INIT_ID(__qualname__), \
 	INIT_ID(__setName__), \
 	INIT_ID(__slots__), \
-	INIT_ID(__spec__), \
 	INIT_ID(__staticAttributes__), \
 	INIT_ID(__subClassCheck__), \
 	INIT_ID(__typeParams__), \
@@ -800,7 +799,6 @@
 	INIT_ID(Buffer), \
 	INIT_ID(Buffering), \
 	INIT_ID(buffersize), \
-	/*INIT_ID(Close),*/ \
 	INIT_ID(Closed), \
 	INIT_ID(CloseFD), \
 	INIT_ID(Code), \

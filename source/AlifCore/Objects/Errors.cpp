@@ -593,7 +593,7 @@ AlifObject* alifErr_newException(const char* _name, AlifObject* _base,
 			goto failure;
 	}
 
-	AlifIntT r; r = alifDict_contains(_dict, &ALIF_ID(__module__));
+	AlifIntT r; r = alifDict_contains(_dict, &ALIF_STR(__module__));
 	if (r < 0) {
 		goto failure;
 	}
@@ -602,7 +602,7 @@ AlifObject* alifErr_newException(const char* _name, AlifObject* _base,
 			(AlifSizeT)(dot-_name));
 		if (moduleName == nullptr)
 			goto failure;
-		if (alifDict_setItem(_dict, &ALIF_ID(__module__), moduleName) != 0)
+		if (alifDict_setItem(_dict, &ALIF_STR(__module__), moduleName) != 0)
 			goto failure;
 	}
 	if (ALIFTUPLE_CHECK(_base)) {

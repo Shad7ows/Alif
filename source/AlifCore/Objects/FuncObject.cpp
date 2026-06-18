@@ -46,7 +46,7 @@ static inline void handle_funcEvent(AlifFunctionWatchEvent _event, AlifFunctionO
 
 AlifFunctionObject* _alifFunction_fromConstructor(AlifFrameConstructor* _constr) { // 103
 	AlifObject* module{};
-	if (alifDict_getItemRef(_constr->globals, &ALIF_ID(__name__), &module) < 0) {
+	if (alifDict_getItemRef(_constr->globals, &ALIF_STR(__name__), &module) < 0) {
 		return nullptr;
 	}
 
@@ -111,10 +111,10 @@ AlifObject* alifFunction_newWithQualName(AlifObject* _code,
 	}
 	ALIF_INCREF(doc);
 
-	// __module__: Use globals['__name__'] if it exists, or nullptr.
+	// __وحدة__: Use globals['__اسم__'] if it exists, or nullptr.
 	AlifObject* module{};
 	AlifObject* builtins = nullptr;
-	if (alifDict_getItemRef(_globals, &ALIF_ID(__name__), &module) < 0) {
+	if (alifDict_getItemRef(_globals, &ALIF_STR(__name__), &module) < 0) {
 		goto error;
 	}
 
@@ -280,7 +280,7 @@ static AlifIntT funcTools_wraps(AlifObject* _wrapper,
 	AlifObject* _wrapped) { // 1209
 #define COPY_ATTR(ATTR) \
     do { \
-        if (funcTools_copyAttr(_wrapper, _wrapped, &ALIF_ID(ATTR)) < 0) { \
+        if (funcTools_copyAttr(_wrapper, _wrapped, &ALIF_STR(ATTR)) < 0) { \
             return -1; \
         } \
     } while (0) \
@@ -288,7 +288,7 @@ static AlifIntT funcTools_wraps(AlifObject* _wrapper,
 	COPY_ATTR(__module__);
 	COPY_ATTR(__name__);
 	COPY_ATTR(__qualname__);
-	COPY_ATTR(__doc__);
+	//COPY_ATTR(__doc__);
 	return 0;
 
 #undef COPY_ATTR

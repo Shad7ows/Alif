@@ -118,7 +118,7 @@ AlifIntT alifRun_simpleFileObject(FILE* _fp, AlifObject* _filename,
 	//	}
 
 	//	if (set_mainLoader(dict, _filename, "SourcelessFileLoader") < 0) {
-	//		fprintf(stderr, "alif: failed to set __الرئيسية__.__loader__\n");
+	//		fprintf(stderr, "alif: failed to set __الرئيسية__.__محمل__\n");
 	//		ret = -1;
 	//		fclose(alifcFP);
 	//		goto done;
@@ -129,7 +129,7 @@ AlifIntT alifRun_simpleFileObject(FILE* _fp, AlifObject* _filename,
 		//if ((!ALIFUSTR_CHECK(_filename)
 		//	or !alifUStr_equalToUTF8(_filename, "<stdin>"))
 		//	and set_mainLoader(dict, _filename, "SourceFileLoader") < 0) {
-		//	fprintf(stderr, "alif: failed to set __الرئيسية__.__loader__\n");
+		//	fprintf(stderr, "alif: failed to set __الرئيسية__.__محمل__\n");
 		//	ret = -1;
 		//	goto done;
 		//}
@@ -428,7 +428,7 @@ static AlifIntT printException_message(ExceptionPrintContext* ctx, AlifObject* t
 	//	return -1;
 	//}
 
-	AlifObject* modulename = alifObject_getAttr(type, &ALIF_ID(__module__));
+	AlifObject* modulename = alifObject_getAttr(type, &ALIF_STR(__module__));
 	if (modulename == nullptr or !ALIFUSTR_CHECK(modulename)) {
 		ALIF_XDECREF(modulename);
 		alifErr_clear();

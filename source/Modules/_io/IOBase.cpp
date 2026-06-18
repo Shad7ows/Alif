@@ -272,7 +272,7 @@ static AlifMethodDef _ioBaseMethods_[] = { // 824
 };
 
 static AlifGetSetDef _ioBaseGetSet_[] = { // 853
-	{"__dict__", alifObject_genericGetDict, nullptr, nullptr},
+	{"__فهرس__", alifObject_genericGetDict, nullptr, nullptr},
 	{nullptr},
 };
 

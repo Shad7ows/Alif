@@ -511,11 +511,11 @@ static AlifIntT type_setQualname(AlifTypeObject* type,
 	AlifObject* value, void* context) {
 	AlifHeapTypeObject* et;
 
-	if (!check_setSpecialTypeAttr(type, value, "__qualname__"))
+	if (!check_setSpecialTypeAttr(type, value, "__اسم_مميز__"))
 		return -1;
 	if (!ALIFUSTR_CHECK(value)) {
 		alifErr_format(_alifExcTypeError_,
-			"يمكن إسناد نص فقط لـ %s.__qualname__, وليس '%s'",
+			"يمكن إسناد نص فقط لـ %s.__اسم_مميز__, وليس '%s'",
 			type->name, ALIF_TYPE(value)->name);
 		return -1;
 	}
@@ -529,8 +529,8 @@ static AlifObject* type_module(AlifTypeObject *_type) { // 1396
 	AlifObject* mod{};
 	if (_type->flags & ALIF_TPFLAGS_HEAPTYPE) {
 		AlifObject *dict = lookup_tpDict(_type);
-		if (alifDict_getItemRef(dict, &ALIF_ID(__module__), &mod) == 0) {
-			alifErr_format(_alifExcAttributeError_, "__module__");
+		if (alifDict_getItemRef(dict, &ALIF_STR(__module__), &mod) == 0) {
+			alifErr_format(_alifExcAttributeError_, "__وحدة__");
 		}
 	}
 	else {
@@ -556,7 +556,7 @@ static AlifObject* type_getModule(AlifTypeObject* _type, void* _context) { // 14
 
 static AlifIntT type_setModule(AlifTypeObject* type, AlifObject* value,
 	void* context) { // 1429
-	if (!check_setSpecialTypeAttr(type, value, "__module__"))
+	if (!check_setSpecialTypeAttr(type, value, "__وحدة__"))
 		return -1;
 
 	alifType_modified(type);
@@ -565,7 +565,7 @@ static AlifIntT type_setModule(AlifTypeObject* type, AlifObject* value,
 	if (alifDict_pop(dict, &ALIF_ID(__firstLineno__), nullptr) < 0) {
 		return -1;
 	}
-	return alifDict_setItem(dict, &ALIF_ID(__module__), value);
+	return alifDict_setItem(dict, &ALIF_STR(__module__), value);
 }
 
 static AlifObject* type_abstractMethods(AlifTypeObject* type,
@@ -590,14 +590,14 @@ static AlifIntT add_subClass(AlifTypeObject*, AlifTypeObject*); // 1569
 
 
 static AlifGetSetDef _typeGetSets_[] = { // 2076
-	//{"__name__", (Getter)type_name, (Setter)type_setName, nullptr},
-	{"__qualname__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
+	//{"__اسم__", (Getter)type_name, (Setter)type_setName, nullptr},
+	{"__اسم_مميز__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
 	//{"__bases__", (Getter)type_getBases, (Setter)type_setBases, nullptr},
 	//{"__mro__", (Getter)type_getMro, nullptr, nullptr},
-	{"__module__", (Getter)type_getModule, (Setter)type_setModule, nullptr},
+	{"__وحدة__", (Getter)type_getModule, (Setter)type_setModule, nullptr},
 	//{"__abstractmethods__", (Getter)type_abstractMethods,
 	//(Setter)type_setAbstractMethods, nullptr},
-	//{"__dict__",  (Getter)type_dict,  nullptr, nullptr},
+	//{"__فهرس__",  (Getter)type_dict,  nullptr, nullptr},
 	{0}
 };
 
@@ -1028,7 +1028,7 @@ static AlifIntT tail_contains(AlifObject* _tuple, AlifIntT _whence, AlifObject* 
 
 static AlifObject* class_name(AlifObject* _cls) { // 2881
 	AlifObject* name{};
-	if (alifObject_getOptionalAttr(_cls, &ALIF_ID(__name__), &name) == 0) {
+	if (alifObject_getOptionalAttr(_cls, &ALIF_STR(__name__), &name) == 0) {
 		name = alifObject_repr(_cls);
 	}
 	return name;
@@ -1385,7 +1385,7 @@ static AlifIntT typeNew_initSubclass(AlifTypeObject*, AlifObject*); // 3426
 
 
 static AlifGetSetDef _subtypeGetSetsFull_[] = { // 3561
-	{"__dict__", nullptr/*subtype_dict*/, nullptr/*subtype_setDict*/,
+	{"__فهرس__", nullptr/*subtype_dict*/, nullptr/*subtype_setDict*/,
 	 nullptr},
 	{"__weakRef__", nullptr/*subtype_getWeakRef*/, nullptr,
 	 nullptr},
@@ -1393,7 +1393,7 @@ static AlifGetSetDef _subtypeGetSetsFull_[] = { // 3561
 };
 
 static AlifGetSetDef _subtypeGetSetsDictOnly_[] = { // 3569
-	{"__dict__", nullptr/*subtype_dict*/, nullptr/*subtype_setDict*/,
+	{"__فهرس__", nullptr/*subtype_dict*/, nullptr/*subtype_setDict*/,
 	 nullptr},
 	{0}
 };
@@ -1500,10 +1500,10 @@ static AlifIntT typeNew_visitSlots(TypeNewCtx* _ctx) { // 3694
 		if (!valid_identifier(name)) {
 			return -1;
 		}
-		if (_alifUStr_equal(name, &ALIF_ID(__dict__))) {
+		if (_alifUStr_equal(name, &ALIF_STR(__dict__))) {
 			if (!_ctx->mayAddDict or _ctx->addDict != 0) {
 				//alifErr_setString(_alifExcTypeError_,
-				//	"__dict__ slot disallowed: "
+				//	"__فهرس__ slot disallowed: "
 				//	"we already got one");
 				return -1;
 			}
@@ -1537,7 +1537,7 @@ static AlifObject* typeNew_copySlots(TypeNewCtx* ctx, AlifObject* dict) { // 373
 	AlifSizeT j = 0;
 	for (AlifSizeT i = 0; i < nslot; i++) {
 		AlifObject* slot = ALIFTUPLE_GET_ITEM(slots, i);
-		if ((ctx->addDict and _alifUStr_equal(slot, &ALIF_ID(__dict__))) ||
+		if ((ctx->addDict and _alifUStr_equal(slot, &ALIF_STR(__dict__))) ||
 			(ctx->addWeak and _alifUStr_equal(slot, &ALIF_ID(__weakRef__)))) {
 			continue;
 		}
@@ -1553,7 +1553,7 @@ static AlifObject* typeNew_copySlots(TypeNewCtx* ctx, AlifObject* dict) { // 373
 			goto error;
 		}
 		if (r > 0) {
-			if (!_alifUStr_equal(slot, &ALIF_ID(__qualname__)) and
+			if (!_alifUStr_equal(slot, &ALIF_STR(__qualname__)) and
 				!_alifUStr_equal(slot, &ALIF_ID(__classCell__)) and
 				!_alifUStr_equal(slot, &ALIF_ID(__classDictCell__))) {
 				//alifErr_format(_alifExcValueError_,
@@ -1730,7 +1730,7 @@ static AlifIntT typeNew_setName(const TypeNewCtx* ctx, AlifTypeObject* type) { /
 
 static AlifIntT typeNew_setModule(AlifTypeObject* _type) { // 3965
 	AlifObject* dict = lookup_tpDict(_type);
-	AlifIntT r = alifDict_contains(dict, &ALIF_ID(__module__));
+	AlifIntT r = alifDict_contains(dict, &ALIF_STR(__module__));
 	if (r < 0) {
 		return -1;
 	}
@@ -1744,9 +1744,9 @@ static AlifIntT typeNew_setModule(AlifTypeObject* _type) { // 3965
 	}
 
 	AlifObject* module{};
-	r = alifDict_getItemRef(globals, &ALIF_ID(__name__), &module);
+	r = alifDict_getItemRef(globals, &ALIF_STR(__name__), &module);
 	if (module) {
-		r = alifDict_setItem(dict, &ALIF_ID(__module__), module);
+		r = alifDict_setItem(dict, &ALIF_STR(__module__), module);
 		ALIF_DECREF(module);
 	}
 	return r;
@@ -1757,19 +1757,19 @@ static AlifIntT typeNew_setHtName(AlifTypeObject* _type) { // 3994
 	AlifHeapTypeObject* et = (AlifHeapTypeObject*)_type;
 	AlifObject* dict = lookup_tpDict(_type);
 	AlifObject* qualname;
-	if (alifDict_getItemRef(dict, &ALIF_ID(__qualname__), &qualname) < 0) {
+	if (alifDict_getItemRef(dict, &ALIF_STR(__qualname__), &qualname) < 0) {
 		return -1;
 	}
 	if (qualname != nullptr) {
 		if (!ALIFUSTR_CHECK(qualname)) {
-			//alifErr_format(_alifExcTypeError_,
-			//	"type __qualname__ must be a str, not %s",
-			//	ALIF_TYPE(qualname)->name);
+			alifErr_format(_alifExcTypeError_,
+				"النوع __اسم_مميز__ يجب أن يكون نص, وليس %s",
+				ALIF_TYPE(qualname)->name);
 			ALIF_DECREF(qualname);
 			return -1;
 		}
 		et->qualname = qualname;
-		if (alifDict_delItem(dict, &ALIF_ID(__qualname__)) < 0) {
+		if (alifDict_delItem(dict, &ALIF_STR(__qualname__)) < 0) {
 			return -1;
 		}
 	}
@@ -2087,7 +2087,7 @@ static AlifObject* type_newImpl(TypeNewCtx* _ctx) { // 4365
 		//if (alifErr_WarnFormat(
 		//	_alifExcRuntimeWarning_,
 		//	1,
-		//	"non-string key in the __dict__ of class %.200s",
+		//	"non-string key in the __فهرس__ of class %.200s",
 		//	type->name) == -1)
 		//{
 		//	goto error;
@@ -2720,8 +2720,8 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 		}
 	}
 
-	/* Set type.__module__ */
-	r = alifDict_contains(dict, &ALIF_ID(__module__));
+	/* Set type.__وحدة__ */
+	r = alifDict_contains(dict, &ALIF_STR(__module__));
 	if (r < 0) {
 		goto finally;
 	}
@@ -2733,7 +2733,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 			if (modname == nullptr) {
 				goto finally;
 			}
-			r = alifDict_setItem(dict, &ALIF_ID(__module__), modname);
+			r = alifDict_setItem(dict, &ALIF_STR(__module__), modname);
 			ALIF_DECREF(modname);
 			if (r != 0) {
 				goto finally;
@@ -2741,7 +2741,7 @@ AlifObject* alifType_fromMetaclass(AlifTypeObject* metaclass, AlifObject* module
 		}
 		else {
 			//if (alifErr_warnFormat(_alifExcDeprecationWarning_, 1,
-			//	"builtin type %.200s has no __module__ attribute",
+			//	"builtin type %.200s has no __وحدة__ attribute",
 			//	spec->name))
 			goto finally;
 		}

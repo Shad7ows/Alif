@@ -45,15 +45,15 @@ static AlifIntT module_initDict(AlifModuleObject* mod, AlifObject* md_dict,
 	if (doc == nullptr)
 		doc = ALIF_NONE;
 
-	if (alifDict_setItem(md_dict, &ALIF_ID(__name__), name) != 0)
+	if (alifDict_setItem(md_dict, &ALIF_STR(__name__), name) != 0)
 		return -1;
 	if (alifDict_setItem(md_dict, &ALIF_ID(__doc__), doc) != 0)
 		return -1;
 	if (alifDict_setItem(md_dict, &ALIF_ID(__package__), ALIF_NONE) != 0)
 		return -1;
-	if (alifDict_setItem(md_dict, &ALIF_ID(__loader__), ALIF_NONE) != 0)
+	if (alifDict_setItem(md_dict, &ALIF_STR(__loader__), ALIF_NONE) != 0)
 		return -1;
-	if (alifDict_setItem(md_dict, &ALIF_ID(__spec__), ALIF_NONE) != 0)
+	if (alifDict_setItem(md_dict, &ALIF_STR(__spec__), ALIF_NONE) != 0)
 		return -1;
 	if (ALIFUSTR_CHECKEXACT(name)) {
 		ALIF_XSETREF(mod->name, ALIF_NEWREF(name));
@@ -501,7 +501,7 @@ AlifObject* alifModule_getNameObject(AlifObject* _mod) { // 561
 		goto error;
 	}
 	// name
-	if (alifDict_getItemRef(dict, &ALIF_ID(__name__), &name) <= 0) {
+	if (alifDict_getItemRef(dict, &ALIF_STR(__name__), &name) <= 0) {
 		// error or not found
 		goto error;
 	}
@@ -746,7 +746,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 	if (_suppress == 1) {
 		return nullptr;
 	}
-	if (alifDict_getItemRef(_m->dict, &ALIF_ID(__name__), &modName) < 0) {
+	if (alifDict_getItemRef(_m->dict, &ALIF_STR(__name__), &modName) < 0) {
 		return nullptr;
 	}
 	if (!modName or !ALIFUSTR_CHECK(modName)) {
@@ -756,7 +756,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 		return nullptr;
 	}
 	AlifObject* spec{};
-	if (alifDict_getItemRef(_m->dict, &ALIF_ID(__spec__), &spec) < 0) {
+	if (alifDict_getItemRef(_m->dict, &ALIF_STR(__spec__), &spec) < 0) {
 		ALIF_DECREF(modName);
 		return nullptr;
 	}

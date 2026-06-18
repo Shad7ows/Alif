@@ -113,13 +113,13 @@ static AlifObject* meth_get_qualname__(AlifObject* _self, void* _closure) { // 2
 
 	AlifObject* type = ALIFTYPE_CHECK(m->self) ? m->self : (AlifObject*)ALIF_TYPE(m->self);
 
-	AlifObject* typeQualname = alifObject_getAttr(type, &ALIF_ID(__qualname__));
+	AlifObject* typeQualname = alifObject_getAttr(type, &ALIF_STR(__qualname__));
 	if (typeQualname == nullptr)
 		return nullptr;
 
 	if (!ALIFUSTR_CHECK(typeQualname)) {
 		alifErr_setString(_alifExcTypeError_, "<method>.__class__."
-			"__qualname__ is not a unicode object");
+			"__اسم_مميز__ is not a unicode object");
 		ALIF_XDECREF(typeQualname);
 		return nullptr;
 	}
@@ -131,8 +131,8 @@ static AlifObject* meth_get_qualname__(AlifObject* _self, void* _closure) { // 2
 
 
 static AlifGetSetDef _methGetSets_[] = { // 273
-	//{"__name__", meth_get_name__, nullptr, nullptr},
-	{"__qualname__", meth_get_qualname__, nullptr, nullptr},
+	//{"__اسم__", meth_get_name__, nullptr, nullptr},
+	{"__اسم_مميز__", meth_get_qualname__, nullptr, nullptr},
 	//{"__self__", meth_get_self__, nullptr, nullptr},
 	{0}
 };

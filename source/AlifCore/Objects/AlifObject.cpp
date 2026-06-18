@@ -288,7 +288,7 @@ AlifObject* alifObject_str(AlifObject* _v) { // 711
 
 AlifObject* _alifObject_functionStr(AlifObject* _x) { // 886
 	AlifObject* qualname{};
-	AlifIntT ret = alifObject_getOptionalAttr(_x, &ALIF_ID(__qualname__), &qualname);
+	AlifIntT ret = alifObject_getOptionalAttr(_x, &ALIF_STR(__qualname__), &qualname);
 	if (qualname == nullptr) {
 		if (ret < 0) {
 			return nullptr;
@@ -297,7 +297,7 @@ AlifObject* _alifObject_functionStr(AlifObject* _x) { // 886
 	}
 	AlifObject* module{};
 	AlifObject* result = nullptr;
-	ret = alifObject_getOptionalAttr(_x, &ALIF_ID(__module__), &module);
+	ret = alifObject_getOptionalAttr(_x, &ALIF_STR(__module__), &module);
 	if (module != nullptr and module != ALIF_NONE) {
 		ret = alifObject_richCompareBool(module, &ALIF_STR(Builtins), ALIF_NE);
 		if (ret < 0) {
@@ -857,7 +857,7 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 
 	if (!_suppress) {
 		alifErr_format(_alifExcAttributeError_,
-			"الكائن'%.100s' لا يملك هذه الصفة '%U'",
+			"الكائن '%.100s' لا يملك هذه الصفة '%U'",
 			tp->name, _name);
 
 		_alifObject_setAttributeErrorContext(_obj, _name);
