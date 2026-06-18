@@ -376,7 +376,7 @@ AlifObject* alifClassMethod_new(AlifObject* _callable) { // 1437
 
 
 
-class StaticMethod { // 1467
+class StaticMethod { // 1542
 public:
 	ALIFOBJECT_HEAD{};
 	AlifObject* callable{};
@@ -385,23 +385,59 @@ public:
 
 
 
-AlifTypeObject _alifStaticMethodType_ = { // 1615
+static AlifObject* sm_descrGet(AlifObject* _self,
+	AlifObject* _obj, AlifObject* _type) { // 1580
+	StaticMethod* sm = (StaticMethod*)_self;
+
+	if (sm->callable == nullptr) {
+		alifErr_setString(_alifExcRuntimeError_,
+			"وظيفة_ساكنة غير مهيئ");
+		return nullptr;
+	}
+	return ALIF_NEWREF(sm->callable);
+}
+
+static AlifIntT sm_init(AlifObject* _self,
+	AlifObject* _args, AlifObject* _kwds) {
+	StaticMethod* sm = (StaticMethod*)_self;
+	AlifObject* callable{};
+
+	if (!_ALIFARG_NOKEYWORDS("وظيفة_ساكنة", _kwds))
+		return -1;
+	if (!alifArg_unpackTuple(_args, "وظيفة_ساكنة", 1, 1, &callable))
+		return -1;
+	ALIF_XSETREF(sm->callable, ALIF_NEWREF(callable));
+
+	if (funcTools_wraps((AlifObject*)sm, sm->callable) < 0) {
+		return -1;
+	}
+	return 0;
+}
+
+static AlifMemberDef _smMemberList_[] = { // 1618
+	{"__func__", ALIF_T_OBJECT, offsetof(StaticMethod, callable), ALIF_READONLY},
+	{"__wrapped__", ALIF_T_OBJECT, offsetof(StaticMethod, callable), ALIF_READONLY},
+	{nullptr}  /* Sentinel */
+};
+
+
+AlifTypeObject _alifStaticMethodType_ = { // 1700
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "صفة_ساكنة",
+	.name = "وظيفة_ساكنة",
 	.basicSize = sizeof(StaticMethod),
 	//sm_dealloc,
 	//sm_repr,
 	//sm_call,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC,
 	//sm_traverse,
-	//sm_clear,
-	//sm_memberlist,
+    //.clear = sm_clear,
+	.members = _smMemberList_,
 	//sm_getsetlist,
-	//sm_descr_get,
+	.descrGet = sm_descrGet,
 	.dictOffset = offsetof(StaticMethod, dict),
-	//sm_init,
+	.init = sm_init,
 	.alloc = alifType_genericAlloc,
-	//alifType_genericNew,
+	.new_ = alifType_genericNew,
 	.free = alifObject_gcDel,
 };
 
