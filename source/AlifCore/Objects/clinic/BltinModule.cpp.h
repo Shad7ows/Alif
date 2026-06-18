@@ -32,7 +32,7 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
 
-	static const char* const _keywords[] = { "name", "globals", "locals", "fromlist", "level", nullptr };
+	static const char* const _keywords[] = { "اسم", "متغيرات_عامة", "متغيرات_محلية", "fromlist", "level", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
 		.fname = "__استورد__",
@@ -99,6 +99,95 @@ exit:
 
 #define BUILTIN_CHR_METHODDEF    \
     {"حرف", (AlifCPPFunction)builtin_chr, METHOD_O} // 234
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#define BUILTIN_EXEC_METHODDEF    \
+    {"نفذ", ALIF_CPPFUNCTION_CAST(builtin_exec), METHOD_FASTCALL|METHOD_KEYWORDS}
+
+static AlifObject* builtin_execImpl(AlifObject*, AlifObject*,
+	AlifObject*, AlifObject*, AlifObject*);
+
+static AlifObject* builtin_exec(AlifObject* module,
+	AlifObject* const* args, AlifSizeT nargs, AlifObject* kwnames) { // 497
+	AlifObject* returnValue = nullptr;
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
+
+#define NUM_KEYWORDS 3
+	static struct {
+		AlifGCHead _thisIsNotUsed;
+		ALIFOBJECT_VAR_HEAD;
+		AlifObject* item[NUM_KEYWORDS];
+	} _kwtuple = {
+			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
+			.item = { &ALIF_ID(Globals), &ALIF_ID(Locals), &ALIF_ID(Closure), },
+	};
+#undef NUM_KEYWORDS
+#define KWTUPLE (&_kwtuple.objBase.objBase)
+
+#else
+#  define KWTUPLE nullptr
+#endif
+
+	static const char* const _keywords[] = { "", "المتغيرات_العامة", "المتغيرات_المحلية", "closure", nullptr };
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "نفذ",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[4];
+	AlifSizeT noptargs = nargs + (kwnames ? ALIFTUPLE_GET_SIZE(kwnames) : 0) - 1;
+	AlifObject* source;
+	AlifObject* globals = ALIF_NONE;
+	AlifObject* locals = ALIF_NONE;
+	AlifObject* closure = nullptr;
+
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 3, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+	if (!args) {
+		goto exit;
+	}
+	source = args[0];
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	if (args[1]) {
+		globals = args[1];
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+	if (args[2]) {
+		locals = args[2];
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+skip_optional_pos:
+	if (!noptargs) {
+		goto skip_optional_kwonly;
+	}
+	closure = args[3];
+skip_optional_kwonly:
+	returnValue = builtin_execImpl(module, source, globals, locals, closure);
+
+exit:
+	return returnValue;
+}
+
+
 
 
 

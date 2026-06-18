@@ -149,6 +149,7 @@
 #define RECORD_BRANCH_TAKEN(bitset, flag)
 #endif
 
+#define NAME_ERROR_MSG "الاسم '%.200s' غير معرف"
 
 static inline AlifIntT _alif_enterRecursiveAlif(AlifThread* _thread) { // 368
 	return (_thread->alifRecursionRemaining-- <= 0) and

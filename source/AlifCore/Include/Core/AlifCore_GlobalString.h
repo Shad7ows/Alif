@@ -52,7 +52,7 @@ public:
 		STRUCT_FOR_USTR(AnonSetComp, "<مميزة_ضمنية>")
 		STRUCT_FOR_USTR(AnonDictComp, "<فهرس_ضمني>")
 		STRUCT_FOR_USTR(AnonModule, "<وحدة>") //* alif
-		STRUCT_FOR_STR(AnonString, "<string>")
+		STRUCT_FOR_USTR(AnonString, "<نص>")
 		STRUCT_FOR_STR(Builtins, "الضمنيات")
 		STRUCT_FOR_STR(DblPercent, "%%")
 		STRUCT_FOR_STR(Defaults, ".defaults")
@@ -71,7 +71,7 @@ public:
 		STRUCT_FOR_USTR(ListErr, "مؤشر المصفوفة خارج النطاق")
 		STRUCT_FOR_USTR(lambda, "خطية") //* alif
 		STRUCT_FOR_STR(Mode, "mode") //* alif
-		STRUCT_FOR_STR(Name, "name") //* alif
+		STRUCT_FOR_USTR(Name, "اسم") //* alif
 		STRUCT_FOR_STR(Obj, "obj") //* alif
 		STRUCT_FOR_USTR(Open, "افتح") //* alif
 		STRUCT_FOR_USTR(ReadLine, "اقرا_سطر") //* alif

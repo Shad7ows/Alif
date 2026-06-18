@@ -7496,7 +7496,7 @@ static AlifIntT config_getCodecName(wchar_t** _configEncoding) { // 15961
 	if (!codec)
 		goto error;
 
-	name_obj = alifObject_getAttrString(codec, "name");
+	name_obj = alifObject_getAttrString(codec, "اسم");
 	ALIF_CLEAR(codec);
 	if (!name_obj) {
 		goto error;

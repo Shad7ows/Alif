@@ -57,8 +57,9 @@ extern AlifObject* _alifExcIndexError_; // 97
 
 
 
+extern AlifObject* _alifExcNameError_; // 101
 extern AlifObject* _alifExcOverflowError_; // 102
-extern AlifObject* _alifExcRuntimeError_; // 102
+extern AlifObject* _alifExcRuntimeError_; // 103
 
 extern AlifObject* _alifExcSyntaxError_; // 108
 extern AlifObject* _alifExcIndentationError_; // 109
@@ -155,7 +156,11 @@ public:
 	AlifObject* value{};
 };
 
-
+class AlifNameErrorObject { // 74
+public:
+	ALIFEXCEPTION_HEAD;
+	AlifObject* name{};
+};
 
 class AlifAttributeErrorObject { // 79
 public:

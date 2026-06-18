@@ -45,5 +45,8 @@ AlifObject* alif_compileStringObject(const char*, AlifObject*, AlifIntT,
 	AlifCompilerFlags*, AlifIntT); // 49
 
 
+
+#define ALIFRUN_STRING(_str, _s, _g, _l) alifRun_stringFlags((_str), (_s), (_g), (_l), nullptr) // 76
+
 char* alifOS_readline(FILE*, FILE*, const char*); // 95
 extern char* (*_alifOSReadlineFunctionPointer_)(FILE*, FILE*, const char*); // 96

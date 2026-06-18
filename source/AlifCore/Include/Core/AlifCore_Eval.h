@@ -40,7 +40,7 @@ static inline AlifObject* alifEval_evalFrame(AlifThread* _tstate,
 
 
 
-extern AlifObject* alifEval_vector(AlifThread*, AlifFunctionObject*,
+extern AlifObject* _alifEval_vector(AlifThread*, AlifFunctionObject*,
 	AlifObject*, AlifObject* const*, AlifUSizeT, AlifObject*); // 125
 
 

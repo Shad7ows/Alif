@@ -1366,7 +1366,7 @@ static AlifObject* bootstrap_imp(AlifThread* _thread) { // 3096
 		return nullptr;
 	}
 
-	AlifObject* attrs = alif_buildValue("{sO}", "name", name);
+	AlifObject* attrs = alif_buildValue("{sO}", "اسم", name);
 	if (attrs == nullptr) {
 		goto error;
 	}
@@ -2651,7 +2651,7 @@ static AlifIntT init_builtin(const char* _name) { // 1897
 			AlifThread* thread = _alifThread_get();
 			AlifObject* name = alifUStr_fromString(_name);
 
-			AlifObject* attrs = alif_buildValue("{sO}", "name", name);
+			AlifObject* attrs = alif_buildValue("{sO}", "اسم", name);
 			if (attrs == nullptr) {
 				return -1;
 			}

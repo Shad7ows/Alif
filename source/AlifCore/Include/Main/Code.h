@@ -144,7 +144,11 @@ extern AlifTypeObject _alifCodeType_; // 189
 
 
 
-static inline AlifIntT alifUnstableCode_getFirstFree(AlifCodeObject* _op) { // 188
+static inline AlifSizeT alifCode_getNumFree(AlifCodeObject* _op) { // 212
+	return _op->nFreeVars;
+}
+
+static inline AlifIntT alifUnstableCode_getFirstFree(AlifCodeObject* _op) { // 217
 	return _op->nLocalsPlus - _op->nFreeVars;
 }
 

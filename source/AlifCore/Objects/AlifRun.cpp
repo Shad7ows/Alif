@@ -394,7 +394,7 @@ static AlifIntT printException_fileAndLine(ExceptionPrintContext* ctx,
 	}
 	if (v == ALIF_NONE) {
 		ALIF_DECREF(v);
-		ALIF_DECLARE_STR(anon_string, "<string>");
+		ALIF_DECLARE_STR(anon_string, "<نص>");
 		filename = ALIF_NEWREF(&ALIF_STR(AnonString));
 	}
 	else {
@@ -745,7 +745,7 @@ static AlifObject* _alifRun_stringFlagsWithName(const char* _str, AlifObject* _n
 		return nullptr;
 
 	AlifObject* source = nullptr;
-	ALIF_DECLARE_STR(AnonString, "<string>");
+	ALIF_DECLARE_STR(AnonString, "<نص>");
 
 	if (_name) {
 		source = alifUStr_fromString(_str);
@@ -970,4 +970,57 @@ AlifObject* alif_compileStringExFlags(const char* _str, const char* _filenameStr
 	co = alif_compileStringObject(_str, filename, _start, _flags, _optimize);
 	ALIF_DECREF(filename);
 	return co;
+}
+
+
+
+
+
+
+const char* _alif_sourceAsString(AlifObject* _cmd, const char* _funcName,
+	const char* _what, AlifCompilerFlags* _cf,
+	AlifObject** _cmdCopy) {
+	const char* str{};
+	AlifSizeT size{};
+	AlifBuffer view{};
+
+	*_cmdCopy = nullptr;
+	if (ALIFUSTR_CHECK(_cmd)) {
+		_cf->flags |= ALIFCF_IGNORE_COOKIE;
+		str = alifUStr_asUTF8AndSize(_cmd, &size);
+		if (str == nullptr)
+			return nullptr;
+	}
+	else if (ALIFBYTES_CHECK(_cmd)) {
+		str = ALIFBYTES_AS_STRING(_cmd);
+		size = ALIFBYTES_GET_SIZE(_cmd);
+	}
+	else if (ALIFBYTEARRAY_CHECK(_cmd)) {
+		str = ALIFBYTEARRAY_AS_STRING(_cmd);
+		size = ALIFBYTEARRAY_GET_SIZE(_cmd);
+	}
+	else if (alifObject_getBuffer(_cmd, &view, ALIFBUF_SIMPLE) == 0) {
+		*_cmdCopy = alifBytes_fromStringAndSize(
+			(const char*)view.buf, view.len);
+		alifBuffer_release(&view);
+		if (*_cmdCopy == nullptr) {
+			return nullptr;
+		}
+		str = ALIFBYTES_AS_STRING(*_cmdCopy);
+		size = ALIFBYTES_GET_SIZE(*_cmdCopy);
+	}
+	else {
+		alifErr_format(_alifExcTypeError_,
+			"%s() المعامل الأول يجب أن يكون كائن %s",
+			_funcName, _what);
+		return nullptr;
+	}
+
+	if (strlen(str) != (size_t)size) {
+		alifErr_setString(_alifExcSyntaxError_,
+			"الشيفرة المصدرية لا يجب أن تحتوي على محارف فارغة");
+		ALIF_CLEAR(*_cmdCopy);
+		return nullptr;
+	}
+	return str;
 }

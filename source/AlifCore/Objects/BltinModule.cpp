@@ -4,6 +4,7 @@
 #include "AlifCore_ModSupport.h"
 #include "AlifCore_Object.h"
 #include "AlifCore_State.h"
+#include "AlifCore_Run.h"
 #include "AlifCore_SysModule.h"
 
 #include "clinic/BltinModule.cpp.h"
@@ -183,7 +184,7 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 		goto error;
 	}
 	thread = _alifThread_get();
-	cell = alifEval_vector(thread, (AlifFunctionObject*)func, ns, nullptr, 0, nullptr);
+	cell = _alifEval_vector(thread, (AlifFunctionObject*)func, ns, nullptr, 0, nullptr);
 	if (cell != nullptr) {
 		if (bases != orig_bases) {
 			if (alifMapping_setItemString(ns, "__origBases__", orig_bases) < 0) {
@@ -332,7 +333,135 @@ static AlifObject* builtin_chr(AlifObject* _module, AlifObject* _i) { // 709
 
 
 
+static AlifObject* builtin_execImpl(AlifObject* _module,
+	AlifObject* _source, AlifObject* _globals,
+	AlifObject* _locals, AlifObject* _closure) { // 1065
+	AlifObject* v{};
 
+	if (_globals == ALIF_NONE) {
+		_globals = alifEval_getGlobals();
+		if (_locals == ALIF_NONE) {
+			_locals = _alifEval_getFrameLocals();
+			if (_locals == nullptr)
+				return nullptr;
+		}
+		else {
+			ALIF_INCREF(_locals);
+		}
+		if (!_globals || !_locals) {
+			alifErr_setString(_alifExcSystemError_,
+				"المتغيرات_العامة والمتغيرات_المحلية لا يمكن أن تكون فارغة");
+			return nullptr;
+		}
+	}
+	else if (_locals == ALIF_NONE) {
+		_locals = ALIF_NEWREF(_globals);
+	}
+	else {
+		ALIF_INCREF(_locals);
+	}
+
+	if (!ALIFDICT_CHECK(_globals)) {
+		alifErr_format(_alifExcTypeError_, "المتغيرات_العامة لدالة نفذ() الضمنية يجب أن تكون من نوع فهرس, وليس %.100s",
+			ALIF_TYPE(_globals)->name);
+		goto error;
+	}
+	if (!alifMapping_check(_locals)) {
+		alifErr_format(_alifExcTypeError_,
+			"المتغيرات_المحلية يجب أن تكون من نوع خرائط او عدم, وليس %.100s",
+			ALIF_TYPE(_locals)->name);
+		goto error;
+	}
+	AlifIntT r; r = alifDict_contains(_globals, &ALIF_ID(__builtins__));
+	if (r == 0) {
+		r = alifDict_setItem(_globals, &ALIF_ID(__builtins__), alifEval_getBuiltins());
+	}
+	if (r < 0) {
+		goto error;
+	}
+
+	if (_closure == ALIF_NONE) {
+		_closure = nullptr;
+	}
+
+	if (ALIFCODE_CHECK(_source)) {
+		AlifSizeT num_free = alifCode_getNumFree((AlifCodeObject*)_source);
+		if (num_free == 0) {
+			if (_closure) {
+				alifErr_setString(_alifExcTypeError_,
+					"لا يمكن إستخدام المغلق مع كائن الشيفرة هذا");
+				goto error;
+			}
+		}
+		else {
+			int closure_is_ok =
+				_closure
+				and ALIFTUPLE_CHECKEXACT(_closure)
+				and (ALIFTUPLE_GET_SIZE(_closure) == num_free);
+			if (closure_is_ok) {
+				for (AlifSizeT i = 0; i < num_free; i++) {
+					AlifObject* cell = ALIFTUPLE_GET_ITEM(_closure, i);
+					if (!ALIFCELL_CHECK(cell)) {
+						closure_is_ok = 0;
+						break;
+					}
+				}
+			}
+			if (!closure_is_ok) {
+				alifErr_format(_alifExcTypeError_,
+					"كائن الشيفرة يحتاج مغلق بطول يساوي %zd",
+					num_free);
+				goto error;
+			}
+		}
+
+		//if (alifSys_audit("نفذ", "O", _source) < 0) {
+		//	goto error;
+		//}
+
+		if (!_closure) {
+			v = alifEval_evalCode(_source, _globals, _locals);
+		}
+		else {
+			v = alifEval_evalCodeEx(_source, _globals, _locals,
+				nullptr, 0,
+				nullptr, 0,
+				nullptr, 0,
+				nullptr,
+				_closure);
+		}
+	}
+	else {
+		if (_closure != nullptr) {
+			alifErr_setString(_alifExcTypeError_,
+				"يمكن إستخدام المغلق فقط عندما يكون المصدر كائن شيفرة");
+		}
+		AlifObject* sourceCopy{};
+		const char* str{};
+		AlifCompilerFlags cf = ALIFCOMPILERFLAGS_INIT;
+		cf.flags = ALIFCF_SOURCE_IS_UTF8;
+		str = _alif_sourceAsString(_source, "نفذ",
+			"نص او بايت او شيفرة", &cf,
+			&sourceCopy);
+		if (str == nullptr)
+			goto error;
+		if (alifEval_mergeCompilerFlags(&cf))
+			v = alifRun_stringFlags(str, ALIF_FILE_INPUT, _globals,
+				_locals, &cf);
+		else
+			v = ALIFRUN_STRING(str, ALIF_FILE_INPUT, _globals, _locals);
+		ALIF_XDECREF(sourceCopy);
+	}
+	if (v == NULL)
+		goto error;
+	ALIF_DECREF(_locals);
+	ALIF_DECREF(v);
+	return ALIF_NONE;
+
+error:
+	ALIF_XDECREF(_locals);
+	return nullptr;
+}
 
 
 static AlifObject* builtin_getAttr(AlifObject* self,
@@ -1320,6 +1449,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_ALL_METHODDEF,
 	BUILTIN_ANY_METHODDEF,
 	BUILTIN_CHR_METHODDEF,
+	BUILTIN_EXEC_METHODDEF,
 	BUILTIN_DELATTR_METHODDEF,
 	{"احضر_صفة", ALIF_CPPFUNCTION_CAST(builtin_getAttr), METHOD_FASTCALL},
 	BUILTIN_HASATTR_METHODDEF,

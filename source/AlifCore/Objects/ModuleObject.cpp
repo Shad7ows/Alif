@@ -209,7 +209,7 @@ AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef* _def,
 
 	alifModuleDef_init(_def);
 
-	nameobj = alifObject_getAttrString(_spec, "name");
+	nameobj = alifObject_getAttrString(_spec, "اسم");
 	if (nameobj == nullptr) {
 		return nullptr;
 	}

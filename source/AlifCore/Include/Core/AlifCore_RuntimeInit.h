@@ -692,7 +692,7 @@
 	INIT_USTR(AnonSetComp, "<مميزة_ضمنية>"), \
 	INIT_USTR(AnonDictComp, "<فهرس_ضمني>"), \
 	INIT_USTR(AnonModule, "<وحدة>"), /* //* alif */ \
-	INIT_STR(AnonString, "<string>"), \
+	INIT_USTR(AnonString, "<نص>"), \
 	INIT_STR(Builtins, "الضمنيات"), \
     INIT_STR(DblPercent, "%%"), \
     INIT_STR(Defaults, ".defaults"), \
@@ -711,7 +711,7 @@
     INIT_USTR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
     INIT_USTR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
-    INIT_STR(Name, "name"), /* //* alif */	\
+    INIT_USTR(Name, "اسم"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\
 	INIT_USTR(Open, "افتح"), /* //* alif */	\
 	INIT_USTR(ReadLine, "اقرا_سطر"), /* //* alif */	\

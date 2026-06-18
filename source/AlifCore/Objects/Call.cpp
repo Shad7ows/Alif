@@ -278,10 +278,10 @@ AlifObject* alifFunction_vectorCall(AlifObject* _func, AlifObject* const* _stack
 	AlifSizeT nArgs = ALIFVECTORCALL_NARGS(_nArgsF);
 	AlifThread* tstate = _alifThread_get();
 	if (((AlifCodeObject*)f_->code)->flags & CO_OPTIMIZED) {
-		return alifEval_vector(tstate, f_, nullptr, _stack, nArgs, _kwNames);
+		return _alifEval_vector(tstate, f_, nullptr, _stack, nArgs, _kwNames);
 	}
 	else {
-		return alifEval_vector(tstate, f_, f_->globals, _stack, nArgs, _kwNames);
+		return _alifEval_vector(tstate, f_, f_->globals, _stack, nArgs, _kwNames);
 	}
 }
 

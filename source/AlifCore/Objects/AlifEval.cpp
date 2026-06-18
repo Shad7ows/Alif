@@ -176,7 +176,7 @@ AlifObject* alifEval_evalCode(AlifObject* _co,
 	if (func == nullptr) {
 		return nullptr;
 	}
-	AlifObject* res = alifEval_vector(thread, func, _locals, nullptr, 0, nullptr);
+	AlifObject* res = _alifEval_vector(thread, func, _locals, nullptr, 0, nullptr);
 	ALIF_DECREF(func);
 	return res;
 }
@@ -3366,9 +3366,9 @@ static AlifInterpreterFrame* _alifEvalFramePushAndInit_unTagged(AlifThread* _thr
 
 
 
-AlifObject* alifEval_vector(AlifThread* _tstate, AlifFunctionObject* _func,
+AlifObject* _alifEval_vector(AlifThread* _tstate, AlifFunctionObject* _func,
 	AlifObject* _locals, AlifObject* const* _args, AlifUSizeT _argCount,
-	AlifObject* _kwNames) { // 1794
+	AlifObject* _kwNames) { // 1876
 	ALIF_XINCREF(_locals);
 	for (AlifUSizeT i = 0; i < _argCount; i++) {
 		ALIF_INCREF(_args[i]);
@@ -3427,6 +3427,77 @@ error:
 	return nullptr;
 }
 
+AlifObject* alifEval_evalCodeEx(AlifObject* _co, AlifObject* _globals, AlifObject* _locals,
+	AlifObject* const* _args, AlifIntT _argCount,
+	AlifObject* const* _kws, AlifIntT _kwCount,
+	AlifObject* const* _defs, AlifIntT _defCount,
+	AlifObject* _kwDefs, AlifObject* _closure) {
+	AlifThread* tstate = _alifThread_get();
+	AlifObject* res = nullptr;
+	AlifObject* defaults = _alifTuple_fromArray(_defs, _defCount);
+	if (defaults == nullptr) {
+		return nullptr;
+	}
+	AlifObject* builtins = _alifDict_loadBuiltinsFromGlobals(_globals);
+	if (builtins == nullptr) {
+		ALIF_DECREF(defaults);
+		return nullptr;
+	}
+	if (_locals == nullptr) {
+		_locals = _globals;
+	}
+	AlifFrameConstructor constr{};
+	AlifObject* kwnames = nullptr;
+	AlifObject* const* allargs;
+	AlifObject** newargs = nullptr;
+	AlifFunctionObject* func = nullptr;
+	if (_kwCount == 0) {
+		allargs = _args;
+	}
+	else {
+		kwnames = alifTuple_new(_kwCount);
+		if (kwnames == nullptr) {
+			goto fail;
+		}
+		newargs = (AlifObject**)alifMem_dataAlloc(sizeof(AlifObject*) * (_kwCount + _argCount));
+		if (newargs == nullptr) {
+			goto fail;
+		}
+		for (AlifIntT i = 0; i < _argCount; i++) {
+			newargs[i] = _args[i];
+		}
+		for (AlifIntT i = 0; i < _kwCount; i++) {
+			ALIFTUPLE_SET_ITEM(kwnames, i, ALIF_NEWREF(_kws[2 * i]));
+			newargs[_argCount + i] = _kws[2 * i + 1];
+		}
+		allargs = newargs;
+	}
+	constr = {
+		.globals = _globals,
+		.builtins = builtins,
+		.name = ((AlifCodeObject*)_co)->name,
+		.qualname = ((AlifCodeObject*)_co)->name,
+		.code = _co,
+		.defaults = defaults,
+		.kwDefaults = _kwDefs,
+		.closure = _closure
+	};
+	func = _alifFunction_fromConstructor(&constr);
+	if (func == nullptr) {
+		goto fail;
+	}
+	//EVAL_CALL_STAT_INC(EVAL_CALL_LEGACY);
+	res = _alifEval_vector(tstate, func, _locals,
+		allargs, _argCount,
+		kwnames);
+fail:
+	ALIF_XDECREF(func);
+	ALIF_XDECREF(kwnames);
+	alifMem_dataFree(newargs);
+	_alif_decrefBuiltins(builtins);
+	ALIF_DECREF(defaults);
+	return res;
+}
 
 /* Logic for the raise statement (too complicated for inlining).
 This *consumes* a reference count to each of its arguments. */
@@ -3747,6 +3818,23 @@ AlifObject* alifEval_getGlobals() { // 2651
 }
 
 
+AlifIntT alifEval_mergeCompilerFlags(AlifCompilerFlags* _cf) { // 2684
+	AlifThread* thread = _alifThread_get();
+	AlifInterpreterFrame* currentFrame = thread->currentFrame;
+	AlifIntT result = _cf->flags != 0;
+
+	if (currentFrame != nullptr) {
+		const AlifIntT codeflags = _alifFrame_getCode(currentFrame)->flags;
+		const AlifIntT compilerflags = codeflags & ALIFCF_MASK;
+		if (compilerflags) {
+			result = 1;
+			_cf->flags |= compilerflags;
+		}
+	}
+	return result;
+}
+
+
 AlifIntT _alifEval_sliceIndex(AlifObject* _v, AlifSizeT* _pi) { // 2720
 	AlifThread* thread = _alifThread_get();
 	if (!ALIF_ISNONE(_v)) {
@@ -4054,13 +4142,38 @@ void _alifEval_loadGlobalStackRef(AlifObject* _globals, AlifObject* _builtins,
 }
 
 
+void _alifEval_formatExcCheckArg(AlifThread* _thread, AlifObject* _exc,
+	const char* _formatStr, AlifObject* _obj) { // 3093
+	const char* objStr{};
+
+	if (!_obj)
+		return;
+
+	objStr = alifUStr_asUTF8(_obj);
+	if (!objStr)
+		return;
+
+	_alifErr_format(_thread, _exc, _formatStr, objStr);
+
+	if (_exc == _alifExcNameError_) {
+		AlifObject* _exc = alifErr_getRaisedException();
+		if (alifErr_givenExceptionMatches(_exc, _alifExcNameError_)) {
+			if (((AlifNameErrorObject*)_exc)->name == nullptr) {
+				(void)alifObject_setAttr(_exc, &ALIF_STR(Name), _obj);
+			}
+		}
+		alifErr_setRaisedException(_exc);
+	}
+}
+
+
 AlifObject* _alifEval_loadName(AlifThread* _thread,
 	AlifInterpreterFrame* _frame, AlifObject* _name) { // 3133
 
 	AlifObject* value{};
 	if (_frame->locals == nullptr) {
 		_alifErr_setString(_thread, _alifExcSystemError_,
-			"متغير locals فارغ");
+			"المتغيرات_المحلية فارغة");
 		return nullptr;
 	}
 	if (alifMapping_getOptionalItem(_frame->locals, _name, &value) < 0) {
@@ -4079,9 +4192,9 @@ AlifObject* _alifEval_loadName(AlifThread* _thread,
 		return nullptr;
 	}
 	if (value == nullptr) {
-		//_alifEval_formatExcCheckArg(
-		//	_thread, _alifExcNameError_,
-		//	NAME_ERROR_MSG, _name);
+		_alifEval_formatExcCheckArg(
+			_thread, _alifExcNameError_,
+			NAME_ERROR_MSG, _name);
 	}
 	return value;
 }

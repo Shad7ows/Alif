@@ -5,6 +5,10 @@
 
 AlifObject* alifEval_evalCode(AlifObject*, AlifObject*, AlifObject*); // 10
 
+AlifObject* alifEval_evalCodeEx(AlifObject*, AlifObject*, AlifObject*,
+	AlifObject* const*, AlifIntT, AlifObject* const*, AlifIntT,
+	AlifObject* const*, AlifIntT, AlifObject*, AlifObject*);
+
 AlifObject* alifEval_getBuiltins(); // 20
 AlifObject* alifEval_getGlobals(); // 21
 
@@ -48,7 +52,7 @@ void alifEval_releaseThread(AlifThread*); // 117
 
 
 
-
+AlifIntT alifEval_mergeCompilerFlags(AlifCompilerFlags*); // 13
 
 AlifObject* alifEval_evalFrameDefault(AlifThread*, class AlifInterpreterFrame*, AlifIntT); // 15
 

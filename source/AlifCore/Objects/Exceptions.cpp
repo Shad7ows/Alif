@@ -757,6 +757,54 @@ MIDDLINGEXTENDSEXCEPTION(_excOSError_, BlockingIOError, خطأ_منع_التبا
 
 
 
+
+/*
+*    NameError extends Exception
+*/
+
+static AlifIntT nameError_init(AlifNameErrorObject* _self,
+	AlifObject* _args, AlifObject* _kwds) {
+	static char* kwlist[] = { (char*)"اسم", nullptr };
+	AlifObject* name = nullptr;
+
+	if (baseException_init((AlifBaseExceptionObject*)_self, _args, nullptr) == -1) {
+		return -1;
+	}
+
+	AlifObject* emptyTuple = alifTuple_new(0);
+	if (!emptyTuple) {
+		return -1;
+	}
+	if (!alifArg_parseTupleAndKeywords(emptyTuple, _kwds, "|$O:خطأ_اسم", kwlist,
+		&name)) {
+		ALIF_DECREF(emptyTuple);
+		return -1;
+	}
+	ALIF_DECREF(emptyTuple);
+
+	ALIF_XSETREF(_self->name, ALIF_XNEWREF(name));
+
+	return 0;
+}
+
+static AlifMemberDef _nameErrorMembers_[] = {
+	{"اسم", ALIF_T_OBJECT, offsetof(AlifNameErrorObject, name), 0},
+	{nullptr}  /* Sentinel */
+};
+
+static AlifMethodDef _nameErrorMethods_[] = {
+	{nullptr}  /* Sentinel */
+};
+
+COMPLEXEXTENDSEXCEPTION(_excException_, NameError, خطأ_اسم,
+	nameError, 0,
+	_nameErrorMethods_, _nameErrorMembers_,
+	0, baseException_str, "لم يتم العثور على الاسم في المتغيرات_العامة.");
+
+
+
+
+
 /*
  *    RuntimeError extends Exception
  */
@@ -766,7 +814,7 @@ SIMPLEEXTENDSEXCEPTION(_excException_, RuntimeError, خطأ_اثناء_التش�
 
 static AlifIntT attributeError_init(AlifAttributeErrorObject* _self,
 	AlifObject* _args, AlifObject* _kwds) { // 2306
-	static const char* kwlist[] = { "name", "obj", nullptr };
+	static const char* kwlist[] = { "اسم", "كائن", nullptr };
 	AlifObject* name = nullptr;
 	AlifObject* obj = nullptr;
 
@@ -792,8 +840,8 @@ static AlifIntT attributeError_init(AlifAttributeErrorObject* _self,
 }
 
 static AlifMemberDef _attributeErrorMembers_[] = { // 2400
-	{"name", ALIF_T_OBJECT, offsetof(AlifAttributeErrorObject, name), 0/*, ALIFDOC_STR("attribute name")*/},
-	{"obj", ALIF_T_OBJECT, offsetof(AlifAttributeErrorObject, obj), 0/*, ALIFDOC_STR("object")*/},
+	{"اسم", ALIF_T_OBJECT, offsetof(AlifAttributeErrorObject, name), 0/*, ALIFDOC_STR("attribute name")*/},
+	{"كائن", ALIF_T_OBJECT, offsetof(AlifAttributeErrorObject, obj), 0/*, ALIFDOC_STR("object")*/},
 	{nullptr}  /* Sentinel */
 };
 
@@ -989,7 +1037,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	ITEM(ImportError, خطأ_استيراد),
 	ITEM(LookupError, خطأ_بحث),
 	//ITEM(MemoryError),
-	//ITEM(NameError),
+	ITEM(NameError, خطأ_اسم),
 	ITEM(OSError, خطأ_نظام_تشغيل),
 	//ITEM(ReferenceError),
 	ITEM(RuntimeError, خطأ_اثناء_التشغيل),
