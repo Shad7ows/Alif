@@ -1958,6 +1958,45 @@ static AlifObject* _imp_findFrozenImpl(AlifObject* _module,
 	return result;
 }
 
+static AlifObject* _imp_getFrozenObjectImpl(AlifObject* _module,
+	AlifObject* _name, AlifObject* _dataObj) { // 4457
+	FrozenInfo info = { 0 };
+	AlifBuffer buf = { 0 };
+	if (alifObject_checkBuffer(_dataObj)) {
+		if (alifObject_getBuffer(_dataObj, &buf, ALIFBUF_SIMPLE) != 0) {
+			return nullptr;
+		}
+		info.data = (const char*)buf.buf;
+		info.size = buf.len;
+	}
+	else if (_dataObj != ALIF_NONE) {
+		//_alifArg_badArgument("اجلب_كائن_مجرد", "argument 2", "bytes", _dataObj);
+		return nullptr;
+	}
+	else {
+		FrozenStatus status = find_frozen(_name, &info);
+		if (status != FrozenStatus::Frozen_Okay) {
+			//set_frozenError(status, _name);
+			return nullptr;
+		}
+	}
+
+	if (info.nameobj == nullptr) {
+		info.nameobj = _name;
+	}
+	if (info.size == 0) {
+		/* Does not contain executable code. */
+		//set_frozenError(FrozenStatus::Frozen_Invalid, _name);
+		return nullptr;
+	}
+
+	AlifInterpreter* interp = _alifInterpreter_get();
+	AlifObject* codeobj = unmarshal_frozenCode(interp, &info);
+	if (_dataObj != ALIF_NONE) {
+		alifBuffer_release(&buf);
+	}
+	return codeobj;
+}
 
 static AlifObject* _imp_isBuiltinImpl(AlifObject* _module,
 	AlifObject* _name) { // 4531
@@ -1985,7 +2024,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP_ACQUIRE_LOCK_METHODDEF
 	//_IMP_RELEASE_LOCK_METHODDEF
 	_IMP_FIND_FROZEN_METHODDEF
-	//_IMP_GET_FROZEN_OBJECT_METHODDEF
+	_IMP_GET_FROZEN_OBJECT_METHODDEF
 	//_IMP_IS_FROZEN_PACKAGE_METHODDEF
 	//_IMP_CREATE_BUILTIN_METHODDEF
 	//_IMP_INIT_FROZEN_METHODDEF

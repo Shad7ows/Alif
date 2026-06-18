@@ -15,6 +15,11 @@
 #define ALIFMODULE_CAST(_op) \
     (ALIF_CAST(AlifModuleObject*, _op))
 
+static AlifMemberDef _moduleMembers_[] = {
+	{"__فهرس__", ALIF_T_OBJECT, offsetof(AlifModuleObject, dict), ALIF_READONLY},
+	{0}
+};
+
 
 AlifTypeObject _alifModuleDefType_ = { // 24
 	ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
@@ -882,6 +887,8 @@ AlifTypeObject _alifModuleType_ = { // 1320
 		ALIF_TPFLAGS_BASETYPE,
 	.traverse = (TraverseProc)module_traverse,
 	.weakListOffset = offsetof(AlifModuleObject, weaklist),
+
+	.members = _moduleMembers_,
 
 	.dictOffset = offsetof(AlifModuleObject, dict),
 	.init = module___init__,

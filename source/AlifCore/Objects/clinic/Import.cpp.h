@@ -73,8 +73,36 @@ exit:
 
 
 
+// 256
+#define _IMP_GET_FROZEN_OBJECT_METHODDEF    \
+    {"اجلب_كائن_مجرد", ALIF_CPPFUNCTION_CAST(_imp_getFrozenObject), METHOD_FASTCALL},
 
+static AlifObject* _imp_getFrozenObjectImpl(AlifObject*, AlifObject*, AlifObject*);
 
+static AlifObject* _imp_getFrozenObject(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 263
+	AlifObject* returnValue = nullptr;
+	AlifObject* name{};
+	AlifObject* dataobj = ALIF_NONE;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("اجلب_كائن_مجرد", _nargs, 1, 2)) {
+		goto exit;
+	}
+	if (!ALIFUSTR_CHECK(_args[0])) {
+		//_alifArg_badArgument("اجلب_كائن_مجرد", "argument 1", "نص", _args[0]);
+		goto exit;
+	}
+	name = _args[0];
+	if (_nargs < 2) {
+		goto skip_optional;
+	}
+	dataobj = _args[1];
+skip_optional:
+	returnValue = _imp_getFrozenObjectImpl(_module, name, dataobj);
+
+exit:
+	return returnValue;
+}
 
 
 
