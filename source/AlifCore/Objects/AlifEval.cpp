@@ -1729,9 +1729,9 @@ resume_frame:
 				// Can't use ERROR_IF here.
 				if (err != 0) {
 					_alifFrame_setStackPointer(_frame, stackPointer);
-					//_alifEval_formatExcCheckArg(_thread, _alifExcNameError_,
-					//	NAME_ERROR_MSG,
-					//	name);
+					_alifEval_formatExcCheckArg(_thread, _alifExcNameError_,
+						NAME_ERROR_MSG,
+						name);
 					stackPointer = _alifFrame_getStackPointer(_frame);
 					goto error;
 				}
@@ -2655,6 +2655,31 @@ resume_frame:
 					res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
 				}
 				stackPointer[-2] = res;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(CONTAINS_OP_DICT) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 2;
+				//INSTRUCTION_STATS(CONTAINS_OP_DICT);
+				AlifStackRef left{};
+				AlifStackRef right{};
+				AlifStackRef b{};
+				/* Skip 1 cache entry */
+				right = stackPointer[-1];
+				left = stackPointer[-2];
+				AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+				AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+				DEOPT_IF(!ALIFDICT_CHECKEXACT(rightObj), CONTAINS_OP);
+				//STAT_INC(CONTAINS_OP, hit);
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifIntT res = alifDict_contains(rightObj, leftObj);
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				ALIFSTACKREF_CLOSE(left);
+				ALIFSTACKREF_CLOSE(right);
+				if (res < 0) goto pop_2_error;
+				b = (res ^ oparg) ? ALIFSTACKREF_TRUE : ALIFSTACKREF_FALSE;
+				stackPointer[-2] = b;
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
@@ -4109,14 +4134,14 @@ AlifIntT _alifCheck_argsIterable(AlifThread* _thread, AlifObject* _func, AlifObj
 
 
 void _alifEval_loadGlobalStackRef(AlifObject* _globals, AlifObject* _builtins,
-	AlifObject* _name, AlifStackRef* _writeto) { // 3073
+	AlifObject* _name, AlifStackRef* _writeto) { // 3225
 	AlifObject* res{};
 	if (ALIFDICT_CHECKEXACT(_globals) and ALIFDICT_CHECKEXACT(_builtins)) {
 		_alifDict_loadGlobalStackRef((AlifDictObject*)_globals,
 			(AlifDictObject*)_builtins, _name, _writeto);
 		if (ALIFSTACKREF_ISNULL(*_writeto) and !alifErr_occurred()) {
-			//_alifEval_formatExcCheckArg(ALIFTHREADSTATE_GET(), _alifExcNameError_,
-			//	NAME_ERROR_MSG, _name);
+			_alifEval_formatExcCheckArg(ALIFTHREADSTATE_GET(), _alifExcNameError_,
+				NAME_ERROR_MSG, _name);
 		}
 	}
 	else {
@@ -4132,9 +4157,9 @@ void _alifEval_loadGlobalStackRef(AlifObject* _globals, AlifObject* _builtins,
 				return;
 			}
 			if (res == nullptr) {
-				//_alifEval_formatExcCheckArg(
-				//	ALIFTHREADSTATE_GET(), _alifExcNameError_,
-				//	NAME_ERROR_MSG, _name);
+				_alifEval_formatExcCheckArg(
+					ALIFTHREADSTATE_GET(), _alifExcNameError_,
+					NAME_ERROR_MSG, _name);
 			}
 		}
 		*_writeto = ALIFSTACKREF_FROMALIFOBJECTSTEAL(res);

@@ -121,6 +121,7 @@ AlifObject* _alifEval_importFrom(AlifThread*, AlifObject*, AlifObject*); // 262
 AlifObject* _alifEval_importName(AlifThread*, AlifInterpreterFrame*, AlifObject*, AlifObject*, AlifObject*); // 263
 AlifIntT _alifEval_unpackIterableStackRef(AlifThread*, AlifStackRef, AlifIntT, AlifIntT, AlifStackRef*); // 267
 void _alifEval_frameClearAndPop(AlifThread* _thread, AlifInterpreterFrame*); // 268
+void _alifEval_formatExcCheckArg(AlifThread*, AlifObject*, const char*, AlifObject*); // 269
 AlifObject** _alifObjectArray_fromStackRefArray(AlifStackRef*, AlifSizeT, AlifObject**); // 269
 
 

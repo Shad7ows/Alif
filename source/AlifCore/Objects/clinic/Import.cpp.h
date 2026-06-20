@@ -2,8 +2,9 @@
 
 
 
-
-
+// 122
+#define _IMP_CREATE_BUILTIN_METHODDEF    \
+    {"انشئ_ضمني", (AlifCPPFunction)_imp_createBuiltin, METHOD_O},
 
 
 
@@ -154,6 +155,26 @@ exit:
 	return returnValue;
 }
 
+
+// 530
+#define _IMP_EXEC_BUILTIN_METHODDEF    \
+    {"نفذ_ضمني", (AlifCPPFunction)_imp_execBuiltin, METHOD_O},
+
+static AlifIntT _imp_execBuiltinImpl(AlifObject*, AlifObject*);
+
+static AlifObject* _imp_execBuiltin(AlifObject* _module, AlifObject* _mod) { // 538
+	AlifObject* returnValue{};
+	AlifIntT _returnValue{};
+
+	_returnValue = _imp_execBuiltinImpl(_module, _mod);
+	if ((_returnValue == -1) and alifErr_occurred()) {
+		goto exit;
+	}
+	returnValue = alifLong_fromLong((long)_returnValue);
+
+exit:
+	return returnValue;
+}
 
 
 //* alif //* delete //* todo

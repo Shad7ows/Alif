@@ -1918,6 +1918,31 @@ AlifObject* _alifImport_getModuleAttrString(const char* _modName,
 
 
 
+
+static AlifObject* _imp_createBuiltin(AlifObject* _module,
+	AlifObject* _spec) { // 4299
+	AlifThread* thread = _alifThread_get();
+
+	AlifObject* name = alifObject_getAttrString(_spec, "اسم");
+	if (name == nullptr) {
+		return nullptr;
+	}
+
+	if (!ALIFUSTR_CHECK(name)) {
+		alifErr_format(_alifExcTypeError_,
+			"الاسم يجب أن يكون من نوع نص, وليس %.200s",
+			ALIF_TYPE(name)->name);
+		ALIF_DECREF(name);
+		return nullptr;
+	}
+
+	AlifObject* mod = create_builtin(thread, name, _spec);
+	ALIF_DECREF(name);
+	return mod;
+}
+
+
+
 static AlifObject* _imp_findFrozenImpl(AlifObject* _module,
 	AlifObject* _name, AlifIntT _withdata) { // 4405
 	FrozenInfo info{};
@@ -2013,6 +2038,13 @@ static AlifObject* _imp_isFrozenImpl(AlifObject* _module,
 	ALIF_RETURN_TRUE;
 }
 
+
+static AlifIntT _imp_execBuiltinImpl(AlifObject* _module,
+	AlifObject* _mod) { // 4757
+	return exec_builtinOrDynamic(_mod);
+}
+
+
 static AlifObject* _imp_printImpl(AlifObject* module, AlifObject* msg) { //* alif //* todo //* delete
 	printf("%s\n", alifUStr_asUTF8(msg));
 	return ALIF_NONE;
@@ -2026,7 +2058,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	_IMP_FIND_FROZEN_METHODDEF
 	_IMP_GET_FROZEN_OBJECT_METHODDEF
 	//_IMP_IS_FROZEN_PACKAGE_METHODDEF
-	//_IMP_CREATE_BUILTIN_METHODDEF
+	_IMP_CREATE_BUILTIN_METHODDEF
 	//_IMP_INIT_FROZEN_METHODDEF
 	_IMP_IS_BUILTIN_METHODDEF
 	_IMP_IS_FROZEN_METHODDEF
@@ -2035,7 +2067,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP__OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK_METHODDEF
 	//_IMP_CREATE_DYNAMIC_METHODDEF
 	//_IMP_EXEC_DYNAMIC_METHODDEF
-	//_IMP_EXEC_BUILTIN_METHODDEF
+	_IMP_EXEC_BUILTIN_METHODDEF
 	//_IMP__FIX_CO_FILENAME_METHODDEF
 	//_IMP_SOURCE_HASH_METHODDEF
 	_IMP_PRINT //* alif //* delete //* todo

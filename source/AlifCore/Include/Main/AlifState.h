@@ -16,6 +16,8 @@ int64_t alifInterpreter_getID(AlifInterpreter*); // 36
 
 AlifThread* alifThread_get(); // 60
 
+#define ALIFTHREADSTATE_GET() alifThread_get() // 63
+
 AlifObject* alifThreadState_getDict(); // 66
 
 
