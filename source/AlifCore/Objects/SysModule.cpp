@@ -288,10 +288,10 @@ static AlifStatus _alifSys_initCore(AlifThread* tstate, AlifObject* sysdict) { /
 	SET_SYS("flags", make_flags(tstate->interpreter));
 
 
-	/* adding sys.path_hooks and sys.path_importer_cache */
+	/* adding النظام.خطافات_المسار and النظام.مخبأ_مستورد_المسار */
 	SET_SYS("مسار_التعريف", alifList_new(0)); // meta_path
-	SET_SYS("path_importer_cache", alifDict_new());
-	SET_SYS("path_hooks", alifList_new(0));
+	SET_SYS("مخبأ_مستورد_المسار", alifDict_new()); // path_importer_cache
+	SET_SYS("خطافات_المسار", alifList_new(0)); // path_hooks
 
 	if (_alifErr_occurred(tstate)) {
 		goto err_occurred;

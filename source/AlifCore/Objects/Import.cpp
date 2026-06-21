@@ -1545,7 +1545,7 @@ static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) 
 
 	AlifObject* sysPath = alifSys_getObject("Path");
 	AlifObject* sysMetaPath = alifSys_getObject("مسار_التعريف"); // meta_path
-	//AlifObject* sysPathHooks = alifSys_getObject("path_hooks");
+	AlifObject* sysPathHooks = alifSys_getObject("خطافات_المسار"); // path_hooks
 	//if (_alifSys_audit(tstate, "import", "OOOOO",
 	//	abs_name, ALIF_NONE, sysPath ? sysPath : ALIF_NONE,
 	//	sysMetaPath ? sysMetaPath : ALIF_NONE,
@@ -1872,7 +1872,7 @@ AlifStatus _alifImport_initCore(AlifThread* _thread,
 AlifStatus _alifImport_initExternal(AlifThread* _thread) { // 4133
 	AlifIntT verbose = _alifInterpreterState_getConfig(_thread->interpreter)->verbose;
 
-	// XXX Initialize here: sys.path_hooks and sys.path_importer_cache.
+	// XXX Initialize here: النظام.خطافات_المسار and النظام.مخبأ_مستورد_المسار.
 
 	if (init_importlibExternal(_thread->interpreter) != 0) {
 		_alifErr_print(_thread);
