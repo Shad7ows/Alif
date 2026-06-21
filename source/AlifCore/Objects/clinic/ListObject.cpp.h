@@ -62,6 +62,12 @@ static AlifObject* list_append(AlifListObject* _self, AlifObject* _object) { // 
 	return return_value;
 }
 
+
+#define LIST_EXTEND_METHODDEF    \
+    {"اطل", (AlifCPPFunction)list_extend, METHOD_O}, // 134
+
+
+
 //198
 #define LIST_SORT_METHODDEF    \
     {"رتب", ALIF_CPPFUNCTION_CAST(list_sort), METHOD_FASTCALL|METHOD_KEYWORDS},

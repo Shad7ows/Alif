@@ -2242,7 +2242,7 @@ static AlifObject* list_vectorCall(AlifObject* _type, AlifObject* const* _args,
 static AlifMethodDef _listMethods_[] = { // 3445
 	LIST_APPEND_METHODDEF
 	LIST_INSERT_METHODDEF
-	//LIST_EXTEND_METHODDEF
+	LIST_EXTEND_METHODDEF
 	//LIST_POP_METHODDEF
 	LIST_REMOVE_METHODDEF
 	//LIST_INDEX_METHODDEF
