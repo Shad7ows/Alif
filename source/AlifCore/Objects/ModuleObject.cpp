@@ -86,9 +86,8 @@ static AlifModuleObject* newModule_noTrack(AlifTypeObject* mt) { // 82
 }
 
 
-static void track_module(AlifModuleObject* _m) { // 101
+static void track_module(AlifModuleObject* _m) { // 107
 	_alifDict_enablePerThreadRefcounting(_m->dict);
-	alifObject_gcTrack(_m->dict);
 
 	alifObject_setDeferredRefcount((AlifObject*)_m);
 	alifObject_gcTrack(_m);

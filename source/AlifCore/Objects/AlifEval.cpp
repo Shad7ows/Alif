@@ -270,6 +270,7 @@ AlifObject* ALIF_HOT_FUNCTION alifEval_evalFrameDefault(AlifThread* _thread,
 	entryFrame.instrPtr = (AlifCodeUnit*)_alifInterpreterTrampolineInstructions_ + 1;
 	entryFrame.stackPointer = entryFrame.localsPlus;
 	entryFrame.owner = FrameOwner::FRAME_OWNED_BY_CSTACK;
+	entryFrame.visited = 0;
 	entryFrame.returnOffset = 0;
 	/* Push frame */
 	entryFrame.previous = _thread->currentFrame;

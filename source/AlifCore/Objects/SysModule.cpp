@@ -264,9 +264,10 @@ static AlifStatus _alifSys_initCore(AlifThread* tstate, AlifObject* sysdict) { /
 #undef COPY_SYS_ATTR
 
 	SET_SYS_FROM_STRING("version", alif_getVersion());
+	SET_SYS_FROM_STRING("المنصة", alif_getPlatform());
 	/* initialize hash_info */
 
-	SET_SYS("اسماء_ضمنيات_الوحدة", listBuiltin_moduleNames()); //* review
+	SET_SYS("اسماء_الوحدات_الضمنية", listBuiltin_moduleNames()); //* review
 	//SET_SYS("stdlib_module_names", listStdlib_moduleNames());
 #if ALIF_BIG_ENDIAN
 	SET_SYS_FROM_STRING("byteorder", "big");

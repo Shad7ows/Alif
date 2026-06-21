@@ -127,9 +127,11 @@ public:
 	AlifObject* garbage{};
 	AlifObject* callbacks{};
 
+	AlifSizeT priorHeapSize{};
 	AlifSizeT heapSize{};
 	AlifSizeT workToDo{};
 	AlifIntT visitedSpace{};
+	AlifIntT phase{};
 
 	AlifSizeT longLivedTotal{};
 

@@ -25,7 +25,7 @@ class InitTable _alifImportInitTab_[] = { // 87
 
 	{"_ورد", alifInit__imp}, // _imp *import support system
 
-	/* These entries are here for النظام.اسماء_ضمنيات_الوحدة */
+	/* These entries are here for النظام.اسماء_الوحدات_الضمنية */
 	{"الضمنيات", nullptr},
 	{"النظام", nullptr},
 

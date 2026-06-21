@@ -70,6 +70,7 @@ public:
 	AlifStackRef* stackPointer{};
 	uint16_t returnOffset{};
 	char owner{};
+	char visited{};
 	/* Locals and stack */
 	AlifStackRef localsPlus[1]{};
 };
@@ -168,6 +169,7 @@ static inline void _alifFrame_initialize(AlifThread* _thread, AlifInterpreterFra
 	_frame->instrPtr = ALIFCODE_CODE(_code);
 	_frame->returnOffset = 0;
 	_frame->owner = FrameOwner::FRAME_OWNED_BY_THREAD;
+	_frame->visited = 0;
 
 	for (AlifIntT i = _nullLocalsFrom; i < _code->nLocalsPlus; i++) {
 		_frame->localsPlus[i] = _alifStackRefNull_;

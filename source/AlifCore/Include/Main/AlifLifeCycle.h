@@ -11,7 +11,7 @@ void ALIF_NO_RETURN alif_exit(AlifIntT); // 30
 
 
 const char* alif_getVersion(); // 52
-
+const char* alif_getPlatform(void); // 53
 
 
 typedef void (*AlifOSSigHandlerT)(int); // 59

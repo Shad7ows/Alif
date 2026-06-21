@@ -329,8 +329,101 @@ done:
 }
 
 
+static AlifIntT bytes_compareEq(AlifBytesObject* _a,
+	AlifBytesObject* _b) { // 1516
+	AlifIntT cmp{};
+	AlifSizeT len{};
 
-static AlifIntT bytesBuffer_getBuffer(AlifObject* op, AlifBuffer* view, AlifIntT flags) { // 1676
+	len = ALIF_SIZE(_a);
+	if (ALIF_SIZE(_b) != len)
+		return 0;
+
+	if (_a->val[0] != _b->val[0])
+		return 0;
+
+	cmp = memcmp(_a->val, _b->val, len);
+	return (cmp == 0);
+}
+
+
+static AlifObject* bytes_richCompare(AlifObject* _aa,
+	AlifObject* _bb, AlifIntT _op) { // 1533
+	/* Make sure both arguments are strings. */
+	if (!(ALIFBYTES_CHECK(_aa) and ALIFBYTES_CHECK(_bb))) {
+		if (alif_getConfig()->bytesWarning and (_op == ALIF_EQ or _op == ALIF_NE)) {
+			if (ALIFUSTR_CHECK(_aa) or ALIFUSTR_CHECK(_bb)) {
+				//if (alifErr_warnEx(_alifExcBytesWarning_,
+				//	"Comparison between bytes and string", 1))
+				//	return nullptr;
+			}
+			if (ALIFLONG_CHECK(_aa) or ALIFLONG_CHECK(_bb)) {
+				//if (alifErr_warnEx(_alifExcBytesWarning_,
+				//	"Comparison between bytes and int", 1))
+				//	return nullptr;
+			}
+		}
+		ALIF_RETURN_NOTIMPLEMENTED;
+	}
+
+	AlifBytesObject* a = ALIFBYTES_CAST(_aa);
+	AlifBytesObject* b = ALIFBYTES_CAST(_bb);
+	if (a == b) {
+		switch (_op) {
+		case ALIF_EQ:
+		case ALIF_LE:
+		case ALIF_GE:
+			/* a byte string is equal to itself */
+			ALIF_RETURN_TRUE;
+		case ALIF_NE:
+		case ALIF_LT:
+		case ALIF_GT:
+			ALIF_RETURN_FALSE;
+		default:
+			//alifErr_badArgument();
+			return nullptr;
+		}
+	}
+	else if (_op == ALIF_EQ or _op == ALIF_NE) {
+		AlifIntT eq = bytes_compareEq(a, b);
+		eq ^= (_op == ALIF_NE);
+		return alifBool_fromLong(eq);
+	}
+	else {
+		AlifSizeT lenA = ALIF_SIZE(a);
+		AlifSizeT lenB = ALIF_SIZE(b);
+		AlifSizeT min_len = ALIF_MIN(lenA, lenB);
+		int c;
+		if (min_len > 0) {
+			c = ALIF_CHARMASK(*a->val) - ALIF_CHARMASK(*b->val);
+			if (c == 0)
+				c = memcmp(a->val, b->val, min_len);
+		}
+		else {
+			c = 0;
+		}
+		if (c != 0) {
+			ALIF_RETURN_RICHCOMPARE(c, 0, _op);
+		}
+		ALIF_RETURN_RICHCOMPARE(lenA, lenB, _op);
+	}
+}
+
+
+static AlifHashT bytes_hash(AlifObject* self) { // 1596
+	AlifBytesObject* a = ALIFBYTES_CAST(self);
+	ALIF_COMP_DIAG_PUSH
+	ALIF_COMP_DIAG_IGNORE_DEPR_DECLS
+		if (a->hash == -1) {
+			/* Can't fail */
+			a->hash = alif_hashBuffer(a->val, ALIF_SIZE(a));
+		}
+	return a->hash;
+	ALIF_COMP_DIAG_POP
+}
+
+
+static AlifIntT bytesBuffer_getBuffer(AlifObject* op,
+	AlifBuffer* view, AlifIntT flags) { // 1676
 	AlifBytesObject* self = ALIFBYTES_CAST(op);
 	return alifBuffer_fillInfo(view, (AlifObject*)self, (void*)self->val, ALIF_SIZE(self),
 		1, flags);
@@ -351,10 +444,12 @@ AlifTypeObject _alifBytesType_ = { // 3028
 	.name = "بايت",
 	.basicSize = ALIFBYTESOBJECT_SIZE,
 	.itemSize = sizeof(char),
+	.hash = bytes_hash,
 	.getAttro = alifObject_genericGetAttr,
 	.asBuffer = &_bytesAsBuffer_,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
 		ALIF_TPFLAGS_BYTES_SUBCLASS | _ALIF_TPFLAGS_MATCH_SELF,
+	.richCompare = (RichCmpFunc)bytes_richCompare,
 	.free = alifMem_objFree,
 	.versionTag = _ALIF_TYPE_VERSION_BYTES,
 };
