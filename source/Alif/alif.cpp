@@ -176,7 +176,7 @@ static AlifIntT alifMain_sysPathAddPath0(AlifInterpreter* interp, AlifObject* pa
 	AlifObject* sysPath{};
 	AlifObject* sysdict = interp->sysDict;
 	if (sysdict != nullptr) {
-		sysPath = alifDict_getItemWithError(sysdict, &ALIF_ID(Path));
+		sysPath = alifDict_getItemWithError(sysdict, &ALIF_STR(Path));
 		if (sysPath == nullptr and alifErr_occurred()) {
 			return -1;
 		}
