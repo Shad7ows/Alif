@@ -746,6 +746,7 @@
     INIT_USTR(__main__, "__الرئيسية__"), /* //* alif */	\
     INIT_USTR(__dict__, "__فهرس__"), /* //* alif */	\
     INIT_USTR(__spec__, "__خصائص__"), /* //* alif */	\
+    INIT_USTR(Path, "مسار"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
 }
 
@@ -833,7 +834,6 @@
 	INIT_ID(NSequenceFields), \
 	INIT_ID(Opener), \
 	INIT_ID(Origin), \
-	INIT_ID(Path), \
 	INIT_ID(Peek), \
 	INIT_ID(PrintFileAndLine), \
 	INIT_ID(Readable), \

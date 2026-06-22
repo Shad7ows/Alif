@@ -329,7 +329,7 @@ AlifIntT _alifSys_updateConfig(AlifThread* _thread) { // 3645
     }
 
 	if (config->moduleSearchPathsSet) {
-		COPY_LIST("Path", config->moduleSearchPaths);
+		COPY_LIST("مسار", config->moduleSearchPaths);
 	}
 
 	//COPY_WSTR("executable", config->executable);

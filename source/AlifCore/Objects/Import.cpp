@@ -1543,7 +1543,7 @@ static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) 
 
 	//AlifTimeT t1 = 0, accumulated_copy = accumulated;
 
-	AlifObject* sysPath = alifSys_getObject("Path");
+	AlifObject* sysPath = alifSys_getObject("مسار"); // Path
 	AlifObject* sysMetaPath = alifSys_getObject("مسار_التعريف"); // meta_path
 	AlifObject* sysPathHooks = alifSys_getObject("خطافات_المسار"); // path_hooks
 	//if (_alifSys_audit(tstate, "import", "OOOOO",
@@ -2440,7 +2440,7 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 			return &fd_builtin;
 		}
 
-		_path = alifSys_getObject("Path");
+		_path = alifSys_getObject("مسار");
 	}
 
 	if (_path == nullptr or !ALIFLIST_CHECK(_path)) {

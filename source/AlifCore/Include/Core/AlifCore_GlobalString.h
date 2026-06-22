@@ -106,6 +106,7 @@ public:
 		STRUCT_FOR_USTR(__main__, "__الرئيسية__") //* alif
 		STRUCT_FOR_USTR(__dict__, "__فهرس__")
 		STRUCT_FOR_USTR(__spec__, "__خصائص__")
+		STRUCT_FOR_USTR(Path, "مسار")
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
 	} literals;
 
@@ -195,7 +196,6 @@ public:
 		STRUCT_FOR_ID(Offset)
 		STRUCT_FOR_ID(Opener)
 		STRUCT_FOR_ID(Origin)
-		STRUCT_FOR_ID(Path)
 		STRUCT_FOR_ID(Peek)
 		STRUCT_FOR_ID(PrintFileAndLine)
 		STRUCT_FOR_ID(Readable)
