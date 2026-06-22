@@ -9,6 +9,7 @@
 #include "AlifCore_Object.h"
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_InitConfig.h"
+#include "AlifCore_SysModule.h"
 
 
 #include "Marshal.h"
@@ -2046,7 +2047,15 @@ static AlifIntT _imp_execBuiltinImpl(AlifObject* _module,
 
 
 static AlifObject* _imp_printImpl(AlifObject* module, AlifObject* msg) { //* alif //* todo //* delete
-	printf("%s\n", alifUStr_asUTF8(msg));
+	AlifThread* thread = _alifThread_get();
+	AlifObject* file = _alifSys_getAttr(thread, &ALIF_ID(Stderr));
+	if (file == nullptr) {
+		alifErr_setString(_alifExcRuntimeError_, "مفقود النظام.الإخراج");
+		return nullptr;
+	}
+
+	alifFile_writeObject(msg, file, 0);
+	alifFile_writeString("\n", file);
 	return ALIF_NONE;
 }
 

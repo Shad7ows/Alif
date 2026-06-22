@@ -179,7 +179,7 @@ exit:
 
 //* alif //* delete //* todo
 #define _IMP_PRINT   \
-    {"اطبعي", (AlifCPPFunction)_imp_print, METHOD_O},
+    {"طبع", (AlifCPPFunction)_imp_print, METHOD_O},
 
 static AlifObject* _imp_printImpl(AlifObject*, AlifObject*);
 
