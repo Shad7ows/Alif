@@ -1305,6 +1305,17 @@ static AlifIntT symtable_recordDirective(AlifSymTable* _st,
 }
 
 
+static AlifIntT has_kwOnlyDefaults(ASDLArgSeq* _kwonlyargs,
+	ASDLExprSeq* _kw_defaults) { // 1769
+	for (AlifIntT i = 0; i < ASDL_SEQ_LEN(_kwonlyargs); i++) {
+		ExprTy default_ = ASDL_SEQ_GET(_kw_defaults, i);
+		if (default_) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 static AlifIntT check_importFrom(AlifSymTable* st, StmtTy s) { // 1776
 	AlifSourceLocation fut = st->future->location;
 	if (s->V.importFrom.module and s->V.importFrom.level == 0 &&
@@ -1338,16 +1349,16 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 		if (_s->V.functionDef.decoratorList)
 			VISIT_SEQ(_st, Expr, _s->V.functionDef.decoratorList);
 		if (ASDL_SEQ_LEN(_s->V.functionDef.typeParams) > 0) {
-			//if (!symtable_enterTypeParamBlock(
-			//	_st, _s->V.functionDef.name,
-			//	(void*)_s->V.functionDef.typeParams,
-			//	_s->V.functionDef.args->defaults != nullptr,
-			//	has_kwOnlyDefaults(_s->V.functionDef.args->kwOnlyArgs,
-			//		_s->V.functionDef.args->kwDefaults),
-			//	_s->type,
-			//	LOCATION(_s))) {
-			//	return 0;
-			//}
+			if (!symtable_enterTypeParamBlock(
+				_st, _s->V.functionDef.name,
+				(void*)_s->V.functionDef.typeParams,
+				_s->V.functionDef.args->defaults != nullptr,
+				has_kwOnlyDefaults(_s->V.functionDef.args->kwOnlyArgs,
+					_s->V.functionDef.args->kwDefaults),
+				_s->type,
+				LOCATION(_s))) {
+				return 0;
+			}
 			VISIT_SEQ(_st, TypeParam, _s->V.functionDef.typeParams);
 		}
 		AlifSTEntryObject* newSte = ste_new(_st, _s->V.functionDef.name,
