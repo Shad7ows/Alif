@@ -1542,7 +1542,7 @@ static AlifIntT codegen_class(AlifCompiler* _c, StmtTy _s) {
 		ALIF_DECREF(type_params_name);
 		RETURN_IF_ERROR(ret);
 		RETURN_IF_ERROR_IN_SCOPE(_c, codegen_typeParams(_c, typeParams));
-		//RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_STR(typeParams), ExprContext_::Store));
+		RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_STR(TypeParams), ExprContext_::Store));
 	}
 
 	AlifIntT ret = codegen_classBody(_c, _s, firstlineno);
