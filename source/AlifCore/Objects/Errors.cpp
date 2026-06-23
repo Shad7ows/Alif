@@ -226,6 +226,17 @@ void alifErr_setObject(AlifObject* _exception, AlifObject* _value) { // 246
 	_alifErr_setObject(thread, _exception, _value);
 }
 
+void _alifErr_setKeyError(AlifObject* _arg) { // 257
+	AlifThread* thread = _alifThread_get();
+	AlifObject* exc = alifObject_callOneArg(_alifExcKeyError_, _arg);
+	if (!exc) {
+		/* caller will expect error to be set anyway */
+		return;
+	}
+
+	_alifErr_setObject(thread, (AlifObject*)ALIF_TYPE(exc), exc);
+	ALIF_DECREF(exc);
+}
 
 void _alifErr_setString(AlifThread* _thread, AlifObject* _exception,
 	const char* _string) { // 285

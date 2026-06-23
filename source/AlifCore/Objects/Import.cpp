@@ -147,7 +147,7 @@ AlifObject* alifImport_addModuleRef(const char* _name) { // 288
 }
 
 static void remove_module(AlifThread* _thread, AlifObject* _name) { // 357
-	//AlifObject* exc = _alifErr_getRaisedException(_thread);
+	AlifObject* exc = _alifErr_getRaisedException(_thread);
 
 	AlifObject* modules = get_modulesDict(_thread, true);
 	if (ALIFDICT_CHECKEXACT(modules)) {
@@ -155,12 +155,12 @@ static void remove_module(AlifThread* _thread, AlifObject* _name) { // 357
 		(void)alifDict_pop(modules, _name, nullptr);
 	}
 	else if (ALIFMAPPING_DELITEM(modules, _name) < 0) {
-		//if (_alifErr_exceptionMatches(_thread, _alifExcKeyError_)) {
-		//	_alifErr_clear(_thread);
-		//}
+		if (_alifErr_exceptionMatches(_thread, _alifExcKeyError_)) {
+			_alifErr_clear(_thread);
+		}
 	}
 
-	//_alifErr_chainExceptions1(exc);
+	_alifErr_chainExceptions1(exc);
 }
 
 
@@ -1703,11 +1703,11 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 				finalMod = import_getModule(thread, to_return);
 				ALIF_DECREF(to_return);
 				if (finalMod == nullptr) {
-					//if (!_alifErr_occurred(tstate)) {
-					//	_alifErr_format(tstate, _alifExcKeyError_,
-					//		"%R not in sys.modules as expected",
-					//		to_return);
-					//}
+					if (!_alifErr_occurred(thread)) {
+						_alifErr_format(thread, _alifExcKeyError_,
+							"%R ليس في النظام.وحدات كما يجب أن يكون",
+							to_return);
+					}
 					goto error;
 				}
 			}
@@ -1793,7 +1793,7 @@ AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
 	if (ALIFDICT_CHECK(builtins)) {
 	import = alifObject_getItem(builtins, &ALIF_STR(__import__));
 		if (import == nullptr) {
-			//_alifErr_setObject(tstate, _alifExcKeyError_, &ALIF_STR(__import__));
+			_alifErr_setObject(thread, _alifExcKeyError_, &ALIF_STR(__import__));
 		}
 	}
 	else {
@@ -1813,7 +1813,7 @@ AlifObject* alifImport_import(AlifObject* _moduleName) { // 3888
 
 	r = import_getModule(thread, _moduleName);
 	if (r == nullptr and !_alifErr_occurred(thread)) {
-		//_alifErr_setObject(tstate, _alifExcKeyError_, module_name);
+		_alifErr_setObject(thread, _alifExcKeyError_, _moduleName);
 	}
 
 err:

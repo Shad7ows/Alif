@@ -159,7 +159,7 @@ AlifObject* alifObject_getItem(AlifObject* _o, AlifObject* _key) { // 150
 			return nullptr;
 		}
 		if (meth and meth != ALIF_NONE) {
-			//result = alifObject_callOneArg(meth, _key);
+			result = alifObject_callOneArg(meth, _key);
 			ALIF_DECREF(meth);
 			return result;
 		}
@@ -184,9 +184,9 @@ AlifIntT alifMapping_getOptionalItem(AlifObject* _obj,
 	if (*_result) {
 		return 1;
 	}
-	//if (!alifErr_exceptionMatches(_alifExcKeyError_)) {
-	//	return -1;
-	//}
+	if (!alifErr_exceptionMatches(_alifExcKeyError_)) {
+		return -1;
+	}
 	alifErr_clear();
 	return 0;
 }

@@ -952,12 +952,12 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 		ALIF_DECREF(_dict);
 	}
 error_check:
-	//if (res < 0 and alifErr_exceptionMatches(_alifExcKeyError_)) {
-	//	alifErr_format(_alifExcAttributeError_,
-	//		"الكائن '%.100s' لا يملك الصفة '%U'",
-	//		tp->name, _name);
-	//	_alifObject_setAttributeErrorContext(_obj, _name);
-	//}
+	if (res < 0 and alifErr_exceptionMatches(_alifExcKeyError_)) {
+		alifErr_format(_alifExcAttributeError_,
+			"الكائن '%.100s' لا يملك الصفة '%U'",
+			tp->name, _name);
+		_alifObject_setAttributeErrorContext(_obj, _name);
+	}
 done:
 	ALIF_XDECREF(descr);
 	ALIF_DECREF(tp);

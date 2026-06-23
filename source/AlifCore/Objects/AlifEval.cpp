@@ -2206,6 +2206,36 @@ resume_frame:
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(POP_JUMP_IF_NONE) {
+				AlifCodeUnit* const thisInstr = _frame->instrPtr = nextInstr;
+				(void)thisInstr;
+				nextInstr += 2;
+				//INSTRUCTION_STATS(POP_JUMP_IF_NONE);
+				AlifStackRef value{};
+				AlifStackRef b{};
+				AlifStackRef cond{};
+				/* Skip 1 cache entry */
+				// _IS_NONE
+				{
+					value = stackPointer[-1];
+					if (ALIFSTACKREF_IS(value, ALIFSTACKREF_NONE)) {
+						b = ALIFSTACKREF_TRUE;
+					}
+					else {
+						b = ALIFSTACKREF_FALSE;
+						ALIFSTACKREF_CLOSE(value);
+					}
+				}
+				// _POP_JUMP_IF_TRUE
+				{
+					cond = b;
+					AlifIntT flag = ALIFSTACKREF_IS(cond, ALIFSTACKREF_TRUE);
+					RECORD_BRANCH_TAKEN(thisInstr[1].cache, flag);
+					JUMPBY(oparg * flag);
+				}
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(POP_JUMP_IF_NOT_NONE) {
 				AlifCodeUnit* const thisInstr = _frame->instrPtr = nextInstr;
 				(void)thisInstr;

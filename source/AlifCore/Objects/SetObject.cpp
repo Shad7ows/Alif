@@ -449,7 +449,7 @@ static AlifObject* set_popImpl(AlifSetObject* so) { // 660
 	AlifObject* key{};
 
 	if (so->used == 0) {
-		//alifErr_setString(_alifExcKeyError_, "pop from an empty set");
+		alifErr_setString(_alifExcKeyError_, "محاولة السحب من مميزة فارغة");
 		return nullptr;
 	}
 	while (entry->key == nullptr or entry->key == DUMMY) {

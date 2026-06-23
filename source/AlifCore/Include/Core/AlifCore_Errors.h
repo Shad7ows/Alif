@@ -9,6 +9,8 @@
 extern AlifErrStackItem* _alifErr_getTopMostException(AlifThread*); // 14
 
 
+void _alifErr_setKeyError(AlifObject*); // 20
+
 extern AlifIntT _alifException_addNote(AlifObject*, AlifObject*); // 32
 
 

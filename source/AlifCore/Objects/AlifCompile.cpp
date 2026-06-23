@@ -515,9 +515,9 @@ static AlifObject* dict_byType(AlifObject* _src, AlifIntT _scopeType,
 		k = ALIFLIST_GET_ITEM(sortedKeys, keyI);
 		v = alifDict_getItemWithError(_src, k);
 		if (!v) {
-			//if (!alifErr_occurred()) {
-			//	alifErr_SetObject(_alifExcKeyError_, k);
-			//}
+			if (!alifErr_occurred()) {
+				alifErr_setObject(_alifExcKeyError_, k);
+			}
 			ALIF_DECREF(sortedKeys);
 			ALIF_DECREF(dest);
 			return nullptr;

@@ -334,13 +334,13 @@ AlifObject* _alifExc ## EXCNAME ## _ = (AlifObject *)&_exc ## EXCNAME ## _
 
 
  // 567
-#define COMPLEXEXTENDSEXCEPTION(EXCBASE, EXCNAME, ALIFNAME, EXCSTORE, EXCNEW, \
+#define COMPLEXEXTENDSEXCEPTION(EXCBASE, EXCNAME, OBJNAME, ALIFNAME, EXCSTORE, EXCNEW, \
                                 EXCMETHODS, EXCMEMBERS, EXCGETSET, \
                                 EXCSTR, EXCDOC) \
 static AlifTypeObject _exc ## EXCNAME ## _ = { \
     .objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0), \
     .name = # ALIFNAME, \
-    .basicSize = sizeof(Alif ## EXCNAME ## Object), \
+    .basicSize = sizeof(Alif ## OBJNAME ## Object), \
     /*.dealloc = (Destructor)EXCSTORE ## _dealloc,*/ \
     .repr = (ReprFunc)EXCSTR, \
     .flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC, \
@@ -350,7 +350,7 @@ static AlifTypeObject _exc ## EXCNAME ## _ = { \
     .members = EXCMEMBERS,	\
 	.getSet = EXCGETSET,	\
 	.base = &EXCBASE, \
-    .dictOffset = offsetof(Alif ## EXCNAME ## Object, dict), \
+    .dictOffset = offsetof(Alif ## OBJNAME ## Object, dict), \
     .init = (InitProc)EXCSTORE ## _init,	\
 	.new_ = EXCNEW,	\
 }; \
@@ -391,8 +391,8 @@ static AlifIntT stopIteration_init(AlifStopIterationObject* self,
 }
 
 // 656
-COMPLEXEXTENDSEXCEPTION(_excException_, StopIteration, خطأ_توقف_التكرار, stopIteration,
-	0, 0, nullptr/*_stopIterationMembers_*/, 0, 0,
+COMPLEXEXTENDSEXCEPTION(_excException_, StopIteration, StopIteration, خطأ_توقف_التكرار,
+	stopIteration, 0, 0, nullptr/*_stopIterationMembers_*/, 0, 0,
 	"Signal the end from iterator.__next__().");
 
 
@@ -415,7 +415,7 @@ static AlifIntT baseExceptionGroup_init(AlifBaseExceptionGroupObject* self,
 }
 
 
-COMPLEXEXTENDSEXCEPTION(_excBaseException_, BaseExceptionGroup, خطأ_اساس_مجموعة,
+COMPLEXEXTENDSEXCEPTION(_excBaseException_, BaseExceptionGroup, BaseExceptionGroup, خطأ_اساس_مجموعة,
 	baseExceptionGroup, nullptr/*baseExceptionGroup_new*/ /* new */,
 	nullptr/*_baseExceptionGroupMethods_*/, nullptr/*_baseExceptionGroupMembers_*/,
 	0 /* getset */, nullptr/*baseExceptionGroup_str*/,
@@ -473,7 +473,7 @@ static AlifObject* importError_str(AlifImportErrorObject* _self) { // 1623
 }
 
 // 1699
-COMPLEXEXTENDSEXCEPTION(_excException_, ImportError,
+COMPLEXEXTENDSEXCEPTION(_excException_, ImportError, ImportError,
 	خطأ_استيراد, importError, 0 /* new */,
 	nullptr /*_importErrorMethods_*/, nullptr /*_importErrorMembers_*/,
 	0 /* getset */, importError_str,
@@ -745,7 +745,7 @@ static AlifGetSetDef _osErrorGetSet_[] = {
 };
 
 // 2159
-COMPLEXEXTENDSEXCEPTION(_excException_, OSError, خطأ_نظام_تشغيل,
+COMPLEXEXTENDSEXCEPTION(_excException_, OSError, OSError, خطأ_نظام_تشغيل,
 	osError, osError_new,
 	_osErrorMethods_, _osErrorMembers_, _osErrorGetSet_,
 	nullptr/*osError_str*/,
@@ -796,7 +796,7 @@ static AlifMethodDef _nameErrorMethods_[] = {
 	{nullptr}  /* Sentinel */
 };
 
-COMPLEXEXTENDSEXCEPTION(_excException_, NameError, خطأ_اسم,
+COMPLEXEXTENDSEXCEPTION(_excException_, NameError, NameError, خطأ_اسم,
 	nameError, 0,
 	_nameErrorMethods_, _nameErrorMembers_,
 	0, baseException_str, "لم يتم العثور على الاسم في المتغيرات_العامة.");
@@ -846,7 +846,7 @@ static AlifMemberDef _attributeErrorMembers_[] = { // 2400
 };
 
 // 2412
-COMPLEXEXTENDSEXCEPTION(_excException_, AttributeError,
+COMPLEXEXTENDSEXCEPTION(_excException_, AttributeError, AttributeError,
 	خطأ_صفة, attributeError, 0,
 	/*_attributeErrorMethods_*/ nullptr, _attributeErrorMembers_,
 	0, baseException_str, "لم يتم العثور على الصفة 'المتغير'.");
@@ -968,8 +968,8 @@ static AlifMemberDef _syntaxErrorMembers_[] = { // 2573
 	{nullptr}  /* Sentinel */
 };
 
-COMPLEXEXTENDSEXCEPTION(_excException_, SyntaxError, خطأ_نسق, syntaxError,
-	0, 0, _syntaxErrorMembers_, 0,
+COMPLEXEXTENDSEXCEPTION(_excException_, SyntaxError, SyntaxError, خطأ_نسق,
+	syntaxError, 0, 0, _syntaxErrorMembers_, 0,
 	syntaxError_str, "خطأ في النسق"); // 2594
 
 
@@ -987,6 +987,20 @@ SIMPLEEXTENDSEXCEPTION(_excException_, LookupError, خطأ_بحث,
 SIMPLEEXTENDSEXCEPTION(_excLookupError_, IndexError, خطأ_مؤشر,
 	"Sequence index out of range."); // 2628
 
+
+
+/*
+*    KeyError extends LookupError
+*/
+static AlifObject* keyError_str(AlifBaseExceptionObject* _self) {
+	if (ALIFTUPLE_GET_SIZE(_self->args) == 1) {
+		return alifObject_repr(ALIFTUPLE_GET_ITEM(_self->args, 0));
+	}
+	return baseException_str(_self);
+}
+
+COMPLEXEXTENDSEXCEPTION(_excLookupError_, KeyError, BaseException, خطأ_مفتاح, baseException,
+	0, 0, 0, 0, keyError_str, "مفتاح الفهرسة غير موجود.");
 
 
 
@@ -1084,7 +1098,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	ITEM(IndentationError, خطأ_مسافة_بادئة), // base: SyntaxError(Exception)
 	//{&_alifExcIncompleteInputError_, "_IncompleteInputError"}, // base: SyntaxError(Exception)
 	ITEM(IndexError, خطأ_مؤشر),  // base: LookupError(Exception)
-	//ITEM(KeyError),  // base: LookupError(Exception)
+	ITEM(KeyError, خطأ_مفتاح),  // base: LookupError(Exception)
 	ITEM(ModuleNotFoundError, خطأ_مكتبة_غير_موجودة), // base: ImportError(Exception)
 	//ITEM(NotImplementedError),  // base: RuntimeError(Exception)
 	//ITEM(AlifFinalizationError),  // base: RuntimeError(Exception)

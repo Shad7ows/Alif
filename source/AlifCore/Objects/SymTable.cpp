@@ -325,8 +325,8 @@ AlifSTEntryObject* _alifSymtable_lookup(AlifSymTable* _st, void* _key) { // 493
 	k = alifLong_fromVoidPtr(_key);
 	if (k == nullptr) return nullptr;
 	if (alifDict_getItemRef(_st->blocks, k, &v) == 0) {
-		//alifErr_setString(_alifExcKeyError_,
-		//	"unknown symbol table entry");
+		alifErr_setString(_alifExcKeyError_,
+			"مدخل جدول اسماء غير صحيح");
 	}
 	ALIF_DECREF(k);
 
@@ -666,7 +666,7 @@ static AlifIntT update_symbols(AlifObject* _symbols, AlifObject* _scopes,
 			return 0;
 		}
 		if (!vScope) {
-			//alifErr_setObject(_alifExcKeyError_, name);
+			alifErr_setObject(_alifExcKeyError_, name);
 			return 0;
 		}
 		long scope = alifLong_asLong(vScope);

@@ -9,6 +9,7 @@
 #include "AlifCore_Dict.h"
 #include "AlifCore_GC.h"
 #include "AlifCore_Object.h"
+#include "AlifCore_Errors.h"
 #include "StringLib/Equal.h"
 
 #define IS_DICT_SHARED(_mp) ALIFOBJECT_GC_IS_SHARED(_mp) // 166
@@ -1314,18 +1315,18 @@ static AlifObject* dict_getItem(AlifObject* _op,
 	AlifObject* value{};
 	AlifSizeT ix{}; (void)ix;
 
-	//AlifObject* exc = _alifErr_getRaisedException(tstate);
+	AlifObject* exc = _alifErr_getRaisedException(tstate);
 
 	ix = alifDict_lookupThreadSafe(mp, _key, hash, &value);
 	ALIF_XDECREF(value);
 
 
 	/* Ignore any exception raised by the lookup */
-	//AlifObject* exc2 = _alifErr_occurred(tstate);
-	//if (exc2 and !alifErr_givenExceptionMatches(exc2, _alifExcKeyError_)) {
-	//	alifErr_formatUnraisable(warnmsg);
-	//}
-	//_alifErr_setRaisedException(tstate, exc);
+	AlifObject* exc2 = _alifErr_occurred(tstate);
+	if (exc2 and !alifErr_givenExceptionMatches(exc2, _alifExcKeyError_)) {
+		//alifErr_formatUnraisable(warnmsg);
+	}
+	_alifErr_setRaisedException(tstate, exc);
 
 	return value;  // borrowed reference
 }
@@ -1952,19 +1953,19 @@ static AlifObject* dict_subscript(AlifObject* _self, AlifObject* _key) { // 3234
 	if (ix == DKIX_ERROR)
 		return nullptr;
 	if (ix == DKIX_EMPTY or value == nullptr) {
-		if (!ALIFDICT_CHECKEXACT(mp)) {
-			AlifObject* missing{}, * res{};
-			//missing = _alifObject_lookupSpecial(
-			//	(AlifObject*)mp, &ALIF_ID(__missing__));
-			//if (missing != nullptr) {
-			//	res = AlifObject_callOneArg(missing, key);
-			//	ALIF_DECREF(missing);
-			//	return res;
-			//}
-			//else if (alifErr_occurred())
-			//	return nullptr;
-		}
-		//_alifErr_setKeyError(key);
+		//if (!ALIFDICT_CHECKEXACT(mp)) {
+		//	AlifObject* missing{}, * res{};
+		//	missing = _alifObject_lookupSpecial(
+		//		(AlifObject*)mp, &ALIF_ID(__missing__));
+		//	if (missing != nullptr) {
+		//		res = AlifObject_callOneArg(missing, key);
+		//		ALIF_DECREF(missing);
+		//		return res;
+		//	}
+		//	else if (alifErr_occurred())
+		//		return nullptr;
+		//}
+		_alifErr_setKeyError(_key);
 		return nullptr;
 	}
 	return value;

@@ -53,7 +53,9 @@ extern AlifObject* _alifExcStopIteration_; // 82
 extern AlifObject* _alifExcAttributeError_; // 88
 extern AlifObject* _alifExcOSError_; // 92
 extern AlifObject* _alifExcImportError_; // 93
+
 extern AlifObject* _alifExcIndexError_; // 97
+extern AlifObject* _alifExcKeyError_; // 98
 
 
 
