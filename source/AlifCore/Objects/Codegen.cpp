@@ -779,7 +779,7 @@ AlifIntT _alifCodegen_body(AlifCompiler* _c,
 	//		Location loc = LOC(st->V.expression.val);
 	//		ADDOP_LOAD_CONST(_c, loc, cleanDoc);
 	//		ALIF_DECREF(cleanDoc);
-	//		RETURN_IF_ERROR(compiler_nameOp(_c, NO_LOCATION, &ALIF_ID(__doc__), ExprContext_::Store));
+	//		RETURN_IF_ERROR(codegen_nameOp(_c, NO_LOCATION, &ALIF_ID(__doc__), ExprContext_::Store));
 	//		}
 	//	}
 
@@ -1530,19 +1530,20 @@ static AlifIntT codegen_class(AlifCompiler* _c, StmtTy _s) {
 
 	ASDLTypeParamSeq* typeParams = _s->V.classDef.typeParams;
 	AlifIntT isGeneric = ASDL_SEQ_LEN(typeParams) > 0;
-	//if (isGeneric) {
-	//	AlifObject* type_params_name = alifUStr_fromFormat("<generic parameters of %U>",
-	//		_s->V.classDef.name);
-	//	if (!type_params_name) {
-	//		return ERROR;
-	//	}
-	//	AlifIntT ret = codegen_enterScope(_c, type_params_name, COMPILER_SCOPE_ANNOTATIONS,
-	//		(void*)typeParams, firstlineno, _s->V.classDef.name, nullptr);
-	//	ALIF_DECREF(type_params_name);
-	//	RETURN_IF_ERROR(ret);
-	//	RETURN_IF_ERROR_IN_SCOPE(_c, codegen_typeParams(_c, typeParams));
-	//	RETURN_IF_ERROR_IN_SCOPE(_c, compiler_nameOp(_c, loc, &ALIF_STR(typeParams), ExprContext_::Store));
-	//}
+	if (isGeneric) {
+		AlifObject* type_params_name = alifUStr_fromFormat("<generic parameters of %U>",
+			_s->V.classDef.name);
+		if (!type_params_name) {
+			return ERROR;
+		}
+		AlifIntT ret = codegen_enterScope(_c, type_params_name,
+			ScopeType_::Compiler_Scope_Annotations,
+			(void*)typeParams, firstlineno, _s->V.classDef.name, nullptr);
+		ALIF_DECREF(type_params_name);
+		RETURN_IF_ERROR(ret);
+		RETURN_IF_ERROR_IN_SCOPE(_c, codegen_typeParams(_c, typeParams));
+		//RETURN_IF_ERROR_IN_SCOPE(_c, codegen_nameOp(_c, loc, &ALIF_STR(typeParams), ExprContext_::Store));
+	}
 
 	AlifIntT ret = codegen_classBody(_c, _s, firstlineno);
 	if (isGeneric) {

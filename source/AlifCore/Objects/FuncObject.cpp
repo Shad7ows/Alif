@@ -260,6 +260,8 @@ AlifTypeObject _alifFunctionType_ = { // 1142
 	ALIF_TPFLAGS_HAVE_VECTORCALL |
 	ALIF_TPFLAGS_METHOD_DESCRIPTOR,
 
+	.weakListOffset = offsetof(AlifFunctionObject, weakRefList),
+
 	.descrGet = func_descrGet,
 	.dictOffset = offsetof(AlifFunctionObject, dict),
 };
