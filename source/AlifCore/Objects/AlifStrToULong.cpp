@@ -220,6 +220,13 @@ unsigned long alifOS_strToULong(const char* _str, char** _ptr, AlifIntT _base) {
 	while (*_str == '0')
 		++_str;
 
+	/* //* alif
+	هذا للتعامل مع الارقام التي تحتوي أحرف عربية مثل
+	0م00000101
+	*/
+	if ((unsigned char)*_str == 216
+		or (unsigned char)*_str == 217) { _str++; }
+
 	/* base is guaranteed to be in [2, 36] at this point */
 	ovLimit = _digitLimit_[_base];
 
@@ -250,6 +257,13 @@ unsigned long alifOS_strToULong(const char* _str, char** _ptr, AlifIntT _base) {
 
 		++_str;
 		--ovLimit;
+
+		/* //* alif
+		هذا للتعامل مع الارقام التي تحتوي أحرف عربية مثل
+		0م00000101
+		*/
+		if ((unsigned char)*_str == 216
+			or (unsigned char)*_str == 217) { _str++; }
 	}
 
 	/* set pointer to point to the last character scanned */

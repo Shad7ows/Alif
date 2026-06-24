@@ -627,6 +627,11 @@ again:
 					}
 					do {
 						c_ = tok_nextChar(_tokState);
+						
+						if (IS_2BYTE_IDENTIFIER(c_)) { //* alif
+							// للتعامل مع الأرقام الثنائية وما يشابهها والتي تحتوي احرف عربية مثل: 0م00001001
+							c_ = tok_nextChar(_tokState);
+						}
 					} while (ALIF_ISXDIGIT(c_));
 				} while (c_ == '_');
 				if (!verify_endOfNumber(_tokState, c_, "ستعشري")) {
