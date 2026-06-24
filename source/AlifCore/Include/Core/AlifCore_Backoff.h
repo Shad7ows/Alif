@@ -59,8 +59,8 @@ static inline bool backoff_counterTriggers(AlifBackoffCounter _counter) { // 97
 /* Initial JUMP_BACKWARD counter.
 * This determines when we create a trace for a loop.
 * Backoff sequence 16, 32, 64, 128, 256, 512, 1024, 2048, 4096. */
-#define JUMP_BACKWARD_INITIAL_VALUE 15
-#define JUMP_BACKWARD_INITIAL_BACKOFF 4
+#define JUMP_BACKWARD_INITIAL_VALUE 4095
+#define JUMP_BACKWARD_INITIAL_BACKOFF 12
 static inline AlifBackoffCounter initial_jumpBackoffCounter(void) { // 109
 	return make_backoffCounter(JUMP_BACKWARD_INITIAL_VALUE,
 		JUMP_BACKWARD_INITIAL_BACKOFF);

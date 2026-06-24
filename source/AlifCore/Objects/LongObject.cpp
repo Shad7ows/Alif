@@ -2209,13 +2209,16 @@ AlifObject* alifLong_fromString(const char* _str, char** _pend, AlifIntT _base) 
 		if (_str[0] != '0') {
 			_base = 10;
 		}
-		else if (_str[1] == 'x' or _str[1] == 'X') {
+		else if ((_str[1] == "س"[0] and _str[2] == "س"[1])
+			or _str[1] == 'x' or _str[1] == 'X') {
 			_base = 16;
 		}
-		else if (_str[1] == 'o' or _str[1] == 'O') {
+		else if ((_str[1] == "م"[0] and _str[2] == "م"[1])
+			or _str[1] == 'o' or _str[1] == 'O') {
 			_base = 8;
 		}
-		else if (_str[1] == 'b' or _str[1] == 'B') {
+		else if ((_str[1] == "ث"[0] and _str[2] == "ث"[1])
+			or _str[1] == 'b' or _str[1] == 'B') {
 			_base = 2;
 		}
 		else {
@@ -2226,9 +2229,12 @@ AlifObject* alifLong_fromString(const char* _str, char** _pend, AlifIntT _base) 
 		}
 	}
 	if (_str[0] == '0' and
-		((_base == 16 and (_str[1] == 'x' or _str[1] == 'X')) or
-			(_base == 8 and (_str[1] == 'o' or _str[1] == 'O')) or
-			(_base == 2 and (_str[1] == 'b' or _str[1] == 'B')))) {
+		((_base == 16 and ((_str[1] == "س"[0] and _str[2] == "س"[1])
+			or _str[1] == 'x' or _str[1] == 'X')) or
+			(_base == 8 and ((_str[1] == "م"[0] and _str[2] == "م"[1])
+				or _str[1] == 'o' or _str[1] == 'O')) or
+			(_base == 2 and ((_str[1] == "ث"[0] and _str[2] == "ث"[1])
+				or _str[1] == 'b' or _str[1] == 'B')))) {
 		_str += 2;
 		/* One underscore allowed here. */
 		if (*_str == '_') {
