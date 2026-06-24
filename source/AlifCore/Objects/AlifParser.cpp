@@ -5254,7 +5254,7 @@ done:
 }
 
 
-// معامل: "+" معامل > "-" معامل > أس
+// معامل: "+" معامل > "-" معامل > "~" > أس
 static ExprTy factor_rule(AlifParser* _p) {
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
 	if (_p->errorIndicator) { _p->level--; return nullptr; }
@@ -5318,6 +5318,33 @@ static ExprTy factor_rule(AlifParser* _p) {
 			AlifIntT endLineNo = token->endLineNo;
 			AlifIntT endColOffset = token->endColOffset;
 			res = alifAST_unaryOp(UnaryOp_::USub, a_, EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // "~" معامل
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		ExprTy a{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, TILDE))  // "~"
+			and
+			(a = factor_rule(_p))  // معامل
+			)
+		{
+			AlifPToken *token = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token->endLineNo;
+			AlifIntT endColOffset = token->endColOffset;
+			res = alifAST_unaryOp(UnaryOp_::Invert, a, EXTRA);
 			if (res == nullptr
 				and alifErr_occurred()) {
 				_p->errorIndicator = 1;
@@ -11793,6 +11820,7 @@ done:
 		> "/*="
 		> "&="
 		> "|="
+		> "*|="
 		> "<<="
 		> ">>="
 */
@@ -11957,11 +11985,11 @@ static AugOperator* augAssign_rule(AlifParser* _p) {
 		}
 		_p->mark = mark;
 	}
-	{ // "^^="
+	{ // "*|="
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* literal{};
-		if ((literal = alifParserEngine_expectToken(_p, DOUBLECIRCUMFLEXEQUAL))) // "^^="
+		if ((literal = alifParserEngine_expectToken(_p, STARVBAREQUAL))) // "*|="
 		{
 			res = alifParserEngine_augOperator(_p, Operator_::BitXor);
 			if (res == nullptr

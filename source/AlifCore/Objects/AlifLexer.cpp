@@ -20,10 +20,12 @@
 #define IS_IDENTIFIER_CHAR(_c) ((_c >= 161 and _c <= 191)	\
 								or (_c >= 128 and _c <= 138) /* الاحرف العربية - البايت الثاني منها */	\
 								or (_c >= '0' and _c <= '9') \
+                                or (_c >= 'A' and _c <= 'Z')    \
+                                or (_c >= 'a' and _c <= 'z')    \
 								or (_c == '_')) \
 
 
-#define IS_2BYTE_IDENTIFIER(_c) (_c == 216 or _c == 217)
+#define IS_2BYTE_IDENTIFIER(_c) (_c == 216 or _c == 217) // يكتشف اذا كان الحرف يبدأ ببايت يدل على بداية الاحرف العربية
 
 
 #define TOK_GET_MODE(_tokState) (&(_tokState->tokModeStack[_tokState->tokModeStackIndex]))
@@ -609,7 +611,11 @@ again:
 		if (c_ == '0') {
 			/* Hex or Octal or Binary */
 			c_ = tok_nextChar(_tokState);
-			if (c_ == L'ه') { // need review
+			if (IS_2BYTE_IDENTIFIER(c_)) {
+				// للتعامل مع الأرقام الثنائية وما يشابهها والتي تحتوي احرف عربية مثل: 0م00001001
+				c_ = tok_nextChar(_tokState);
+			}
+			if (c_ == 179 /*س*/ or c_ == 'x' or c_ == 'X') { // نظام عد ست_عشري
 				c_ = tok_nextChar(_tokState);
 				do {
 					if (c_ == '_') {
@@ -627,7 +633,7 @@ again:
 					return MAKE_TOKEN(ERRORTOKEN);
 				}
 			}
-			else if (c_ == L'ث') { // need review
+			else if (c_ == 133 /*م*/ or c_ == 'o' or c_ == 'O') { // نظام عد ثماني
 				// Octal
 				c_ = tok_nextChar(_tokState);
 				do {
@@ -652,7 +658,7 @@ again:
 					return MAKE_TOKEN(ERRORTOKEN);
 				}
 			}
-			else if (c_ == L'ن') { // review - suppose "ن"[0]
+			else if (c_ == 171 /*ث*/ or c_ == 'b' or c_ == 'B') { // نظام عد ثنائي
 				// Binary
 				c_ = tok_nextChar(_tokState);
 				do {
@@ -741,7 +747,7 @@ again:
 						if (c_ == 0) return MAKE_TOKEN(ERRORTOKEN);
 					}
 				}
-				if (c_ == L'س') { /* exponent */ //* review
+				if (c_ == L'أ') { /* exponent */ // أسي
 					AlifIntT e{};
 				exponent:
 					e = c_;

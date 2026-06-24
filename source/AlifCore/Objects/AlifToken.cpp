@@ -30,7 +30,7 @@ const char* const _alifParserTokenNames_[] = {
 	"AMPER",
 	"LEFTSHIFTEQUAL",
 	"RIGHTSHIFTEQUAL",
-	"DOUBLECIRCUMFLEXEQUAL",
+	"STARVBAREQUAL",
 	"VBAREQUAL",
 	"AMPEREQUAL",
 	"DOUBLESLASHEQUAL",
@@ -50,10 +50,12 @@ const char* const _alifParserTokenNames_[] = {
 	"STARVBAR",
 	"RIGHTSHIFT",
 	"LEFTSHIFT",
+	"TILDE",
 	"DOUBLESLASH",
 	"SLASH",
 	"SLASHSTAR",
 	"CIRCUMFLEX",
+	"DOUBLECIRCUMFLEX",
 	"SLASHCIRCUMFLEX",
 	"LBRACE",
 	"RBRACE",
@@ -97,6 +99,7 @@ AlifIntT alifToken_oneChar(AlifIntT _c1) {
 	case L'{': return LBRACE;
 	case L'}': return RBRACE;
 	case L'|': return VBAR;
+	case L'~': return TILDE;
 	case L'@': return AT;
 	}
 	return OP;
@@ -162,8 +165,8 @@ AlifIntT alifToken_threeChars(AlifIntT _c1, AlifIntT _c2, AlifIntT _c3) {
 	case L'>':
 		if (_c2 == L'>') { if (_c3 == L'=') return RSHIFTEQUAL; }
 		break;
-	case L'^':
-		if (_c2 == L'^') { if (_c3 == L'=') return DOUBLECIRCUMFLEXEQUAL; }
+	case L'*':
+		if (_c2 == L'|') { if (_c3 == L'=') return STARVBAREQUAL; }
 		break;
 	}
 	return OP;
