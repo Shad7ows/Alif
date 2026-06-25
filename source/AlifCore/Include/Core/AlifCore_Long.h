@@ -74,7 +74,7 @@ static inline bool _alifLong_isPositive(const AlifLongObject* op) { // 217
 	return (op->longValue.tag & SIGN_MASK) == 0;
 }
 
-static inline AlifSizeT alifLong_digitCount(const AlifLongObject* _op) { // 223
+static inline AlifSizeT _alifLong_digitCount(const AlifLongObject* _op) { // 223
 	return (AlifSizeT)(_op->longValue.tag >> NON_SIZE_BITS);
 }
 

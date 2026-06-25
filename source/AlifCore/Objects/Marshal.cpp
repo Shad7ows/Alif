@@ -231,7 +231,7 @@ static void w_alifLong(const AlifLongObject* ob, char flag, WFile* p) { // 244
 	}
 
 	/* set l to number of base ALIFLONG_MARSHAL_BASE digits */
-	n = alifLong_digitCount(ob);
+	n = _alifLong_digitCount(ob);
 	l = (n - 1) * ALIFLONG_MARSHAL_RATIO;
 	d = ob->longValue.digit[n - 1];
 	do {
