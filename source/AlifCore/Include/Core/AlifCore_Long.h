@@ -26,7 +26,7 @@ double _alifLong_frexp(AlifLongObject* , int64_t* ); // 88
 
 extern AlifObject* _alifLong_fromBytes(const char*, AlifSizeT, AlifIntT); // 91
 
-extern AlifObject* _alifLong_format(AlifObject*, AlifIntT); // 104
+extern AlifObject* _alifLong_format(AlifObject*, AlifIntT, AlifIntT); // 104
 
 extern AlifObject* _alifLong_rShift(AlifObject*, int64_t); // 107
 

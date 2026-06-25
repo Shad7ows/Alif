@@ -995,6 +995,22 @@ AlifObject* alifNumber_float(AlifObject* _o) { // 1588
 }
 
 
+AlifObject* alifNumber_toBase(AlifObject* _n,
+	AlifIntT _base, AlifIntT _isAscii) { // 1649 //* alif
+	if (!(_base == 2 or _base == 8 or _base == 10 or _base == 16)) {
+		alifErr_setString(_alifExcSystemError_,
+			"alifNumber_toBase: يجب أن يكون 2, 8, 10, 16");
+		return nullptr;
+	}
+	AlifObject* index = _alifNumber_index(_n);
+	if (!index)
+		return nullptr;
+	AlifObject* res = _alifLong_format(index, _base, _isAscii);
+	ALIF_DECREF(index);
+	return res;
+}
+
+
 
 AlifIntT alifSequence_check(AlifObject* _s) { // 1668
 	if (ALIFDICT_CHECK(_s))

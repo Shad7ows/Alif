@@ -97,6 +97,7 @@ AlifObject* alifNumber_inPlaceAnd(AlifObject*, AlifObject*); // 637
 AlifObject* alifNumber_inPlaceXor(AlifObject*, AlifObject*); // 643
 AlifObject* alifNumber_inPlaceOr(AlifObject*, AlifObject*); // 649
 
+AlifObject* alifNumber_toBase(AlifObject*, AlifIntT, AlifIntT); // 655
 
 AlifIntT alifSequence_check(AlifObject*); // 664
 

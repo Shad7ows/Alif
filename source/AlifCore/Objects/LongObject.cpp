@@ -600,7 +600,7 @@ AlifIntT _alifLong_sign(AlifObject* _vv) { // 772
 
 static AlifIntT bit_lengthDigit(digit _x) { // 813
 	static_assert(ALIFLONG_SHIFT <= sizeof(unsigned long) * 8,
-		"digit is larger than unsigned long");
+		"الرقم أكبر من قيمة unsigned long");
 	return alifBit_length((unsigned long)_x);
 }
 
@@ -1683,10 +1683,10 @@ static AlifObject* longTo_decimalString(AlifObject* _aa) { // 2294
 	return v;
 }
 
-static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT alternate,
-	AlifObject** p_output, AlifUStrWriter* writer,
-	AlifBytesWriter* bytes_writer, char** bytes_str) { // 2312
-	AlifLongObject* a = (AlifLongObject*)aa;
+static AlifIntT long_formatBinary(AlifObject* _aa, AlifIntT _base,
+	AlifIntT _alternate, AlifObject** _pOutput, AlifUStrWriter* _writer,
+	AlifBytesWriter* _bytesWriter, char** _bytesStr, AlifIntT _isAscii) { // 2312
+	AlifLongObject* a = (AlifLongObject*)_aa;
 	AlifObject* v = nullptr;
 	AlifSizeT sz{};
 	AlifSizeT size_a{};
@@ -1701,7 +1701,7 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
 	negative = _alifLong_isNegative(a);
 
 	/* Compute a rough upper bound for the length of the string */
-	switch (base) {
+	switch (_base) {
 	case 16:
 		bits = 4;
 		break;
@@ -1729,21 +1729,30 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
 		}
 		size_a_in_bits = (size_a - 1) * ALIFLONG_SHIFT +
 			bit_lengthDigit(a->longValue.digit[size_a - 1]);
+
+		// هذه من أجل حجز 2 بت للأحرف العربية
+		if (!_isAscii and _base == 16) { //* todo
+			// هذه تأخذ بالحسبان أسوء حالة وهي أن يظهر أحرف في جميع الخانات
+			// وبالتالي تقوم بحجز ضعف الحجم لإستيعاب الأحرف العربية كاملة في أسوء الحالات
+			size_a_in_bits = size_a_in_bits * 2;
+		}
+
 		/* Allow 1 character for a '-' sign. */
 		sz = negative + (size_a_in_bits + (bits - 1)) / bits;
 	}
-	if (alternate) {
+	if (_alternate) {
 		/* 2 characters for prefix  */
 		sz += 2;
+		if (!_isAscii) sz += 1; //* alif
 	}
 
-	if (writer) {
-		if (ALIFUSTRWRITER_PREPARE(writer, sz, 'x') == -1)
+	if (_writer) {
+		if (ALIFUSTRWRITER_PREPARE(_writer, sz, 'x') == -1)
 			return -1;
 	}
-	else if (bytes_writer) {
-		*bytes_str = (char*)alifBytesWriter_prepare(bytes_writer, *bytes_str, sz);
-		if (*bytes_str == nullptr)
+	else if (_bytesWriter) {
+		*_bytesStr = (char*)alifBytesWriter_prepare(_bytesWriter, *_bytesStr, sz);
+		if (*_bytesStr == nullptr)
 			return -1;
 	}
 	else {
@@ -1767,7 +1776,7 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
                 accumbits += ALIFLONG_SHIFT;                              \
                 do {                                                    \
                     char cdigit;                                        \
-                    cdigit = (char)(accum & (base - 1));                \
+                    cdigit = (char)(accum & (_base - 1));                \
                     cdigit += (cdigit < 10) ? '0' : 'a'-10;             \
                     *--p = cdigit;                                      \
                     accumbits -= bits;                                  \
@@ -1776,13 +1785,65 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
             }                                                           \
         }                                                               \
                                                                         \
-        if (alternate) {                                                \
-            if (base == 16)                                             \
+        if (_alternate) {                                                \
+            if (_base == 16)                                             \
                 *--p = 'x';                                             \
-            else if (base == 8)                                         \
+            else if (_base == 8)                                         \
                 *--p = 'o';                                             \
-            else /* (base == 2) */                                      \
+            else /* (_base == 2) */                                      \
                 *--p = 'b';                                             \
+            *--p = '0';                                                 \
+        }                                                               \
+        if (negative)                                                   \
+            *--p = '-';                                                 \
+    } while (0)
+
+//* alif
+#define WRITE_ARABIC_DIGITS(p)                                             \
+	static const uint8_t arabicLowSurrogates[6] = {167/*ا*/, 168/*ب*/, 170/*ت*/, 171/*ث*/, 172/*ج*/, 173/*ح*/}; \
+    do {                                                                \
+        if (size_a == 0) {                                              \
+            *--p = '0';                                                 \
+        }                                                               \
+        else {                                                          \
+            /* JRH: special case for power-of-2 bases */                \
+            twodigits accum = 0;                                        \
+            AlifIntT accumbits = 0;   /* # of bits in accum */               \
+            AlifSizeT i{};                                               \
+            for (i = 0; i < size_a; ++i) {                              \
+                accum |= (twodigits)a->longValue.digit[i] << accumbits;        \
+                accumbits += ALIFLONG_SHIFT;                              \
+                do {                                                    \
+                    char cdigit;                                        \
+                    cdigit = (char)(accum & (_base - 1));                \
+					if (cdigit < 10) {                                    \
+	                    cdigit += '0';                                    \
+	                    *--p = cdigit;                                    \
+					}                                                      \
+					else {                                                  \
+						cdigit += arabicLowSurrogates[cdigit - 10] - cdigit; \
+						*--p = cdigit;                                       \
+						*--p = 216;                                          \
+					}                                                        \
+                    accumbits -= bits;                                  \
+                    accum >>= bits;                                     \
+                } while (i < size_a-1 ? accumbits >= bits : accum > 0); \
+            }                                                           \
+        }                                                               \
+                                                                        \
+        if (_alternate) {                                                \
+            if (_base == 16) {                                           \
+                *--p = 179; /*س*/                                        \
+                *--p = 216;                                              \
+			}                                                            \
+            else if (_base == 8) {                                       \
+                *--p = 133; /*م*/                                        \
+                *--p = 217;                                             \
+			}                                                            \
+            else { /* (_base == 2) */                                    \
+                *--p = 171; /*ث*/                                        \
+                *--p = 216;                                             \
+			}                                                            \
             *--p = '0';                                                 \
         }                                                               \
         if (negative)                                                   \
@@ -1791,20 +1852,30 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
 
 #define WRITE_UNICODE_DIGITS(_type)                                      \
     do {                                                                \
-        if (writer)                                                     \
-            p = (_type*)ALIFUSTR_DATA(writer->buffer) + writer->pos + sz; \
+        if (_writer)                                                     \
+            p = (_type*)ALIFUSTR_DATA(_writer->buffer) + _writer->pos + sz; \
         else                                                            \
             p = (_type*)ALIFUSTR_DATA(v) + sz;                          \
                                                                         \
-        WRITE_DIGITS(p);                                                \
+        if (_isAscii) {  /* //* alif*/                                   \
+	        WRITE_DIGITS(p);                                             \
+		}                                                                \
+		else {                                                           \
+            WRITE_ARABIC_DIGITS(p);                                      \
+		}                                                                \
     } while (0)
 
-	if (bytes_writer) {
-		char* p = *bytes_str + sz;
-		WRITE_DIGITS(p);
+	if (_bytesWriter) {
+		char* p = *_bytesStr + sz;
+		if (_isAscii) {  //* alif
+			WRITE_DIGITS(p);
+		}
+		else {
+			WRITE_ARABIC_DIGITS(p);
+		}  
 	}
 	else {
-		AlifIntT kind = writer ? writer->kind : ALIFUSTR_KIND(v);
+		AlifIntT kind = _writer ? _writer->kind : ALIFUSTR_KIND(v);
 		if (kind == AlifUStrKind_::AlifUStr_1Byte_Kind) {
 			AlifUCS1* p{};
 			WRITE_UNICODE_DIGITS(AlifUCS1);
@@ -1819,29 +1890,31 @@ static AlifIntT long_formatBinary(AlifObject* aa, AlifIntT base, AlifIntT altern
 		}
 	}
 
+#undef WRITE_ARABIC_DIGITS
 #undef WRITE_DIGITS
 #undef WRITE_UNICODE_DIGITS
 
-	if (writer) {
-		writer->pos += sz;
+	if (_writer) {
+		_writer->pos += sz;
 	}
-	else if (bytes_writer) {
-		(*bytes_str) += sz;
+	else if (_bytesWriter) {
+		(*_bytesStr) += sz;
 	}
 	else {
-		*p_output = v;
+		*_pOutput = v;
 	}
 	return 0;
 }
 
 
-AlifObject* _alifLong_format(AlifObject* _obj, AlifIntT _base) { // 2477
+AlifObject* _alifLong_format(AlifObject* _obj,
+	AlifIntT _base, AlifIntT _isAscii) { // 2477
 	AlifObject* str{};
 	AlifIntT err{};
 	if (_base == 10)
 		err = long_toDecimalStringInternal(_obj, &str, nullptr, nullptr, nullptr);
 	else
-		err = long_formatBinary(_obj, _base, 1, &str, nullptr, nullptr, nullptr);
+		err = long_formatBinary(_obj, _base, 1, &str, nullptr, nullptr, nullptr, _isAscii);
 	if (err == -1)
 		return NULL;
 	return str;
@@ -1855,7 +1928,8 @@ AlifIntT _alifLong_formatWriter(AlifUStrWriter* _writer, AlifObject* _obj,
 			nullptr, nullptr);
 	else
 		return long_formatBinary(_obj, _base, _alternate, nullptr, _writer,
-			nullptr, nullptr);
+			nullptr, nullptr,
+			0 /* هذا المعامل يحدد طباعة النظام العددي بالأحرف العربية أم اللاتينية */); //* alif //* todo
 }
 
 
@@ -1870,8 +1944,8 @@ unsigned char _alifLongDigitValue_[256] = { // 2527
 	25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 37, 37, 37, 37,
 	37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
 	37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
-	//* alif // للأحرف العربية ا - أ - ب - ت - ث - ج - ح
-	37, 37, 37, 37, 10, 37, 37, 37, 10, 11, 12, 13, 14, 15, 16, 37,
+	//* alif // للأحرف العربية أ --- ا - ب -- ت - ث - ج - ح
+	37, 37, 37, 10, 37, 37, 37, 10, 11, 37, 12, 13, 14, 15, 37, 37,
 	//* alif
 	37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
 	37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,

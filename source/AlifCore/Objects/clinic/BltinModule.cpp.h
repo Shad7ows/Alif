@@ -19,6 +19,7 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 	AlifSizeT _nargs, AlifObject* _kwNames) { // 39
 	AlifObject* returnValue = nullptr;
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 5
 	static class {
 	public:
@@ -31,6 +32,10 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
+
+#else 
+#  define KWTUPLE nullptr
+#endif 
 
 	static const char* const _keywords[] = { "اسم", "متغيرات_عامة", "متغيرات_محلية", "fromlist", "level", nullptr };
 	static AlifArgParser _parser = {
@@ -94,6 +99,90 @@ exit:
     {"تحقق_اي", (AlifCPPFunction)builtin_any, METHOD_O} // 141
 
 
+
+// 168 //* alif
+#define BUILTIN_BIN_METHODDEF    \
+    {"ثنائي", ALIF_CPPFUNCTION_CAST(builtin_bin), METHOD_FASTCALL}
+
+static AlifObject* builtin_binImpl(AlifObject*, AlifObject*, AlifIntT);
+
+AlifObject* builtin_bin(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _nargs) { //* alif
+	AlifObject* returnValue{};
+	AlifObject* obj{};
+	AlifIntT isAscii = 0;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("ثنائي", _nargs, 1, 2)) {
+		goto exit;
+	}
+	obj = _args[0];
+	if (_args[1]) {
+		isAscii = alifNumber_asSizeT(_args[1], _alifExcValueError_);
+		if (isAscii < 0) {
+			goto exit;
+		}
+	}
+	returnValue = builtin_binImpl(_module, obj, isAscii);
+
+exit:
+	return returnValue;
+}
+
+// 809 //* alif
+#define BUILTIN_OCT_METHODDEF    \
+    {"ثماني", ALIF_CPPFUNCTION_CAST(builtin_oct), METHOD_FASTCALL}
+
+static AlifObject* builtin_octImpl(AlifObject*, AlifObject*, AlifIntT);
+
+AlifObject* builtin_oct(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _nargs) { //* alif
+	AlifObject* returnValue{};
+	AlifObject* obj{};
+	AlifIntT isAscii = 0;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("ثماني", _nargs, 1, 2)) {
+		goto exit;
+	}
+	obj = _args[0];
+	if (_args[1]) {
+		isAscii = alifNumber_asSizeT(_args[1], _alifExcValueError_);
+		if (isAscii < 0) {
+			goto exit;
+		}
+	}
+	returnValue = builtin_octImpl(_module, obj, isAscii);
+
+exit:
+	return returnValue;
+}
+
+// 719 //* alif
+#define BUILTIN_HEX_METHODDEF    \
+    {"ست_عشري", ALIF_CPPFUNCTION_CAST(builtin_hex), METHOD_FASTCALL}
+
+static AlifObject* builtin_hexImpl(AlifObject*, AlifObject*, AlifIntT);
+
+AlifObject* builtin_hex(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _nargs) { //* alif
+	AlifObject* returnValue{};
+	AlifObject* obj{};
+	AlifIntT isAscii = 0;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("ست_عشري", _nargs, 1, 2)) {
+		goto exit;
+	}
+	obj = _args[0];
+	if (_args[1]) {
+		isAscii = alifNumber_asSizeT(_args[1], _alifExcValueError_);
+		if (isAscii < 0) {
+			goto exit;
+		}
+	}
+	returnValue = builtin_hexImpl(_module, obj, isAscii);
+
+exit:
+	return returnValue;
+}
 
 
 

@@ -310,6 +310,22 @@ static AlifObject* builtin_any(AlifObject* _module, AlifObject* _iterable) { // 
 
 
 
+static AlifObject* builtin_binImpl(AlifObject* _module,
+	AlifObject* _number, AlifIntT isAscii) { // 430
+	return alifNumber_toBase(_number, 2, isAscii);
+}
+
+static AlifObject* builtin_octImpl(AlifObject* _module,
+	AlifObject* _number, AlifIntT isAscii) { // 2046
+	return alifNumber_toBase(_number, 8, isAscii);
+}
+
+static AlifObject* builtin_hexImpl(AlifObject* _module,
+	AlifObject* _number, AlifIntT _isAscii) { // 1743
+	return alifNumber_toBase(_number, 16, _isAscii);
+}
+
+
 
 static AlifObject* builtin_chr(AlifObject* _module, AlifObject* _i) { // 709
 	AlifIntT overflow{};
@@ -1448,6 +1464,9 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN___IMPORT___METHODDEF,
 	BUILTIN_ALL_METHODDEF,
 	BUILTIN_ANY_METHODDEF,
+	BUILTIN_BIN_METHODDEF,
+	BUILTIN_HEX_METHODDEF,
+	BUILTIN_OCT_METHODDEF,
 	BUILTIN_CHR_METHODDEF,
 	BUILTIN_EXEC_METHODDEF,
 	BUILTIN_DELATTR_METHODDEF,
