@@ -17,7 +17,7 @@ OS_NAME := $(shell uname -s)
 
 
 SOURCES = 	$(wildcard $(SOURCE_DIR)/Alif/*.cpp)				\
-			$(filter-out $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp, $(wildcard $(SOURCE_DIR)/AlifCore/Objects/*.cpp))	\
+			$(filter-out $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp $(SOURCE_DIR)/AlifCore/Objects/Frozen.cpp, $(wildcard $(SOURCE_DIR)/AlifCore/Objects/*.cpp))	\
 			$(wildcard $(SOURCE_DIR)/AlifCore/Objects/dtoa/*.cpp)	\
 			$(wildcard $(SOURCE_DIR)/Modules/*.cpp)			\
 			$(wildcard $(SOURCE_DIR)/Modules/_io/*.cpp)		\
@@ -105,18 +105,20 @@ $(TARGET_FREEZE): $(OBJECTS) | $(BUILD_DIR)
 	@echo "جاري بناء ومعالجة البرامج المكتوبة بلغة ألف"
 	@$(shell) ./build/freezemodule GetPath ../source/Modules/تحديد_المسارات.alif GetPath.h
 	@$(shell) mv -f GetPath.h ../source/AlifCore/Include/Main/FrozenModules
-	@$(shell) ./build/freezemodule Importlib._bootstrap ../library/مكتبة_الاستيراد/برنامج_الاقلاع.alif Importlib._bootstrap.h
-	@$(shell) mv -f Importlib._bootstrap.h ../source/AlifCore/Include/Main/FrozenModules
-	@$(shell) ./build/freezemodule Importlib._bootstrap_external ../library/مكتبة_الاستيراد/برنامج_الاقلاع_الخارجي.alif Importlib._bootstrap_external.h
-	@$(shell) mv -f Importlib._bootstrap_external.h ../source/AlifCore/Include/Main/FrozenModules
+	@$(shell) ./build/freezemodule "Importlib._bootstrap" ../library/مكتبة_الاستيراد/برنامج_الاقلاع.alif "Importlib._bootstrap.h"
+	@$(shell) mv -f "Importlib._bootstrap.h" ../source/AlifCore/Include/Main/FrozenModules
+	@$(shell) ./build/freezemodule "Importlib._bootstrap_external" ../library/مكتبة_الاستيراد/برنامج_الاقلاع_الخارجي.alif "Importlib._bootstrap_external.h"
+	@$(shell) mv -f "Importlib._bootstrap_external.h" ../source/AlifCore/Include/Main/FrozenModules
 
 
 $(TARGET_ALIF): $(OBJECTS) | $(BUILD_DIR)
 	@echo "ترجمة.." $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp
+	@echo "ترجمة.." $(SOURCE_DIR)/AlifCore/Objects/Frozen.cpp
 	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp -o $(OBJ_DIR)/AlifCore/Objects/GetPath.o
+	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/Frozen.cpp -o $(OBJ_DIR)/AlifCore/Objects/Frozen.o
 	@echo "جاري ربط لغة ألف..."
 	@$(CPP) $(filter-out build/obj/FreezeModule/FreezeModule.o build/obj/FreezeModule/GetPathFreeze.o, $^)	\
-	 -o $@ $(OBJ_DIR)/AlifCore/Objects/GetPath.o
+	 -o $@ $(OBJ_DIR)/AlifCore/Objects/GetPath.o $(OBJ_DIR)/AlifCore/Objects/Frozen.o
 	@echo "تم بناء لغة ألف بنجاح"
 
 
