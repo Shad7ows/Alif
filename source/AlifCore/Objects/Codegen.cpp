@@ -203,7 +203,7 @@ static AlifIntT codegen_slice(AlifCompiler*, ExprTy);
 static bool areAllItems_const(ASDLExprSeq*, AlifSizeT, AlifSizeT);
 
 
-
+static AlifIntT codegen_with(AlifCompiler*, StmtTy, AlifIntT);
 
 
 static AlifIntT codegen_callSimpleKwHelper(AlifCompiler*, Location,
@@ -2938,14 +2938,14 @@ static AlifIntT codegen_visitStmt(AlifCompiler* _c, StmtTy _s) {
 	{
 		return codegen_continue(_c, LOC(_s));
 	}
-	//case StmtK_::WithK:
-	//	return codegen_with(_c, _s, 0);
-	//case StmtK_::AsyncFunctionDefK:
-	//	return codegen_function(_c, _s, 1);
+	case StmtK_::WithK:
+		return codegen_with(_c, _s, 0);
+	case StmtK_::AsyncFunctionDefK:
+		return codegen_function(_c, _s, 1);
 	//case StmtK_::AsyncWithK:
-	//	return codegen_async_with(_c, _s, 0);
+	//	return codegen_asyncWith(_c, _s, 0);
 	//case StmtK_::AsyncForK:
-	//	return codegen_async_for(_c, _s);
+	//	return codegen_asyncFor(_c, _s);
 	}
 
 	return SUCCESS;
@@ -4671,9 +4671,28 @@ static AlifIntT codegen_visitKeyword(AlifCompiler* _c, KeywordTy _k) {
 	return SUCCESS;
 }
 
+static AlifIntT codegen_withExceptFinish(AlifCompiler* _c, JumpTargetLabel _cleanup) {
+	NEW_JUMP_TARGET_LABEL(_c, suppress);
+	ADDOP(_c, _noLocation_, TO_BOOL);
+	ADDOP_JUMP(_c, _noLocation_, POP_JUMP_IF_TRUE, suppress);
+	ADDOP_I(_c, _noLocation_, RERAISE, 2);
 
+	USE_LABEL(_c, suppress);
+	ADDOP(_c, _noLocation_, POP_TOP); /* exc_value */
+	ADDOP(_c, _noLocation_, POP_BLOCK);
+	ADDOP(_c, _noLocation_, POP_EXCEPT);
+	ADDOP(_c, _noLocation_, POP_TOP);
+	ADDOP(_c, _noLocation_, POP_TOP);
+	ADDOP(_c, _noLocation_, POP_TOP);
+	NEW_JUMP_TARGET_LABEL(_c, exit);
+	ADDOP_JUMP(_c, _noLocation_, JUMP_NO_INTERRUPT, exit);
 
+	USE_LABEL(_c, _cleanup);
+	POP_EXCEPT_AND_RERAISE(_c, _noLocation_);
 
+	USE_LABEL(_c, exit);
+	return SUCCESS;
+}
 
 
 
@@ -4805,83 +4824,71 @@ static AlifIntT codegen_visitKeyword(AlifCompiler* _c, KeywordTy _k) {
 
 
 
+static AlifIntT codegen_with(AlifCompiler* _c, StmtTy _s, AlifIntT _pos) {
+	WithItemTy item = ASDL_SEQ_GET(_s->V.with_.items, _pos);
 
+	NEW_JUMP_TARGET_LABEL(_c, block);
+	NEW_JUMP_TARGET_LABEL(_c, final);
+	NEW_JUMP_TARGET_LABEL(_c, exit);
+	NEW_JUMP_TARGET_LABEL(_c, cleanup);
 
+	/* Evaluate EXPR */
+	VISIT(_c, Expr, item->contextExpr);
+	/* Will push bound __exit__ */
+	Location loc = LOC(item->contextExpr);
+	ADDOP_I(_c, loc, COPY, 1);
+	ADDOP_I(_c, loc, LOAD_SPECIAL, SPECIAL___EXIT__);
+	ADDOP_I(_c, loc, SWAP, 2);
+	ADDOP_I(_c, loc, SWAP, 3);
+	ADDOP_I(_c, loc, LOAD_SPECIAL, SPECIAL___ENTER__);
+	ADDOP_I(_c, loc, CALL, 0);
+	ADDOP_JUMP(_c, loc, SETUP_WITH, final);
 
+	/* SETUP_WITH pushes a finally block. */
+	USE_LABEL(_c, block);
+	RETURN_IF_ERROR(_alifCompiler_pushFBlock(_c, loc,
+		AlifCompileFBlockType::Compiler_FBlock_With, block, final, _s));
 
+	if (item->optionalVars) {
+		VISIT(_c, Expr, item->optionalVars);
+	}
+	else {
+		/* Discard result from context.__ادخل__() */
+		ADDOP(_c, loc, POP_TOP);
+	}
 
+	_pos++;
+	if (_pos == ASDL_SEQ_LEN(_s->V.with_.items)) {
+		/* BLOCK code */
+		VISIT_SEQ(_c, Stmt, _s->V.with_.body);
+	}
+	else {
+		RETURN_IF_ERROR(codegen_with(_c, _s, _pos));
+	}
 
+	ADDOP(_c, _noLocation_, POP_BLOCK);
+	_alifCompiler_popFBlock(_c, AlifCompileFBlockType::Compiler_FBlock_With, block);
 
+	/* End of body; start the cleanup. */
 
+	/* For successful outcome:
+	* استدعي __اخرج__(عدم, عدم, عدم)
+	*/
+	RETURN_IF_ERROR(codegen_callExitWithNones(_c, loc));
+	ADDOP(_c, loc, POP_TOP);
+	ADDOP_JUMP(_c, loc, JUMP, exit);
 
+	/* For exceptional outcome: */
+	USE_LABEL(_c, final);
 
+	ADDOP_JUMP(_c, loc, SETUP_CLEANUP, cleanup);
+	ADDOP(_c, loc, PUSH_EXC_INFO);
+	ADDOP(_c, loc, WITH_EXCEPT_START);
+	RETURN_IF_ERROR(codegen_withExceptFinish(_c, cleanup));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	USE_LABEL(_c, exit);
+	return SUCCESS;
+}
 
 
 

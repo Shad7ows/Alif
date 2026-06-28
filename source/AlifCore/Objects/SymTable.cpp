@@ -199,6 +199,7 @@ static AlifIntT symtable_visitExcepthandler(AlifSymTable*, ExcepthandlerTy); // 
 static AlifIntT symtable_visitAlias(AlifSymTable*, AliasTy); // 246
 static AlifIntT symtable_visitKeyword(AlifSymTable*, KeywordTy); // 248
 static AlifIntT symtable_visitAnnotations(AlifSymTable*, StmtTy, ArgumentsTy, ExprTy, AlifSTEntryObject*); // 253
+static AlifIntT symtable_visitWithItem(AlifSymTable*, WithItemTy); // 257
 static AlifIntT symtable_raiseIfComprehensionBlock(AlifSymTable*, ExprTy); // 260
 static AlifIntT symtable_addDef(AlifSymTable*, AlifObject*, AlifIntT, AlifSourceLocation); // 261
 
@@ -1586,6 +1587,10 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 	case StmtK_::ContinueK:
 		/* nothing to do here */
 		break;
+	case WithK:
+		VISIT_SEQ(_st, WithItem, _s->V.with_.items);
+		VISIT_SEQ(_st, Stmt, _s->V.with_.body);
+		break;
 	}
 	LEAVE_RECURSIVE(_st);
 	return 1;
@@ -1863,6 +1868,14 @@ static AlifIntT symtable_visitExcepthandler(AlifSymTable* _st, ExcepthandlerTy _
 		if (!symtable_addDef(_st, _eh->V.exceptHandler.name, DEF_LOCAL, LOCATION(_eh)))
 			return 0;
 	VISIT_SEQ(_st, Stmt, _eh->V.exceptHandler.body);
+	return 1;
+}
+
+static AlifIntT symtable_visitWithItem(AlifSymTable* _st, WithItemTy _item) { // 2822
+	VISIT(_st, Expr, _item->contextExpr);
+	if (_item->optionalVars) {
+		VISIT(_st, Expr, _item->optionalVars);
+	}
 	return 1;
 }
 

@@ -13,7 +13,7 @@ AlifObject* _alifBytes_decodeEscape(const char*, AlifSizeT, const char*, const c
 
 
 
-
+void _alifBytes_repeat(char*, AlifSizeT, const char*, AlifSizeT); // 59
 
 
 
@@ -54,4 +54,4 @@ void* alifBytesWriter_prepare(AlifBytesWriter*, void*, AlifSizeT); // 119
 void* alifBytesWriter_resize(AlifBytesWriter*, void*, AlifSizeT); // 134
 
 
-void* alifBytesWriter_writeBytes(AlifBytesWriter*, void*, const void*, AlifSizeT); // 140
+void* _alifBytesWriter_writeBytes(AlifBytesWriter*, void*, const void*, AlifSizeT); // 140

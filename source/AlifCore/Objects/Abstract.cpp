@@ -84,7 +84,7 @@ AlifSizeT alifObject_lengthHint(AlifObject* _o,
 			return res;
 		}
 	}
-	hint = alifObject_lookupSpecial(_o, &ALIF_ID(__lengthHint__));
+	hint = _alifObject_lookupSpecial(_o, &ALIF_ID(__lengthHint__));
 	if (hint == nullptr) {
 		if (alifErr_occurred()) {
 			return -1;
@@ -439,7 +439,7 @@ AlifObject* alifObject_format(AlifObject* _obj, AlifObject* _formatSpec) { // 83
 	}
 
 	/* Find the (unbound!) __تنسيق__ method */
-	meth = alifObject_lookupSpecial(_obj, &ALIF_STR(__format__));
+	meth = _alifObject_lookupSpecial(_obj, &ALIF_STR(__format__));
 	if (meth == nullptr) {
 		AlifThread* thread = _alifThread_get();
 		if (!_alifErr_occurred(thread)) {
@@ -1619,7 +1619,7 @@ static AlifIntT objectRecursive_isInstance(AlifThread *_thread, AlifObject *_ins
 		return r;
 	}
 
-	AlifObject *checker = alifObject_lookupSpecial(_cls, &ALIF_ID(__instanceCheck__));
+	AlifObject *checker = _alifObject_lookupSpecial(_cls, &ALIF_ID(__instanceCheck__));
 	if (checker != nullptr) {
 		if (_alif_enterRecursiveCallThread(_thread, " في __instancecheck__")) {
 			ALIF_DECREF(checker);
@@ -1705,7 +1705,7 @@ static AlifIntT object_isSubclass(AlifThread* _thread,
 		return r;
 	}
 
-	checker = alifObject_lookupSpecial(_cls, &ALIF_ID(__subClassCheck__));
+	checker = _alifObject_lookupSpecial(_cls, &ALIF_ID(__subClassCheck__));
 	if (checker != nullptr) {
 		AlifIntT ok = -1;
 		if (_alif_enterRecursiveCallThread(_thread, " in __subClassCheck__")) {

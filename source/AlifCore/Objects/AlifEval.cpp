@@ -135,6 +135,28 @@ const BinaryFunc _alifEvalBinaryOps_[] = { // 307
 };
 
 
+const AlifSpecialMethod _alifSpecialMethods_[] = { // 378
+	/*SPECIAL___ENTER__*/ {
+		.name = &ALIF_STR(__enter__),
+		.error = "الكائن '%.200s' لا يدعم "
+		"مدير السياق (الوظيفة __ادخل__ مفقودة)",
+	},
+	/*SPECIAL___EXIT__*/ {
+			.name = &ALIF_STR(__exit__),
+			.error = "الكائن '%.200s' لا يدعم "
+			"مدير السياق (الوظيفة __اخرج__ مفقودة)",
+	},
+	///*SPECIAL___AENTER__*/ {
+	//		.name = &ALIF_STR(__aenter__),
+	//		.error = "'%.200s' object does not support the asynchronous "
+	//		"context manager protocol (missed __aenter__ method)",
+	//},
+	///*SPECIAL___AEXIT__*/ {
+	//		.name = &ALIF_STR(__aexit__),
+	//		.error = "'%.200s' object does not support the asynchronous "
+	//		"context manager protocol (missed __aexit__ method)",
+	//}
+};
 
 const AlifUSizeT _alifFunctionAttributeOffsets_[] = { // 396 //* alif
 	0,
@@ -2181,6 +2203,39 @@ resume_frame:
 				stackPointer += 1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(LOAD_SPECIAL) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				//INSTRUCTION_STATS(LOAD_SPECIAL);
+				AlifStackRef owner{};
+				AlifStackRef attr{};
+				AlifStackRef self_or_null{};
+				owner = stackPointer[-1];
+				AlifObject* ownerObj = alifStackRef_asAlifObjectSteal(owner);
+				AlifObject* name = _alifSpecialMethods_[oparg].name;
+				AlifObject* selfOrNullObj{};
+				stackPointer += -1;
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				AlifObject* attrObj = _alifObject_lookupSpecialMethod(ownerObj, name, &selfOrNullObj);
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				if (attrObj == nullptr) {
+					if (!_alifErr_occurred(_thread)) {
+						_alifFrame_setStackPointer(_frame, stackPointer);
+						_alifErr_format(_thread, _alifExcTypeError_,
+							_alifSpecialMethods_[oparg].error,
+							ALIF_TYPE(ownerObj)->name);
+						stackPointer = _alifFrame_getStackPointer(_frame);
+					}
+					goto error;
+				}
+				attr = ALIFSTACKREF_FROMALIFOBJECTSTEAL(attrObj);
+				self_or_null = selfOrNullObj == nullptr ?
+					_alifStackRefNull_ : ALIFSTACKREF_FROMALIFOBJECTSTEAL(selfOrNullObj);
+				stackPointer[0] = attr;
+				stackPointer[1] = self_or_null;
+				stackPointer += 2;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(MAKE_CELL) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;
@@ -2680,6 +2735,39 @@ resume_frame:
 					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
 					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
 					AlifObject* resObj = _alifLong_multiply((AlifLongObject*)leftObj, (AlifLongObject*)rightObj);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(right, (Destructor)alifMem_objFree);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(left, (Destructor)alifMem_objFree);
+					if (resObj == nullptr) goto pop_2_error;
+					res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
+				}
+				stackPointer[-2] = res;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
+			TARGET(BINARY_OP_SUBTRACT_INT) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 2;
+				//INSTRUCTION_STATS(BINARY_OP_SUBTRACT_INT);
+				AlifStackRef left{};
+				AlifStackRef right{};
+				AlifStackRef res{};
+				// _GUARD_BOTH_INT
+				{
+					right = stackPointer[-1];
+					left = stackPointer[-2];
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					DEOPT_IF(!ALIFLONG_CHECKEXACT(leftObj), BINARY_OP);
+					DEOPT_IF(!ALIFLONG_CHECKEXACT(rightObj), BINARY_OP);
+				}
+				/* Skip 1 cache entry */
+				// _BINARY_OP_SUBTRACT_INT
+				{
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					//STAT_INC(BINARY_OP, hit);
+					AlifObject* resObj = _alifLong_subtract((AlifLongObject*)leftObj,
+						(AlifLongObject*)rightObj);
 					ALIFSTACKREF_CLOSE_SPECIALIZED(right, (Destructor)alifMem_objFree);
 					ALIFSTACKREF_CLOSE_SPECIALIZED(left, (Destructor)alifMem_objFree);
 					if (resObj == nullptr) goto pop_2_error;

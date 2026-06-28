@@ -92,7 +92,7 @@ AlifObject* alifOS_fsPath(AlifObject* path) { // 16477
 		return ALIF_NEWREF(path);
 	}
 
-	//func = alifObject_lookupSpecial(path, &ALIF_ID(__fspath__));
+	//func = _alifObject_lookupSpecial(path, &ALIF_ID(__fspath__));
 	//if ((func == nullptr) or (func == ALIF_NONE)) {
 	//	return alifErr_format(_alifExcTypeError_,
 	//		"expected str, bytes or os.PathLike object, "

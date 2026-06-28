@@ -4454,7 +4454,7 @@ static AlifObject* uStr_encodeUcs1(AlifObject* unicode,
 
 				if (ALIFBYTES_CHECK(rep)) {
 					/* Directly copy bytes result to output. */
-					str = (char*)alifBytesWriter_writeBytes(&writer, str,
+					str = (char*)_alifBytesWriter_writeBytes(&writer, str,
 						ALIFBYTES_AS_STRING(rep),
 						ALIFBYTES_GET_SIZE(rep));
 				}
@@ -4468,7 +4468,7 @@ static AlifObject* uStr_encodeUcs1(AlifObject* unicode,
 						//	collstart, collend, reason);
 						goto onError;
 					}
-					str = (char*)alifBytesWriter_writeBytes(&writer, str,
+					str = (char*)_alifBytesWriter_writeBytes(&writer, str,
 						ALIFUSTR_DATA(rep),
 						ALIFUSTR_GET_LENGTH(rep));
 				}
@@ -6353,6 +6353,59 @@ AlifObject* alifUStr_subString(AlifObject* _self,
 
 
 
+static AlifObject* uStr_repeat(AlifObject* str, AlifSizeT len) { // 12503
+	AlifObject* u{};
+	AlifSizeT nchars{}, n{};
+
+	if (len < 1) {
+		ALIF_RETURN_UNICODE_EMPTY;
+	}
+
+	/* no repeat, return original string */
+	if (len == 1)
+		return uStr_resultUnchanged(str);
+
+	if (ALIFUSTR_GET_LENGTH(str) > ALIF_SIZET_MAX / len) {
+		alifErr_setString(_alifExcOverflowError_,
+			"النص المكرر طويل جداً");
+		return nullptr;
+	}
+	nchars = len * ALIFUSTR_GET_LENGTH(str);
+
+	u = alifUStr_new(nchars, ALIFUSTR_MAX_CHAR_VALUE(str));
+	if (!u)
+		return nullptr;
+
+	if (ALIFUSTR_GET_LENGTH(str) == 1) {
+		AlifIntT kind = ALIFUSTR_KIND(str);
+		AlifUCS4 fill_char = ALIFUSTR_READ(kind, ALIFUSTR_DATA(str), 0);
+		if (kind == AlifUStrKind_::AlifUStr_1Byte_Kind) {
+			void* to = ALIFUSTR_DATA(u);
+			memset(to, (unsigned char)fill_char, len);
+		}
+		else if (kind == AlifUStrKind_::AlifUStr_2Byte_Kind) {
+			AlifUCS2* ucs2 = ALIFUSTR_2BYTE_DATA(u);
+			for (n = 0; n < len; ++n)
+				ucs2[n] = fill_char;
+		}
+		else {
+			AlifUCS4* ucs4 = ALIFUSTR_4BYTE_DATA(u);
+			for (n = 0; n < len; ++n)
+				ucs4[n] = fill_char;
+		}
+	}
+	else {
+		AlifSizeT charSize = ALIFUSTR_KIND(str);
+		char* to = (char*)ALIFUSTR_DATA(u);
+		_alifBytes_repeat(to, nchars * charSize, (const char*)ALIFUSTR_DATA(str),
+			ALIFUSTR_GET_LENGTH(str) * charSize);
+	}
+
+	return u;
+}
+
+
+
 AlifObject* alifUStr_replace(AlifObject* _str,
 	AlifObject* _subStr, AlifObject* _replstr, AlifSizeT _maxCount) { // 12530
 	if (ensure_uStr(_str) < 0 or ensure_uStr(_subStr) < 0 or
@@ -7111,7 +7164,7 @@ static AlifNumberMethods _uStrAsNumber_ = { // 14049
 static AlifSequenceMethods _uStrAsSequence_ = { // 14056
 	0, // (LenFunc)uStr_length,       /* length */
 	alifUStr_concat,
-	0, // (SizeArgFunc)uStr_repeat,  /* repeat */
+	(SizeArgFunc)uStr_repeat,  /* repeat */
 	0, // (SizeArgFunc)uStr_getItem,     /* item */
 	0,                  /* slice */
 	0,                  /* assItem */

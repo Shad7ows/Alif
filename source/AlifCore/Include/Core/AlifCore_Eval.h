@@ -108,13 +108,23 @@ static inline void _alif_leaveRecursiveCall(void) { // 228
 
 
 
-AlifObject* _alif_makeCoro(AlifFunctionObject*); // 235
+AlifObject* _alif_makeCoro(AlifFunctionObject*); // 244
 
 
 extern AlifObject* _alifEval_getFrameLocals(void); // 250
 
-AlifIntT _alifEval_checkExceptStarTypeValid(AlifThread*, AlifObject*); // 256
-AlifIntT _alifEval_checkExceptTypeValid(AlifThread*, AlifObject*); // 257
+
+class AlifSpecialMethod { // 257
+public:
+	AlifObject* name{};
+	const char* error{};
+};
+
+extern const AlifSpecialMethod _alifSpecialMethods_[]; // 262
+
+
+AlifIntT _alifEval_checkExceptStarTypeValid(AlifThread*, AlifObject*); // 265
+AlifIntT _alifEval_checkExceptTypeValid(AlifThread*, AlifObject*); // 267
 AlifIntT _alifEval_exceptionGroupMatch(AlifObject*, AlifObject*, AlifObject**, AlifObject**); // 258
 
 AlifObject* _alifEval_importFrom(AlifThread*, AlifObject*, AlifObject*); // 262

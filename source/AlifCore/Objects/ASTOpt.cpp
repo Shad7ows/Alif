@@ -583,6 +583,7 @@ static AlifIntT astFold_arguments(ArgumentsTy, AlifASTMem*, AlifASTOptimizeState
 static AlifIntT astFold_comprehension(ComprehensionTy, AlifASTMem*, AlifASTOptimizeState*); // 648
 static AlifIntT astFold_keyword(KeywordTy, AlifASTMem*, AlifASTOptimizeState*); //  649
 static AlifIntT astFold_arg(ArgTy, AlifASTMem*, AlifASTOptimizeState*); // 650
+static AlifIntT astFold_withItem(WithItemTy, AlifASTMem*, AlifASTOptimizeState*); // 652
 static AlifIntT astFold_exceptHandler(ExcepthandlerTy, AlifASTMem*, AlifASTOptimizeState*); // 653
 static AlifIntT astFold_typeParam(TypeParamTy, AlifASTMem*, AlifASTOptimizeState*); // 655
 
@@ -896,14 +897,14 @@ static AlifIntT astFold_stmt(StmtTy _node,
 		CALL_SEQ(astFold_stmt, Stmt, _node->V.if_.body);
 		CALL_SEQ(astFold_stmt, Stmt, _node->V.if_.else_);
 		break;
-	//case StmtK_::WithK:
-	//	CALL_SEQ(astFold_withItem, WithItem, _node->V.with_.items);
-	//	CALL_SEQ(astFold_stmt, Stmt, _node->V.with_.body);
-	//	break;
-	//case StmtK_::AsyncWithK:
-	//	CALL_SEQ(astFold_withItem, withitem, _node->V.asyncWith.items);
-	//	CALL_SEQ(astFold_stmt, stmt, _node->v.AsyncWith.body);
-	//	break;
+	case StmtK_::WithK:
+		CALL_SEQ(astFold_withItem, WithItem, _node->V.with_.items);
+		CALL_SEQ(astFold_stmt, Stmt, _node->V.with_.body);
+		break;
+	case StmtK_::AsyncWithK:
+		CALL_SEQ(astFold_withItem, WithItem, _node->V.asyncWith.items);
+		CALL_SEQ(astFold_stmt, Stmt, _node->V.asyncWith.body);
+		break;
 	case StmtK_::TryK:
 		CALL_SEQ(astFold_stmt, Stmt, _node->V.try_.body);
 		CALL_SEQ(astFold_exceptHandler, Excepthandler, _node->V.try_.handlers);
@@ -950,7 +951,12 @@ static AlifIntT astFold_exceptHandler(ExcepthandlerTy _node,
 }
 
 
-
+static AlifIntT astFold_withItem(WithItemTy _node, AlifASTMem* _ctx,
+	AlifASTOptimizeState* _state) { // 1047
+	CALL(astFold_expr, ExprTy, _node->contextExpr);
+	CALL_OPT(astFold_expr, ExprTy, _node->optionalVars);
+	return 1;
+}
 
 
 

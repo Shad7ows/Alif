@@ -36,6 +36,7 @@ extern AlifIntT _alifLong_formatWriter(AlifUStrWriter*, AlifObject*, AlifIntT, A
 
 AlifObject* _alifLong_add(AlifLongObject*, AlifLongObject*); // 112
 AlifObject* _alifLong_multiply(AlifLongObject*, AlifLongObject*); // 113
+AlifObject* _alifLong_subtract(AlifLongObject*, AlifLongObject*); // 114
 
 extern unsigned char _alifLongDigitValue_[256]; // 118
 

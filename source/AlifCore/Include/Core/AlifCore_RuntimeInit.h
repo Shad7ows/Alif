@@ -746,6 +746,8 @@
     INIT_USTR(__main__, "__الرئيسية__"), /* //* alif */	\
     INIT_USTR(__dict__, "__فهرس__"), /* //* alif */	\
     INIT_USTR(__spec__, "__خصائص__"), /* //* alif */	\
+    INIT_USTR(__enter__, "__ادخل__"), /* //* alif */	\
+    INIT_USTR(__exit__, "__اخرج__"), /* //* alif */	\
     INIT_USTR(Path, "مسار"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
 }

@@ -330,8 +330,8 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		return 0;
 	case LOAD_SMALL_INT:
 		return 0;
-		//case LOAD_SPECIAL:
-		//	return 1;
+	case LOAD_SPECIAL:
+		return 1;
 	case LOAD_SUPER_ATTR:
 		return 3;
 		//case LOAD_SUPER_ATTR_ATTR:
@@ -468,8 +468,8 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		//	return 1;
 		//case UNPACK_SEQUENCE_TWO_TUPLE:
 		//	return 1;
-		//case WITH_EXCEPT_START:
-		//	return 5;
+	case WITH_EXCEPT_START:
+		return 5;
 	case YIELD_VALUE:
 		return 1;
 	default:
@@ -798,8 +798,8 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		return 1;
 	case LOAD_SMALL_INT:
 		return 1;
-		//case LOAD_SPECIAL:
-		//	return 2;
+	case LOAD_SPECIAL:
+		return 2;
 	case LOAD_SUPER_ATTR:
 		return 1 + (_oparg & 1);
 		//case LOAD_SUPER_ATTR_ATTR:
@@ -936,8 +936,8 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		//	return _oparg;
 		//case UNPACK_SEQUENCE_TWO_TUPLE:
 		//	return 2;
-		//case WITH_EXCEPT_START:
-		//	return 6;
+	case WITH_EXCEPT_START:
+		return 6;
 	case YIELD_VALUE:
 		return 1;
 	default:
@@ -1378,7 +1378,7 @@ const uint8_t _alifOpcodeDeopt_[256] = {
 	UNARY_INVERT, // UNARY_INVERT // 38
 	UNARY_NEGATIVE, // UNARY_NEGATIVE // 39
 	UNARY_NOT, // UNARY_NOT // 40
-	0,//WITH_EXCEPT_START, // WITH_EXCEPT_START // 41
+	WITH_EXCEPT_START, // WITH_EXCEPT_START // 41
 	BINARY_OP, // BINARY_OP // 42
 	BUILD_LIST, // BUILD_LIST // 43
 	BUILD_MAP, // BUILD_MAP // 44

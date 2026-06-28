@@ -340,7 +340,8 @@ static inline AlifDictValues* alifObject_inlineValues(AlifObject* _obj) { // 803
 extern AlifObject** alifObject_computedDictPointer(AlifObject*); // 813
 
 
-AlifObject* alifObject_lookupSpecial(AlifObject*, AlifObject*); // 817
+AlifObject* _alifObject_lookupSpecial(AlifObject*, AlifObject*); // 860
+AlifObject* _alifObject_lookupSpecialMethod(AlifObject*, AlifObject*, AlifObject**); // 861
 
 AlifIntT _alifObject_getMethod(AlifObject*, AlifObject*, AlifObject**); // 822
 extern AlifObject* _alifObject_nextNotImplemented(AlifObject*); // 823
@@ -353,11 +354,11 @@ extern AlifObject* _alifObject_nextNotImplemented(AlifObject*); // 823
 #define ALIFCPPFUNCTIONWITHKEYWORDS_TRAMPOLINECALL(_meth, _self, _args, _kw) \
     (_meth)((_self), (_args), (_kw)) // 846
 
-extern AlifTypeObject _alifNoneType_; // 851
+extern AlifTypeObject _alifNoneType_; // 894
 
 
-extern AlifIntT _alifSwappedOp_[]; // 856
+extern AlifIntT _alifSwappedOp_[]; // 899
 
 
 
-extern void _alif_getConstantInit(void); // 880
+extern void _alif_getConstantInit(void); // 901

@@ -42,7 +42,7 @@
 #define UNARY_INVERT                            38
 #define UNARY_NEGATIVE                          39
 #define UNARY_NOT                               40
-//#define WITH_EXCEPT_START                       41
+#define WITH_EXCEPT_START                       41
 #define BINARY_OP                               42
 #define BUILD_LIST                              43
 #define BUILD_MAP                               44

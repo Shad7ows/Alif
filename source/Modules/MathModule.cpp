@@ -248,7 +248,7 @@ static AlifObject* math_ceil(AlifObject* _module, AlifObject* _number) { // 1091
 	}
 	else {
 		MathModuleState* state = getMath_moduleState(_module);
-		AlifObject* method = alifObject_lookupSpecial(_number, state->str___ceil__);
+		AlifObject* method = _alifObject_lookupSpecial(_number, state->str___ceil__);
 		if (method != nullptr) {
 			AlifObject* result = _alifObject_callNoArgs(method);
 			ALIF_DECREF(method);
@@ -270,7 +270,7 @@ static AlifObject* math_floor(AlifObject* _module, AlifObject* _number) { // 116
 	}
 	else {
 		MathModuleState* state = getMath_moduleState(_module);
-		AlifObject* method = alifObject_lookupSpecial(_number, state->str___floor__);
+		AlifObject* method = _alifObject_lookupSpecial(_number, state->str___floor__);
 		if (method != nullptr) {
 			AlifObject* result = _alifObject_callNoArgs(method);
 			ALIF_DECREF(method);

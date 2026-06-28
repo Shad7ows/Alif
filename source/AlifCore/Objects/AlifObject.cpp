@@ -684,7 +684,7 @@ AlifIntT _alifObject_getMethod(AlifObject* _obj,
 		return 0;
 	}
 
-	AlifObject* descr = alifType_lookupRef(tp, _name);
+	AlifObject* descr = _alifType_lookupRef(tp, _name);
 	DescrGetFunc f = nullptr;
 	if (descr != nullptr) {
 		if (_alifType_hasFeature(ALIF_TYPE(descr), ALIF_TPFLAGS_METHOD_DESCRIPTOR)) {
@@ -779,7 +779,7 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 			goto done;
 	}
 
-	descr = alifType_lookupRef(tp, _name);
+	descr = _alifType_lookupRef(tp, _name);
 
 	f_ = nullptr;
 	if (descr != nullptr) {
@@ -892,7 +892,7 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 
 	ALIF_INCREF(_name);
 	ALIF_INCREF(tp);
-	descr = alifType_lookupRef(tp, _name);
+	descr = _alifType_lookupRef(tp, _name);
 
 	if (descr != nullptr) {
 		f = ALIF_TYPE(descr)->descrSet;

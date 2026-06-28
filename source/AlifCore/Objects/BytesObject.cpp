@@ -732,7 +732,7 @@ AlifObject* alifBytesWriter_finish(AlifBytesWriter* _writer, void* _str) { // 35
 
 
 
-void* alifBytesWriter_writeBytes(AlifBytesWriter* _writer, void* _ptr,
+void* _alifBytesWriter_writeBytes(AlifBytesWriter* _writer, void* _ptr,
 	const void* _bytes, AlifSizeT _size) { // 3626
 	char* str = (char*)_ptr;
 
@@ -744,4 +744,28 @@ void* alifBytesWriter_writeBytes(AlifBytesWriter* _writer, void* _ptr,
 	str += _size;
 
 	return str;
+}
+
+
+
+
+void _alifBytes_repeat(char* _dest, AlifSizeT _lenDest,
+	const char* _src, AlifSizeT _lenSrc) { // 3657
+	if (_lenDest == 0) {
+		return;
+	}
+	if (_lenSrc == 1) {
+		memset(_dest, _src[0], _lenDest);
+	}
+	else {
+		if (_src != _dest) {
+			memcpy(_dest, _src, _lenSrc);
+		}
+		AlifSizeT copied = _lenSrc;
+		while (copied < _lenDest) {
+			AlifSizeT bytesToCopy = ALIF_MIN(copied, _lenDest - copied);
+			memcpy(_dest + copied, _dest, bytesToCopy);
+			copied += bytesToCopy;
+		}
+	}
 }

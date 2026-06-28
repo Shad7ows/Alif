@@ -919,10 +919,10 @@ AlifIntT alifType_isSubType(AlifTypeObject* a, AlifTypeObject* b) { // 2673
 }
 
 
-AlifObject* alifObject_lookupSpecial(AlifObject* _self, AlifObject* _attr) { // 2694
+AlifObject* _alifObject_lookupSpecial(AlifObject* _self, AlifObject* _attr) { // 2694
 	AlifObject* res{};
 
-	res = alifType_lookupRef(ALIF_TYPE(_self), _attr);
+	res = _alifType_lookupRef(ALIF_TYPE(_self), _attr);
 	if (res != nullptr) {
 		DescrGetFunc f{};
 		if ((f = ALIF_TYPE(res)->descrGet) != nullptr) {
@@ -933,8 +933,35 @@ AlifObject* alifObject_lookupSpecial(AlifObject* _self, AlifObject* _attr) { // 
 }
 
 
+AlifObject* _alifObject_lookupSpecialMethod(AlifObject* _self,
+	AlifObject* _attr, AlifObject** _selfOrNull) { // 2704
+	AlifObject* res{};
+
+	res = _alifType_lookupRef(ALIF_TYPE(_self), _attr);
+	if (res == nullptr) {
+		ALIF_DECREF(_self);
+		*_selfOrNull = nullptr;
+		return nullptr;
+	}
+
+	if (_alifType_hasFeature(ALIF_TYPE(res), ALIF_TPFLAGS_METHOD_DESCRIPTOR)) {
+		/* Avoid temporary AlifMethodObject */
+		*_selfOrNull = _self;
+	}
+	else {
+		DescrGetFunc f = ALIF_TYPE(res)->descrGet;
+		if (f != nullptr) {
+			ALIF_SETREF(res, f(res, _self, (AlifObject*)(ALIF_TYPE(_self))));
+		}
+		*_selfOrNull = nullptr;
+		ALIF_DECREF(_self);
+	}
+	return res;
+}
+
+
 static AlifObject* lookup_maybeMethod(AlifObject* _self, AlifObject* _attr, AlifIntT* _unbound) { // 2738
-	AlifObject* res = alifType_lookupRef(ALIF_TYPE(_self), _attr);
+	AlifObject* res = _alifType_lookupRef(ALIF_TYPE(_self), _attr);
 	if (res == nullptr) {
 		return nullptr;
 	}
@@ -2899,7 +2926,7 @@ static void updateCache_gilDisabled(TypeCacheEntry* _entry, AlifObject* _name,
 }
 
 
-AlifObject* alifType_lookupRef(AlifTypeObject* _type, AlifObject* _name) { // 5420
+AlifObject* _alifType_lookupRef(AlifTypeObject* _type, AlifObject* _name) { // 5420
 	AlifObject* res{};
 	AlifIntT error{};
 	AlifInterpreter* interp = _alifInterpreter_get();
@@ -2976,7 +3003,7 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 	metaGet = nullptr;
 
 	/* Look for the attribute in the metatype */
-	metaAttribute = alifType_lookupRef(metatype, _name);
+	metaAttribute = _alifType_lookupRef(metatype, _name);
 
 	if (metaAttribute != nullptr) {
 		metaGet = ALIF_TYPE(metaAttribute)->descrGet;
@@ -2989,7 +3016,7 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 		}
 	}
 
-	attribute = alifType_lookupRef(_type, _name);
+	attribute = _alifType_lookupRef(_type, _name);
 	if (attribute != nullptr) {
 		DescrGetFunc localGet = ALIF_TYPE(attribute)->descrGet;
 
@@ -4756,7 +4783,7 @@ static AlifIntT typeNew_setNames(AlifTypeObject* _type) { // 10973
 	AlifSizeT i = 0;
 	AlifObject* key{}, * value{};
 	while (alifDict_next(names_to_set, &i, &key, &value)) {
-		AlifObject* set_name = alifObject_lookupSpecial(value,
+		AlifObject* set_name = _alifObject_lookupSpecial(value,
 			&ALIF_ID(__setName__));
 		if (set_name == nullptr) {
 			if (alifErr_occurred()) {

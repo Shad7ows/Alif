@@ -152,6 +152,19 @@ AlifObject* _alifIOBase_checkWritable(AlifIOState* _state,
 }
 
 
+
+static AlifObject* iobase_enter(AlifObject* _self, AlifObject* _args) { // 489
+	if (iobase_checkClosed(_self))
+		return nullptr;
+
+	return ALIF_NEWREF(_self);
+}
+
+static AlifObject* iobase_exit(AlifObject* _self, AlifObject* _args) { // 498
+	return alifObject_callMethodNoArgs(_self, &ALIF_STR(Close));
+}
+
+
 static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { // 559
 	AlifObject* peek{}, * buffer{}, * result{};
 	AlifSizeT oldSize = -1;
@@ -268,6 +281,10 @@ static AlifMethodDef _ioBaseMethods_[] = { // 824
 	//_IO__IOBASE_READLINES_METHODDEF
 	_IO__IOBASE_READABLE_METHODDEF
 	_IO__IOBASE_WRITABLE_METHODDEF
+
+	{"__ادخل__", iobase_enter, METHOD_NOARGS},
+	{"__اخرج__", iobase_exit, METHOD_VARARGS},
+
 	{nullptr, nullptr}
 };
 

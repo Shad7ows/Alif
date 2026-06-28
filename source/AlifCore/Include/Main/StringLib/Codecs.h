@@ -381,7 +381,7 @@ STRINGLIB(utf8Encoder)(AlifBytesWriter* _writer, AlifObject* _uStr,
 					}
 
 					//if (ALIFBYTES_CHECK(rep)) {
-					//	p_ = alifBytesWriter_writeBytes(_writer, p_,
+					//	p_ = _alifBytesWriter_writeBytes(_writer, p_,
 					//		ALIFBYTES_AS_STRING(rep),
 					//		ALIFBYTES_GET_SIZE(rep));
 					//}
@@ -393,7 +393,7 @@ STRINGLIB(utf8Encoder)(AlifBytesWriter* _writer, AlifObject* _uStr,
 					//		goto error;
 					//	}
 
-					//	p_ = alifBytesWriter_writeBytes(_writer, p_,
+					//	p_ = _alifBytesWriter_writeBytes(_writer, p_,
 					//		ALIFUSTR_DATA(rep),
 					//		ALIFUSTR_GET_LENGTH(rep));
 					//}

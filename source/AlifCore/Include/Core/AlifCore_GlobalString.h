@@ -106,6 +106,8 @@ public:
 		STRUCT_FOR_USTR(__main__, "__الرئيسية__") //* alif
 		STRUCT_FOR_USTR(__dict__, "__فهرس__")
 		STRUCT_FOR_USTR(__spec__, "__خصائص__")
+		STRUCT_FOR_USTR(__enter__, "__ادخل__")
+		STRUCT_FOR_USTR(__exit__, "__اخرج__")
 		STRUCT_FOR_USTR(Path, "مسار")
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
 	} literals;

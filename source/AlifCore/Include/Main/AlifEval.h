@@ -43,7 +43,12 @@ void alifEval_releaseThread(AlifThread*); // 117
 #define FVS_HAVE_SPEC 0x4
 
 
-
+/* Special methods used by LOAD_SPECIAL */
+#define SPECIAL___ENTER__   0
+#define SPECIAL___EXIT__    1
+#define SPECIAL___AENTER__  2
+#define SPECIAL___AEXIT__   3
+#define SPECIAL_MAX   3
 
 
 /* ----------------------------------------------------------------------------------------------------- */

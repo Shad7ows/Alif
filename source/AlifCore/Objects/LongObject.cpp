@@ -2949,6 +2949,11 @@ static AlifObject* long_subMethod(AlifObject* _a, AlifObject* _b) { // 3832
 	return (AlifObject*)long_sub((AlifLongObject*)_a, (AlifLongObject*)_b);
 }
 
+
+AlifObject* _alifLong_subtract(AlifLongObject* _a, AlifLongObject* _b) { // 3858
+	return (AlifObject*)long_sub(_a, _b);
+}
+
 static AlifLongObject* x_mul(AlifLongObject* a, AlifLongObject* b) { // 3842
 	AlifLongObject* z{};
 	AlifSizeT sizeA = _alifLong_digitCount(a);

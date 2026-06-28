@@ -31,7 +31,7 @@ static AlifObject* reversed_newImpl(AlifTypeObject* _type, AlifObject* _seq) {
 	AlifObject* reversedMeth{};
 	ReversedObject* ro{};
 
-	reversedMeth = alifObject_lookupSpecial(_seq, &ALIF_STR(__reversed__));
+	reversedMeth = _alifObject_lookupSpecial(_seq, &ALIF_STR(__reversed__));
 	if (reversedMeth == ALIF_NONE) {
 		ALIF_DECREF(reversedMeth);
 		alifErr_format(_alifExcTypeError_,
