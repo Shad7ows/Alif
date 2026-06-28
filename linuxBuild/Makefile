@@ -11,6 +11,7 @@ BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 TARGET_FREEZE =  $(BUILD_DIR)/freezemodule
 TARGET_ALIF = $(BUILD_DIR)/alif
+TARGET_FROZEN_MODULES = FrozenModules
 
 # اكتشاف النظام
 OS_NAME := $(shell uname -s)
@@ -94,21 +95,36 @@ $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | $(OBJ_DIR)
 # إلى ملف الهدف النهائي (TARGET). 
 # يتم تحديد ملفات الكائنات في مسار الكائنات (BUILD_DIR).
 
+frozen_modules_folder:
+	@if [ -e "$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)" ] && [ ! -d "$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)" ]; then \
+		echo "تم العثور على ملف باسم: '$(TARGET_FROZEN_MODULES)' في المسار '$(SOURCE_DIR)/AlifCore/Include/Main/'. ستتم إزالته..."; \
+		rm -f "$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)"; \
+	fi
+	@if [ ! -d "$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)" ]; then \
+		echo "إنشاء المجلد '$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)'...";  \
+		mkdir -p "$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)";  \
+	else \
+		echo "المجلد '$(SOURCE_DIR)/AlifCore/Include/Main/$(TARGET_FROZEN_MODULES)' موجود بالفعل. متابعة ...";  \
+	fi
+
 # القاعدة تعني أن ملف الهدف النهائي (TARGET) 
 # يعتمد على جميع ملفات الكائنات (OBJECTS).
 # يتم استخدام العلامة النسبية | لتأكيد أن مسار الكائنات (BUILD_DIR)
 # يجب أن يكون موجودًا قبل بدء عملية الربط.
 $(TARGET_FREEZE): $(OBJECTS) | $(BUILD_DIR)
+
+	$(MAKE) frozen_modules_folder
+
 	@echo "جاري ربط مجرد الشيفرة..."
 	@$(CPP) $(filter-out build/obj/Alif/alif.o build/obj/AlifCore/Objects/Frozen.o, $^) -o $@
 	@echo "تم بناء مجرد الشيفرة بنجاح"
 	@echo "جاري بناء ومعالجة البرامج المكتوبة بلغة ألف"
-	@$(shell) ./build/freezemodule GetPath ../source/Modules/تحديد_المسارات.alif GetPath.h
-	@$(shell) mv -f GetPath.h ../source/AlifCore/Include/Main/FrozenModules
-	@$(shell) ./build/freezemodule "Importlib._bootstrap" ../library/مكتبة_الاستيراد/برنامج_الاقلاع.alif "Importlib._bootstrap.h"
-	@$(shell) mv -f "Importlib._bootstrap.h" ../source/AlifCore/Include/Main/FrozenModules
-	@$(shell) ./build/freezemodule "Importlib._bootstrap_external" ../library/مكتبة_الاستيراد/برنامج_الاقلاع_الخارجي.alif "Importlib._bootstrap_external.h"
-	@$(shell) mv -f "Importlib._bootstrap_external.h" ../source/AlifCore/Include/Main/FrozenModules
+	@$(shell) ./build/freezemodule "GetPath" "../source/Modules/تحديد_المسارات.alif" "GetPath.h"
+	@$(shell) mv -f "GetPath.h" "../source/AlifCore/Include/Main/FrozenModules"
+	@$(shell) ./build/freezemodule "Importlib._bootstrap" "../library/مكتبة_الاستيراد/برنامج_الاقلاع.alif" "Importlib._bootstrap.h"
+	@$(shell) mv -f "Importlib._bootstrap.h" "../source/AlifCore/Include/Main/FrozenModules"
+	@$(shell) ./build/freezemodule "Importlib._bootstrap_external" "../library/مكتبة_الاستيراد/برنامج_الاقلاع_الخارجي.alif" "Importlib._bootstrap_external.h"
+	@$(shell) mv -f "Importlib._bootstrap_external.h" "../source/AlifCore/Include/Main/FrozenModules"
 
 
 $(TARGET_ALIF): $(OBJECTS) | $(BUILD_DIR)
