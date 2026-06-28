@@ -111,10 +111,7 @@ frozen_modules_folder:
 # يعتمد على جميع ملفات الكائنات (OBJECTS).
 # يتم استخدام العلامة النسبية | لتأكيد أن مسار الكائنات (BUILD_DIR)
 # يجب أن يكون موجودًا قبل بدء عملية الربط.
-$(TARGET_FREEZE): $(OBJECTS) | $(BUILD_DIR)
-
-	$(MAKE) frozen_modules_folder
-
+$(TARGET_FREEZE): $(OBJECTS) | $(BUILD_DIR) frozen_modules_folder
 	@echo "جاري ربط مجرد الشيفرة..."
 	@$(CPP) $(filter-out build/obj/Alif/alif.o build/obj/AlifCore/Objects/Frozen.o, $^) -o $@
 	@echo "تم بناء مجرد الشيفرة بنجاح"
