@@ -278,12 +278,17 @@ static inline void set_mainThread(AlifInterpreter* _interp,
 	alifAtomic_storePtrRelaxed(&_interp->threads.main, _thread);
 }
 
-static inline AlifThread* get_mainThread(AlifInterpreter* _interp) { // 1050
+static inline AlifThread* get_mainThread(AlifInterpreter* _interp) { // 1044
 	return (AlifThread*)alifAtomic_loadPtrRelaxed(&_interp->threads.main);
 }
 
+void _alifErr_setInterpreterAlreadyRunning(void) { // 1050
+	//alifErr_setString(_alifExcInterpreterError_, "المفسر يعمل بالفعل");
+}
+
 AlifIntT alifInterpreter_setRunningMain(AlifInterpreter* _interp) { // 1056
-	if (alifInterpreter_failIfRunningMain(_interp) < 0) {
+	if (get_mainThread(_interp) != nullptr) {
+		_alifErr_setInterpreterAlreadyRunning();
 		return -1;
 	}
 	AlifThread* tstate = current_fastGet();
@@ -302,18 +307,9 @@ void _alifInterpreter_setNotRunningMain(AlifInterpreter* _interp) { // 1074
 	set_mainThread(_interp, nullptr);
 }
 
-AlifIntT _alifThread_isRunningMain(AlifThread* _thread) { // 1092
+AlifIntT _alifThread_isRunningMain(AlifThread* _thread) { // 1097
 	AlifInterpreter* interp = _thread->interpreter;
 	return get_mainThread(interp) == _thread;
-}
-
-AlifIntT alifInterpreter_failIfRunningMain(AlifInterpreter* _interp) { // 1105
-	if (get_mainThread(_interp) != nullptr) {
-		//alifErr_setString(_alifExcInterpreterError_,
-		//	"interpreter already running");
-		return -1;
-	}
-	return 0;
 }
 
 
