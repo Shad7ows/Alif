@@ -17,6 +17,8 @@ extern AlifIntT _alifDict_next(AlifObject*, AlifSizeT*, AlifObject**, AlifObject
 
 extern AlifIntT _alifDict_hasOnlyStringKeys(AlifObject*); // 43
 
+extern void _alifDict_maybeUntrack(AlifObject*); // 46
+
 #define ALIFDICT_HASSPLITTABLE(_d) ((_d)->values != nullptr) // 50
 
 

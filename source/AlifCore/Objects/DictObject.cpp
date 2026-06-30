@@ -325,7 +325,6 @@ static AlifObject* new_dict(AlifInterpreter* _interp,
 	mp_->values = _values;
 	mp_->used = _used;
 	mp_->watcherTag = 0;
-	ALIFOBJECT_GC_TRACK(mp_);
 	return (AlifObject*)mp_;
 }
 
@@ -878,6 +877,62 @@ AlifIntT _alifDict_hasOnlyStringKeys(AlifObject* _dict) { // 1511
 }
 
 
+#define MAINTAIN_TRACKING(_mp, _key, _value) \
+    do { \
+        if (!ALIFOBJECT_GC_IS_TRACKED(_mp)) { \
+            if (_alifObject_gcMayBeTracked(_key) or \
+                _alifObject_gcMayBeTracked(_value)) { \
+                ALIFOBJECT_GC_TRACK(_mp); \
+            } \
+        } \
+    } while(0)
+
+void _alifDict_maybeUntrack(AlifObject* _op) {
+	AlifDictObject* mp{};
+	AlifObject* value{};
+	AlifSizeT i{}, numentries{};
+
+	//ASSERT_WORLD_STOPPED_OR_DICT_LOCKED(_op);
+
+	if (!ALIFDICT_CHECKEXACT(_op) or !ALIFOBJECT_GC_IS_TRACKED(_op))
+		return;
+
+	mp = (AlifDictObject*)_op;
+	//ASSERT_CONSISTENT(mp);
+	numentries = mp->keys->nentries;
+	if (ALIFDICT_HASSPLITTABLE(mp)) {
+		for (i = 0; i < numentries; i++) {
+			if ((value = mp->values->values[i]) == nullptr)
+				continue;
+			if (_alifObject_gcMayBeTracked(value)) {
+				return;
+			}
+		}
+	}
+	else {
+		if (DK_IS_USTR(mp->keys)) {
+			AlifDictUStrEntry* ep0 = dk_uStrEntries(mp->keys);
+			for (i = 0; i < numentries; i++) {
+				if ((value = ep0[i].value) == nullptr)
+					continue;
+				if (_alifObject_gcMayBeTracked(value))
+					return;
+			}
+		}
+		else {
+			AlifDictKeyEntry* ep0 = dk_entries(mp->keys);
+			for (i = 0; i < numentries; i++) {
+				if ((value = ep0[i].value) == nullptr)
+					continue;
+				if (_alifObject_gcMayBeTracked(value) or
+					_alifObject_gcMayBeTracked(ep0[i].key))
+					return;
+			}
+		}
+	}
+	_alifObject_gcUntrack(_op);
+}
+
 
 
 static inline AlifIntT is_unusableSlot(AlifSizeT _ix) { // 1585
@@ -974,6 +1029,7 @@ static AlifSizeT insert_splitKey(AlifDictKeysObject* _keys,
 static void insert_splitValue(AlifInterpreter* _interp,
 	AlifDictObject* _mp, AlifObject* _key, AlifObject* _value, AlifSizeT ix_) { // 1689
 
+	MAINTAIN_TRACKING(_mp, _key, _value);
 	AlifObject* oldValue = _mp->values->values[ix_];
 	if (oldValue == nullptr) {
 		_alifDict_notifyEvent(_interp, AlifDictWatchEvent_::AlifDict_Event_Added, _mp, _key, _value);
@@ -1014,6 +1070,8 @@ static AlifIntT insert_dict(AlifInterpreter* _interp, AlifDictObject* _mp,
 	ix_ = alifDict_lookup(_mp, _key, _hash, &oldValue);
 	if (ix_ == DKIX_ERROR)
 		goto Fail;
+
+	MAINTAIN_TRACKING(_mp, _key, _value);
 
 	if (ix_ == DKIX_EMPTY) {
 		if (insert_combinedDict(_interp, _mp, _hash, _key, _value) < 0) {
@@ -1057,6 +1115,8 @@ static AlifIntT insertTo_emptyDict(AlifInterpreter* _interp, AlifDictObject* _mp
 		return -1;
 	}
 	_alifDict_notifyEvent(_interp, AlifDictWatchEvent_::AlifDict_Event_Added, _mp, _key, _value);
+
+	MAINTAIN_TRACKING(_mp, _key, _value);
 
 	AlifUSizeT hasPos = (AlifUSizeT)_hash & (ALIFDICT_MINSIZE - 1);
 	dictKeys_setIndex(newKeys, hasPos, 0);
@@ -2046,6 +2106,12 @@ static AlifIntT dict_dictMerge(AlifInterpreter* interp, AlifDictObject* mp, Alif
 			mp->keys = keys;
 			STORE_USED(mp, other->used);
 
+			if (ALIFOBJECT_GC_IS_TRACKED(other)
+				and !ALIFOBJECT_GC_IS_TRACKED(mp)) {
+				/* Maintain tracking. */
+				ALIFOBJECT_GC_TRACK(mp);
+			}
+
 			return 0;
 		}
 	}
@@ -2246,7 +2312,9 @@ static AlifObject* copy_lockHeld(AlifObject* o) { // 3993
 		split_copy->used = mp->used;
 		split_copy->watcherTag = 0;
 		dictKeys_incRef(mp->keys);
-		ALIFOBJECT_GC_TRACK(split_copy);
+		if (ALIFOBJECT_GC_IS_TRACKED(mp)) {
+			ALIFOBJECT_GC_TRACK(split_copy);
+		}
 		return (AlifObject*)split_copy;
 	}
 
@@ -2263,6 +2331,11 @@ static AlifObject* copy_lockHeld(AlifObject* o) { // 3993
 		}
 
 		new_->used = mp->used;
+
+		if (ALIFOBJECT_GC_IS_TRACKED(mp)) {
+			/* Maintain tracking. */
+			ALIFOBJECT_GC_TRACK(new_);
+		}
 
 		return (AlifObject*)new_;
 	}
@@ -2386,6 +2459,7 @@ static AlifIntT dictSetDefault_refLockHeld(AlifObject* _d, AlifObject* _key, Ali
 			}
 		}
 
+		MAINTAIN_TRACKING(mp_, _key, value);
 		STORE_USED(mp_, mp_->used + 1);
 		if (_result) {
 			*_result = _incRefResult ? ALIF_NEWREF(value) : value;
@@ -3165,14 +3239,19 @@ static AlifDictObject* makeDict_fromInstanceAttributes(AlifInterpreter* _interp,
 	AlifDictKeysObject* _keys, AlifDictValues* _values) { // 6616
 	dictKeys_incRef(_keys);
 	AlifSizeT used = 0;
+	AlifSizeT track = 0;
 	AlifUSizeT size = sharedKeys_usableSize(_keys);
 	for (AlifUSizeT i = 0; i < size; i++) {
 		AlifObject* val = _values->values[i];
 		if (val != nullptr) {
 			used += 1;
+			track += _alifObject_gcMayBeTracked(val);
 		}
 	}
 	AlifDictObject* res = (AlifDictObject*)new_dict(_interp, _keys, _values, used, 0);
+	if (track and res) {
+		ALIFOBJECT_GC_TRACK(res);
+	}
 	return res;
 }
 
