@@ -414,7 +414,6 @@ public:
 	UnaryFunc negative{};
 	UnaryFunc positive{};
 	UnaryFunc absolute{};
-	UnaryFunc sqrt{};
 	Inquiry bool_{};
 	UnaryFunc invert{};
 	BinaryFunc lshift{};

@@ -117,7 +117,7 @@
 #define UNPACK_EX                              113
 #define UNPACK_SEQUENCE                        114
 #define YIELD_VALUE                            115
-#define UNARY_SQRT							   116 //* alif //* review
+
 
 #define RESUME                                 149
 #define BINARY_OP_ADD_FLOAT                    150

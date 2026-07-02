@@ -121,7 +121,6 @@ static AlifIntT fold_unaryOp(ExprTy _node,
 		unary_not,					// [UnaryOp_::Not] 
 		alifNumber_positive,		// [UnaryOp_::UAdd] 
 		alifNumber_negative,		// [UnaryOp_::USub] 
-		alifNumber_sqrt,			// [UnaryOp_::Sqrt]  //* alif
 	};
 	AlifObject* newval = ops[_node->V.unaryOp.op](arg->V.constant.val);
 	return make_const(_node, newval, _astMem);

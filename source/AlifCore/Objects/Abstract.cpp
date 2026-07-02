@@ -849,7 +849,6 @@ UNARY_FUNC(alifNumber_negative, negative, __neg__, "إشارة -")
 UNARY_FUNC(alifNumber_positive, positive, __pos__, "إشارة +")
 UNARY_FUNC(alifNumber_invert, invert, __invert__, "إشارة ~")
 UNARY_FUNC(alifNumber_absolute, absolute, __abs__, "مطلق()")
-UNARY_FUNC(alifNumber_sqrt, sqrt, __sqrt__, "جذر()") //* alif
 
 
 AlifObject* _alifNumber_index(AlifObject* _item) { // 1397

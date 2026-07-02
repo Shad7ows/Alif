@@ -5126,70 +5126,7 @@ done:
 }
 
 
-// جذر: "/^" جذر > اولي_انتظر
-static ExprTy sqrt_rule(AlifParser* _p) {
-
-	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
-	if (_p->errorIndicator) { _p->level--; return nullptr; }
-
-	ExprTy res{};
-	AlifIntT mark = _p->mark;
-	if (_p->mark == _p->fill
-		and
-		alifParserEngine_fillToken(_p) < 0) {
-		_p->errorIndicator = 1;
-		_p->level--;
-		return nullptr;
-	}
-	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
-	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
-
-	{ // "/^" جذر
-		if (_p->errorIndicator) { _p->level--; return nullptr; }
-
-		AlifPToken* literal{};
-		ExprTy a_{};
-		if (
-			(literal = alifParserEngine_expectToken(_p, SLASHCIRCUMFLEX)) // "/^"
-			and
-			(a_ = sqrt_rule(_p)) // جذر
-			) {
-			AlifPToken* token_ = alifParserEngine_getLastNonWhitespaceToken(_p);
-			if (token_ == nullptr) { _p->level--; return nullptr; }
-
-			AlifIntT endLineNo = token_->endLineNo;
-			AlifIntT endColOffset = token_->endColOffset;
-			res = alifAST_unaryOp(UnaryOp_::Sqrt, a_, EXTRA);
-			if (res == nullptr
-				and alifErr_occurred()) {
-				_p->errorIndicator = 1;
-				_p->level--;
-				return nullptr;
-			}
-			goto done;
-		}
-		_p->mark = mark;
-
-	}
-	{ // اولي_انتظر
-		if (_p->errorIndicator) { _p->level--; return nullptr; }
-
-		ExprTy awaitPrimary{};
-		if (awaitPrimary = awaitPrimary_rule(_p)) {
-			res = awaitPrimary;
-			goto done;
-		}
-		_p->mark = mark;
-	}
-
-	res = nullptr;
-done:
-	_p->level--;
-	return res;
-}
-
-
-// أس: جذر "^" معامل > جذر
+// أس: اولي_انتظر "^" معامل > اولي_انتظر
 static ExprTy power_rule(AlifParser* _p) {
 
 	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
@@ -5207,14 +5144,14 @@ static ExprTy power_rule(AlifParser* _p) {
 	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
 	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
 
-	{ // جذر "^" معامل
+	{ // اولي_انتظر "^" معامل
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
 		AlifPToken* literal{};
 		ExprTy a_{};
 		ExprTy b_{};
 		if (
-			(a_ = sqrt_rule(_p)) // جذر
+			(a_ = awaitPrimary_rule(_p)) // اولي_انتظر
 			and
 			(literal = alifParserEngine_expectToken(_p, CIRCUMFLEX)) // "^"
 			and
@@ -5236,12 +5173,12 @@ static ExprTy power_rule(AlifParser* _p) {
 		}
 		_p->mark = mark;
 	}
-	{ // جذر
+	{ // اولي_انتظر
 		if (_p->errorIndicator) { _p->level--; return nullptr; }
 
-		ExprTy sqrtVar{};
-		if (sqrtVar = sqrt_rule(_p)) {
-			res = sqrtVar;
+		ExprTy awaitPrimaryVar{};
+		if (awaitPrimaryVar = awaitPrimary_rule(_p)) {
+			res = awaitPrimaryVar;
 			goto done;
 		}
 		_p->mark = mark;

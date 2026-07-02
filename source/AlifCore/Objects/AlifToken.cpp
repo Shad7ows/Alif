@@ -25,7 +25,6 @@ const char* const _alifParserTokenNames_[] = {
 	"MINUS",
 	"STAR",
 	"DOT",
-	"SQRT",
 	"EQUAL",
 	"AMPER",
 	"LEFTSHIFTEQUAL",
@@ -128,7 +127,6 @@ AlifIntT alifToken_twoChars(AlifIntT _c1, AlifIntT _c2) {
 	case L'\\':
 		if (_c2 == L'\\') return DOUBLESLASH;
 		else if (_c2 == L'=') return SLASHEQUAL;
-		else if (_c2 == L'^') return SLASHCIRCUMFLEX;
 		else if (_c2 == L'*') return SLASHSTAR;
 		break;
 	case L'<':

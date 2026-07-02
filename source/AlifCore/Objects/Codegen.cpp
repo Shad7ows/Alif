@@ -2959,8 +2959,6 @@ static AlifIntT unaryop(UnaryOp_ _op) {
 		return UNARY_INVERT;
 	case UnaryOp_::USub:
 		return UNARY_NEGATIVE;
-	case UnaryOp_::Sqrt: //* alif
-		return UNARY_SQRT;
 	default:
 		alifErr_format(_alifExcSystemError_,
 			"عملية احادية %d يجب أن لا يكون مسموح بها", _op);

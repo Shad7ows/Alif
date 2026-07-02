@@ -19,7 +19,7 @@ enum Operator_ {
 	LShift = 7, RShift = 8, BitOr = 9, BitXor = 10, BitAnd = 11,
 	FloorDiv = 12
 };
-enum UnaryOp_ { Invert = 1, Not = 2, UAdd = 3, USub = 4, Sqrt = 5 };
+enum UnaryOp_ { Invert = 1, Not = 2, UAdd = 3, USub = 4};
 enum CmpOp_ {
 	Equal = 1, NotEq = 2, LessThan = 3, LessThanEq = 4, GreaterThan = 5, GreaterThanEq = 6, Is = 7, IsNot = 8,
 	In = 9, NotIn = 10

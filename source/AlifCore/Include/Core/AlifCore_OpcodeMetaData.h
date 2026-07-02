@@ -454,8 +454,6 @@ AlifIntT _alifOpcode_numPopped(AlifIntT _opcode, AlifIntT _oparg) {
 		return 1;
 	case UNARY_NEGATIVE:
 		return 1;
-	case UNARY_SQRT: //* alif
-		return 1;
 	case UNARY_NOT:
 		return 1;
 	case UNPACK_EX:
@@ -922,8 +920,6 @@ AlifIntT _alifOpcode_numPushed(AlifIntT _opcode, AlifIntT _oparg) {
 		return 1;
 	case UNARY_NEGATIVE:
 		return 1;
-	case UNARY_SQRT: //* alif
-		return 1;
 	case UNARY_NOT:
 		return 1;
 	case UNPACK_EX:
@@ -1135,7 +1131,7 @@ const class OpcodeMetadata _alifOpcodeOpcodeMetadata_[266] = {
 	{ true, InstructionFormat::Instr_FMT_IB, HAS_ARG_FLAG | HAS_ERROR_FLAG | HAS_ESCAPES_FLAG }, // UNPACK_EX // 113
 	{ true, InstructionFormat::Instr_FMT_IBC, HAS_ARG_FLAG | HAS_ERROR_FLAG | HAS_ESCAPES_FLAG }, // UNPACK_SEQUENCE // 114
 	{ true, InstructionFormat::Instr_FMT_IB, HAS_ARG_FLAG }, // YIELD_VALUE // 115
-	{ true, InstructionFormat::Instr_FMT_IX, HAS_ERROR_FLAG | HAS_ESCAPES_FLAG }, // UNARY_SQRT // 116, //* alif
+	{false, -1},
 	{false, -1},
 	{false, -1},
 	{false, -1},
@@ -1445,7 +1441,7 @@ const uint8_t _alifOpcodeDeopt_[256] = {
 	STORE_ATTR, // STORE_ATTR // 105
 	STORE_DEREF, // STORE_DEREF // 106
 	STORE_FAST, // STORE_FAST // 107
-	0,//STORE_FAST_LOAD_FAST, // STORE_FAST_LOAD_FAST // 108
+	0, //STORE_FAST_LOAD_FAST, // STORE_FAST_LOAD_FAST // 108
 	STORE_FAST_STORE_FAST, // STORE_FAST_STORE_FAST // 109
 	STORE_GLOBAL, // STORE_GLOBAL // 110
 	STORE_NAME, // STORE_NAME // 111
@@ -1453,7 +1449,7 @@ const uint8_t _alifOpcodeDeopt_[256] = {
 	UNPACK_EX, // UNPACK_EX // 113
 	UNPACK_SEQUENCE, // UNPACK_SEQUENCE // 114
 	YIELD_VALUE, // YIELD_VALUE // 115
-	UNARY_SQRT, // UNARY_SQRT // 116 //* alif //* review
+	0,
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	RESUME, // RESUME // 149

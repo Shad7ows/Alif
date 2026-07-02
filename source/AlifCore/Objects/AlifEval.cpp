@@ -302,21 +302,21 @@ AlifObject* ALIF_HOT_FUNCTION alifEval_evalFrameDefault(AlifThread* _thread,
 	if (_alif_enterRecursiveCallThread(_thread, "")) {
 		_thread->cppRecursionRemaining--;
 		_thread->alifRecursionRemaining--;
-		//goto exit_unwind;
+		goto exit_unwind;
 	}
 
-	//if (_throwflag) {
-	//	if (_alif_enterRecursiveAlif(_thread)) {
-	//		goto exit_unwind;
-	//	}
-	//	_alif_instrument(_alifFrame_getCode(_frame), _thread->interpreter);
-	//	monitor_throw(_thread, _frame, _frame->instrPtr);
-	//	goto resume_with_error;
-	//}
+	if (_throwflag) {
+		if (_alif_enterRecursiveAlif(_thread)) {
+			goto exit_unwind;
+		}
+		_alif_instrument(_alifFrame_getCode(_frame), _thread->interpreter);
+		//monitor_throw(_thread, _frame, _frame->instrPtr);
+		goto resume_with_error;
+	}
 
 
-	AlifCodeUnit* nextInstr{};
-	AlifStackRef* stackPointer{};
+	AlifCodeUnit* nextInstr;
+	AlifStackRef* stackPointer;
 
 
 
@@ -2602,21 +2602,6 @@ resume_frame:
 				stackPointer += 1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
-			TARGET(UNARY_SQRT) { //* alif //* review
-				_frame->instrPtr = nextInstr;
-				nextInstr += 1;
-				AlifStackRef value{};
-				AlifStackRef res{};
-				value = stackPointer[-1];
-				_alifFrame_setStackPointer(_frame, stackPointer);
-				AlifObject* resObj = alifNumber_sqrt(alifStackRef_asAlifObjectBorrow(value));
-				stackPointer = _alifFrame_getStackPointer(_frame);
-				ALIFSTACKREF_CLOSE(value);
-				if (resObj == nullptr) goto pop_1_error;
-				res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
-				stackPointer[-1] = res;
-				DISPATCH();
-			} // ------------------------------------------------------------ //
 			TARGET(RESUME) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;
@@ -2908,7 +2893,7 @@ exception_unwind:
 
 exit_unwind:
 	_alif_leaveRecursiveCallAlif(_thread);
-	AlifInterpreterFrame* dying = _frame;
+	AlifInterpreterFrame* dying; dying = _frame;
 	_frame = _thread->currentFrame = dying->previous;
 	_alifEval_frameClearAndPop(_thread, dying);
 	_frame->returnOffset = 0;
