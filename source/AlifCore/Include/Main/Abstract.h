@@ -149,7 +149,7 @@ AlifIntT alifObject_isSubclass(AlifObject*, AlifObject*); // 910
 
 
 
-AlifObject* alifStack_asDict(AlifObject* const*, AlifObject*); // 24
+AlifObject* _alifStack_asDict(AlifObject* const*, AlifObject*); // 24
 
 static inline AlifSizeT _alifVectorCall_nArgs(AlifUSizeT _n) { // 32
 	return _n & ~ALIF_VECTORCALL_ARGUMENTS_OFFSET;

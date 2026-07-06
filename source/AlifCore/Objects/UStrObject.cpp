@@ -2229,6 +2229,54 @@ AlifObject* alifUStr_fromObject(AlifObject* _obj) { // 3446
 	return nullptr;
 }
 
+AlifObject* alifUStr_fromEncodedObject(AlifObject* _obj,
+	const char* _encoding, const char* _errors) { // 3483
+	AlifBuffer buffer{};
+	AlifObject* v{};
+
+	if (_obj == nullptr) {
+		//ALIFERR_BADINTERNALCALL();
+		return nullptr;
+	}
+
+	/* Decoding bytes objects is the most common case and should be fast */
+	if (ALIFBYTES_CHECK(_obj)) {
+		if (ALIFBYTES_GET_SIZE(_obj) == 0) {
+			//if (uStr_checkEncodingErrors(_encoding, _errors) < 0) {
+			//	return nullptr;
+			//}
+			ALIF_RETURN_UNICODE_EMPTY;
+		}
+		return alifUStr_decode(
+			ALIFBYTES_AS_STRING(_obj), ALIFBYTES_GET_SIZE(_obj),
+			_encoding, _errors);
+	}
+
+	if (ALIFUSTR_CHECK(_obj)) {
+		alifErr_setString(_alifExcTypeError_,
+			"فك ترميز النص غير مدعوم");
+		return nullptr;
+	}
+
+	if (alifObject_getBuffer(_obj, &buffer, ALIFBUF_SIMPLE) < 0) {
+		alifErr_format(_alifExcTypeError_,
+			"فك الترميز إلى نص: يحتاج إلى كائن نوع بايت, %.80s ولكن الممرر",
+			ALIF_TYPE(_obj)->name);
+		return nullptr;
+	}
+
+	if (buffer.len == 0) {
+		alifBuffer_release(&buffer);
+		//if (uStr_checkEncodingErrors(_encoding, _errors) < 0) {
+		//	return nullptr;
+		//}
+		ALIF_RETURN_UNICODE_EMPTY;
+	}
+
+	v = alifUStr_decode((char*)buffer.buf, buffer.len, _encoding, _errors);
+	alifBuffer_release(&buffer);
+	return v;
+}
 
 AlifIntT _alif_normalizeEncoding(const char* encoding,
 	char* lower, AlifUSizeT lower_len) { // 3520
@@ -7248,6 +7296,152 @@ static AlifMappingMethods _uStrAsMapping_ = { // 14137
 
 
 
+static AlifObject* uStr_subTypeNew(AlifTypeObject*, AlifObject*); // 15085
+
+static AlifObject* uStr_newImpl(AlifTypeObject* _type, AlifObject* _x,
+	const char* _encoding, const char* _errors) { // 15098
+	AlifObject* unicode{};
+	if (_x == nullptr) {
+		unicode = uStr_getEmpty();
+	}
+	else if (_encoding == nullptr and _errors == nullptr) {
+		unicode = alifObject_str(_x);
+	}
+	else {
+		unicode = alifUStr_fromEncodedObject(_x, _encoding, _errors);
+	}
+
+	if (unicode != nullptr and _type != &_alifUStrType_) {
+		ALIF_SETREF(unicode, uStr_subTypeNew(_type, unicode));
+	}
+	return unicode;
+}
+
+static const char* arg_asUTF8(AlifObject* _obj, const char* _name) { // 15120
+	if (!ALIFUSTR_CHECK(_obj)) {
+		alifErr_format(_alifExcTypeError_,
+			"معامل نص() '%s' يجب أن يكون نص, وليس %T",
+			_name, _obj);
+		return nullptr;
+	}
+	return _alifUStr_asUTF8NoNUL(_obj);
+}
+
+static AlifObject* uStr_vectorCall(AlifObject* _type, AlifObject* const* _args,
+	AlifUSizeT _nargsf, AlifObject* _kwnames) { // 15132
+	AlifSizeT nargs = ALIFVECTORCALL_NARGS(_nargsf);
+	if (_kwnames != nullptr and ALIFTUPLE_GET_SIZE(_kwnames) != 0) {
+		// Fallback to uStr_new()
+		AlifObject* tuple = _alifTuple_fromArray(_args, nargs);
+		if (tuple == nullptr) {
+			return nullptr;
+		}
+		AlifObject* dict = _alifStack_asDict(_args + nargs, _kwnames);
+		if (dict == nullptr) {
+			ALIF_DECREF(tuple);
+			return nullptr;
+		}
+		AlifObject* ret = uStr_new(ALIFTYPE_CAST(_type), tuple, dict);
+		ALIF_DECREF(tuple);
+		ALIF_DECREF(dict);
+		return ret;
+	}
+	if (!_ALIFARG_CHECKPOSITIONAL("نص", nargs, 0, 3)) {
+		return nullptr;
+	}
+	if (nargs == 0) {
+		return uStr_getEmpty();
+	}
+	AlifObject* object = _args[0];
+	if (nargs == 1) {
+		return alifObject_str(object);
+	}
+	const char* encoding = arg_asUTF8(_args[1], "encoding");
+	if (encoding == nullptr) {
+		return nullptr;
+	}
+	const char* errors = nullptr;
+	if (nargs == 3) {
+		errors = arg_asUTF8(_args[2], "errors");
+		if (errors == nullptr) {
+			return nullptr;
+		}
+	}
+	return alifUStr_fromEncodedObject(object, encoding, errors);
+}
+
+
+static AlifObject* uStr_subTypeNew(AlifTypeObject* _type,
+	AlifObject* _unicode) { // 15179
+	AlifObject* self{};
+	AlifSizeT length{}, charSize{};
+	AlifIntT shareUTF8{};
+	AlifIntT kind{};
+	void* data{};
+
+	self = _type->alloc(_type, 0);
+	if (self == nullptr) {
+		return nullptr;
+	}
+	kind = ALIFUSTR_KIND(_unicode);
+	length = ALIFUSTR_GET_LENGTH(_unicode);
+
+	ALIFUSTR_LENGTH(self) = length;
+#ifdef ALIF_DEBUG
+	ALIFUSTR_HASH(self) = -1;
+#else
+	ALIFUSTR_HASH(self) = ALIFUSTR_HASH(_unicode);
+#endif
+	ALIFUSTR_STATE(self).interned = 0;
+	ALIFUSTR_STATE(self).kind = kind;
+	ALIFUSTR_STATE(self).compact = 0;
+	ALIFUSTR_STATE(self).ascii = ALIFUSTR_STATE(_unicode).ascii;
+	ALIFUSTR_STATE(self).staticallyAllocated = 0;
+	_ALIFUSTR_UTF8_LENGTH(self) = 0;
+	_ALIFUSTR_UTF8(self) = nullptr;
+	ALIFUSTR_DATA_ANY(self) = nullptr;
+
+	shareUTF8 = 0;
+	if (kind == AlifUStrKind_::AlifUStr_1Byte_Kind) {
+		charSize = 1;
+		if (ALIFUSTR_MAX_CHAR_VALUE(_unicode) < 128)
+			shareUTF8 = 1;
+	}
+	else if (kind == AlifUStrKind_::AlifUStr_2Byte_Kind) {
+		charSize = 2;
+	}
+	else {
+		charSize = 4;
+	}
+
+	/* Ensure we won't overflow the length. */
+	if (length > (ALIF_SIZET_MAX / charSize - 1)) {
+		//alifErr_noMemory();
+		goto onError;
+	}
+	data = alifMem_dataAlloc((length + 1) * charSize);
+	if (data == nullptr) {
+		//alifErr_noMemory();
+		goto onError;
+	}
+
+	ALIFUSTR_DATA_ANY(self) = data;
+	if (shareUTF8) {
+		_ALIFUSTR_UTF8_LENGTH(self) = length;
+		_ALIFUSTR_UTF8(self) = (char*)data;
+	}
+
+	memcpy(data, ALIFUSTR_DATA(_unicode), kind * (length + 1));
+#ifdef ALIF_DEBUG
+	ALIFUSTR_HASH(self) = ALIFUSTR_HASH(unicode);
+#endif
+	return self;
+
+onError:
+	ALIF_DECREF(self);
+	return nullptr;
+}
+
 void _alifUStr_exactDealloc(AlifObject* _op) { // 15256
 	uStr_dealloc(_op);
 }
@@ -7266,13 +7460,17 @@ AlifTypeObject _alifUStrType_ = { // 15235
 	.asSequence = &_uStrAsSequence_,
 	.asMapping = &_uStrAsMapping_,
 	.hash = (HashFunc)uStr_hash,
+	//.str = (ReprFunc)uStr_str,
+	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
 		ALIF_TPFLAGS_UNICODE_SUBCLASS |
 		_ALIF_TPFLAGS_MATCH_SELF,
 	.richCompare = alifUStr_richCompare,
 	.iter = uStr_iter,
 	.methods = _uStrMethods_,
+	.new_ = uStr_new,
 	.free = alifMem_objFree,
+	.vectorCall = uStr_vectorCall,
 };
 
 

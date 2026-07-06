@@ -121,7 +121,7 @@ static AlifObject* builtin___buildClass__(AlifObject* _self,
 		mkw = nullptr;
 	}
 	else {
-		mkw = alifStack_asDict(_args + _nargs, _kwnames);
+		mkw = _alifStack_asDict(_args + _nargs, _kwnames);
 		if (mkw == nullptr) {
 			goto error;
 		}

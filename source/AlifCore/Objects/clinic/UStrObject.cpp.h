@@ -406,3 +406,104 @@ static AlifObject* uStr___format__(AlifObject* _self, AlifObject* _arg) { // 176
 exit:
 	return returnValue;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// 1806
+static AlifObject* uStr_newImpl(AlifTypeObject*, AlifObject*, const char*, const char*);
+
+static AlifObject* uStr_new(AlifTypeObject* type, AlifObject* args, AlifObject* kwargs) { // 1810
+	AlifObject* returnValue = nullptr;
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
+
+#define NUM_KEYWORDS 3
+	static struct {
+		AlifGC_Head _thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
+	} _kwtuple = {
+		.base = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS)
+		.item = { &ALIF_ID(object), &ALIF_ID(encoding), &ALIF_ID(errors), },
+	};
+#undef NUM_KEYWORDS
+#define KWTUPLE (&_kwtuple.objBase.objBase)
+
+#else 
+#  define KWTUPLE nullptr
+#endif
+
+	static const char* const _keywords[] = { "كائن", "ترميز", "اخطاء", nullptr };
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "نص",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[3]{};
+	AlifObject* const* fastargs{};
+	AlifSizeT nargs = ALIFTUPLE_GET_SIZE(args);
+	AlifSizeT noptargs = nargs + (kwargs ? ALIFDICT_GET_SIZE(kwargs) : 0) - 0;
+	AlifObject* x = nullptr;
+	const char* encoding = nullptr;
+	const char* errors = nullptr;
+
+	fastargs = _ALIFARG_UNPACKKEYWORDS(ALIFTUPLE_CAST(args)->item, nargs, kwargs, nullptr, &_parser,
+		/*minpos*/ 0, /*maxpos*/ 3, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+	if (!fastargs) {
+		goto exit;
+	}
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	if (fastargs[0]) {
+		x = fastargs[0];
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+	if (fastargs[1]) {
+		if (!ALIFUSTR_CHECK(fastargs[1])) {
+			//_alifArg_badArgument("نص", "وسيط 'ترميز'", "نص", fastargs[1]);
+			goto exit;
+		}
+		AlifSizeT encodingLength{};
+		encoding = alifUStr_asUTF8AndSize(fastargs[1], &encodingLength);
+		if (encoding == nullptr) {
+			goto exit;
+		}
+		if (strlen(encoding) != (size_t)encodingLength) {
+			alifErr_setString(_alifExcValueError_, "يحتوي حرف فارغ");
+			goto exit;
+		}
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+	if (!ALIFUSTR_CHECK(fastargs[2])) {
+		//_alifArg_badArgument("نص", "وسيط 'اخطاء'", "نص", fastargs[2]);
+		goto exit;
+	}
+	AlifSizeT errorsLength;
+	errors = alifUStr_asUTF8AndSize(fastargs[2], &errorsLength);
+	if (errors == nullptr) {
+		goto exit;
+	}
+	if (strlen(errors) != (size_t)errorsLength) {
+		alifErr_setString(_alifExcValueError_, "يحتوي حرف فارغ");
+		goto exit;
+	}
+skip_optional_pos:
+	returnValue = uStr_newImpl(type, x, encoding, errors);
+
+exit:
+	return returnValue;
+}

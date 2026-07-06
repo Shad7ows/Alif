@@ -263,7 +263,7 @@ static AlifObject* method_vectorCallVarArgsKeywords(AlifObject* func,
 	AlifObject* result = nullptr;
 	AlifObject* kwdict = nullptr;
 	if (kwnames != nullptr and ALIFTUPLE_GET_SIZE(kwnames) > 0) {
-		kwdict = alifStack_asDict(args + nargs, kwnames);
+		kwdict = _alifStack_asDict(args + nargs, kwnames);
 		if (kwdict == nullptr) {
 			goto exit;
 		}

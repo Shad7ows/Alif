@@ -138,7 +138,7 @@ AlifObject* alifObject_makeTpCall(AlifThread* _thread, AlifObject* _callable,
 	}
 	else {
 		if (ALIFTUPLE_GET_SIZE(_keywords)) {
-			kWDict = alifStack_asDict(_args + _nargs, _keywords);
+			kWDict = _alifStack_asDict(_args + _nargs, _keywords);
 			if (kWDict == nullptr) {
 				ALIF_DECREF(argsTuple);
 				return nullptr;
@@ -572,7 +572,7 @@ AlifObject* alifObject_callFunctionObjArgs(AlifObject* _callable, ...) { // 918
 
 
 
-AlifObject* alifStack_asDict(AlifObject* const* _values, AlifObject* _kwNames) {  // 936
+AlifObject* _alifStack_asDict(AlifObject* const* _values, AlifObject* _kwNames) {  // 936
 	AlifSizeT nkwargs{};
 
 	nkwargs = ALIFTUPLE_GET_SIZE(_kwNames);
