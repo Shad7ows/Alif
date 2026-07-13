@@ -349,6 +349,132 @@ static AlifObject* builtin_chr(AlifObject* _module, AlifObject* _i) { // 709
 
 
 
+static AlifObject* builtin_compileImpl(AlifObject* _module,
+	AlifObject* _source, AlifObject* _filename, const char* _mode, AlifIntT _flags,
+	AlifIntT _dontInherit, AlifIntT _optimize, AlifIntT _featureVersion) { // 760
+	AlifObject* sourceCopy{};
+	const char* str{};
+	AlifIntT compileMode = -1;
+	AlifIntT isAst{};
+	AlifIntT start[] = { ALIF_FILE_INPUT, ALIF_EVAL_INPUT, ALIF_SINGLE_INPUT, ALIF_FUNC_TYPE_INPUT };
+	AlifObject* result{};
+
+	AlifCompilerFlags cf = ALIFCOMPILERFLAGS_INIT;
+	cf.flags = _flags | ALIFCF_SOURCE_IS_UTF8;
+	if (_featureVersion >= 0 and (_flags & ALIFCF_ONLY_AST)) {
+		cf.featureVersion = _featureVersion;
+	}
+
+	if (_flags &
+		~(ALIFCF_MASK | ALIFCF_MASK_OBSOLETE | ALIFCF_COMPILE_MASK)) {
+		alifErr_setString(_alifExcValueError_,
+			"ترجم(): أعلام غير معروفة");
+		goto error;
+	}
+
+	if (_optimize < -1 or _optimize > 2) {
+		alifErr_setString(_alifExcValueError_,
+			"ترجم(): قيمة 'تحسين' غير صحيحة");
+		goto error;
+	}
+
+	if (!_dontInherit) {
+		alifEval_mergeCompilerFlags(&cf);
+	}
+
+	if (strcmp(_mode, "نفذ") == 0)
+		compileMode = 0;
+	else if (strcmp(_mode, "نفذ_تعبير") == 0)
+		compileMode = 1;
+	else if (strcmp(_mode, "نفذ_حالة") == 0)
+		compileMode = 2;
+	else if (strcmp(_mode, "نفذ_دالة") == 0) {
+		if (!(_flags & ALIFCF_ONLY_AST)) {
+			alifErr_setString(_alifExcValueError_,
+				"ترجم() وضع 'نفذ_دالة' يتطلب علم ALIFCF_ONLY_AST");
+			goto error;
+		}
+		compileMode = 3;
+	}
+	else {
+		const char* msg{};
+		if (_flags & ALIFCF_ONLY_AST)
+			msg = "ترجم() الوضع يجب أن يكون 'نفذ', 'نفذ_تعبير', 'نفذ_حالة' او 'نفذ_دالة'";
+		else
+			msg = "ترجم() الوضع يجب أن يكون 'نفذ', 'نفذ_تعبير' او 'نفذ_حالة'";
+		alifErr_setString(_alifExcValueError_, msg);
+		goto error;
+	}
+
+	isAst = alifAST_check(_source);
+	if (isAst == -1)
+		goto error;
+	if (isAst) {
+		printf("%s", "هذه الميزة تحت التطوير");
+		goto error; 
+	//	if ((_flags & ALIFCF_OPTIMIZED_AST) == ALIFCF_ONLY_AST) {
+	//		// return an un-optimized AST
+	//		result = ALIF_NEWREF(_source);
+	//	}
+	//	else {
+	//		// Return an optimized AST or code object
+
+	//		AlifASTMem* astMem = alifASTMem_new();
+	//		if (astMem == nullptr) {
+	//			goto error;
+	//		}
+
+	//		if (_flags & ALIFCF_ONLY_AST) {
+	//			ModuleTy mod = alifAST_obj2mod(_source, astMem, compileMode);
+	//			if (mod == nullptr or !_alifAST_validate(mod)) {
+	//				alifASTMem_free(astMem);
+	//				goto error;
+	//			}
+	//			if (_alifCompile_astOptimize(mod, _filename, &cf, _optimize,
+	//				astMem) < 0) {
+	//				alifASTMem_free(astMem);
+	//				goto error;
+	//			}
+	//			result = alifAST_mod2obj(mod);
+	//		}
+	//		else {
+	//			ModuleTy mod = alifAST_obj2mod(_source, astMem, compileMode);
+	//			if (mod == nullptr or !_alifAST_validate(mod)) {
+	//				alifASTMem_free(astMem);
+	//				goto error;
+	//			}
+	//			result = (AlifObject*)_alifAST_compile(mod, _filename,
+	//				&cf, _optimize, astMem);
+	//		}
+	//		alifASTMem_free(astMem);
+	//	}
+	//	goto finally;
+	}
+
+	str = _alif_sourceAsString(_source, "ترجم", "نص او بايت او شجرة_عقد", &cf, &sourceCopy);
+	if (str == nullptr)
+		goto error;
+
+
+	AlifThreadImpl* thread; thread = (AlifThreadImpl*)_alifThread_get();
+	thread->suppressCoConstImmortalization++;
+
+	result = alif_compileStringObject(str, _filename, start[compileMode], &cf, _optimize);
+
+	thread->suppressCoConstImmortalization--;
+
+	ALIF_XDECREF(sourceCopy);
+	goto finally;
+
+error:
+	result = nullptr;
+finally:
+	ALIF_DECREF(_filename);
+	return result;
+}
+
+
+
 static AlifObject* builtin_execImpl(AlifObject* _module,
 	AlifObject* _source, AlifObject* _globals,
 	AlifObject* _locals, AlifObject* _closure) { // 1065
@@ -1468,6 +1594,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_HEX_METHODDEF,
 	BUILTIN_OCT_METHODDEF,
 	BUILTIN_CHR_METHODDEF,
+	BUILTIN_COMPILE_METHODDEF,
 	BUILTIN_EXEC_METHODDEF,
 	BUILTIN_DELATTR_METHODDEF,
 	{"احضر_صفة", ALIF_CPPFUNCTION_CAST(builtin_getAttr), METHOD_FASTCALL},

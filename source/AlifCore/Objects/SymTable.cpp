@@ -282,7 +282,7 @@ AlifSymTable* alifSymtable_build(ModuleTy _mod, AlifObject* _filename,
 			if (!symtable_visitStmt(st, (StmtTy)ASDL_SEQ_GET(seq, i_)))
 				goto error;
 		break;
-	case ModK_::FunctionK:
+	case ModK_::FunctionTypeK:
 		alifErr_setString(_alifExcRuntimeError_,
 			"هذا المترجم لا يستطيع معالجة FunctionK");
 		goto error;

@@ -13963,7 +13963,7 @@ static StmtTy functionDefRaw_rule(AlifParser* _p) {
 
 			AlifIntT endLineNo = token_->endLineNo;
 			AlifIntT endColOffset = token_->endColOffset;
-			res = alifAST_functionDef(a_->V.name.name, b_ ? b_ : (ArgumentsTy)alifParserEngine_emptyArguments(_p), c_, nullptr, EXTRA);
+			res = alifAST_functionDef(a_->V.name.name, b_ ? b_ : (ArgumentsTy)alifParserEngine_emptyArguments(_p), c_, nullptr, nullptr, EXTRA);
 			if (res == nullptr
 				and alifErr_occurred()) {
 				_p->errorIndicator = 1;
@@ -14008,7 +14008,7 @@ static StmtTy functionDefRaw_rule(AlifParser* _p) {
 
 			AlifIntT endLineNo = token_->endLineNo;
 			AlifIntT endColOffset = token_->endColOffset;
-			res = alifAST_asyncFunctionDef(a_->V.name.name, b_ ? b_ : (ArgumentsTy)alifParserEngine_emptyArguments(_p), c_, nullptr, EXTRA);
+			res = alifAST_asyncFunctionDef(a_->V.name.name, b_ ? b_ : (ArgumentsTy)alifParserEngine_emptyArguments(_p), c_, nullptr, nullptr, EXTRA);
 			if (res == nullptr
 				and alifErr_occurred()) {
 				_p->errorIndicator = 1;

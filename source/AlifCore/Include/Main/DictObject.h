@@ -12,6 +12,7 @@ extern AlifTypeObject _alifDictType_; // 15
 
 
 AlifObject* alifDict_new(); // 21
+AlifObject* alifDict_getItem(AlifObject*, AlifObject*); // 22
 AlifObject* alifDict_getItemWithError(AlifObject*, AlifObject*); // 23
 AlifIntT alifDict_setItem(AlifObject*, AlifObject*, AlifObject*); // 24
 AlifIntT alifDict_delItem(AlifObject*, AlifObject*); // 25

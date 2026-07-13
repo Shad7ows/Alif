@@ -4485,7 +4485,7 @@ static AlifObject* slot_tpRepr(AlifObject* self) { // 9808
 		return res;
 	}
 	alifErr_clear();
-	return alifUStr_fromFormat("<%s كائن في %p>",
+	return alifUStr_fromFormat("<كائن %s في %p>",
 		ALIF_TYPE(self)->name, self);
 }
 

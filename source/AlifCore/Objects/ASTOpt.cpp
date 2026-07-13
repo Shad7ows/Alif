@@ -665,7 +665,7 @@ static AlifIntT astfold_mod(ModuleTy _node,
 	//	CALL(astFold_expr, ExprTy, _node->V.expression.body);
 	//	break;
 		// The following top level nodes don't participate in constant folding
-	case ModK_::FunctionK:
+	case ModK_::FunctionTypeK:
 		break;
 		// No default case, so the compiler will emit a warning if new top level
 		// compilation nodes are added without being handled here

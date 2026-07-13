@@ -191,8 +191,102 @@ exit:
 
 
 
+// 255
+#define BUILTIN_COMPILE_METHODDEF    \
+    {"ترجم", ALIF_CPPFUNCTION_CAST(builtin_compile), METHOD_FASTCALL|METHOD_KEYWORDS}
 
+static AlifObject* builtin_compileImpl(AlifObject*, AlifObject*, AlifObject*,
+	const char*, AlifIntT, AlifIntT, AlifIntT, AlifIntT);
 
+static AlifObject* builtin_compile(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _nargs, AlifObject* _kwnames) { // 263
+	AlifObject* returnValue{};
+
+#define KWTUPLE nullptr
+
+	static const char* const _keywords[] = { "مصدر", "الملف", "الوضع", "الأعلام", "لا_ترث", "تحسين", "نسخة_الميزات", nullptr };
+	static AlifArgParser parser = {
+		.keywords = _keywords,
+		.fname = "ترجم",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[7];
+	AlifSizeT noptargs = _nargs + (_kwnames ? ALIFTUPLE_GET_SIZE(_kwnames) : 0) - 3;
+	AlifObject* source{};
+	AlifObject* filename{};
+	const char* mode{};
+	AlifIntT flags = 0;
+	AlifIntT dontInherit = 0;
+	AlifIntT optimize = -1;
+	AlifIntT featureVersion = -1;
+
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &parser,
+		/*minpos*/ 3, /*maxpos*/ 6, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+	if (!_args) {
+		goto exit;
+	}
+	source = _args[0];
+	if (!alifUStr_fsDecoder(_args[1], &filename)) {
+		goto exit;
+	}
+	if (!ALIFUSTR_CHECK(_args[2])) {
+		//_alifArg_badArgument("ترجم", "المعامل 'الوضع'", "نص", _args[2]);
+		goto exit;
+	}
+	AlifSizeT modeLength;
+	mode = alifUStr_asUTF8AndSize(_args[2], &modeLength);
+	if (mode == nullptr) {
+		goto exit;
+	}
+	if (strlen(mode) != (size_t)modeLength) {
+		alifErr_setString(_alifExcValueError_, "يوجد حرف فارغ");
+		goto exit;
+	}
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	if (_args[3]) {
+		flags = alifLong_asInt(_args[3]);
+		if (flags == -1 and alifErr_occurred()) {
+			goto exit;
+		}
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+	if (_args[4]) {
+		dontInherit = alifObject_isTrue(_args[4]);
+		if (dontInherit < 0) {
+			goto exit;
+		}
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+	if (_args[5]) {
+		optimize = alifLong_asInt(_args[5]);
+		if (optimize == -1 and alifErr_occurred()) {
+			goto exit;
+		}
+		if (!--noptargs) {
+			goto skip_optional_pos;
+		}
+	}
+skip_optional_pos:
+	if (!noptargs) {
+		goto skip_optional_kwonly;
+	}
+	featureVersion = alifLong_asInt(_args[6]);
+	if (featureVersion == -1 and alifErr_occurred()) {
+		goto exit;
+	}
+skip_optional_kwonly:
+	returnValue = builtin_compileImpl(_module, source, filename, mode, flags, dontInherit, optimize, featureVersion);
+
+exit:
+	return returnValue;
+}
 
 
 
