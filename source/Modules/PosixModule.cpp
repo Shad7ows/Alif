@@ -18,8 +18,21 @@
 
 
 
-
-
+// 33
+#ifdef _WINDOWS
+#  include <windows.h>
+#  if !defined(MS_WINDOWS_GAMES) or defined(MS_WINDOWS_DESKTOP)
+#    include <pathcch.h>
+#  endif
+#  include <winioctl.h>
+#  include <lmcons.h>
+#  include "osdefs.h"
+#  include <aclapi.h>
+#  include <sddl.h>
+#  if defined(MS_WINDOWS_DESKTOP) or defined(MS_WINDOWS_SYSTEM)
+#    define HAVE_SYMLINK
+#  endif /* MS_WINDOWS_DESKTOP | MS_WINDOWS_SYSTEM */
+#endif
 
 
 
@@ -89,7 +102,7 @@
 
 
 
-class  PosixState {
+class  PosixState { // 1085
 public:
 	AlifObject* billion{};
 	AlifObject* DirEntryType{};
@@ -118,6 +131,124 @@ public:
 };
 
 
+
+
+
+
+static AlifObject* posix_getcwd(AlifIntT _useBytes) { // 4125
+#ifdef _WINDOWS
+	wchar_t wbuf[MAXPATHLEN]{};
+	wchar_t* wbuf2 = wbuf;
+	DWORD len{};
+
+	ALIF_BEGIN_ALLOW_THREADS
+		len = GetCurrentDirectoryW(ALIF_ARRAY_LENGTH(wbuf), wbuf);
+	/* If the buffer is large enough, len does not include the
+	   terminating \0. If the buffer is too small, len includes
+	   the space needed for the terminator. */
+	if (len >= ALIF_ARRAY_LENGTH(wbuf)) {
+		if (len <= ALIF_SIZET_MAX / sizeof(wchar_t)) {
+			wbuf2 = (wchar_t*)alifMem_dataAlloc(len * sizeof(wchar_t));
+		}
+		else {
+			wbuf2 = nullptr;
+		}
+		if (wbuf2) {
+			len = GetCurrentDirectoryW(len, wbuf2);
+		}
+	}
+	ALIF_END_ALLOW_THREADS
+
+		if (!wbuf2) {
+			//alifErr_noMemory();
+			return nullptr;
+		}
+	if (!len) {
+		//alifErr_setFromWindowsErr(0);
+		if (wbuf2 != wbuf)
+			alifMem_dataFree(wbuf2);
+		return NULL;
+	}
+
+	AlifObject* resobj = alifUStr_fromWideChar(wbuf2, len);
+	if (wbuf2 != wbuf) {
+		alifMem_dataFree(wbuf2);
+	}
+
+	if (_useBytes) {
+		if (resobj == nullptr) {
+			return nullptr;
+		}
+		ALIF_SETREF(resobj, alifUStr_encodeFSDefault(resobj));
+	}
+
+	return resobj;
+#else
+	const size_t chunk = 1024;
+
+	char* buf = nullptr;
+	char* cwd = nullptr;
+	size_t buflen = 0;
+
+	ALIF_BEGIN_ALLOW_THREADS
+		do {
+			char* newbuf;
+			if (buflen <= ALIF_SIZET_MAX - chunk) {
+				buflen += chunk;
+				newbuf = (char*)alifMem_dataRealloc(buf, buflen);
+			}
+			else {
+				newbuf = nullptr;
+			}
+			if (newbuf == nullptr) {
+				alifMem_dataFree(buf);
+				buf = nullptr;
+				break;
+			}
+			buf = newbuf;
+
+			cwd = getcwd(buf, buflen);
+		} while (cwd == nullptr && errno == ERANGE);
+	ALIF_END_ALLOW_THREADS
+
+		if (buf == nullptr) {
+			//return alifErr_noMemory();
+		}
+	if (cwd == nullptr) {
+		posix_error();
+		alifMem_dataFree(buf);
+		return nullptr;
+	}
+
+	AlifObject* obj{};
+	if (_useBytes) {
+		obj = alifBytes_fromStringAndSize(buf, strlen(buf));
+	}
+	else {
+		obj = alifUStr_decodeFSDefault(buf);
+	}
+#ifdef __linux__
+	if (buf[0] != '/') {
+		/*
+		 * On Linux >= 2.6.36 with glibc < 2.27, getcwd() can return a
+		 * relative pathname starting with '(unreachable)'. We detect this
+		 * and fail with ENOENT, matching newer glibc behaviour.
+		 */
+		errno = ENOENT;
+		path_object_error(obj);
+		alifMem_dataFree(buf);
+		return nullptr;
+	}
+#endif
+	alifMem_dataFree(buf);
+
+	return obj;
+#endif   /* !_WINDOWS */
+}
+
+static AlifObject* os_getcwdImpl(AlifObject* _module) { // 4246
+	return posix_getcwd(0);
+}
 
 
 
@@ -292,8 +423,12 @@ AlifObject* alifOS_fsPath(AlifObject* path) { // 16477
 
 
 static AlifMethodDef _posixMethods_[] = { // 16898
+
+
+	OS_GETCWD_METHODDEF
+
 	OS_CPU_COUNT_METHODDEF
-	{nullptr,              nullptr}            /* Sentinel */
+	{nullptr, nullptr}            /* Sentinel */
 };
 
 
