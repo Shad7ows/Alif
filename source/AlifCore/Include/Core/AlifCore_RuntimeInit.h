@@ -724,6 +724,7 @@
 	INIT_USTR(TextIOWrapper, "غلاف_النص"), /* //* alif */	\
 	INIT_USTR(Write, "اكتب"), /* //* alif */	\
     INIT_USTR(__abs__, "__مطلق__"), /* //* alif */	\
+    INIT_USTR(__all__, "__كل__"), /* //* alif */	\
     INIT_USTR(__add__, "__اجمع__"), /* //* alif */	\
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
     INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
