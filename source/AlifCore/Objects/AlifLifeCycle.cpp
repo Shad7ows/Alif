@@ -513,8 +513,8 @@ static AlifStatus alifCore_interpreterInit(AlifThread* _thread) { // 843
 
 	config = _alifInterpreterState_getConfig(interpreter);
 
-	status = _alifImport_initCore(_thread, sysMod, config->installImportLib);
-	if (ALIFSTATUS_EXCEPTION(status)) goto done;
+	//status = _alifImport_initCore(_thread, sysMod, config->installImportLib);
+	//if (ALIFSTATUS_EXCEPTION(status)) goto done;
 
 done:
 	ALIF_XDECREF(sysMod);
@@ -677,8 +677,8 @@ static AlifStatus initInterpreter_main(AlifThread* _thread) { // 1156
 		return ALIFSTATUS_ERR("failed to update the Alif config");
 	}
 
-	status = _alifImport_initExternal(_thread);
-	if (ALIFSTATUS_EXCEPTION(status)) return status;
+	//status = _alifImport_initExternal(_thread);
+	//if (ALIFSTATUS_EXCEPTION(status)) return status;
 
 	status = _alifUnicode_initEncodings(_thread);
 	if (ALIFSTATUS_EXCEPTION(status)) return status;

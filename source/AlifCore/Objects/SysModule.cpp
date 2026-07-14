@@ -452,10 +452,10 @@ AlifStatus alifSys_create(AlifThread* _thread, AlifObject** _sysModP) { // 3779
 		goto error;
 	}
 
-	status = _alifSys_setPreliminaryStderr(sysdict);
-	if (ALIFSTATUS_EXCEPTION(status)) {
-		return status;
-	}
+	//status = _alifSys_setPreliminaryStderr(sysdict);
+	//if (ALIFSTATUS_EXCEPTION(status)) {
+	//	return status;
+	//}
 
 	status = _alifSys_initCore(_thread, sysdict);
 	if (ALIFSTATUS_EXCEPTION(status)) {

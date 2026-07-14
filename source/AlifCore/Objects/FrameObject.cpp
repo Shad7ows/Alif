@@ -222,9 +222,9 @@ static AlifObject* frameLocalsProxy_new(AlifTypeObject* _type,
 
 
 static AlifMappingMethods _frameLocalsProxyAsMapping_ = { // 784
-	nullptr, //frameLocalsProxy_length, // mp_length
+	nullptr, //frameLocalsProxy_length, // length
 	frameLocalsProxy_getItem, // mp_subscript
-	nullptr, //frameLocalsProxy_setItem, // mp_ass_subscript
+	nullptr, //frameLocalsProxy_setItem, // assSubScript
 };
 
 
