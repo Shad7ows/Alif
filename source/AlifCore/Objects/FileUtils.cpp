@@ -1235,7 +1235,7 @@ AlifIntT _alif_absPath(const wchar_t* _path, wchar_t** _absPathP) { // 2176
 	}
 
 #ifdef _WINDOWS
-	return alifOS_getFullPathName(_path, _absPathP);
+	return _alifOS_getFullPathName(_path, _absPathP);
 #else
 	wchar_t cwd[MAXPATHLEN + 1]{};
 	cwd[ALIF_ARRAY_LENGTH(cwd) - 1] = 0;

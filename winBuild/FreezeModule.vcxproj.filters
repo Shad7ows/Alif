@@ -267,9 +267,6 @@
     <ClCompile Include="..\source\AlifCore\Objects\PathConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\AlifCore\Objects\PosixModule.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\AlifCore\Objects\PreConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -385,6 +382,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\source\AlifCore\Objects\GetPlatform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Modules\PosixModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

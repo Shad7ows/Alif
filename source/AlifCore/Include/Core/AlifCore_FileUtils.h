@@ -129,7 +129,7 @@ extern AlifObject* _alif_getLocaleEncodingObject(void); // 253
 extern AlifIntT _alif_isAbs(const wchar_t*); // 267
 extern AlifIntT _alif_absPath(const wchar_t*, wchar_t**); // 268
 #ifdef _WINDOWS
-extern AlifIntT alifOS_getFullPathName(const wchar_t*, wchar_t**); // 270
+extern AlifIntT _alifOS_getFullPathName(const wchar_t*, wchar_t**); // 270
 #endif
 
 extern AlifIntT _alif_addRelfile(wchar_t*, const wchar_t*, AlifUSizeT); // 274

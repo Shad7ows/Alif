@@ -127,9 +127,6 @@
     <ClCompile Include="..\source\AlifCore\Objects\AlifRun.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\AlifCore\Objects\PosixModule.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\AlifCore\Objects\AlifParserEngine.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
@@ -384,6 +381,9 @@
     </ClCompile>
     <ClCompile Include="..\source\AlifCore\Objects\GetPlatform.cpp">
       <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Modules\PosixModule.cpp">
+      <Filter>Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1091,6 +1091,9 @@
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Objects\clinic\ModuleObject.cpp.h">
       <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Modules\clinic\PosixModule.cpp.h">
+      <Filter>Modules\clinic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
