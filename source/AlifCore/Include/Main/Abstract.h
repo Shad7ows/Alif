@@ -78,6 +78,7 @@ AlifObject* alifNumber_and(AlifObject*, AlifObject*); // 526
 AlifObject* alifNumber_xor(AlifObject*, AlifObject*); // 531
 AlifObject* alifNumber_or(AlifObject*, AlifObject*); // 537
 
+AlifIntT alifIndex_check(AlifObject*); // 541
 AlifObject* alifNumber_index(AlifObject*); // 545
 
 AlifSizeT alifNumber_asSizeT(AlifObject*, AlifObject*); // 553

@@ -1095,6 +1095,9 @@
     <ClInclude Include="..\source\Modules\clinic\PosixModule.cpp.h">
       <Filter>Modules\clinic</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_FileUtilsWindows.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">

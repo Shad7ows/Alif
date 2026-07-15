@@ -344,7 +344,7 @@ static AlifIntT iomodule_exec(AlifObject* m) { // 650
 	AlifIOState* state = get_ioState(m);
 
 	/* DEFAULT_BUFFER_SIZE */
-	if (ALIFMODULE_ADDINTMACRO(m, DEFAULT_BUFFER_SIZE) < 0)
+	if (ALIFMODULE_ADDINTMACRO(m, DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE) < 0)
 		return -1;
 
 	state->unsupportedOperation = alifObject_callFunction(

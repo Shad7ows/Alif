@@ -21,7 +21,7 @@
 
 // Forward Declaration
 static inline AlifIntT alifUStrWriter_writeCharInline(AlifUStrWriter*, AlifUCS4);
-static inline void alifUStrWriter_initWithBuffer(AlifUStrWriter*, AlifObject*);
+static inline void _alifUStrWriter_initWithBuffer(AlifUStrWriter*, AlifObject*);
 
 #define MAX_UNICODE 0x10ffff // 106
 
@@ -2363,7 +2363,7 @@ AlifObject* alifUStr_decode(const char* s, AlifSizeT size,
 		else {
 			if (strcmp(lower, "ascii") == 0
 				or strcmp(lower, "us_ascii") == 0) {
-				//return alifUStr_decodeASCII(s, size, errors);
+				return alifUStr_decodeASCII(s, size, errors);
 			}
 		#ifdef _WINDOWS
 			else if (strcmp(lower, "mbcs") == 0) {
@@ -3095,7 +3095,7 @@ static AlifObject* unicode_decodeUTF8(const char* _str, AlifSizeT _size,
 	_size -= decoded;
 
 	AlifUStrWriter writer{};
-	alifUStrWriter_initWithBuffer(&writer, u);
+	_alifUStrWriter_initWithBuffer(&writer, u);
 	writer.pos = decoded;
 
 	if (unicode_decodeUTF8Impl(&writer, starts, _str, end,
@@ -4554,7 +4554,103 @@ AlifObject* _alifUStr_asLatin1String(AlifObject* unicode, const char* errors) { 
 }
 
 
+/* --- 7-bit ASCII Codec -------------------------------------------------- */
 
+AlifObject* alifUStr_decodeASCII(const char* _s,
+	AlifSizeT _size, const char* _errors) { // 7265
+	const char* starts = _s;
+	const char* e = _s + _size;
+	AlifObject* error_handler_obj = nullptr;
+	AlifObject* exc = nullptr;
+	AlifErrorHandler_ error_handler = AlifErrorHandler_::Alif_Error_Unknown;
+
+	if (_size == 0) {
+		ALIF_RETURN_UNICODE_EMPTY;
+	}
+
+	/* ASCII is equivalent to the first 128 ordinals in Unicode. */
+	if (_size == 1 and (unsigned char)_s[0] < 128) {
+		return get_latin1Char((unsigned char)_s[0]);
+	}
+
+	// Shortcut for simple case
+	AlifObject* u = alifUStr_new(_size, 127);
+	if (u == nullptr) {
+		return nullptr;
+	}
+	AlifSizeT outpos = ascii_decode(_s, e, ALIFUSTR_1BYTE_DATA(u));
+	if (outpos == _size) {
+		return u;
+	}
+
+	AlifUStrWriter writer{};
+	_alifUStrWriter_initWithBuffer(&writer, u);
+	writer.pos = outpos;
+
+	_s += outpos;
+	AlifIntT kind = writer.kind;
+	void* data = writer.data;
+	AlifSizeT startinpos{}, endinpos{};
+
+	while (_s < e) {
+		unsigned char c = (unsigned char)*_s;
+		if (c < 128) {
+			ALIFUSTR_WRITE(kind, data, writer.pos, c);
+			writer.pos++;
+			++_s;
+			continue;
+		}
+
+		/* byte outsize range 0x00..0x7f: call the error handler */
+
+		if (error_handler == AlifErrorHandler_::Alif_Error_Unknown)
+			error_handler = alif_getErrorHandler(_errors);
+
+		switch (error_handler) {
+		case AlifErrorHandler_::Alif_Error_Replace:
+		case AlifErrorHandler_::Alif_Error_SurrogateEscape:
+			/* Fast-path: the error handler only writes one character,
+			but we may switch to UCS2 at the first write */
+			if (ALIFUSTRWRITER_PREPAREKIND(&writer, AlifUStrKind_::AlifUStr_2Byte_Kind) < 0)
+				goto onError;
+			kind = writer.kind;
+			data = writer.data;
+
+			if (error_handler == AlifErrorHandler_::Alif_Error_Replace)
+				ALIFUSTR_WRITE(kind, data, writer.pos, 0xfffd);
+			else
+				ALIFUSTR_WRITE(kind, data, writer.pos, c + 0xdc00);
+			writer.pos++;
+			++_s;
+			break;
+
+		case AlifErrorHandler_::Alif_Error_Ignore:
+			++_s;
+			break;
+
+		default:
+			startinpos = _s - starts;
+			endinpos = startinpos + 1;
+			if (uStrDecode_callErrorHandlerWriter(
+				_errors, &error_handler_obj,
+				"ascii", "ordinal not in range(128)",
+				&starts, &e, &startinpos, &endinpos, &exc, &_s,
+				&writer))
+				goto onError;
+			kind = writer.kind;
+			data = writer.data;
+		}
+	}
+	ALIF_XDECREF(error_handler_obj);
+	ALIF_XDECREF(exc);
+	return _alifUStrWriter_finish(&writer);
+
+onError:
+	_alifUStrWriter_dealloc(&writer);
+	ALIF_XDECREF(error_handler_obj);
+	ALIF_XDECREF(exc);
+	return nullptr;
+}
 
 
 AlifObject* _alifUStr_asASCIIString(AlifObject* unicode, const char* errors) { // 7345
@@ -5003,7 +5099,7 @@ AlifSizeT _alifUStr_insertThousandsGrouping(
 		insertThousandsGrouping_fill(_writer, &bufferPos,
 			_digits, &digitsPos,
 			nChars, nZeros,
-			useSeparator ? _thousandsSep : NULL,
+			useSeparator ? _thousandsSep : nullptr,
 			thousandsSepLen, _maxchar);
 	}
 	return count;
@@ -6794,7 +6890,7 @@ void alifUStrWriter_discard(AlifUStrWriter* _writer) { // 13456
 
 
 
-static inline void alifUStrWriter_initWithBuffer(AlifUStrWriter* _writer,
+static inline void _alifUStrWriter_initWithBuffer(AlifUStrWriter* _writer,
 	AlifObject* _buffer) { // 13439
 	memset(_writer, 0, sizeof(*_writer));
 	_writer->buffer = _buffer;
@@ -7164,7 +7260,7 @@ static AlifObject* uStr___format__Impl(AlifObject* _self,
 		ALIFUSTR_GET_LENGTH(_formatSpec));
 	if (ret == -1) {
 		_alifUStrWriter_dealloc(&writer);
-		return NULL;
+		return nullptr;
 	}
 	return _alifUStrWriter_finish(&writer);
 }

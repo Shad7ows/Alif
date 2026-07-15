@@ -88,6 +88,7 @@ public:
 		STRUCT_FOR_USTR(__add__, "__اجمع__") //* alif
 		STRUCT_FOR_USTR(__call__, "__استدعاء__") //* alif
 		STRUCT_FOR_USTR(__format__, "__تنسيق__") //* alif
+		STRUCT_FOR_USTR(__fspath__, "__مسار_ملف_نظام__") //* alif
 		STRUCT_FOR_USTR(__init__, "__تهيئة__") //* alif
 		STRUCT_FOR_USTR(__import__, "__استورد__") //* alif
 		STRUCT_FOR_USTR(__loader__, "__محمل__")
@@ -111,6 +112,8 @@ public:
 		STRUCT_FOR_USTR(__exit__, "__اخرج__")
 		STRUCT_FOR_USTR(Path, "مسار")
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
+		STRUCT_FOR_USTR(nt, "واجهة_نظام_ويندوز")
+		STRUCT_FOR_USTR(posix, "واجهة_نظام_يونكس")
 	} literals;
 
 	class {

@@ -59,11 +59,11 @@ public:
 	AlifIntT st_mtime_nsec{};
 	time_t st_ctime{};
 	AlifIntT st_ctime_nsec{};
-	time_t birthtime{};
-	AlifIntT birthtimeNSec{};
-	unsigned long fileAttributes{};
-	unsigned long reparseTag{};
-	uint64_t inoHigh{};
+	time_t st_birthtime{};
+	AlifIntT st_birthtime_nsec{};
+	unsigned long st_file_attributes{};
+	unsigned long st_reparse_tag{};
+	uint64_t st_ino_high{};
 };
 #else
 #define AlifStatStruct stat

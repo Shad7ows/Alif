@@ -18,6 +18,7 @@ public:
 	AlifIntT nInSequence{};
 };
 
+extern const char* const _alifStructSequenceUnnamedField_; // 22
 
 
 AlifTypeObject* alifStructSequence_newType(AlifStructSequenceDesc*); // 30

@@ -83,8 +83,17 @@ AlifObject* alifUStr_decodeUTF16(const char*, AlifSizeT, const char*, AlifIntT*)
 
 
 
-AlifObject* alifUStr_decodeUTF16Stateful(const char*, AlifSizeT, const char*, AlifIntT*, AlifSizeT*); // 564
+AlifObject* alifUStr_decodeUTF16Stateful(const char*, AlifSizeT,
+	const char*, AlifIntT*, AlifSizeT*); // 564
 
+
+/* --- ASCII Codecs -------------------------------------------------------
+
+Only 7-bit ASCII data is expected. All other codes generate errors.
+
+*/
+
+AlifObject* alifUStr_decodeASCII(const char*, AlifSizeT, const char*); // 625
 
 
 AlifObject* alifUStr_encodeCodePage(AlifIntT, AlifObject*, const char*); // 695

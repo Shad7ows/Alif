@@ -728,6 +728,7 @@
     INIT_USTR(__add__, "__اجمع__"), /* //* alif */	\
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
     INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
+    INIT_USTR(__fspath__, "__مسار_ملف_نظام__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
     INIT_USTR(__import__, "__استورد__"), /* //* alif */	\
     INIT_USTR(__loader__, "__محمل__"), /* //* alif */	\
@@ -751,6 +752,8 @@
     INIT_USTR(__exit__, "__اخرج__"), /* //* alif */	\
     INIT_USTR(Path, "مسار"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
+    INIT_USTR(nt, "واجهة_نظام_ويندوز"), /* //* alif */	\
+    INIT_USTR(posix, "واجهة_نظام_يونكس"), /* //* alif */	\
 }
 
 #define ALIF_STR_IDENTIFIERS_INIT { \

@@ -669,7 +669,8 @@ AlifObject* alifNumber_add(AlifObject* _v, AlifObject* _w) { // 1124
 	return binOp_typeError(_v, _w, "+");
 }
 
-static AlifObject* sequence_repeat(SizeArgFunc _repeatFunc, AlifObject* _seq, AlifObject* _n) { // 1143
+static AlifObject* sequence_repeat(SizeArgFunc _repeatFunc,
+	AlifObject* _seq, AlifObject* _n) { // 1143
 	AlifSizeT count{};
 	if (_alifIndex_check(_n)) {
 		count = alifNumber_asSizeT(_n, _alifExcOverflowError_);
@@ -850,6 +851,9 @@ UNARY_FUNC(alifNumber_positive, positive, __pos__, "إشارة +")
 UNARY_FUNC(alifNumber_invert, invert, __invert__, "إشارة ~")
 UNARY_FUNC(alifNumber_absolute, absolute, __abs__, "مطلق()")
 
+AlifIntT alifIndex_check(AlifObject* _obj) { // 1384
+	return _alifIndex_check(_obj);
+}
 
 AlifObject* _alifNumber_index(AlifObject* _item) { // 1397
 	if (_item == nullptr) {

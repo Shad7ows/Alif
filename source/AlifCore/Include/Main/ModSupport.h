@@ -20,7 +20,7 @@ AlifIntT alifModule_addIntConstant(AlifObject*, const char*, long); // 39
 AlifIntT alifModule_addType(AlifObject*, AlifTypeObject*); // 44
 
 
-#define ALIFMODULE_ADDINTMACRO(_m, _c) alifModule_addIntConstant((_m), #_c, (_c)) // 47
+#define ALIFMODULE_ADDINTMACRO(_m, _name, _c) alifModule_addIntConstant((_m), #_name, (_c)) // 47
 
 
 AlifIntT alifModule_addFunctions(AlifObject*, AlifMethodDef*); // 53
