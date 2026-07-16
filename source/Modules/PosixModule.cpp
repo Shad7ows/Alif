@@ -966,7 +966,7 @@ static AlifStructSequenceField _statResultFields_[] = { // 2255
 	{"st_nlink",   "عدد الروابط المتينة"},
 	{"st_uid",     "هوية المالك"},
 	{"st_gid",     "هوية المجموعة المالكة"},
-	{"st_size",    "الحجم الكلي, بالبايت"},
+	{"حجم",    "الحجم الكلي, بالبايت"},
 	/* The NULL is replaced with alifStructSequence_unnamedField later. */
 	{nullptr,   "integer time of last access"},
 	{nullptr,   "integer time of last modification"},
@@ -1793,7 +1793,11 @@ public:
 
 
 
-
+static AlifMemberDef _dirEntryMembers_[] = {
+	{"اسم", ALIF_T_OBJECT_EX, offsetof(DirEntry, name), ALIF_READONLY},
+	{"مسار", ALIF_T_OBJECT_EX, offsetof(DirEntry, path), ALIF_READONLY},
+	{nullptr}
+};
 
 #include "clinic/PosixModule.cpp.h" // 15935
 
@@ -1803,7 +1807,7 @@ static AlifMethodDef _dirEntryMethods_[] = { // 15937
 
 static AlifTypeSlot _dirEntryTypeSlots_[] = { // 15950
 	{ALIF_TP_METHODS, _dirEntryMethods_},
-	//{ALIF_TP_MEMBERS, _dirEntryMembers_},
+	{ALIF_TP_MEMBERS, _dirEntryMembers_},
 	{0, 0},
 };
 
@@ -1948,7 +1952,7 @@ public:
 
 
 
-static AlifIntT posixModule_exec(AlifObject* m) { // 1797
+static AlifIntT posixModule_exec(AlifObject* m) { // 17979
 	PosixState* state = get_posixState(m);
 
 #if defined(HAVE_PWRITEV)

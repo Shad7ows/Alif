@@ -33,7 +33,12 @@ static AlifSizeT getTypeAttr_asSize(AlifTypeObject* _tp, AlifObject* _name) { //
     getTypeAttr_asSize(tp, &ALIF_ID(NSequenceFields))
 #define REAL_SIZE_TP(tp) \
     getTypeAttr_asSize(tp, &ALIF_ID(NFields))
+#define REAL_SIZE(_op) get_realSize((AlifObject*)_op)
 
+static AlifSizeT get_realSize(AlifObject* _op) {
+	AlifSizeT hidden = ALIF_TYPE(_op)->basicSize - offsetof(AlifStructSequence, item);
+	return ALIF_SIZE(_op) + hidden / sizeof(AlifObject*);
+}
 
 AlifObject* alifStructSequence_new(AlifTypeObject* _type) { // 59
 	AlifStructSequence* obj{};
@@ -68,7 +73,18 @@ AlifObject* alifStructSequence_getItem(AlifObject* _op, AlifSizeT _index) { // 9
 	return ALIFTUPLE_GET_ITEM(_op, _index);
 }
 
-
+static AlifIntT structSeq_traverse(AlifStructSequence* obj,
+	VisitProc visit, void* arg) { // 110
+	if (ALIF_TYPE(obj)->flags & ALIF_TPFLAGS_HEAPTYPE) {
+		ALIF_VISIT(ALIF_TYPE(obj));
+	}
+	AlifSizeT i{}, size{};
+	size = REAL_SIZE(obj);
+	for (i = 0; i < size; ++i) {
+		ALIF_VISIT(obj->item[i]);
+	}
+	return 0;
+}
 
 
 static AlifSizeT count_members(AlifStructSequenceDesc* desc,
@@ -176,23 +192,22 @@ static AlifMemberDef* initialize_members(AlifStructSequenceDesc* desc,
 
 
 
-static void initialize_staticFields(AlifTypeObject* type, AlifStructSequenceDesc* desc,
-	AlifMemberDef* tp_members, AlifSizeT n_members,
-	unsigned long tp_flags) { // 577
-	type->name = desc->name;
+static void initialize_staticFields(AlifTypeObject* _type, AlifStructSequenceDesc* _desc,
+	AlifMemberDef* _tp_members, AlifSizeT _n_members, unsigned long _tp_flags) { // 577
+	_type->name = _desc->name;
 
-	AlifSizeT n_hidden = n_members - desc->nInSequence;
-	type->basicSize = sizeof(AlifStructSequence) + (n_hidden - 1) * sizeof(AlifObject*);
-	type->itemSize = sizeof(AlifObject*);
+	AlifSizeT n_hidden = _n_members - _desc->nInSequence;
+	_type->basicSize = sizeof(AlifStructSequence) + (n_hidden - 1) * sizeof(AlifObject*);
+	_type->itemSize = sizeof(AlifObject*);
 	//type->dealloc = (Destructor)structSeq_dealloc;
 	//type->repr = (ReprFunc)structSeq_repr;
 	//type->doc = desc->doc;
-	type->base = &_alifTupleType_;
+	_type->base = &_alifTupleType_;
 	//type->methods = structSeq_methods;
 	//type->new_ = structSeq_new;
-	type->flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC | tp_flags;
-	//type->traverse = (TraverseProc)structSeq_traverse;
-	//type->members = tp_members;
+	_type->flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC | _tp_flags;
+	_type->traverse = (TraverseProc)structSeq_traverse;
+	_type->members = _tp_members;
 }
 
 
@@ -255,13 +270,13 @@ AlifTypeObject* _alifStructSequence_newType(AlifStructSequenceDesc* desc, unsign
 	}
 
 	/* Initialize Slots */
-	slots[0] = {0, 0}; // { ALIF_TP_DEALLOC, (destructor)structseq_dealloc };
-	slots[1] = {0, 0}; // { ALIF_TP_REPR, (reprfunc)structseq_repr };
-	slots[2] = {0, 0}; // { ALIF_TP_DOC, (void*)desc->doc };
-	slots[3] = {0, 0}; // { ALIF_TP_METHODS, structseq_methods };
-	slots[4] = {0, 0}; // { ALIF_TP_NEW, structseq_new };
+	slots[0] = { ALIF_TP_DEALLOC, 0}; // { ALIF_TP_DEALLOC, (destructor)structseq_dealloc };
+	slots[1] = { ALIF_TP_REPR, 0}; // { ALIF_TP_REPR, (reprfunc)structseq_repr };
+	slots[2] = { ALIF_TP_DOC, 0}; // { ALIF_TP_DOC, (void*)desc->doc };
+	slots[3] = { ALIF_TP_METHODS, 0}; // { ALIF_TP_METHODS, structseq_methods };
+	slots[4] = { ALIF_TP_NEW, 0}; // { ALIF_TP_NEW, structseq_new };
 	slots[5] = { ALIF_TP_MEMBERS, members };
-	slots[6] = {0, 0}; // { ALIF_TP_TRAVERSE, (traverseproc)structseq_traverse };
+	slots[6] = { ALIF_TP_TRAVERSE, (TraverseProc)structSeq_traverse };
 	slots[7] = { 0, 0 };
 
 	/* Initialize Spec */
