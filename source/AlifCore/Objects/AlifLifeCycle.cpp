@@ -971,7 +971,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 		config->stdioErrors);
 	if (std == nullptr)
 		goto error;
-	alifSys_setObject("__stdout__", std);
+	alifSys_setObject("__مخرجات__", std);
 	_alifSys_setAttr(&ALIF_STR(Stdout), std);
 	ALIF_DECREF(std);
 
