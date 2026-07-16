@@ -195,8 +195,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Stdin);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(Stdout);
-	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(strict);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Text);
@@ -286,6 +284,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(End);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Sep);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(Stdout);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(TextIOWrapper);
 	_alifUStr_internStatic(interp, &string);

@@ -721,6 +721,7 @@
 	INIT_STR(Raw, "raw"), /* //* alif */	\
 	INIT_USTR(End, "النهاية"), /* //* alif */	\
 	INIT_USTR(Sep, "الفاصل"), /* //* alif */	\
+	INIT_USTR(Stdout, "مخرجات"), /* //* alif */	\
 	INIT_USTR(TextIOWrapper, "غلاف_النص"), /* //* alif */	\
 	INIT_USTR(Write, "اكتب"), /* //* alif */	\
     INIT_USTR(__abs__, "__مطلق__"), /* //* alif */	\
@@ -855,7 +856,6 @@
 	/*INIT_ID(Sep),*/ \
 	INIT_ID(Stderr), \
 	INIT_ID(Stdin), \
-	INIT_ID(Stdout), \
 	INIT_ID(strict), \
 	/*INIT_ID(TextIOWrapper),*/ \
 	INIT_ID(Top), \

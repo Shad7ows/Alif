@@ -81,3 +81,20 @@ public:
 #define ALIF_MEMORYVIEW_SCALAR      0x008
 #define ALIF_MEMORYVIEW_PIL         0x010
 #define ALIF_MEMORYVIEW_RESTRICTED  0x020
+
+
+
+
+
+
+
+/* ------------------------------------ دوال مساعدة ----------------------------------- */
+
+
+#define ALIFMEM_NEW(_type, _n) /* for data only */ \
+  ( ((AlifUSizeT)(_n) > ALIF_SIZET_MAX / sizeof(_type)) ? nullptr :      \
+        ( (_type *) alifMem_dataAlloc((_n) * sizeof(_type)) ) )
+
+#define ALIFMEM_RESIZE(_p, _type, _n) /* for data only */ \
+  ( (_p) = ((AlifUSizeT)(_n) > ALIF_SIZET_MAX / sizeof(_type)) ? nullptr :        \
+        (_type *) alifMem_dataRealloc((_p), (_n) * sizeof(_type)) )

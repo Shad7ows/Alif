@@ -81,6 +81,7 @@ public:
 		STRUCT_FOR_STR(Raw, "raw") //* alif
 		STRUCT_FOR_USTR(End, "النهاية") //* alif
 		STRUCT_FOR_USTR(Sep, "الفاصل") //* alif
+		STRUCT_FOR_USTR(Stdout, "مخرجات") //* alif
 		STRUCT_FOR_USTR(TextIOWrapper, "غلاف_النص") //* alif
 		STRUCT_FOR_USTR(Write, "اكتب") //* alif
 		STRUCT_FOR_USTR(__abs__, "__مطلق__") //* alif
@@ -214,7 +215,6 @@ public:
 		STRUCT_FOR_ID(Seekable)
 		STRUCT_FOR_ID(Stderr)
 		STRUCT_FOR_ID(Stdin)
-		STRUCT_FOR_ID(Stdout)
 		STRUCT_FOR_ID(strict)
 		STRUCT_FOR_ID(Text)
 		STRUCT_FOR_ID(Top)

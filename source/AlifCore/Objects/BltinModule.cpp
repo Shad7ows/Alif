@@ -834,9 +834,9 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* const* _ar
 
 	if (_file == ALIF_NONE) {
 		AlifThread* thread = _alifThread_get();
-		_file = _alifSys_getAttr(thread, &ALIF_ID(Stdout));
+		_file = _alifSys_getAttr(thread, &ALIF_STR(Stdout));
 		if (_file == nullptr) {
-			alifErr_setString(_alifExcRuntimeError_, "مفقود النظام.الإخراج");
+			alifErr_setString(_alifExcRuntimeError_, "مفقود النظام.مخرجات");
 			return nullptr;
 		}
 
@@ -906,7 +906,7 @@ static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* const* _ar
 static AlifObject* builtin_inputImpl(AlifObject* module, AlifObject* prompt) { // 2151
 	AlifThread* thread = _alifThread_get();
 	AlifObject* fin = _alifSys_getAttr(thread, &ALIF_ID(Stdin));
-	AlifObject* fout = _alifSys_getAttr(thread, &ALIF_ID(Stdout));
+	AlifObject* fout = _alifSys_getAttr(thread, &ALIF_STR(Stdout));
 	AlifObject* ferr = _alifSys_getAttr(thread, &ALIF_ID(Stderr));
 	AlifObject* tmp{};
 	long fd{};

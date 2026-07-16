@@ -217,9 +217,9 @@ AlifIntT _alif_handleSystemExit(AlifIntT* _exitcodeP) { // 591
 		return 0;
 	}
 
-	//if (!alifErr_exceptionMatches(_alifExcSystemExit_)) { //* todo
-	//	return 0;
-	//}
+	if (!alifErr_exceptionMatches(_alifExcSystemExit_)) {
+		return 0;
+	}
 
 	fflush(stdout);
 
@@ -270,7 +270,7 @@ static void handle_systemExit(void) { // 630
 
 static void _alifErr_printEx(AlifThread* _thread, AlifIntT _setSysLastVars) { // 640
 	AlifObject* typ{}, * tb{};
-	//handle_systemExit(); //* todo
+	handle_systemExit();
 
 	AlifObject* exc = _alifErr_getRaisedException(_thread);
 	if (exc == nullptr) {
@@ -844,7 +844,7 @@ static void flush_io(void) { // 1279
 	AlifThread* thread = _alifThread_get();
 	AlifObject* exc = _alifErr_getRaisedException(thread);
 	flush_ioStream(thread, &ALIF_ID(Stderr));
-	flush_ioStream(thread, &ALIF_ID(Stdout));
+	flush_ioStream(thread, &ALIF_STR(Stdout));
 	_alifErr_setRaisedException(thread, exc);
 }
 

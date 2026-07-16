@@ -964,7 +964,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	_alifSys_setAttr(&ALIF_ID(Stdin), std);
 	ALIF_DECREF(std);
 
-	///* Set sys.stdout */
+	/* Set النظام.مخرجات */
 	fd = fileno(stdout);
 	std = create_stdio(config, iomod, fd, 1, "<stdout>",
 		config->stdioEncoding,
@@ -972,10 +972,10 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 	if (std == nullptr)
 		goto error;
 	alifSys_setObject("__stdout__", std);
-	_alifSys_setAttr(&ALIF_ID(Stdout), std);
+	_alifSys_setAttr(&ALIF_STR(Stdout), std);
 	ALIF_DECREF(std);
 
-	///* Set sys.stderr, replaces the preliminary stderr */
+	/* Set sys.stderr, replaces the preliminary stderr */
 	fd = fileno(stderr);
 	std = create_stdio(config, iomod, fd, 1, "<stderr>",
 		config->stdioEncoding,

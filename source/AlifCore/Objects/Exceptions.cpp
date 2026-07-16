@@ -397,6 +397,32 @@ COMPLEXEXTENDSEXCEPTION(_excException_, StopIteration, StopIteration, خطأ_ت�
 
 
 
+
+static AlifIntT systemExit_init(AlifSystemExitObject* self,
+	AlifObject* args, AlifObject* kwds) { // 672
+	AlifSizeT size = ALIFTUPLE_GET_SIZE(args);
+
+	if (baseException_init((AlifBaseExceptionObject*)self, args, kwds) == -1)
+		return -1;
+
+	if (size == 0)
+		return 0;
+	if (size == 1) {
+		ALIF_XSETREF(self->code, ALIF_NEWREF(ALIFTUPLE_GET_ITEM(args, 0)));
+	}
+	else { /* size > 1 */
+		ALIF_XSETREF(self->code, ALIF_NEWREF(args));
+	}
+	return 0;
+}
+
+// 719
+COMPLEXEXTENDSEXCEPTION(_excBaseException_, SystemExit, SystemExit, خروج_نظام,
+	systemExit, 0, 0, nullptr/*_systemExitMembers_*/, 0, 0,
+	"Request to exit from the interpreter.");
+
+
+
 static inline AlifBaseExceptionGroupObject* _alifBaseExceptionGroupObject_cast(AlifObject* _exc) { // 729
 	return (AlifBaseExceptionGroupObject*)_exc;
 }
@@ -1039,7 +1065,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	ITEM(Exception, الخطأ),
 	//ITEM(GeneratorExit),
 	//ITEM(KeyboardInterrupt),
-	//ITEM(SystemExit),
+	ITEM(SystemExit, خروج_نظام),
 
 	// Level 3: Exception(BaseException) subclasses
 	ITEM(ArithmeticError, خطأ_حسابي),

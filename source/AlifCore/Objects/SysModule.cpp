@@ -100,11 +100,18 @@ static AlifObject* sys_excepthookImpl(AlifObject* module, AlifObject* exctype,
 	return ALIF_NONE;
 }
 
+static AlifObject* sys_exitImpl(AlifObject* _module,
+	AlifObject* _status) { // 852
+	/* Raise SystemExit so callers may catch it or clean up. */
+	alifErr_setObject(_alifExcSystemExit_, _status);
+	return nullptr;
+}
 
 
 
-static AlifMethodDef _sysMethods_[] = { // 2550
+static AlifMethodDef _sysMethods_[] = { // 2536
 	SYS_EXCEPTHOOK_METHODDEF,
+	SYS_EXIT_METHODDEF,
 	{nullptr, nullptr}  // sentinel
 };
 
@@ -264,7 +271,7 @@ static AlifStatus _alifSys_initCore(AlifThread* tstate, AlifObject* sysdict) { /
 #undef COPY_SYS_ATTR
 
 	SET_SYS_FROM_STRING("version", alif_getVersion());
-	SET_SYS_FROM_STRING("المنصة", alif_getPlatform());
+	SET_SYS_FROM_STRING("منصة", alif_getPlatform());
 	/* initialize hash_info */
 
 	SET_SYS("اسماء_الوحدات_الضمنية", listBuiltin_moduleNames()); //* review
@@ -349,7 +356,7 @@ AlifIntT _alifSys_updateConfig(AlifThread* _thread) { // 3645
 	//	}
 	//}
 
-	COPY_LIST("argv", config->argv);
+	COPY_LIST("مدخلات_التشغيل", config->argv); // argv
 	COPY_LIST("origArgv", config->origArgv);
 	//COPY_LIST("warnoptions", config->warnOptions);
 

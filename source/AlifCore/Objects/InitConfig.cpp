@@ -84,7 +84,7 @@ public:
 static const AlifConfigSpec _alifConfigSpec_[] = { // 95 //* todo //* important
 
 	// --- Public options -----------
-	SPEC(argv, argv, WSTR_LIST, PUBLIC, SYS_ATTR("argv")),
+	SPEC(argv, argv, WSTR_LIST, PUBLIC, SYS_ATTR("مدخلات_التشغيل")),
 	SPEC(سابقة_اساسية_تنفيذي, baseExecPrefix, WSTR_OPT, PUBLIC, SYS_ATTR("baseExecPrefix")),
 	SPEC(تنفيذي_اساسي, baseExecutable, WSTR_OPT, PUBLIC, SYS_ATTR("baseExecutable")),
 	SPEC(سابقة_اساسية, basePrefix, WSTR_OPT, PUBLIC, SYS_ATTR("basePrefix")),
@@ -199,7 +199,7 @@ static const char usageHelp[] = "\
 -ك : تشغيل مكتبة\n\
 ملف : تشغيل البرنامج من ملف\n\
 - : يتم تشغيل البرنامج من الطرفية\n\
-وسيط ...: وسيطات يتم تمريرها الى sys.argv[1:]\n\
+وسيط ...: وسيطات يتم تمريرها الى النظام.مدخلات_التشغيل[1:]\n\
 -م : طباعة رسالة المساعدة (--مساعدة)\n\
 -ن : طباعة نسخة ألف الحالية (--نسخة)\n\
 ";

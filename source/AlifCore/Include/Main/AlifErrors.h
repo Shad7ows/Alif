@@ -66,6 +66,7 @@ extern AlifObject* _alifExcRuntimeError_; // 103
 extern AlifObject* _alifExcSyntaxError_; // 108
 extern AlifObject* _alifExcIndentationError_; // 109
 extern AlifObject* _alifExcSystemError_; // 112
+extern AlifObject* _alifExcSystemExit_; // 113
 extern AlifObject* _alifExcTypeError_; // 114
 
 extern AlifObject* _alifExcValueError_; // 120
@@ -137,6 +138,12 @@ public:
 	AlifObject* nameFrom{};
 };
 
+
+class AlifSystemExitObject { // 52
+public:
+	ALIFEXCEPTION_HEAD;
+	AlifObject* code{};
+};
 
 class AlifOSErrorObject { // 57
 public:

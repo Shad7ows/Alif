@@ -1407,13 +1407,24 @@ static AlifObject* posix_doStat(AlifObject* _module,
 
 // 2861
 #ifdef HAVE_FSTATAT
-#define FSTATAT_DIR_FD_CONVERTER dir_fdConverter
+#define FSTATAT_DIR_FD_CONVERTER dirFD_converter
 #else
 #define FSTATAT_DIR_FD_CONVERTER dirFD_unavailable
 #endif
 
+// 2873
+#ifdef HAVE_MKDIRAT
+#define MKDIRAT_DIR_FD_CONVERTER dirFD_converter
+#else
+#define MKDIRAT_DIR_FD_CONVERTER dirFD_unavailable
+#endif
 
-
+// 2933
+#ifdef HAVE_FDOPENDIR
+#define PATH_HAVE_FDOPENDIR 1
+#else
+#define PATH_HAVE_FDOPENDIR 0
+#endif
 
 
 
@@ -1569,8 +1580,121 @@ static AlifObject* os_getcwdImpl(AlifObject* _module) { // 4246
 
 
 
+#if defined(_WINDOWS) and !defined(HAVE_OPENDIR)
+static AlifObject* _listdirWindows_noOpenDir(PathT* _path,
+	AlifObject* _list) { // 4391
+	AlifObject* v{};
+	HANDLE hFindFile = INVALID_HANDLE_VALUE;
+	BOOL result, return_bytes;
+	wchar_t namebuf[MAX_PATH + 4]{}; /* Overallocate for "\*.*" */
+	/* only claim to have space for MAX_PATH */
+	AlifSizeT len = ALIF_ARRAY_LENGTH(namebuf) - 4;
+	wchar_t* wnamebuf = nullptr;
+
+	WIN32_FIND_DATAW wFileData;
+	const wchar_t* po_wchars{};
+
+	if (!_path->wide) { /* Default arg: "." */
+		po_wchars = L".";
+		len = 1;
+		return_bytes = 0;
+	}
+	else {
+		po_wchars = _path->wide;
+		len = wcslen(_path->wide);
+		return_bytes = ALIFBYTES_CHECK(_path->object);
+	}
+	/* The +5 is so we can append "\\*.*\0" */
+	wnamebuf = ALIFMEM_NEW(wchar_t, len + 5);
+	if (!wnamebuf) {
+		//alifErr_noMemory();
+		goto exit;
+	}
+	wcscpy(wnamebuf, po_wchars);
+	if (len > 0) {
+		wchar_t wch = wnamebuf[len - 1];
+		if (wch != SEP && wch != ALTSEP && wch != L':')
+			wnamebuf[len++] = SEP;
+		wcscpy(wnamebuf + len, L"*.*");
+	}
+	if ((_list = alifList_new(0)) == nullptr) {
+		goto exit;
+	}
+	ALIF_BEGIN_ALLOW_THREADS
+		hFindFile = FindFirstFileW(wnamebuf, &wFileData);
+	ALIF_END_ALLOW_THREADS
+		if (hFindFile == INVALID_HANDLE_VALUE) {
+			int error = GetLastError();
+			if (error == ERROR_FILE_NOT_FOUND)
+				goto exit;
+			//path_error(_path);
+			ALIF_CLEAR(_list);
+			goto exit;
+		}
+	do {
+		/* Skip over . and .. */
+		if (wcscmp(wFileData.cFileName, L".") != 0 &&
+			wcscmp(wFileData.cFileName, L"..") != 0) {
+			v = alifUStr_fromWideChar(wFileData.cFileName,
+				wcslen(wFileData.cFileName));
+			if (return_bytes && v) {
+				ALIF_SETREF(v, alifUStr_encodeFSDefault(v));
+			}
+			if (v == nullptr) {
+				ALIF_CLEAR(_list);
+				break;
+			}
+			if (alifList_append(_list, v) != 0) {
+				ALIF_DECREF(v);
+				ALIF_CLEAR(_list);
+				break;
+			}
+			ALIF_DECREF(v);
+		}
+		ALIF_BEGIN_ALLOW_THREADS
+			result = FindNextFileW(hFindFile, &wFileData);
+		ALIF_END_ALLOW_THREADS
+			/* FindNextFile sets error to ERROR_NO_MORE_FILES if
+			it got to the end of the directory. */
+			if (!result and GetLastError() != ERROR_NO_MORE_FILES) {
+				//path_error(_path);
+				ALIF_CLEAR(_list);
+				goto exit;
+			}
+	}
+	while (result == TRUE);
+
+exit:
+	if (hFindFile != INVALID_HANDLE_VALUE) {
+		if (FindClose(hFindFile) == FALSE) {
+			if (_list != nullptr) {
+				//path_error(_path);
+				ALIF_CLEAR(_list);
+			}
+		}
+	}
+	alifMem_dataFree(wnamebuf);
+
+	return _list;
+}  /* end of _listdir_windows_no_opendir */
+
+#else  /* thus POSIX, ie: not (_WINDOWS and not HAVE_OPENDIR) */ // 4487
+
+#endif  /* which OS */ // 4601
 
 
+
+static AlifObject* os_listdirImpl(AlifObject* _module, PathT* _path) { // 4625
+	//if (alifSys_audit("نظام_التشغيل.محتويات_المجلد", "O",
+	//	_path->object ? _path->object : ALIF_NONE) < 0) {
+	//	return nullptr;
+	//}
+#if defined(_WINDOWS) and !defined(HAVE_OPENDIR)
+	return _listdirWindows_noOpenDir(_path, nullptr);
+#else
+	return _posix_listdir(_path, nullptr);
+#endif
+}
 
 #ifdef _WINDOWS // 4641
 
@@ -1622,6 +1746,101 @@ AlifIntT _alifOS_getFullPathName(const wchar_t* _path, wchar_t** _absPathP) { //
 
 
 
+
+
+
+static AlifObject* os_mkdirImpl(AlifObject* _module,
+	PathT* _path, AlifIntT _mode, AlifIntT _dirFD) { // 5648
+	AlifIntT result{};
+#ifdef _WINDOWS
+	AlifIntT error = 0;
+	AlifIntT pathError = 0;
+	SECURITY_ATTRIBUTES secAttr = { sizeof(secAttr) };
+	SECURITY_ATTRIBUTES* pSecAttr{};
+#endif
+#ifdef HAVE_MKDIRAT
+	AlifIntT mkdirat_unavailable = 0;
+#endif
+
+	//if (alifSys_audit("نظام_التشغيل.اوجد_مجلد", "Oii", _path->object, _mode,
+	//	_dirFD == DEFAULT_DIR_FD ? -1 : _dirFD) < 0) {
+	//	return nullptr;
+	//}
+
+#ifdef _WINDOWS
+	ALIF_BEGIN_ALLOW_THREADS
+		if (_mode == 0700 /* 0o700 */) {
+			ULONG sdSize;
+			pSecAttr = &secAttr;
+			// Set a discretionary ACL (D) that is protected (P) and includes
+			// inheritable (OICI) entries that allow (A) full control (FA) to
+			// SYSTEM (SY), Administrators (BA), and the owner (OW).
+			if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(
+				L"D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;OW)",
+				SDDL_REVISION_1,
+				&secAttr.lpSecurityDescriptor,
+				&sdSize
+			)) {
+				error = GetLastError();
+			}
+		}
+	if (!error) {
+		result = CreateDirectoryW(_path->wide, pSecAttr);
+		if (secAttr.lpSecurityDescriptor &&
+			// uncommonly, LocalFree returns non-zero on error, but still uses
+			// GetLastError() to see what the error code is
+			LocalFree(secAttr.lpSecurityDescriptor)) {
+			error = GetLastError();
+		}
+	}
+	ALIF_END_ALLOW_THREADS
+
+		if (error) {
+			//return alifErr_setFromWindowsErr(error);
+			printf("خطأ اثناء إنشاء مجلد جديد");
+			return nullptr;
+		}
+	if (!result) {
+		//return path_error(_path);
+		printf("خطأ اثناء إنشاء مجلد جديد");
+		return nullptr;
+	}
+#else
+	ALIF_BEGIN_ALLOW_THREADS
+	#if HAVE_MKDIRAT
+		if (_dirFD != DEFAULT_DIR_FD) {
+			if (HAVE_MKDIRAT_RUNTIME) {
+				result = mkdirat(_dirFD, _path->narrow, _mode);
+
+			}
+			else {
+				mkdirat_unavailable = 1;
+			}
+		}
+		else
+		#endif
+		#if defined(__WATCOMC__) && !defined(__QNX__)
+			result = mkdir(path->narrow);
+#else
+			result = mkdir(_path->narrow, _mode);
+#endif
+	ALIF_END_ALLOW_THREADS
+
+	#if HAVE_MKDIRAT
+		if (mkdirat_unavailable) {
+			argument_unavailableError(nullptr, "مجلد_واصف_ملف");
+			return nullptr;
+		}
+#endif
+
+	if (result < 0) {
+		//return path_error(_path);
+		printf("خطأ اثناء إنشاء مجلد جديد");
+		return nullptr;
+	}
+#endif /* _WINDOWS */
+	return ALIF_NONE;
+}
 
 
 
@@ -1896,8 +2115,8 @@ AlifObject* alifOS_fsPath(AlifObject* path) { // 16477
 
 	if (!(ALIFUSTR_CHECK(pathRepr) or ALIFBYTES_CHECK(pathRepr))) {
 		alifErr_format(_alifExcTypeError_,
-			"expected %.200s.__fspath__() to return str or bytes, "
-			"not %.200s", _alifType_name(ALIF_TYPE(path)),
+			"يتوقع %.200s.__fspath__() ان يرجع نص او بايت, "
+			"وليس %.200s", _alifType_name(ALIF_TYPE(path)),
 			_alifType_name(ALIF_TYPE(pathRepr)));
 		ALIF_DECREF(pathRepr);
 		return nullptr;
@@ -1922,6 +2141,10 @@ static AlifMethodDef _posixMethods_[] = { // 16898
 	OS_STAT_METHODDEF
 
 	OS_GETCWD_METHODDEF
+
+	OS_LISTDIR_METHODDEF
+
+	OS_MKDIR_METHODDEF
 
 	OS_CPU_COUNT_METHODDEF
 	{nullptr, nullptr}            /* Sentinel */
