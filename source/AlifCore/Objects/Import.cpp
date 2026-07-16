@@ -2536,7 +2536,9 @@ static FileDescr* find_module(const char* _fullname, const char* _subname, AlifO
 
 
 
-
+#ifdef HAVE_DIRENT_H
+#  include <dirent.h>
+#endif
 
 static AlifIntT case_ok(char* _buf, AlifSizeT _len, AlifSizeT _namelen, char* _name) { // 1577
 	/* Pick a platform-specific implementation; the sequence of #if's here should
@@ -2578,7 +2580,7 @@ static AlifIntT case_ok(char* _buf, AlifSizeT _len, AlifSizeT _namelen, char* _n
 	DIR* dirp;
 	struct dirent* dp;
 	char dirname[MAXPATHLEN + 1];
-	const int dirlen = len - namelen - 1; /* don't want trailing SEP */
+	const int dirlen = _len - _namelen - 1; /* don't want trailing SEP */
 
 	/* Copy the dir component into dirname; substitute "." if empty */
 	if (dirlen <= 0) {
@@ -2586,13 +2588,13 @@ static AlifIntT case_ok(char* _buf, AlifSizeT _len, AlifSizeT _namelen, char* _n
 		dirname[1] = '\0';
 	}
 	else {
-		memcpy(dirname, buf, dirlen);
+		memcpy(dirname, _buf, dirlen);
 		dirname[dirlen] = '\0';
 	}
 	/* Open the directory and search the entries for an exact match. */
 	dirp = opendir(dirname);
 	if (dirp) {
-		char* nameWithExt = buf + len - namelen;
+		char* nameWithExt = _buf + _len - _namelen;
 		while ((dp = readdir(dirp)) != nullptr) {
 			const int thislen =
 			#ifdef _DIRENT_HAVE_D_NAMELEN
@@ -2600,7 +2602,7 @@ static AlifIntT case_ok(char* _buf, AlifSizeT _len, AlifSizeT _namelen, char* _n
 		#else
 				strlen(dp->d_name);
 		#endif
-			if (thislen >= namelen &&
+			if (thislen >= _namelen &&
 				strcmp(dp->d_name, nameWithExt) == 0) {
 				(void)closedir(dirp);
 				return 1; /* Found */

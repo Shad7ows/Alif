@@ -1781,8 +1781,27 @@ done:
 #undef GET_LOCALE_STRING
 }
 
-
-
+// 3033
+#ifndef _WINDOWS
+// Ticks per second used by clock() and times() functions.
+// See os.times() and time.process_time() implementations.
+AlifIntT _alif_getTicksPerSecond(long *ticks_per_second) { // 3036
+#if defined(HAVE_SYSCONF) && defined(_SC_CLK_TCK)
+    long value = sysconf(_SC_CLK_TCK);
+    if (value < 1) {
+        return -1;
+    }
+    *ticks_per_second = value;
+#elif defined(HZ)
+    assert(HZ >= 1);
+    *ticks_per_second = HZ;
+#else
+    // Magic fallback value; may be bogus
+    *ticks_per_second = 60;
+#endif
+    return 0;
+}
+#endif
 
 
 AlifIntT _alif_isValidFD(AlifIntT fd) { // 3059

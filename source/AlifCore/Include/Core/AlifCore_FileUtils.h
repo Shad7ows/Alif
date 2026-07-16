@@ -158,5 +158,8 @@ char* alifUniversal_newLineFGetsWithSize(char*, AlifIntT, FILE*, AlifObject*, Al
 
 extern AlifIntT _alifFile_flush(AlifObject*); // 323
 
+#ifndef _WINDOWS
+extern AlifIntT _alif_getTicksPerSecond(long *ticks_per_second); // 325
+#endif
 
 AlifIntT _alif_isValidFD(AlifIntT); // 330

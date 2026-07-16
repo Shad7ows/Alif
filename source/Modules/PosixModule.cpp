@@ -16,7 +16,10 @@
 #include "AlifCore_Memory.h"
 
 
-
+// 28
+#ifdef HAVE_UNISTD_H
+#  include <unistd.h>             // symlink()
+#endif
 
 // 33
 #ifdef _WINDOWS
@@ -58,6 +61,14 @@
 
 
 
+// 340
+#if defined(__DragonFly__) || \
+    defined(__OpenBSD__)   || \
+    defined(__FreeBSD__)   || \
+    defined(__NetBSD__)    || \
+    defined(__APPLE__)
+#  include <sys/sysctl.h>
+#endif
 
 
 
@@ -68,10 +79,28 @@
 
 
 
-
-
-
-
+// 447
+#ifdef HAVE_DIRENT_H
+#  include <dirent.h>
+#  define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+#  if defined(__WATCOMC__) && !defined(__QNX__)
+#    include <direct.h>
+#    define NAMLEN(dirent) strlen((dirent)->d_name)
+#  else
+#    define dirent direct
+#    define NAMLEN(dirent) (dirent)->d_namlen
+#  endif
+#  ifdef HAVE_SYS_NDIR_H
+#    include <sys/ndir.h>
+#  endif
+#  ifdef HAVE_SYS_DIR_H
+#    include <sys/dir.h>
+#  endif
+#  ifdef HAVE_NDIR_H
+#    include <ndir.h>
+#  endif
+#endif
 
 
 
@@ -123,6 +152,37 @@ void _alifAttribute_dataToStat(BY_HANDLE_FILE_INFORMATION*, ULONG,
 void _alifStat_basicInfoToStat(FILE_STAT_BASIC_INFORMATION*,
 		class AlifStatStruct*);
 #endif
+
+// 738
+#ifndef _WINDOWS
+AlifObject* _alifLong_fromUid(uid_t uid) { // 739
+    if (uid == (uid_t)-1)
+        return alifLong_fromLong(-1);
+    return alifLong_fromUnsignedLong(uid);
+}
+
+
+AlifObject* _alifLong_fromGid(gid_t gid) { // 747
+    if (gid == (gid_t)-1)
+        return alifLong_fromLong(-1);
+    return alifLong_fromUnsignedLong(gid);
+}
+
+
+
+
+#endif /* _WINDOWS */ // 967
+
+
+static AlifObject* _alifLong_fromDev(dev_t dev) { // 970
+#ifdef NODEV
+    if (dev == NODEV) {
+        return alifLong_fromLongLong((long long)dev);
+    }
+#endif
+    return alifLong_fromUnsignedLongLong((unsigned long long)dev);
+}
+
 
 
 
@@ -1340,7 +1400,7 @@ static AlifObject* posix_doStat(AlifObject* _module,
 #endif
 
 #if !defined(_WINDOWS) and !defined(HAVE_FSTATAT) and !defined(HAVE_LSTAT)
-	if (follow_symlinks_specified(_functionName, _followSymlinks))
+	if (followSymlinks_specified(_functionName, _followSymlinks))
 		return nullptr;
 #endif
 
@@ -1377,7 +1437,7 @@ static AlifObject* posix_doStat(AlifObject* _module,
 				}
 				else
 				#endif /* HAVE_FSTATAT */
-					result = STAT(path->narrow, &st);
+					result = STAT(_path->narrow, &st);
 #endif /* _WINDOWS */
 	ALIF_END_ALLOW_THREADS
 
@@ -1542,7 +1602,7 @@ static AlifObject* posix_getcwd(AlifIntT _useBytes) { // 4125
 			//return alifErr_noMemory();
 		}
 	if (cwd == nullptr) {
-		posix_error();
+		// posix_error();
 		alifMem_dataFree(buf);
 		return nullptr;
 	}
@@ -1679,7 +1739,116 @@ exit:
 }  /* end of _listdir_windows_no_opendir */
 
 #else  /* thus POSIX, ie: not (_WINDOWS and not HAVE_OPENDIR) */ // 4487
+static AlifObject* _posix_listdir(PathT *path, AlifObject *list) {
+    AlifObject* v{};
+    DIR *dirp = nullptr;
+    struct dirent *ep;
+    AlifIntT return_str; /* if false, return bytes */
+#ifdef HAVE_FDOPENDIR
+    AlifIntT fd = -1;
+#endif
 
+    errno = 0;
+#ifdef HAVE_FDOPENDIR
+    if (path->fd != -1) {
+      if (HAVE_FDOPENDIR_RUNTIME) {
+        /* closedir() closes the FD, so we duplicate it */
+        fd = _alif_dup(path->fd);
+        if (fd == -1)
+            return nullptr;
+
+        return_str = 1;
+
+        ALIF_BEGIN_ALLOW_THREADS
+        dirp = fdopendir(fd);
+        ALIF_END_ALLOW_THREADS
+      } else {
+        alifErr_setString(_alifExcTypeError_,
+            "listdir: path should be string, bytes, os.PathLike or None, not int");
+        return nullptr;
+      }
+    }
+    else
+#endif
+    {
+        const char *name;
+        if (path->narrow) {
+            name = path->narrow;
+            /* only return bytes if they specified a bytes object */
+            return_str = !ALIFBYTES_CHECK(path->object);
+        }
+        else {
+            name = ".";
+            return_str = 1;
+        }
+
+        ALIF_BEGIN_ALLOW_THREADS
+        dirp = opendir(name);
+        ALIF_END_ALLOW_THREADS
+    }
+
+    if (dirp == nullptr) {
+        // path_error(path);
+        list = nullptr;
+#ifdef HAVE_FDOPENDIR
+        if (fd != -1) {
+            ALIF_BEGIN_ALLOW_THREADS
+            close(fd);
+            ALIF_END_ALLOW_THREADS
+        }
+#endif
+        goto exit;
+    }
+    if ((list = alifList_new(0)) == nullptr) {
+        goto exit;
+    }
+    for (;;) {
+        errno = 0;
+        ALIF_BEGIN_ALLOW_THREADS
+        ep = readdir(dirp);
+        ALIF_END_ALLOW_THREADS
+        if (ep == nullptr) {
+            if (errno == 0) {
+                break;
+            } else {
+                // path_error(path);
+                ALIF_CLEAR(list);
+                goto exit;
+            }
+        }
+        if (ep->d_name[0] == '.' &&
+            (NAMLEN(ep) == 1 ||
+             (ep->d_name[1] == '.' && NAMLEN(ep) == 2)))
+            continue;
+        if (return_str)
+            v = alifUStr_decodeFSDefaultAndSize(ep->d_name, NAMLEN(ep));
+        else
+            v = alifBytes_fromStringAndSize(ep->d_name, NAMLEN(ep));
+        if (v == nullptr) {
+            ALIF_CLEAR(list);
+            break;
+        }
+        if (alifList_append(list, v) != 0) {
+            ALIF_DECREF(v);
+            ALIF_CLEAR(list);
+            break;
+        }
+        ALIF_DECREF(v);
+    }
+
+exit:
+    if (dirp != nullptr) {
+        ALIF_BEGIN_ALLOW_THREADS
+#ifdef HAVE_FDOPENDIR
+        if (fd > -1)
+            rewinddir(dirp);
+#endif
+        closedir(dirp);
+        ALIF_END_ALLOW_THREADS
+    }
+
+    return list;
+}  /* end of _posix_listdir */
 #endif  /* which OS */ // 4601
 
 
@@ -2049,7 +2218,7 @@ public:
 	WIN32_FIND_DATAW file_data;
 	AlifIntT first_time{};
 #else /* POSIX */
-	DIR *dirp;
+	DIR* dirp;
 #endif
 #ifdef HAVE_FDOPENDIR
 	AlifIntT fd;
@@ -2328,7 +2497,7 @@ static AlifIntT posixModule_exec(AlifObject* m) { // 17979
 
 
 static AlifModuleDefSlot _posixModuleSlots_[] = { // 18138
-	{ALIF_MOD_EXEC, posixModule_exec},
+	{ALIF_MOD_EXEC, (void*)posixModule_exec},
 	{ALIF_MOD_MULTIPLE_INTERPRETERS, ALIF_MOD_PER_INTERPRETER_GIL_SUPPORTED},
 	{ALIF_MOD_GIL, ALIF_MOD_GIL_NOT_USED},
 	{0, nullptr}

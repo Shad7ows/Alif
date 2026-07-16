@@ -276,7 +276,7 @@ AlifTypeObject* _alifStructSequence_newType(AlifStructSequenceDesc* desc, unsign
 	slots[3] = { ALIF_TP_METHODS, 0}; // { ALIF_TP_METHODS, structseq_methods };
 	slots[4] = { ALIF_TP_NEW, 0}; // { ALIF_TP_NEW, structseq_new };
 	slots[5] = { ALIF_TP_MEMBERS, members };
-	slots[6] = { ALIF_TP_TRAVERSE, (TraverseProc)structSeq_traverse };
+	slots[6] = { ALIF_TP_TRAVERSE, (void*)(TraverseProc)structSeq_traverse };
 	slots[7] = { 0, 0 };
 
 	/* Initialize Spec */
