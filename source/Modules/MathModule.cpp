@@ -627,6 +627,43 @@ static AlifObject* math_radiansImpl(AlifObject* _module, double _x) { // 3039
 }
 
 
+
+
+static AlifIntT math_exec(AlifObject* _module) { // 4046 //* todo
+
+	MathModuleState* state = getMath_moduleState(_module);
+	state->str___ceil__ = alifUStr_internFromString("__حد_اعلى__");
+	if (state->str___ceil__ == nullptr) {
+		return -1;
+	}
+	state->str___floor__ = alifUStr_internFromString("__حد_ادنى__");
+	if (state->str___floor__ == nullptr) {
+		return -1;
+	}
+	//state->str___trunc__ = alifUStr_internFromString("__trunc__");
+	//if (state->str___trunc__ == nullptr) {
+	//	return -1;
+	//}
+	if (alifModule_add(_module, "ط", alifFloat_fromDouble(ALIF_MATH_PI)) < 0) { // pi
+		return -1;
+	}
+	if (alifModule_add(_module, "ه", alifFloat_fromDouble(ALIF_MATH_E)) < 0) { // e
+		return -1;
+	}
+	// 2pi
+	if (alifModule_add(_module, "ت", alifFloat_fromDouble(ALIF_MATH_TAU)) < 0) { // tau
+		return -1;
+	}
+	if (alifModule_add(_module, "لانهائي", alifFloat_fromDouble(ALIF_INFINITY)) < 0) { // inf
+		return -1;
+	}
+	if (alifModule_add(_module, "لعدد", alifFloat_fromDouble(fabs(ALIF_NAN))) < 0) { // nan
+		return -1;
+	}
+	return 0;
+}
+
+
 static AlifMethodDef _alifMathMethods_[] = { // 4087
 	MATH_CEIL_METHODDEF
 	MATH_FLOOR_METHODDEF
@@ -646,11 +683,19 @@ static AlifMethodDef _alifMathMethods_[] = { // 4087
 };
 
 
+static AlifModuleDefSlot _mathSlots_[] = { // 4159
+	{ALIF_MOD_EXEC, math_exec},
+	{ALIF_MOD_MULTIPLE_INTERPRETERS, ALIF_MOD_PER_INTERPRETER_GIL_SUPPORTED},
+	{ALIF_MOD_GIL, ALIF_MOD_GIL_NOT_USED},
+	{0, nullptr}
+};
 
-static class AlifModuleDef _alifMathModule_ = { // 4159
+
+static class AlifModuleDef _alifMathModule_ = { // 4170
 	.base = ALIFMODULEDEF_HEAD_INIT,
 	.name = "الرياضيات",
-	.methods = _alifMathMethods_
+	.methods = _alifMathMethods_,
+	.slots = _mathSlots_,
 };
 
 AlifObject* alifInit_math(void) { // 4171
