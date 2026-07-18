@@ -302,6 +302,10 @@ FUNC1(tan, tan, 0,
 		"tan($module, x, /)\n--\n\n"
 		"Return the tangent of x (measured in radians).") // 1211
 
+FUNC1(sqrt, sqrt, 0,
+		"sqrt($module, x, /)\n--\n\n"
+		"Return the square root of x.")
+
 
 static unsigned long countSet_bits(unsigned long _n) { // 1447
 	unsigned long count = 0;
@@ -626,17 +630,18 @@ static AlifObject* math_radiansImpl(AlifObject* _module, double _x) { // 3039
 static AlifMethodDef _alifMathMethods_[] = { // 4087
 	MATH_CEIL_METHODDEF
 	MATH_FLOOR_METHODDEF
-	{"جيب",             math_sin,       METHOD_O},
-	{"تجيب",            math_cos,       METHOD_O},
-	{"ظل",              math_tan,       METHOD_O},
+	{"جيب", math_sin, METHOD_O},
+	{"تجيب", math_cos, METHOD_O},
+	{"ظل", math_tan, METHOD_O},
     MATH_DEGREES_METHODDEF
 	MATH_DIST_METHODDEF
-	{"قيمة_مطلقة",      math_fabs,      METHOD_O},
+	{"قيمة_مطلقة", math_fabs, METHOD_O},
 	MATH_FACTORIAL_METHODDEF
 	MATH_GCD_METHODDEF
 	MATH_LCM_METHODDEF
-	{"لوغ",        ALIF_CPPFUNCTION_CAST(math_log),       METHOD_FASTCALL},
+	{"لوغ", ALIF_CPPFUNCTION_CAST(math_log), METHOD_FASTCALL},
 	MATH_RADIANS_METHODDEF
+	{"جذر", math_sqrt, METHOD_O},
 	{nullptr,              nullptr}           /* sentinel */
 };
 
