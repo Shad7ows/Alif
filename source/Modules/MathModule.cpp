@@ -290,6 +290,10 @@ FUNC1(cos, cos, 0 ,
 	"cos($module, x, /)\n--\n\n"
 	"Return the cosine of x (measured in radians).") // 1122
 
+FUNC1(exp, exp, 1,
+	"exp($module, x, /)\n--\n\n"
+	"Return e raised to the power of x.")
+
 FUNC1(fabs, fabs, 0,
 		"fabs($module, x, /)\n--\n\n"
 		"Return the absolute value of the float x.")
@@ -676,6 +680,7 @@ static AlifMethodDef _alifMathMethods_[] = { // 4087
 	MATH_FACTORIAL_METHODDEF
 	MATH_GCD_METHODDEF
 	MATH_LCM_METHODDEF
+	{"اس_طبيعي", math_exp, METHOD_O,},
 	{"لوغ", ALIF_CPPFUNCTION_CAST(math_log), METHOD_FASTCALL},
 	MATH_RADIANS_METHODDEF
 	{"جذر", math_sqrt, METHOD_O},
