@@ -173,3 +173,7 @@ static inline AlifIntT alifEval_breakerBitIsSet(AlifThread* _thread, uintptr_t _
 
 void alifSet_evalBreakerBitAll(AlifInterpreter*, uintptr_t); // 312
 void alifUnset_evalBreakerBitAll(AlifInterpreter*, uintptr_t); // 313
+
+
+
+AlifObject* _alifFloat_fromDoubleConsumeInputs(AlifStackRef, AlifStackRef, double); // 328

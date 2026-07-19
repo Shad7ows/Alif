@@ -36,8 +36,14 @@ AlifObject* alifFloat_fromDouble(double _fVal) { // 123
 	return (AlifObject*)op_;
 }
 
+AlifObject* _alifFloat_fromDoubleConsumeInputs(AlifStackRef _left,
+	AlifStackRef _right, double _value) { // 139
+	ALIFSTACKREF_CLOSE(_left);
+	ALIFSTACKREF_CLOSE(_right);
+	return alifFloat_fromDouble(_value);
+}
 
-static AlifObject* float_fromStringInner(const char* s, AlifSizeT len, void* obj) { // 137
+static AlifObject* float_fromStringInner(const char* s, AlifSizeT len, void* obj) { // 172
 	double x{};
 	const char* end{};
 	const char* last = s + len;

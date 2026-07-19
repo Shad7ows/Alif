@@ -14,9 +14,9 @@
 
 class MathModuleState { // 81
 public:
-	AlifObject* str___ceil__;
-	AlifObject* str___floor__;
-	AlifObject* str___trunc__;
+	AlifObject* str___ceil__{};
+	AlifObject* str___floor__{};
+	AlifObject* str___trunc__{};
 };
 
 static inline MathModuleState* getMath_moduleState(AlifObject* _module) { // 88
@@ -684,7 +684,7 @@ static AlifMethodDef _alifMathMethods_[] = { // 4087
 
 
 static AlifModuleDefSlot _mathSlots_[] = { // 4159
-	{ALIF_MOD_EXEC, math_exec},
+	{ALIF_MOD_EXEC, (void*)math_exec},
 	{ALIF_MOD_MULTIPLE_INTERPRETERS, ALIF_MOD_PER_INTERPRETER_GIL_SUPPORTED},
 	{ALIF_MOD_GIL, ALIF_MOD_GIL_NOT_USED},
 	{0, nullptr}
@@ -694,6 +694,7 @@ static AlifModuleDefSlot _mathSlots_[] = { // 4159
 static class AlifModuleDef _alifMathModule_ = { // 4170
 	.base = ALIFMODULEDEF_HEAD_INIT,
 	.name = "الرياضيات",
+	.size = sizeof(MathModuleState),
 	.methods = _alifMathMethods_,
 	.slots = _mathSlots_,
 };
