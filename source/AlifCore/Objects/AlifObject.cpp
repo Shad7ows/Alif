@@ -1058,7 +1058,7 @@ static AlifTypeObject* staticTypes[] = {
 	&_alifDictValuesType_,
 	&_alifDictType_,
 	//&_alifEllipsisType_,
-	//&_alifEnumType_,
+	&_alifEnumType_,
 	//&_alifFilterType_,
 	&_alifFloatType_,
 	&_alifFrameType_,

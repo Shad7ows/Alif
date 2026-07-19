@@ -3019,12 +3019,12 @@ static void format_missing(AlifThread* _thread, const char* _kind,
 		ALIF_INCREF(nameStr);
 		break;
 	case 2:
-		nameStr = alifUStr_fromFormat("%U and %U",
+		nameStr = alifUStr_fromFormat("%U و %U",
 			ALIFLIST_GET_ITEM(_names, len - 2),
 			ALIFLIST_GET_ITEM(_names, len - 1));
 		break;
 	default:
-		tail = alifUStr_fromFormat(", %U, and %U",
+		tail = alifUStr_fromFormat(", %U, و %U",
 			ALIFLIST_GET_ITEM(_names, len - 2),
 			ALIFLIST_GET_ITEM(_names, len - 1));
 		if (tail == nullptr)
@@ -3054,9 +3054,10 @@ static void format_missing(AlifThread* _thread, const char* _kind,
 	if (nameStr == nullptr)
 		return;
 	_alifErr_format(_thread, _alifExcTypeError_,
-		"%U() مفقود %i معامل %s %s: %U",
-		_qualname, len, _kind,
-		len == 1 ? "" : "ات", nameStr);
+		"%U() مفقود %i معامل%s %s%s: %U",
+		_qualname, len,
+		len <= 2 ? "" : "ات", _kind,
+		len <= 2 ? "" : "ات", nameStr);
 	ALIF_DECREF(nameStr);
 }
 

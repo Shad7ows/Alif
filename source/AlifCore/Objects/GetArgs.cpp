@@ -1223,7 +1223,7 @@ static AlifIntT vGet_argsKeywords(AlifObject* args, AlifObject* kwargs,
 	if (skip) {
 		alifErr_format(_alifExcTypeError_,
 			"%.200s%s تحتاج %s %d معامل%s مكاني"
-			" (%zd given)",
+			" (%zd المعطى)",
 			(fname == nullptr) ? "دالة" : fname,
 			(fname == nullptr) ? "" : "()",
 			(ALIF_MIN(pos, min) < i) ? "على الأقل" : "تماماً",

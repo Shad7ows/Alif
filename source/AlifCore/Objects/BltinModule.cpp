@@ -1653,7 +1653,7 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	SETBUILTIN("وظيفة_صنف", &_alifClassMethodType_);
 	SETBUILTIN("complex", &_alifComplexType_);
 	SETBUILTIN("قاموس", &_alifDictType_);
-	//SETBUILTIN("enumerate", &_alifEnumType_);
+	SETBUILTIN("تعداد", &_alifEnumType_);
 	//SETBUILTIN("filter", &_alifFilterType_);
 	SETBUILTIN("عشري", &_alifFloatType_);
 	SETBUILTIN("frozenset", &_alifFrozenSetType_);
