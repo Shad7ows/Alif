@@ -32,6 +32,8 @@ unsigned long alifLong_asUnsignedLongMask(AlifObject*); // 27
 AlifIntT alifLong_asInt(AlifObject*); // 30
 
 
+AlifObject* alifLong_fromInt64(int64_t); // 36
+
 AlifIntT alifLong_asInt64(AlifObject*, int64_t*); // 41
 
 double alifLong_asDouble(AlifObject*); // 86
@@ -71,6 +73,8 @@ AlifObject* alifLong_fromUStrObject(AlifObject*, AlifIntT); // 5
 #define ALIF_ASNATIVEBYTES_ALLOW_INDEX 16
 
 
+
+AlifObject* alifLong_fromNativeBytes(const void*, AlifUSizeT, AlifIntT); // 56
 
 
 AlifIntT _alifLong_sign(AlifObject*); // 89

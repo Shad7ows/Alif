@@ -1024,6 +1024,27 @@ AlifSizeT alifLong_asNativeBytes(AlifObject* vv,
 }
 
 
+AlifObject* alifLong_fromNativeBytes(const void* _buffer,
+	AlifUSizeT _n, AlifIntT _flags) { // 1344
+	if (!_buffer) {
+		//ALIFERR_BADINTERNALCALL();
+		return nullptr;
+	}
+
+	AlifIntT littleEndian = _flags;
+	if (_resolve_endianness(&littleEndian) < 0) {
+		return nullptr;
+	}
+
+	return _alifLong_fromByteArray(
+		(const unsigned char*)_buffer,
+		_n,
+		littleEndian,
+		(_flags == -1 or !(_flags & ALIF_ASNATIVEBYTES_UNSIGNED_BUFFER)) ? 1 : 0
+	);
+}
+
+
 
 AlifObject* alifLong_fromVoidPtr(void* _p) { // 1349
 #if SIZEOF_VOID_P <= SIZEOF_LONG
@@ -4532,7 +4553,10 @@ static AlifObject* int___format__Impl(AlifObject* _self, AlifObject* _formatSpec
 }
 
 
-
+static AlifObject* int_bitLengthImpl(AlifObject* self) { // 6241
+	int64_t nbits = _alifLong_numBits(self);
+	return alifLong_fromInt64(nbits);
+}
 
 static AlifObject* long_vectorCall(AlifObject* type, AlifObject* const* args,
 	AlifUSizeT nargsf, AlifObject* kwnames) { // 6479
@@ -4557,6 +4581,7 @@ static AlifObject* long_vectorCall(AlifObject* type, AlifObject* const* args,
 
 
 static AlifMethodDef _longMethods_[] = { // 6449
+	INT_BIT_LENGTH_METHODDEF
 	INT___FORMAT___METHODDEF
 	{nullptr, nullptr}           /* sentinel */
 };
@@ -4647,4 +4672,8 @@ AlifTypeObject _alifLongType_ = { // 6597
 
 AlifIntT alifLong_asInt64(AlifObject* _obj, int64_t* _value) { // 6682
 	LONG_TO_INT(_obj, _value, "CPP int64_t");
+}
+
+AlifObject* alifLong_fromInt64(int64_t _value) { // 6719
+	return alifLong_fromNativeBytes(&_value, sizeof(_value), -1);
 }
