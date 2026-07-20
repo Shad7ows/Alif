@@ -825,7 +825,7 @@ static AlifMethodDef _nameErrorMethods_[] = {
 COMPLEXEXTENDSEXCEPTION(_excException_, NameError, NameError, خطأ_اسم,
 	nameError, 0,
 	_nameErrorMethods_, _nameErrorMembers_,
-	0, baseException_str, "لم يتم العثور على الاسم في المتغيرات_العامة.");
+	0, baseException_str, "لم يتم العثور على الاسم في اسماء_عامة.");
 
 
 

@@ -323,7 +323,7 @@ static AlifObject* builtin_exec(AlifObject* module,
 #  define KWTUPLE nullptr
 #endif
 
-	static const char* const _keywords[] = { "", "المتغيرات_العامة", "المتغيرات_المحلية", "closure", nullptr };
+	static const char* const _keywords[] = { "", "اسماء_عامة", "اسماء_محلية", "closure", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
 		.fname = "نفذ",
@@ -377,7 +377,7 @@ exit:
 
 
 #define BUILTIN_GLOBALS_METHODDEF    \
-    {"المتغيرات_العامة", (AlifCPPFunction)builtin_globals, METHOD_NOARGS} // 575
+    {"اسماء_عامة", (AlifCPPFunction)builtin_globals, METHOD_NOARGS} // 575
 
 static AlifObject* builtin_globalsImpl(AlifObject*);
 
@@ -464,7 +464,7 @@ exit:
 
 
 #define BUILTIN_LOCALS_METHODDEF    \
-    {"المتغيرات_المحلية", (AlifCPPFunction)builtin_locals, METHOD_NOARGS} // 788
+    {"اسماء_محلية", (AlifCPPFunction)builtin_locals, METHOD_NOARGS} // 788
 
 static AlifObject* builtin_localsImpl(AlifObject*);
 

@@ -4398,7 +4398,7 @@ AlifObject* _alifEval_loadName(AlifThread* _thread,
 	AlifObject* value{};
 	if (_frame->locals == nullptr) {
 		_alifErr_setString(_thread, _alifExcSystemError_,
-			"المتغيرات_المحلية فارغة");
+			"اسماء_محلية فارغة");
 		return nullptr;
 	}
 	if (alifMapping_getOptionalItem(_frame->locals, _name, &value) < 0) {

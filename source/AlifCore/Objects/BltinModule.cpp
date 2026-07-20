@@ -492,7 +492,7 @@ static AlifObject* builtin_execImpl(AlifObject* _module,
 		}
 		if (!_globals || !_locals) {
 			alifErr_setString(_alifExcSystemError_,
-				"المتغيرات_العامة والمتغيرات_المحلية لا يمكن أن تكون فارغة");
+				"اسماء_عامة واسماء_محلية لا يمكن أن تكون فارغة");
 			return nullptr;
 		}
 	}
@@ -504,13 +504,13 @@ static AlifObject* builtin_execImpl(AlifObject* _module,
 	}
 
 	if (!ALIFDICT_CHECK(_globals)) {
-		alifErr_format(_alifExcTypeError_, "المتغيرات_العامة لدالة نفذ() الضمنية يجب أن تكون من نوع فهرس, وليس %.100s",
+		alifErr_format(_alifExcTypeError_, "اسماء_عامة لدالة نفذ() الضمنية يجب أن تكون من نوع فهرس, وليس %.100s",
 			ALIF_TYPE(_globals)->name);
 		goto error;
 	}
 	if (!alifMapping_check(_locals)) {
 		alifErr_format(_alifExcTypeError_,
-			"المتغيرات_المحلية يجب أن تكون من نوع خرائط او عدم, وليس %.100s",
+			"اسماء_محلية يجب أن تكون من نوع خرائط او عدم, وليس %.100s",
 			ALIF_TYPE(_locals)->name);
 		goto error;
 	}
