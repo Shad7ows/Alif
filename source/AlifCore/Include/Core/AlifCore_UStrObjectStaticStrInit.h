@@ -325,6 +325,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__reversed__);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__round__);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__rmul__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__rsub__);

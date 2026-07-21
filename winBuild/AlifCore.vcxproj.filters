@@ -385,6 +385,12 @@
     <ClCompile Include="..\source\Modules\PosixModule.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\AlifMath.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\MySnprintf.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -1096,6 +1102,9 @@
       <Filter>Modules\clinic</Filter>
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_FileUtilsWindows.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_DescrObject.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>

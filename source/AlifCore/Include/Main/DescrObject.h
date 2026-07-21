@@ -20,6 +20,8 @@ extern AlifTypeObject _alifGetSetDescrType_;
 extern AlifTypeObject _alifMemberDescrType_; // 21
 extern AlifTypeObject _alifWrapperDescrType_; // 23
 
+extern AlifTypeObject _alifPropertyType_; // 25
+
 AlifObject* alifDescr_newMethod(AlifTypeObject*, AlifMethodDef*); // 27
 AlifObject* alifDescr_newClassMethod(AlifTypeObject*, AlifMethodDef*); // 28
 AlifObject* alifDescr_newMember(AlifTypeObject*, AlifMemberDef*); // 29

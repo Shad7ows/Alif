@@ -314,19 +314,19 @@ static const char* convert_tuple(AlifObject* _arg, const char** _pFormat,
 
 	if (!alifSequence_check(_arg) or ALIFBYTES_CHECK(_arg)) {
 		_levels[0] = 0;
-		//alifOS_snprintf(_msgbuf, _bufsize,
-		//	"must be %d-item sequence, not %.50s",
-		//	n,
-		//	_arg == ALIF_NONE ? "None" : ALIF_TYPE(_arg)->name);
+		alifOS_snprintf(_msgbuf, _bufsize,
+			"يجب أن يكون %d-عنصر تسلسل, وليس %.50s",
+			n,
+			_arg == ALIF_NONE ? "عدم" : ALIF_TYPE(_arg)->name);
 		return _msgbuf;
 	}
 
 	len = alifSequence_size(_arg);
 	if (len != n) {
 		_levels[0] = 0;
-		//alifOS_snprintf(_msgbuf, _bufsize,
-		//	"must be sequence of length %d, not %zd",
-		//	n, len);
+		alifOS_snprintf(_msgbuf, _bufsize,
+			"يجب أن يكون تسلسل بطول %d, وليس %zd",
+			n, len);
 		return _msgbuf;
 	}
 

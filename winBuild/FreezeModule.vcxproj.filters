@@ -387,5 +387,8 @@
     <ClCompile Include="..\source\Modules\PosixModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\MySnprintf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

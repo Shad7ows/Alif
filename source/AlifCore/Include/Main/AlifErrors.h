@@ -94,6 +94,16 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
 
 AlifObject* alifErr_newException(const char*, AlifObject*, AlifObject*); // 229
 
+
+
+// 320
+AlifIntT alifOS_snprintf(char*, AlifUSizeT, const char*, ...)
+ALIF_GCC_ATTRIBUTE((format(printf, 3, 4)));
+AlifIntT alifOS_vsnprintf(char*, AlifUSizeT, const char*, va_list)
+ALIF_GCC_ATTRIBUTE((format(printf, 3, 0)));
+
+
+
 /* --------------------------------------------------------------------------------- */
 
  // 8

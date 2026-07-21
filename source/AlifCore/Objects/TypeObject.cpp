@@ -496,6 +496,16 @@ const char* _alifType_name(AlifTypeObject* _type) { // 1308
 	return s;
 }
 
+static AlifObject* type_name(AlifTypeObject* type, void* context) { // 1322
+	if (type->flags & ALIF_TPFLAGS_HEAPTYPE) {
+		AlifHeapTypeObject* et = (AlifHeapTypeObject*)type;
+
+		return ALIF_NEWREF(et->name);
+	}
+	else {
+		return alifUStr_fromString(_alifType_name(type));
+	}
+}
 
 static AlifObject* type_qualname(AlifTypeObject* type, void* context) { // 1335
 	if (type->flags & ALIF_TPFLAGS_HEAPTYPE) {
@@ -505,6 +515,35 @@ static AlifObject* type_qualname(AlifTypeObject* type, void* context) { // 1335
 	else {
 		return alifUStr_fromString(_alifType_name(type));
 	}
+}
+
+static AlifIntT type_setName(AlifTypeObject* type,
+	AlifObject* value, void* context) {
+	const char* tp_name{};
+	AlifSizeT name_size{};
+
+	if (!check_setSpecialTypeAttr(type, value, "__اسم__"))
+		return -1;
+	if (!ALIFUSTR_CHECK(value)) {
+		alifErr_format(_alifExcTypeError_,
+			"يمكن إسناد نص فقط لـ %s.__اسم__, وليس '%s'",
+			type->name, ALIF_TYPE(value)->name);
+		return -1;
+	}
+
+	tp_name = alifUStr_asUTF8AndSize(value, &name_size);
+	if (tp_name == nullptr)
+		return -1;
+	if (strlen(tp_name) != (size_t)name_size) {
+		alifErr_setString(_alifExcValueError_,
+			"الاسم يجب أن لا يحتوي على أحرف فارغة");
+		return -1;
+	}
+
+	type->name = tp_name;
+	ALIF_SETREF(((AlifHeapTypeObject*)type)->name, ALIF_NEWREF(value));
+
+	return 0;
 }
 
 static AlifIntT type_setQualname(AlifTypeObject* type,
@@ -590,7 +629,7 @@ static AlifIntT add_subClass(AlifTypeObject*, AlifTypeObject*); // 1569
 
 
 static AlifGetSetDef _typeGetSets_[] = { // 2076
-	//{"__اسم__", (Getter)type_name, (Setter)type_setName, nullptr},
+	{"__اسم__", (Getter)type_name, (Setter)type_setName, nullptr},
 	{"__اسم_مميز__", (Getter)type_qualname, (Setter)type_setQualname, nullptr},
 	//{"__bases__", (Getter)type_getBases, (Setter)type_setBases, nullptr},
 	//{"__mro__", (Getter)type_getMro, nullptr, nullptr},

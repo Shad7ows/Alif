@@ -1,5 +1,6 @@
 #include "alif.h"
 
+#include "AlifCore_Call.h"
 #include "AlifCore_Eval.h"
 #include "AlifCore_ModSupport.h"
 #include "AlifCore_Object.h"
@@ -1119,6 +1120,29 @@ _readline_errors:
 
 
 
+static AlifObject* builtin_roundImpl(AlifObject* _module,
+	AlifObject* _number, AlifObject* _ndigits) { // 2493
+	AlifObject* round{}, * result{};
+
+	round = _alifObject_lookupSpecial(_number, &ALIF_STR(__round__));
+	if (round == nullptr) {
+		if (!alifErr_occurred())
+			alifErr_format(_alifExcTypeError_,
+				"النوع %.100s لا يعرف وظيفة __قرب__",
+				ALIF_TYPE(_number)->name);
+		return nullptr;
+	}
+
+	if (_ndigits == ALIF_NONE)
+		result = _alifObject_callNoArgs(round);
+	else
+		result = alifObject_callOneArg(round, _ndigits);
+	ALIF_DECREF(round);
+	return result;
+}
+
+
+
 class CompensatedSum { // 2534
 public:
 	double hi{};     /* high-order bits for a running sum */
@@ -1609,6 +1633,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	{"ادنى", ALIF_CPPFUNCTION_CAST(builtin_min), METHOD_FASTCALL | METHOD_KEYWORDS},
 	BUILTIN_PRINT_METHODDEF,
 	BUILTIN_SUM_METHODDEF,
+	BUILTIN_ROUND_METHODDEF,
 	{nullptr, nullptr},
 };
 
@@ -1657,7 +1682,7 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	//SETBUILTIN("filter", &_alifFilterType_);
 	SETBUILTIN("عشري", &_alifFloatType_);
 	SETBUILTIN("frozenset", &_alifFrozenSetType_);
-	//SETBUILTIN("property", &_alifPropertyType_);
+	SETBUILTIN("خاصية", &_alifPropertyType_);
 	SETBUILTIN("صحيح", &_alifLongType_);
 	SETBUILTIN("مصفوفة", &_alifListType_);
 	//SETBUILTIN("map", &_alifMapType_);

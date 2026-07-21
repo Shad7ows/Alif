@@ -596,6 +596,49 @@ exit:
 }
 
 
+#define BUILTIN_ROUND_METHODDEF    \
+    {"قرب", ALIF_CPPFUNCTION_CAST(builtin_round), METHOD_FASTCALL|METHOD_KEYWORDS}
+
+static AlifObject* builtin_roundImpl(AlifObject*, AlifObject*, AlifObject*);
+
+static AlifObject* builtin_round(AlifObject* module,
+	AlifObject* const* args, AlifSizeT nargs, AlifObject* kwnames) { // 1055
+
+	AlifObject* returnValue{};
+
+#  define KWTUPLE nullptr
+
+	static const char* const _keywords[] = { "رقم", "عدد_الارقام", nullptr };
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "قرب",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[2]{};
+	AlifSizeT noptargs = nargs + (kwnames ? ALIFTUPLE_GET_SIZE(kwnames) : 0) - 1;
+	AlifObject* number{};
+	AlifObject* ndigits = ALIF_NONE;
+
+	args = _ALIFARG_UNPACKKEYWORDS(args, nargs, nullptr, kwnames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 2, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+	if (!args) {
+		goto exit;
+	}
+	number = args[0];
+	if (!noptargs) {
+		goto skip_optional_pos;
+	}
+	ndigits = args[1];
+skip_optional_pos:
+	returnValue = builtin_roundImpl(module, number, ndigits);
+
+exit:
+	return returnValue;
+}
+
+
+
 // 1106
 #define BUILTIN_SUM_METHODDEF    \
     {"اجمع", ALIF_CPPFUNCTION_CAST(builtin_sum), METHOD_FASTCALL|METHOD_KEYWORDS}

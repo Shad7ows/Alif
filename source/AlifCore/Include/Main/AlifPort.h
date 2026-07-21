@@ -127,6 +127,17 @@ typedef AlifUSizeT AlifUHashT;
 
 
 
+/*
+* Hide GCC attributes from compilers that don't support them.
+*/
+#if (!defined(__GNUC__) or __GNUC__ < 2 or \
+     (__GNUC__ == 2 and __GNUC_MINOR__ < 7) )
+#define ALIF_GCC_ATTRIBUTE(x)
+#else
+#define ALIF_GCC_ATTRIBUTE(x) __attribute__(x)
+#endif
+
+
 
 #ifdef WORDS_BIGENDIAN
 #  define ALIF_BIG_ENDIAN 1
