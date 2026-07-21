@@ -11,5 +11,5 @@ public:
 	AlifObject* propDel{};
 	AlifObject* propDoc{};
 	AlifObject* propName{};
-	AlifIntT getter_doc{};
+	AlifIntT getterDoc{};
 };

@@ -684,7 +684,7 @@ static AlifObject* property_copy(AlifObject* _old,
 	if (_del == nullptr or _del == ALIF_NONE) {
 		_del = pold->propDel ? pold->propDel : ALIF_NONE;
 	}
-	if (pold->getter_doc and _get != ALIF_NONE) {
+	if (pold->getterDoc and _get != ALIF_NONE) {
 		/* make _init use __doc__ from getter */
 		doc = ALIF_NONE;
 	}
@@ -704,6 +704,72 @@ static AlifObject* property_copy(AlifObject* _old,
 }
 
 
+static AlifIntT property_initImpl(PropertyObject* self, AlifObject* fget,
+	AlifObject* fset, AlifObject* fdel, AlifObject* doc) { // 1835
+	if (fget == ALIF_NONE)
+		fget = nullptr;
+	if (fset == ALIF_NONE)
+		fset = nullptr;
+	if (fdel == ALIF_NONE)
+		fdel = nullptr;
+
+	ALIF_XSETREF(self->propGet, ALIF_XNEWREF(fget));
+	ALIF_XSETREF(self->propSet, ALIF_XNEWREF(fset));
+	ALIF_XSETREF(self->propDel, ALIF_XNEWREF(fdel));
+	ALIF_XSETREF(self->propDoc, nullptr);
+	ALIF_XSETREF(self->propName, nullptr);
+
+	self->getterDoc = 0;
+	AlifObject* propDoc = nullptr;
+
+	if (doc != nullptr and doc != ALIF_NONE) {
+		propDoc = ALIF_XNEWREF(doc);
+	}
+	/* if no docstring given and the getter has one, use that one */
+	else if (fget != nullptr) {
+		int rc = alifObject_getOptionalAttr(fget, &ALIF_ID(__doc__), &propDoc);
+		if (rc < 0) {
+			return rc;
+		}
+		if (propDoc == ALIF_NONE) {
+			propDoc = nullptr;
+			ALIF_DECREF(ALIF_NONE);
+		}
+		if (propDoc != nullptr) {
+			self->getterDoc = 1;
+		}
+	}
+
+	if (ALIF_IS_TYPE(self, &_alifPropertyType_)) {
+		ALIF_XSETREF(self->propDoc, propDoc);
+	}
+	else {
+
+		if (propDoc == nullptr) {
+			propDoc = ALIF_NEWREF(ALIF_NONE);
+		}
+		AlifIntT err = alifObject_setAttr(
+			(AlifObject*)self, &ALIF_ID(__doc__), propDoc);
+		ALIF_DECREF(propDoc);
+		if (err < 0) {
+			if (!self->getterDoc and
+				alifErr_exceptionMatches(_alifExcAttributeError_)) {
+				alifErr_clear();
+				return 0;
+			}
+			else {
+				return -1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+
+#include "clinic/DescrObject.cpp.h" // 1993
+
 
 
 AlifTypeObject _alifPropertyType_ = { // 2038
@@ -722,7 +788,7 @@ AlifTypeObject _alifPropertyType_ = { // 2038
 	//.getSet = property_getSetList,
 	.descrGet = property_descrGet,
 	//.descrSet = property_descrSet,
-	//.init = property_init,
+	.init = property_init,
 	.alloc = alifType_genericAlloc,
 	.new_ = alifType_genericNew,
 	.free = alifObject_gcDel,

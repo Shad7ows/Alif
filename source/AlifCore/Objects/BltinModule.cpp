@@ -696,10 +696,10 @@ static AlifObject* min_max(AlifObject* const* args, AlifSizeT nargs,
 	AlifObject* kwnames, AlifIntT op) { // 1795
 	AlifObject* it = nullptr, * item{}, * val{}, * maxitem{}, * maxval{}, * keyfunc = nullptr;
 	AlifObject* defaultval = nullptr;
-	static const char* const keywords[] = { "key", "default", nullptr };
+	static const char* const keywords[] = { "مفتاح", "إفتراضي", nullptr };
 	static AlifArgParser parserMin = { "|$OO:min", keywords, 0 };
 	static AlifArgParser parserMax = { "|$OO:max", keywords, 0 };
-	const char* name = (op == ALIF_LT) ? "min" : "max";
+	const char* name = (op == ALIF_LT) ? "ادنى" : "اقصى";
 	AlifArgParser* parser_ = (op == ALIF_LT) ? &parserMin : &parserMax;
 
 	if (nargs == 0) {
@@ -789,8 +789,8 @@ static AlifObject* min_max(AlifObject* const* args, AlifSizeT nargs,
 			maxitem = ALIF_NEWREF(defaultval);
 		}
 		else {
-			//alifErr_format(_alifExcValueError_,
-			//	"%s() iterable argument is empty", name);
+			alifErr_format(_alifExcValueError_,
+				"%s() معامل التكرار فارغ", name);
 		}
 	}
 	else {
