@@ -2729,6 +2729,37 @@ resume_frame:
 				stackPointer += -1;
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(BINARY_OP_ADD_UNICODE) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 2;
+				AlifStackRef left{};
+				AlifStackRef right{};
+				AlifStackRef res{};
+				// _GUARD_BOTH_UNICODE
+				{
+					right = stackPointer[-1];
+					left = stackPointer[-2];
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					DEOPT_IF(!ALIFUSTR_CHECKEXACT(leftObj), BINARY_OP);
+					DEOPT_IF(!ALIFUSTR_CHECKEXACT(rightObj), BINARY_OP);
+				}
+				/* Skip 1 cache entry */
+				// _BINARY_OP_ADD_UNICODE
+				{
+					AlifObject* leftObj = alifStackRef_asAlifObjectBorrow(left);
+					AlifObject* rightObj = alifStackRef_asAlifObjectBorrow(right);
+					//STAT_INC(BINARY_OP, hit);
+					AlifObject* resObj = alifUStr_concat(leftObj, rightObj);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(left, _alifUStr_exactDealloc);
+					ALIFSTACKREF_CLOSE_SPECIALIZED(right, _alifUStr_exactDealloc);
+					if (resObj == nullptr) goto pop_2_error;
+					res = ALIFSTACKREF_FROMALIFOBJECTSTEAL(resObj);
+				}
+				stackPointer[-2] = res;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(BINARY_OP_MULTIPLY_FLOAT) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 2;

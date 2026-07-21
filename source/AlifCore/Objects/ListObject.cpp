@@ -463,7 +463,7 @@ static AlifObject* list_item(AlifObject* _aa, AlifSizeT _i) { // 613
 }
 
 
-static AlifObject* listSlice_lockHeld(AlifListObject* _a,
+static AlifObject* list_sliceLockHeld(AlifListObject* _a,
 	AlifSizeT _iLow, AlifSizeT _iHigh) { // 635
 	AlifListObject* np_{};
 	AlifObject** src_{}, ** dest{};
@@ -693,7 +693,7 @@ static AlifIntT list_assSlice(AlifListObject* _a, AlifSizeT _iLow,
 	if (_a == (AlifListObject*)_v) {
 		ALIF_BEGIN_CRITICAL_SECTION(_a);
 		AlifSizeT n_ = ALIFLIST_GET_SIZE(_a);
-		AlifObject* copy = listSlice_lockHeld(_a, 0, n_);
+		AlifObject* copy = list_sliceLockHeld(_a, 0, n_);
 		if (copy == nullptr) {
 			return -1;
 		}
@@ -2266,6 +2266,76 @@ static AlifSequenceMethods _listAsSequence_ = { // 3465
 };
 
 
+static inline AlifObject* list_sliceStepLockHeld(AlifListObject* _a,
+	AlifSizeT _start, AlifSizeT _step, AlifSizeT _len) { // 3475
+	AlifListObject* np = (AlifListObject*)list_newPrealloc(_len);
+	if (np == nullptr) {
+		return nullptr;
+	}
+	size_t cur;
+	AlifSizeT i;
+	AlifObject** src = _a->item;
+	AlifObject** dest = np->item;
+	for (cur = _start, i = 0; i < _len;
+		cur += (size_t)_step, i++) {
+		AlifObject* v = src[cur];
+		dest[i] = ALIF_NEWREF(v);
+	}
+	ALIF_SET_SIZE(np, _len);
+	return (AlifObject*)np;
+}
+
+static AlifObject* list_sliceWrap(AlifListObject* _aa,
+	AlifSizeT _start, AlifSizeT _stop, AlifSizeT _step) { // 3495
+	AlifObject* res = nullptr;
+	ALIF_BEGIN_CRITICAL_SECTION(_aa);
+	AlifSizeT len = alifSlice_adjustIndices(ALIF_SIZE(_aa), &_start, &_stop, _step);
+	if (len <= 0) {
+		res = alifList_new(0);
+	}
+	else if (_step == 1) {
+		res = list_sliceLockHeld(_aa, _start, _stop);
+	}
+	else {
+		res = list_sliceStepLockHeld(_aa, _start, _step, len);
+	}
+	ALIF_END_CRITICAL_SECTION();
+	return res;
+}
+
+static AlifObject* list_subScript(AlifObject* _self,
+	AlifObject* _item) { // 3514
+	AlifListObject* self = (AlifListObject*)_self;
+	if (_alifIndex_check(_item)) {
+		AlifSizeT i{};
+		i = alifNumber_asSizeT(_item, _alifExcIndexError_);
+		if (i == -1 and alifErr_occurred())
+			return nullptr;
+		if (i < 0)
+			i += ALIFLIST_GET_SIZE(self);
+		return list_item((AlifObject*)self, i);
+	}
+	else if (ALIFSLICE_CHECK(_item)) {
+		AlifSizeT start{}, stop{}, step{};
+		if (alifSlice_unpack(_item, &start, &stop, &step) < 0) {
+			return nullptr;
+		}
+		return list_sliceWrap(self, start, stop, step);
+	}
+	else {
+		alifErr_format(_alifExcTypeError_,
+			"مؤشر المصفوفة يجب أن يكون عدد صحيح او قطع, وليس %.200s",
+			ALIF_TYPE(_item)->name);
+		return nullptr;
+	}
+}
+
+
+static AlifMappingMethods _listAsMapping_ = { // 3728
+	.length = list_length,
+	.subscript = list_subScript,
+	//.assSubscript = list_assSubScript
+};
 
 AlifTypeObject _alifListType_ = { // 3737
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
@@ -2274,6 +2344,7 @@ AlifTypeObject _alifListType_ = { // 3737
 	.dealloc = list_dealloc,
 	.repr = list_repr,
 	.asSequence = &_listAsSequence_,
+	.asMapping = &_listAsMapping_,
 	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
 		ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_LIST_SUBCLASS |
