@@ -3551,12 +3551,25 @@ static void clear_threadFrame(AlifThread* _thread, AlifInterpreterFrame* _frame)
 	_alifThreadState_popFrame(_thread, _frame);
 }
 
+static void clear_genFrame(AlifThread* _thread,
+	AlifInterpreterFrame* _frame) { // 1741
+	AlifGenObject* gen = _alifGen_getGeneratorFromFrame(_frame);
+	gen->giFrameState = AlifFrameState_::Frame_Cleared;
+	_thread->excInfo = gen->giExcState.previousItem;
+	gen->giExcState.previousItem = nullptr;
+	_thread->cppRecursionRemaining--;
+	_alifFrame_clearExceptCode(_frame);
+	_alifErr_clearExcState(&gen->giExcState);
+	_thread->cppRecursionRemaining++;
+	_frame->previous = nullptr;
+}
+
 void _alifEval_frameClearAndPop(AlifThread* _thread, AlifInterpreterFrame* _frame) { // 1677
 	if (_frame->owner == FrameOwner::FRAME_OWNED_BY_THREAD) {
 		clear_threadFrame(_thread, _frame);
 	}
 	else {
-		//clear_genFrame(_thread, _frame);
+		clear_genFrame(_thread, _frame);
 	}
 }
 
@@ -3617,9 +3630,6 @@ static AlifInterpreterFrame* _alifEvalFramePushAndInit_unTagged(AlifThread* _thr
 	alifMem_dataFree(taggedArgsBuffer);
 	return res;
 }
-
-
-
 
 
 AlifObject* _alifEval_vector(AlifThread* _tstate, AlifFunctionObject* _func,

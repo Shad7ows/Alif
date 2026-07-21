@@ -369,8 +369,23 @@ void _alifErr_chainExceptions1(AlifObject* _exc) { // 686
 
 
 
+void _alifErr_chainStackItem(void) { // 710
+	AlifThread* tstate = _alifThread_get();
 
-AlifObject* alifErr_setFromErrnoWithFilenameObject(AlifObject* _exc, AlifObject* _fileNameObject) { // 783
+	AlifErrStackItem* exc_info = tstate->excInfo;
+	if (exc_info->excValue == nullptr or exc_info->excValue == ALIF_NONE) {
+		return;
+	}
+
+	AlifObject* exc = _alifErr_getRaisedException(tstate);
+
+	_alifErr_setObject(tstate, (AlifObject*)ALIF_TYPE(exc), exc);
+	ALIF_DECREF(exc);
+}
+
+
+AlifObject* alifErr_setFromErrnoWithFilenameObject(AlifObject* _exc,
+	AlifObject* _fileNameObject) { // 783
 	return alifErr_setFromErrnoWithFilenameObjects(_exc, _fileNameObject, nullptr);
 }
 

@@ -38,6 +38,7 @@ extern void _alifErr_setRaisedException(AlifThread*, AlifObject*); // 102
 
 extern void _alifErr_setObject(AlifThread*, AlifObject*, AlifObject*); // 110
 
+extern void _alifErr_chainStackItem(void); // 115
 
 void _alifErr_clear(AlifThread*); // 117
 
