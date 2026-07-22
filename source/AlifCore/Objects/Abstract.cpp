@@ -1184,7 +1184,7 @@ AlifObject* alifSequence_tuple(AlifObject* v) { // 1992
 				goto Fail;
 			}
 			n = (AlifSizeT)newn;
-			if (alifTuple_resize(&result, n) != 0) {
+			if (_alifTuple_resize(&result, n) != 0) {
 				ALIF_DECREF(item);
 				goto Fail;
 			}
@@ -1193,7 +1193,7 @@ AlifObject* alifSequence_tuple(AlifObject* v) { // 1992
 	}
 
 	/* Cut tuple back if guess was too large. */
-	if (j < n and alifTuple_resize(&result, j) != 0)
+	if (j < n and _alifTuple_resize(&result, j) != 0)
 		goto Fail;
 
 	ALIF_DECREF(it);

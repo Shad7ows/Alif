@@ -589,7 +589,7 @@ static inline AlifSizeT find_char(const void* _s, AlifIntT _kind,
 	}
 }
 
-static AlifObject* resize_compact(AlifObject* _uStr, AlifSizeT _length) { // 1071
+static AlifObject* resize_compact(AlifObject* _uStr, AlifSizeT _length) { // 1098
 	AlifSizeT charSize{};
 	AlifSizeT structSize{};
 	AlifSizeT newSize{};
@@ -612,6 +612,7 @@ static AlifObject* resize_compact(AlifObject* _uStr, AlifSizeT _length) { // 107
 		_ALIFUSTR_UTF8(_uStr) = nullptr;
 		ALIFUSTR_UTF8_LENGTH(_uStr) = 0;
 	}
+	_ALIFREFTRACERTRACK(_uStr, AlifRefTracerEvent_::Alif_RefTracer_Destroy);
 
 	newUStr = (AlifObject*)alifMem_objRealloc(_uStr, newSize);
 	if (newUStr == nullptr) {
@@ -1334,7 +1335,7 @@ static AlifObject* _alifUStr_fromUCS4(const AlifUCS4* _u, AlifSizeT _size) { // 
 AlifObject* alifUStr_fromKindAndData(AlifIntT _kind,
 	const void* _buffer, AlifSizeT _size) { // 2335
 	if (_size < 0) {
-		//alifErr_setString(_alifExcValueError_, "size must be positive");
+		alifErr_setString(_alifExcValueError_, "الحجم يجب أن يكون أكبر من او يساوي صفر (موجب)");
 		return nullptr;
 	}
 	switch (_kind) {

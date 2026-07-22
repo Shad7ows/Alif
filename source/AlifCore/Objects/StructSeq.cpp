@@ -140,7 +140,7 @@ static AlifIntT initialize_structSeqDict(AlifStructSequenceDesc* _desc, AlifObje
 		k++;
 	}
 
-	if (alifTuple_resize(&keys, k) == -1) {
+	if (_alifTuple_resize(&keys, k) == -1) {
 		goto error;
 	}
 

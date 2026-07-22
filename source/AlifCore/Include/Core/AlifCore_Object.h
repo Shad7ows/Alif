@@ -10,6 +10,17 @@
 
 #define ALIF_REF_DEFERRED (ALIF_SIZET_MAX / 8) // 28
 
+
+#define _ALIFREFTRACERTRACK(_obj, _operation) \
+    do { \
+        RefTracerRuntimeState* tracer = &_alifRuntime_.refTracer; \
+        if (tracer->tracerFunc != nullptr) { \
+            void *data = tracer->tracerData; \
+            tracer->tracerFunc((_obj), (_operation), data); \
+        } \
+    } while(0)
+
+
 static inline void _alif_refcntAdd(AlifObject* _op, AlifSizeT _n) { // 132 
 	if (ALIF_ISIMMORTAL(_op)) {
 		return;

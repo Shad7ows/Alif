@@ -539,6 +539,7 @@ AlifIntT _alifBytes_resize(AlifObject** _pv, AlifSizeT _newSize) { // 3141
 		return (*_pv == nullptr) ? -1 : 0;
 	}
 
+	_ALIFREFTRACERTRACK(v, AlifRefTracerEvent_::Alif_RefTracer_Destroy);
 	*_pv = (AlifObject*)
 		alifMem_objRealloc(v, ALIFBYTESOBJECT_SIZE + _newSize);
 	if (*_pv == nullptr) {

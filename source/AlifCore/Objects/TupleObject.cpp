@@ -415,7 +415,7 @@ AlifTypeObject _alifTupleType_ = { // 865
 };
 
 
-AlifIntT alifTuple_resize(AlifObject** _pv, AlifSizeT _newSize) { // 918
+AlifIntT _alifTuple_resize(AlifObject** _pv, AlifSizeT _newSize) { // 922
 	AlifTupleObject* v_{};
 	AlifTupleObject* sv_{};
 	AlifSizeT i_{};
@@ -451,6 +451,8 @@ AlifIntT alifTuple_resize(AlifObject** _pv, AlifSizeT _newSize) { // 918
 	for (i_ = _newSize; i_ < oldSize; i_++) {
 		ALIF_CLEAR(v_->item[i_]);
 	}
+	_ALIFREFTRACERTRACK((AlifObject*)v_, AlifRefTracerEvent_::Alif_RefTracer_Destroy);
+
 	sv_ = ALIFOBJECT_GC_RESIZE(AlifTupleObject, v_, _newSize);
 	if (sv_ == nullptr) {
 		*_pv = nullptr;
