@@ -1060,7 +1060,7 @@ static AlifStructSequenceField _statResultFields_[] = { // 2255
 	{nullptr,   "integer time of last modification"},
 	{nullptr,   "integer time of last change"},
 	{"st_atime",   "time of last access"},
-	{"st_mtime",   "time of last modification"},
+	{"زمن_التعديل",   "time of last modification"},
 	{"st_ctime",   "time of last change"},
 	{"st_atime_ns",   "time of last access in nanoseconds"},
 	{"st_mtime_ns",   "time of last modification in nanoseconds"},
