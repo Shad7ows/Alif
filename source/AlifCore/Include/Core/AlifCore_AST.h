@@ -293,6 +293,11 @@ public:
 
 		class {
 		public:
+			ASDLIdentifierSeq* names{};
+		} nonlocal;
+
+		class {
+		public:
 			ExprTy val{};
 		} expression;
 

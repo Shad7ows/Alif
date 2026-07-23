@@ -637,7 +637,7 @@ AlifIntT alifObject_delAttr(AlifObject* _v, AlifObject* _name) { // 1404
 }
 
 
-AlifObject** alifObject_computedDictPointer(AlifObject* _obj) { // 1409
+AlifObject** _alifObject_computedDictPointer(AlifObject* _obj) { // 1409
 	AlifTypeObject* tp = ALIF_TYPE(_obj);
 
 	AlifSizeT dictOffset = tp->dictOffset;
@@ -654,6 +654,21 @@ AlifObject** alifObject_computedDictPointer(AlifObject* _obj) { // 1409
 		dictOffset += (AlifSizeT)size;
 	}
 	return (AlifObject**)((char*)_obj + dictOffset);
+}
+
+AlifObject** _alifObject_getDictPtr(AlifObject* _obj) { // 1483
+	if ((ALIF_TYPE(_obj)->flags & ALIF_TPFLAGS_MANAGED_DICT) == 0) {
+		return _alifObject_computedDictPointer(_obj);
+	}
+	AlifDictObject* dict = _alifObject_getManagedDict(_obj);
+	if (dict == nullptr and ALIF_TYPE(_obj)->flags & ALIF_TPFLAGS_INLINE_VALUES) {
+		dict = _alifObject_materializeManagedDict(_obj);
+		if (dict == nullptr) {
+			alifErr_clear();
+			return nullptr;
+		}
+	}
+	return (AlifObject**)&_alifObject_managedDictPointer(_obj)->dict;
 }
 
 AlifObject* alifObject_selfIter(AlifObject* _obj) { // 1461
@@ -710,10 +725,10 @@ AlifIntT _alifObject_getMethod(AlifObject* _obj,
 		dict = nullptr;
 	}
 	else if ((tp->flags & ALIF_TPFLAGS_MANAGED_DICT)) {
-		dict = (AlifObject*)alifObject_getManagedDict(_obj);
+		dict = (AlifObject*)_alifObject_getManagedDict(_obj);
 	}
 	else {
-		AlifObject** dictptr = alifObject_computedDictPointer(_obj);
+		AlifObject** dictptr = _alifObject_computedDictPointer(_obj);
 		if (dictptr != nullptr) {
 			dict = *dictptr;
 		}
@@ -803,7 +818,7 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 				}
 			}
 			else {
-				_dict = (AlifObject*)alifObject_materializeManagedDict(_obj);
+				_dict = (AlifObject*)_alifObject_materializeManagedDict(_obj);
 				if (_dict == nullptr) {
 					res = nullptr;
 					goto done;
@@ -811,10 +826,10 @@ AlifObject* alifObject_genericGetAttrWithDict(AlifObject* _obj, AlifObject* _nam
 			}
 		}
 		else if ((tp->flags & ALIF_TPFLAGS_MANAGED_DICT)) {
-			_dict = (AlifObject*)alifObject_getManagedDict(_obj);
+			_dict = (AlifObject*)_alifObject_getManagedDict(_obj);
 		}
 		else {
-			AlifObject** dictPtr = alifObject_computedDictPointer(_obj);
+			AlifObject** dictPtr = _alifObject_computedDictPointer(_obj);
 			if (dictPtr) {
 				_dict = *dictPtr;
 			}
@@ -911,11 +926,11 @@ AlifIntT alifObject_genericSetAttrWithDict(AlifObject* _obj, AlifObject* _name,
 		}
 
 		if ((tp->flags & ALIF_TPFLAGS_MANAGED_DICT)) {
-			AlifManagedDictPointer* managed_dict = alifObject_managedDictPointer(_obj);
+			AlifManagedDictPointer* managed_dict = _alifObject_managedDictPointer(_obj);
 			dictptr = (AlifObject**)&managed_dict->dict;
 		}
 		else {
-			dictptr = alifObject_computedDictPointer(_obj);
+			dictptr = _alifObject_computedDictPointer(_obj);
 		}
 		if (dictptr == nullptr) {
 			if (descr == nullptr) {
@@ -967,11 +982,43 @@ done:
 
 
 AlifIntT alifObject_genericSetAttr(AlifObject* _obj,
-	AlifObject* _name, AlifObject* _value) { // 1801
+	AlifObject* _name, AlifObject* _value) { // 1840
 	return alifObject_genericSetAttrWithDict(_obj, _name, _value, nullptr);
 }
 
-AlifIntT alifObject_isTrue(AlifObject* _v) { // 1845
+AlifIntT alifObject_genericSetDict(AlifObject* _obj,
+	AlifObject* _value, void* _context) { // 1846
+	AlifObject** dictptr = _alifObject_getDictPtr(_obj);
+	if (dictptr == nullptr) {
+		if (_alifType_hasFeature(ALIF_TYPE(_obj), ALIF_TPFLAGS_INLINE_VALUES) and
+			_alifObject_getManagedDict(_obj) == nullptr
+			) {
+			/* Was unable to convert to dict */
+			//alifErr_noMemory();
+		}
+		else {
+			alifErr_setString(_alifExcAttributeError_,
+				"هذا الكائن لا يملك __فهرس__");
+		}
+		return -1;
+	}
+	if (_value == nullptr) {
+		alifErr_setString(_alifExcTypeError_, "لا يمكن حذف __فهرس__");
+		return -1;
+	}
+	if (!ALIFDICT_CHECK(_value)) {
+		alifErr_format(_alifExcTypeError_,
+			"__فهرس__ يجب أن يضبط إلى فهرس, "
+			"وليس '%.200s'", ALIF_TYPE(_value)->name);
+		return -1;
+	}
+	ALIF_BEGIN_CRITICAL_SECTION(_obj);
+	ALIF_XSETREF(*dictptr, ALIF_NEWREF(_value));
+	ALIF_END_CRITICAL_SECTION();
+	return 0;
+}
+
+AlifIntT alifObject_isTrue(AlifObject* _v) { // 1883
 	AlifSizeT res_{};
 	if (_v == ALIF_TRUE)
 		return 1;

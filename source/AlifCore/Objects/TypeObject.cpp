@@ -888,7 +888,7 @@ static void subtype_dealloc(AlifObject* self) { // 2442
 		//alifObject_clearManagedDict(self);
 	}
 	else if (type->dictOffset and !base->dictOffset) {
-		AlifObject** dictptr = alifObject_computedDictPointer(self);
+		AlifObject** dictptr = _alifObject_computedDictPointer(self);
 		if (dictptr != nullptr) {
 			AlifObject* dict = *dictptr;
 			if (dict != nullptr) {
@@ -2003,9 +2003,9 @@ static AlifIntT typeNew_setClassDictCell(AlifTypeObject* _type) { // 4220
 
 	/* At least one method requires a reference to the dict of its defining class */
 	if (!ALIFCELL_CHECK(cell)) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"__classdictcell__ must be a nonlocal cell, not %.200R",
-		//	ALIF_TYPE(cell));
+		alifErr_format(_alifExcTypeError_,
+			"__خلية_فهرس_صنف__ يجب أن تكون خلية نطاق, وليس %.200R",
+			ALIF_TYPE(cell));
 		return -1;
 	}
 

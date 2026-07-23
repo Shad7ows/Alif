@@ -3682,8 +3682,6 @@ static AlifIntT canOptimize_superCall(AlifCompiler* _c, ExprTy _attr) { // 4617
 }
 
 
-
-
 static AlifIntT loadArgs_forSuper(AlifCompiler* _c, ExprTy _e) {
 	Location loc = LOC(_e);
 
@@ -3711,6 +3709,7 @@ static AlifIntT loadArgs_forSuper(AlifCompiler* _c, ExprTy _e) {
 
 	return SUCCESS;
 }
+
 
 
 
@@ -3782,10 +3781,10 @@ static AlifIntT maybeOptimize_methodCall(AlifCompiler* _c, ExprTy _e) {
 	/* Alright, we can optimize the code. */
 	Location loc = LOC(meth);
 
-	//ret = canOptimize_superCall(_c, meth);
+	ret = canOptimize_superCall(_c, meth);
 	RETURN_IF_ERROR(ret);
 	if (ret) {
-		//RETURN_IF_ERROR(loadArgs_forSuper(_c, meth->V.attribute.val));
+		RETURN_IF_ERROR(loadArgs_forSuper(_c, meth->V.attribute.val));
 		AlifIntT opcode = ASDL_SEQ_LEN(meth->V.attribute.val->V.call.args) ?
 			LOAD_SUPER_METHOD : LOAD_ZERO_SUPER_METHOD;
 		ADDOP_NAME(_c, loc, opcode, meth->V.attribute.attr, names);

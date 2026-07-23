@@ -376,11 +376,11 @@ static AlifIntT error_atDirective(AlifSTEntryObject* _ste, AlifObject* _name) { 
 	for (i = 0; i < ALIFLIST_GET_SIZE(_ste->directives); i++) {
 		data = ALIFLIST_GET_ITEM(_ste->directives, i);
 		if (alifUStr_compare(ALIFTUPLE_GET_ITEM(data, 0), _name) == 0) {
-			//alifErr_rangedSyntaxLocationObject(_ste->table->filename,
-				//alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 1)),
-				//alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 2)) + 1,
-				//alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 3)),
-				//alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 4)) + 1);
+			alifErr_rangedSyntaxLocationObject(_ste->table->fileName,
+				alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 1)),
+				alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 2)) + 1,
+				alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 3)),
+				alifLong_asLong(ALIFTUPLE_GET_ITEM(data, 4)) + 1);
 
 			return 0;
 		}
@@ -1543,7 +1543,7 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 			return 0;
 		}
 		break;
-	case GlobalK: {
+	case StmtK_::GlobalK: {
 		AlifSizeT i{};
 		ASDLIdentifierSeq* seq = _s->V.global.names;
 		for (i = 0; i < ASDL_SEQ_LEN(seq); i++) {
@@ -1573,6 +1573,37 @@ static AlifIntT symtable_visitStmt(AlifSymTable* _st, StmtTy _s) { // 1812
 			if (!symtable_addDef(_st, name, DEF_GLOBAL, LOCATION(_s))) {
 				return 0;
 			}
+			if (!symtable_recordDirective(_st, name, LOCATION(_s))) {
+				return 0;
+			}
+		}
+		break;
+	}
+	case StmtK_::NonlocalK: {
+		AlifSizeT i{};
+		ASDLIdentifierSeq* seq = _s->V.nonlocal.names;
+		for (i = 0; i < ASDL_SEQ_LEN(seq); i++) {
+			Identifier name = (Identifier)ASDL_SEQ_GET(seq, i);
+			long cur = symtable_lookup(_st, name);
+			if (cur < 0)
+				return 0;
+			if (cur & (DEF_PARAM | DEF_LOCAL | USE | DEF_ANNOT)) {
+				const char* msg;
+				if (cur & DEF_PARAM) {
+					msg = NONLOCAL_PARAM;
+				} else if (cur & USE) {
+					msg = NONLOCAL_AFTER_USE;
+				} else if (cur & DEF_ANNOT) {
+					msg = NONLOCAL_ANNOT;
+				} else {  /* DEF_LOCAL */
+					msg = NONLOCAL_AFTER_ASSIGN;
+				}
+				alifErr_format(_alifExcSyntaxError_, msg, name);
+				SET_ERROR_LOCATION(_st->fileName, LOCATION(_s));
+				return 0;
+			}
+			if (!symtable_addDef(_st, name, DEF_NONLOCAL, LOCATION(_s)))
+				return 0;
 			if (!symtable_recordDirective(_st, name, LOCATION(_s))) {
 				return 0;
 			}
@@ -1688,6 +1719,9 @@ static AlifIntT symtable_visitExpr(AlifSymTable* _st, ExprTy _e) { // 2334
 		VISIT(_st, Expr, _e->V.subScript.val);
 		VISIT(_st, Expr, _e->V.subScript.slice);
 		break;
+	case ExprK_::StarK:
+		VISIT(_st, Expr, _e->V.star.val);
+		break;
 	case ExprK_::SliceK:
 		if (_e->V.slice.lower)
 			VISIT(_st, Expr, _e->V.slice.lower);
@@ -1733,7 +1767,6 @@ static AlifIntT symtable_visitTypeParam(AlifSymTable* _st, TypeParamTy _tp) { //
 		if (bound != nullptr) {
 			steScopeInfo = bound->type == ExprK_::TupleK ? "a TypeVar constraint" : "a TypeVar bound";
 		}
-
 		//if (!symtable_visitTypeParamBoundOrDefault(_st, _tp->V.typeVar.bound, _tp->V.typeVar.name,
 		//	(void*)_tp, ste_scope_info)) {
 		//	return 0;
@@ -1758,9 +1791,9 @@ static AlifIntT symtable_visitTypeParam(AlifSymTable* _st, TypeParamTy _tp) { //
 		break;
 	}
 	case TypeParamK::ParamSpecK:
-		//	if (!symtable_addDef(_st, _tp->V.paramSpec.name, DEF_TYPE_PARAM | DEF_LOCAL, LOCATION(_tp))) {
-		//		return 0;
-		//	}
+			if (!symtable_addDef(_st, _tp->V.paramSpec.name, DEF_TYPE_PARAM | DEF_LOCAL, LOCATION(_tp))) {
+				return 0;
+			}
 
 		//	if (!symtable_visitTypeParamBoundOrDefault(_st, _tp->V.paramSpec.defaultValue, _tp->V.paramSpec.name,
 		//		(void*)_tp, "a ParamSpec default")) {

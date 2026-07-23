@@ -260,6 +260,8 @@ AlifIntT alifObject_hasAttrWithError(AlifObject*, AlifObject*); // 438
 
 AlifIntT alifObject_delAttr(AlifObject*, AlifObject*); // 445
 
+AlifIntT alifObject_genericSetDict(AlifObject*, AlifObject*, void*); // 455
+
 AlifHashT alifObject_hash(AlifObject*); // 447
 AlifHashT alifObject_hashNotImplemented(AlifObject*); // 448
 AlifIntT alifObject_isTrue(AlifObject*); // 449
@@ -580,6 +582,8 @@ public:
 const char* _alifType_name(AlifTypeObject*); // 280
 AlifObject* _alifType_lookupRef(AlifTypeObject*, AlifObject*); // 281
 AlifIntT alifObject_print(AlifObject*, FILE*, AlifIntT); // 285
+
+AlifObject** _alifObject_getDictPtr(AlifObject*); // 291
 void alifObject_callFinalizer(AlifObject*); // 291
 AlifIntT alifObject_callFinalizerFromDealloc(AlifObject*); // 292
 

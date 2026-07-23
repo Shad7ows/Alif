@@ -332,12 +332,12 @@ union AlifManagedDictPointer{ // 785
 	AlifDictObject* dict{};
 };
 
-static inline AlifManagedDictPointer* alifObject_managedDictPointer(AlifObject* obj) { // 790
+static inline AlifManagedDictPointer* _alifObject_managedDictPointer(AlifObject* obj) { // 790
 	return (AlifManagedDictPointer*)((char*)obj + MANAGED_DICT_OFFSET);
 }
 
-static inline AlifDictObject* alifObject_getManagedDict(AlifObject* _obj) { // 797
-	AlifManagedDictPointer* dorv = alifObject_managedDictPointer(_obj);
+static inline AlifDictObject* _alifObject_getManagedDict(AlifObject* _obj) { // 797
+	AlifManagedDictPointer* dorv = _alifObject_managedDictPointer(_obj);
 	return (AlifDictObject*)alifAtomic_loadPtrAcquire(&dorv->dict);
 }
 
@@ -348,7 +348,7 @@ static inline AlifDictValues* alifObject_inlineValues(AlifObject* _obj) { // 803
 }
 
 
-extern AlifObject** alifObject_computedDictPointer(AlifObject*); // 813
+extern AlifObject** _alifObject_computedDictPointer(AlifObject*); // 813
 
 
 AlifObject* _alifObject_lookupSpecial(AlifObject*, AlifObject*); // 860

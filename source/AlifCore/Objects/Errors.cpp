@@ -544,7 +544,7 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
 		v = alifObject_call(exc, args, nullptr);
 		ALIF_DECREF(args);
 		if (v != nullptr) {
-			//_alifErr_setObject(tstate, (AlifObject*)ALIF_TYPE(v), v);
+			_alifErr_setObject(tstate, (AlifObject*)ALIF_TYPE(v), v);
 			ALIF_DECREF(v);
 		}
 	}

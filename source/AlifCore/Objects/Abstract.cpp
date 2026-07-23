@@ -736,11 +736,11 @@ static AlifObject* binary_iop1(AlifObject* _v, AlifObject* _w,
 #define BINARY_IOP1(_v, _w, _iopSlot, _opSlot) binary_iop1(_v, _w, _iopSlot, _opSlot) // 1241
 
 static AlifObject* binary_iop(AlifObject* _v, AlifObject* _w,
-	const AlifIntT _iopSlot, const AlifIntT _opSlot) { // 1246
+	const AlifIntT _iopSlot, const AlifIntT _opSlot, const char* _opName) { // 1246
 	AlifObject* result = BINARY_IOP1(_v, _w, _iopSlot, _opSlot);
 	if (result == ALIF_NOTIMPLEMENTED) {
 		ALIF_DECREF(result);
-		//return binOp_typeError(_v, _w, opName);
+		return binOp_typeError(_v, _w, _opName);
 	}
 	return result;
 }
@@ -763,20 +763,20 @@ static AlifObject* ternary_iOp(AlifObject* _v, AlifObject* _w,
 }
 
 // 1276
-#define INPLACE_BINOP(_func, _iop, _op) \
+#define INPLACE_BINOP(_func, _iop, _op, _opName) \
     AlifObject * _func(AlifObject *_v, AlifObject *_w) { \
-        return binary_iop(_v, _w, NB_SLOT(_iop), NB_SLOT(_op)); \
+        return binary_iop(_v, _w, NB_SLOT(_iop), NB_SLOT(_op), _opName); \
     }
 
-INPLACE_BINOP(alifNumber_inPlaceOr, inplaceOr, or_)
-INPLACE_BINOP(alifNumber_inPlaceXor, inplaceXor, xor_)
-INPLACE_BINOP(alifNumber_inPlaceAnd, inplaceAnd, and_)
-INPLACE_BINOP(alifNumber_inPlaceLshift, inplaceLshift, lshift)
-INPLACE_BINOP(alifNumber_inPlaceRshift, inplaceRshift, rshift)
-INPLACE_BINOP(alifNumber_inPlaceSubtract, inplaceSubtract, subtract)
-INPLACE_BINOP(alifNumber_inPlaceFloorDivide, inplaceFloorDivide, floorDivide)
-INPLACE_BINOP(alifNumber_inPlaceTrueDivide, inplaceTrueDivide, trueDivide)
-INPLACE_BINOP(alifNumber_inPlaceRemainder, inplaceRemainder, remainder) // 1291
+INPLACE_BINOP(alifNumber_inPlaceOr, inplaceOr, or_, "|=")
+INPLACE_BINOP(alifNumber_inPlaceXor, inplaceXor, xor_, "*|=")
+INPLACE_BINOP(alifNumber_inPlaceAnd, inplaceAnd, and_, "&=")
+INPLACE_BINOP(alifNumber_inPlaceLshift, inplaceLshift, lshift, "<<=")
+INPLACE_BINOP(alifNumber_inPlaceRshift, inplaceRshift, rshift, ">>=")
+INPLACE_BINOP(alifNumber_inPlaceSubtract, inplaceSubtract, subtract, "-=")
+INPLACE_BINOP(alifNumber_inPlaceFloorDivide, inplaceFloorDivide, floorDivide, "/*=")
+INPLACE_BINOP(alifNumber_inPlaceTrueDivide, inplaceTrueDivide, trueDivide, "/=")
+INPLACE_BINOP(alifNumber_inPlaceRemainder, inplaceRemainder, remainder, "//=") // 1291
 
 
 AlifObject* alifNumber_inPlaceAdd(AlifObject* _v, AlifObject* _w) { // 1293

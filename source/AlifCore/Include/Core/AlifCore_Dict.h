@@ -157,7 +157,7 @@ static inline void _alifDict_notifyEvent(AlifInterpreter* _interp,
 }
 
 
-extern AlifDictObject* alifObject_materializeManagedDict(AlifObject*); // 279
+extern AlifDictObject* _alifObject_materializeManagedDict(AlifObject*); // 279
 
 AlifObject* _alifDict_fromItems(AlifObject* const*, AlifSizeT,
 	AlifObject* const*, AlifSizeT, AlifSizeT); // 281

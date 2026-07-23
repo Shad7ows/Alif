@@ -3721,17 +3721,17 @@ AlifObject* ast2obj_stmt(ASTState* state, Validator* vstate, void* _o) { // 8793
 			goto failed;
 		ALIF_DECREF(value);
 		break;
-		//case StmtK_::NonlocalK:
-		//	tp = (AlifTypeObject*)state->Nonlocal_type;
-		//	result = alifType_genericNew(tp, nullptr, nullptr);
-		//	if (!result) goto failed;
-		//	value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.nonlocal.names,
-		//		AST2OBJ_IDENTIFIER);
-		//	if (!value) goto failed;
-		//	if (alifObject_setAttr(result, state->names, value) == -1)
-		//		goto failed;
-		//	ALIF_DECREF(value);
-		//	break;
+	case StmtK_::NonlocalK:
+		tp = (AlifTypeObject*)state->Nonlocal_type;
+		result = alifType_genericNew(tp, nullptr, nullptr);
+		if (!result) goto failed;
+		value = ast2obj_list(state, vstate, (ASDLSeq*)o->V.nonlocal.names,
+			AST2OBJ_IDENTIFIER);
+		if (!value) goto failed;
+		if (alifObject_setAttr(result, state->names, value) == -1)
+			goto failed;
+		ALIF_DECREF(value);
+		break;
 	case StmtK_::ExprK:
 		tp = (AlifTypeObject*)state->ExprType;
 		result = alifType_genericNew(tp, nullptr, nullptr);

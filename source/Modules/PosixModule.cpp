@@ -699,6 +699,34 @@ convertenviron(void) { // 1670
 
 
 
+
+
+
+
+
+static AlifObject* posix_pathObjectError(AlifObject* _path) { // 1785
+	return alifErr_setFromErrnoWithFilenameObject(_alifExcOSError_, _path);
+}
+
+static AlifObject* path_objectError(AlifObject* _path) {
+#ifdef _WINDOWS
+	return alifErr_setExcFromWindowsErrWithFilenameObject(
+		_alifExcOSError_, 0, _path);
+#else
+	return posix_pathObjectError(_path);
+#endif
+}
+
+static AlifObject* path_error(PathT* _path) { // 1813
+	return path_objectError(_path->object);
+}
+
+
+
+
+
+
+
 #ifdef _WINDOWS // 1895
 
 #define HAVE_STAT_NSEC 1
@@ -1020,13 +1048,13 @@ static AlifIntT win32_stat(const wchar_t* _path,
 
 //* alif //* todo
 static AlifStructSequenceField _statResultFields_[] = { // 2255
-	{"st_mode",    "بايتات الحماية"},
+	{"الوضع",    "بايتات الحماية"},
 	{"st_ino",     "inode"},
 	{"st_dev",     "جهاز"},
 	{"st_nlink",   "عدد الروابط المتينة"},
 	{"st_uid",     "هوية المالك"},
 	{"st_gid",     "هوية المجموعة المالكة"},
-	{"حجم",    "الحجم الكلي, بالبايت"},
+	{"الحجم",    "الحجم الكلي, بالبايت"},
 	/* The NULL is replaced with alifStructSequence_unnamedField later. */
 	{nullptr,   "integer time of last access"},
 	{nullptr,   "integer time of last modification"},
@@ -1449,9 +1477,7 @@ static AlifObject* posix_doStat(AlifObject* _module,
 #endif
 
 	if (result != 0) {
-		//return path_error(_path);
-		printf("path error here");
-		return nullptr;
+		return path_error(_path);
 	}
 
 	return _alifStat_fromStructStat(_module, &st);
@@ -1687,7 +1713,7 @@ static AlifObject* _listdirWindows_noOpenDir(PathT* _path,
 			int error = GetLastError();
 			if (error == ERROR_FILE_NOT_FOUND)
 				goto exit;
-			//path_error(_path);
+			path_error(_path);
 			ALIF_CLEAR(_list);
 			goto exit;
 		}
@@ -1717,7 +1743,7 @@ static AlifObject* _listdirWindows_noOpenDir(PathT* _path,
 			/* FindNextFile sets error to ERROR_NO_MORE_FILES if
 			it got to the end of the directory. */
 			if (!result and GetLastError() != ERROR_NO_MORE_FILES) {
-				//path_error(_path);
+				path_error(_path);
 				ALIF_CLEAR(_list);
 				goto exit;
 			}
@@ -1728,7 +1754,7 @@ exit:
 	if (hFindFile != INVALID_HANDLE_VALUE) {
 		if (FindClose(hFindFile) == FALSE) {
 			if (_list != nullptr) {
-				//path_error(_path);
+				path_error(_path);
 				ALIF_CLEAR(_list);
 			}
 		}
@@ -1788,7 +1814,7 @@ static AlifObject* _posix_listdir(PathT *path, AlifObject *list) {
     }
 
     if (dirp == nullptr) {
-        // path_error(path);
+         path_error(path);
         list = nullptr;
 #ifdef HAVE_FDOPENDIR
         if (fd != -1) {
@@ -1811,7 +1837,7 @@ static AlifObject* _posix_listdir(PathT *path, AlifObject *list) {
             if (errno == 0) {
                 break;
             } else {
-                // path_error(path);
+                 path_error(path);
                 ALIF_CLEAR(list);
                 goto exit;
             }
@@ -1970,9 +1996,7 @@ static AlifObject* os_mkdirImpl(AlifObject* _module,
 			return nullptr;
 		}
 	if (!result) {
-		//return path_error(_path);
-		printf("خطأ اثناء إنشاء مجلد جديد");
-		return nullptr;
+		return path_error(_path);
 	}
 #else
 	ALIF_BEGIN_ALLOW_THREADS
@@ -2003,9 +2027,7 @@ static AlifObject* os_mkdirImpl(AlifObject* _module,
 #endif
 
 	if (result < 0) {
-		//return path_error(_path);
-		printf("خطأ اثناء إنشاء مجلد جديد");
-		return nullptr;
+		return path_error(_path);
 	}
 #endif /* _WINDOWS */
 	return ALIF_NONE;

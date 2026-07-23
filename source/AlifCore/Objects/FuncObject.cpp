@@ -347,6 +347,11 @@ static AlifMemberDef _cmMemberList_[] = { // 1385
 	{nullptr}  /* Sentinel */
 };
 
+static AlifGetSetDef _cmGetSetList_[] = { // 1432
+	{"__فهرس__", alifObject_genericGetDict, alifObject_genericSetDict, nullptr, nullptr},
+	{nullptr} /* Sentinel */
+};
+
 AlifTypeObject _alifClassMethodType_ = { // 1395
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "وظيفة_صنف",
@@ -357,7 +362,7 @@ AlifTypeObject _alifClassMethodType_ = { // 1395
 	//.traverse = cm_traverse,
 	//.clear = cm_clear,                   
 	.members = _cmMemberList_, 
-	//.getSet = _cmGetSetList_,
+	.getSet = _cmGetSetList_,
 	.descrGet = cm_descrGet,
 	.dictOffset = offsetof(ClassMethod, dict),
 	.init = cm_init,
