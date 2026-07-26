@@ -268,7 +268,7 @@ static AlifObject* builtin_all(AlifObject* _module, AlifObject* _iterable) { // 
 		if (alifErr_exceptionMatches(_alifExcStopIteration_))
 			alifErr_clear();
 		else
-			return NULL;
+			return nullptr;
 	}
 	ALIF_RETURN_TRUE;
 }
@@ -595,7 +595,7 @@ static AlifObject* builtin_execImpl(AlifObject* _module,
 			v = ALIFRUN_STRING(str, ALIF_FILE_INPUT, _globals, _locals);
 		ALIF_XDECREF(sourceCopy);
 	}
-	if (v == NULL)
+	if (v == nullptr)
 		goto error;
 	ALIF_DECREF(_locals);
 	ALIF_DECREF(v);
@@ -650,6 +650,221 @@ static AlifObject* builtin_hasAttrImpl(AlifObject* _module,
 	ALIF_DECREF(v);
 	ALIF_RETURN_TRUE;
 }
+
+
+
+/* map object ************************************************************/
+
+class MapObject { // 1310
+public:
+	ALIFOBJECT_HEAD{};
+	AlifObject* iters{};
+	AlifObject* func{};
+	AlifIntT strict{};
+};
+
+static AlifObject* map_new(AlifTypeObject* _type,
+	AlifObject* _args, AlifObject* _kwds) { // 1317
+	AlifObject* it{}, * iters{}, * func{};
+	MapObject* lz{};
+	AlifSizeT numargs{}, i{};
+	AlifIntT strict = 0;
+
+	if (_kwds) {
+		AlifObject* empty = alifTuple_new(0);
+		if (empty == nullptr) {
+			return nullptr;
+		}
+		static char* kwlist[] = { (char*)"strict", nullptr };
+		AlifIntT parsed = alifArg_parseTupleAndKeywords(
+			empty, _kwds, "|$p:طبق", kwlist, &strict);
+		ALIF_DECREF(empty);
+		if (!parsed) {
+			return nullptr;
+		}
+	}
+
+	numargs = alifTuple_size(_args);
+	if (numargs < 2) {
+		alifErr_setString(_alifExcTypeError_,
+			"طبق() يجب أن يمرر لها معاملين على الأقل.");
+		return nullptr;
+	}
+
+	iters = alifTuple_new(numargs - 1);
+	if (iters == nullptr)
+		return nullptr;
+
+	for (i = 1; i < numargs; i++) {
+		/* Get iterator. */
+		it = alifObject_getIter(ALIFTUPLE_GET_ITEM(_args, i));
+		if (it == nullptr) {
+			ALIF_DECREF(iters);
+			return nullptr;
+		}
+		ALIFTUPLE_SET_ITEM(iters, i - 1, it);
+	}
+
+	/* create mapobject structure */
+	lz = (MapObject*)_type->alloc(_type, 0);
+	if (lz == nullptr) {
+		ALIF_DECREF(iters);
+		return nullptr;
+	}
+	lz->iters = iters;
+	func = ALIFTUPLE_GET_ITEM(_args, 0);
+	lz->func = ALIF_NEWREF(func);
+	lz->strict = strict;
+
+	return (AlifObject*)lz;
+}
+
+static AlifObject* map_vectorCall(AlifObject* type, AlifObject* const* args,
+	AlifUSizeT nargsf, AlifObject* kwnames) { // 1374
+	AlifTypeObject* tp = ALIFTYPE_CAST(type);
+
+	AlifSizeT nargs = ALIFVECTORCALL_NARGS(nargsf);
+	if (kwnames != nullptr and ALIFTUPLE_GET_SIZE(kwnames) != 0) {
+		// Fallback to map_new()
+		AlifThread* tstate = _alifThread_get();
+		return alifObject_makeTpCall(tstate, type, args, nargs, kwnames);
+	}
+
+	if (nargs < 2) {
+		alifErr_setString(_alifExcTypeError_,
+			"طبق() يجب أن يمرر لها معاملين على الأقل.");
+		return nullptr;
+	}
+
+	AlifObject* iters = alifTuple_new(nargs - 1);
+	if (iters == nullptr) {
+		return nullptr;
+	}
+
+	for (int i = 1; i < nargs; i++) {
+		AlifObject* it = alifObject_getIter(args[i]);
+		if (it == nullptr) {
+			ALIF_DECREF(iters);
+			return nullptr;
+		}
+		ALIFTUPLE_SET_ITEM(iters, i - 1, it);
+	}
+
+	MapObject* lz = (MapObject*)tp->alloc(tp, 0);
+	if (lz == nullptr) {
+		ALIF_DECREF(iters);
+		return nullptr;
+	}
+	lz->iters = iters;
+	lz->func = ALIF_NEWREF(args[0]);
+	lz->strict = 0;
+
+	return (AlifObject*)lz;
+}
+
+static void map_dealloc(MapObject* lz) { // 1419
+	alifObject_gcUnTrack(lz);
+	ALIF_XDECREF(lz->iters);
+	ALIF_XDECREF(lz->func);
+	ALIF_TYPE(lz)->free(lz);
+}
+
+static AlifObject* map_next(MapObject* _lz) { // 1436
+	AlifSizeT i{};
+	AlifObject* smallStack[ALIF_FASTCALL_SMALL_STACK]{};
+	AlifObject** stack{};
+	AlifObject* result = nullptr;
+	AlifThread* tstate = _alifThread_get();
+
+	const AlifSizeT niters = ALIFTUPLE_GET_SIZE(_lz->iters);
+	if (niters <= (AlifSizeT)ALIF_ARRAY_LENGTH(smallStack)) {
+		stack = smallStack;
+	}
+	else {
+		stack = (AlifObject**)alifMem_dataAlloc(niters * sizeof(stack[0]));
+		if (stack == nullptr) {
+			//_alifErr_noMemory(tstate);
+			return nullptr;
+		}
+	}
+
+	AlifSizeT nargs = 0;
+	for (i = 0; i < niters; i++) {
+		AlifObject* it = ALIFTUPLE_GET_ITEM(_lz->iters, i);
+		AlifObject* val = ALIF_TYPE(it)->iterNext(it);
+		if (val == nullptr) {
+			if (_lz->strict) {
+				goto check;
+			}
+			goto exit;
+		}
+		stack[i] = val;
+		nargs++;
+	}
+
+	result = alifObject_vectorCallThread(tstate, _lz->func, stack, nargs, nullptr);
+
+exit:
+	for (i = 0; i < nargs; i++) {
+		ALIF_DECREF(stack[i]);
+	}
+	if (stack != smallStack) {
+		alifMem_dataFree(stack);
+	}
+	return result;
+check:
+	if (alifErr_occurred()) {
+		if (!alifErr_exceptionMatches(_alifExcStopIteration_)) {
+			return nullptr;
+		}
+		alifErr_clear();
+	}
+	if (i) {
+		const char* plural = i == 1 ? " " : "ات 1-";
+		return alifErr_format(_alifExcValueError_,
+			"طبق() المعامل %d اقصر من المعامل%s%d",
+			i + 1, plural, i);
+	}
+	for (i = 1; i < niters; i++) {
+		AlifObject* it = ALIFTUPLE_GET_ITEM(_lz->iters, i);
+		AlifObject* val = (*ALIF_TYPE(it)->iterNext)(it);
+		if (val) {
+			ALIF_DECREF(val);
+			const char* plural = i == 1 ? " " : "ات 1-";
+			return alifErr_format(_alifExcValueError_,
+				"طبق() المعامل %d اطول من المعامل%s%d",
+				i + 1, plural, i);
+		}
+		if (alifErr_occurred()) {
+			if (!alifErr_exceptionMatches(_alifExcStopIteration_)) {
+				return nullptr;
+			}
+			alifErr_clear();
+		}
+	}
+	goto exit;
+}
+
+
+AlifTypeObject _alifMapType_ = { // 1570
+	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
+	.name = "طبق",
+	.basicSize = sizeof(MapObject),
+	/* methods */
+	.dealloc = (Destructor)map_dealloc,
+	.getAttro = alifObject_genericGetAttr,
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
+	ALIF_TPFLAGS_BASETYPE,
+	//.traverse = (TraverseProc)map_traverse,
+	.iter = alifObject_selfIter,
+	.iterNext = (IterNextFunc)map_next,
+	//.methods = _mapMethods_,
+	.alloc = alifType_genericAlloc,
+	.new_ = map_new,
+	.free = alifObject_gcDel,
+	.vectorCall = (VectorCallFunc)map_vectorCall
+};
+
 
 
 
