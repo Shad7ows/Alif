@@ -104,6 +104,17 @@ exit:
 #define UNICODE_JOIN_METHODDEF {"اربط", (AlifCPPFunction)uStr_join, METHOD_O},
 
 
+// 794
+#define UNICODE_LOWER_METHODDEF    \
+    {"حرف_صغير", (AlifCPPFunction)uStr_lower, METHOD_NOARGS},
+
+static AlifObject* uStr_lowerImpl(AlifObject*);
+
+static AlifObject* uStr_lower(AlifObject* _self,
+	AlifObject* ALIF_UNUSED(ignored)) {
+	return uStr_lowerImpl(_self);
+}
+
 
 
 // 919

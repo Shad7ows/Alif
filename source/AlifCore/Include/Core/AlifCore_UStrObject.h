@@ -6,9 +6,17 @@
 
 
 
-
+/* --- Characters Type APIs ----------------------------------------------- */
 extern AlifIntT _alifUStr_isXIDStart(AlifUCS4); // 18
 extern AlifIntT _alifUStr_isXIDContinue(AlifUCS4); // 19
+extern AlifIntT _alifUStr_toLowerFull(AlifUCS4, AlifUCS4*); // 20
+
+extern AlifIntT _alifUStr_toUpperFull(AlifUCS4, AlifUCS4*); // 22
+
+extern AlifIntT _alifUStr_isCaseIgnorable(AlifUCS4); // 24
+extern AlifIntT _alifUStr_isCased(AlifUCS4); // 25
+
+/* --- Unicode API -------------------------------------------------------- */
 
 void _alifUStr_exactDealloc(AlifObject*); // 34
 

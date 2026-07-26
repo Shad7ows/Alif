@@ -5190,7 +5190,125 @@ static AlifIntT tail_match(AlifObject* _self,
 }
 
 
+static AlifObject* ascii_upperOrLower(AlifObject* self, AlifIntT lower) { // 9713
+	AlifSizeT len = ALIFUSTR_GET_LENGTH(self);
+	const char* data = (const char*)ALIFUSTR_DATA(self);
+	char* resdata{};
+	AlifObject* res{};
 
+	res = alifUStr_new(len, 127);
+	if (res == nullptr)
+		return nullptr;
+	resdata = (char*)ALIFUSTR_DATA(res);
+	if (lower)
+		_alifBytes_lower(resdata, data, len);
+	else
+		_alifBytes_upper(resdata, data, len);
+	return res;
+}
+
+static AlifUCS4 handle_capitalSigma(AlifIntT kind, const void* data,
+	AlifSizeT length, AlifSizeT i) { // 9732
+	AlifSizeT j{};
+	AlifIntT final_sigma{};
+	AlifUCS4 c = 0;
+	for (j = i - 1; j >= 0; j--) {
+		c = ALIFUSTR_READ(kind, data, j);
+		if (!_alifUStr_isCaseIgnorable(c))
+			break;
+	}
+	final_sigma = j >= 0 and _alifUStr_isCased(c);
+	if (final_sigma) {
+		for (j = i + 1; j < length; j++) {
+			c = ALIFUSTR_READ(kind, data, j);
+			if (!_alifUStr_isCaseIgnorable(c))
+				break;
+		}
+		final_sigma = j == length or !_alifUStr_isCased(c);
+	}
+	return (final_sigma) ? 0x3C2 : 0x3C3;
+}
+
+static AlifIntT lower_ucs4(AlifIntT _kind, const void* _data, AlifSizeT _length,
+	AlifSizeT _i, AlifUCS4 _c, AlifUCS4* _mapped) { // 9761
+	/* Obscure special case. */
+	if (_c == 0x3A3) {
+		_mapped[0] = handle_capitalSigma(_kind, _data, _length, _i);
+		return 1;
+	}
+	return _alifUStr_toLowerFull(_c, _mapped);
+}
+
+static AlifSizeT do_upperOrLower(AlifIntT _kind, const void* _data, AlifSizeT _length,
+	AlifUCS4* _res, AlifUCS4* _maxchar, AlifIntT _lower) { // 9822
+	AlifSizeT i{}, k = 0;
+
+	for (i = 0; i < _length; i++) {
+		AlifUCS4 c = ALIFUSTR_READ(_kind, _data, i), mapped[3];
+		AlifIntT n_res{}, j{};
+		if (_lower)
+			n_res = lower_ucs4(_kind, _data, _length, i, c, mapped);
+		else
+			n_res = _alifUStr_toUpperFull(c, mapped);
+		for (j = 0; j < n_res; j++) {
+			*_maxchar = ALIF_MAX(*_maxchar, mapped[j]);
+			_res[k++] = mapped[j];
+		}
+	}
+	return k;
+}
+
+
+
+
+static AlifSizeT do_lower(AlifIntT _kind, const void* _data,
+	AlifSizeT _length, AlifUCS4* _res, AlifUCS4* _maxchar) { // 9849
+	return do_upperOrLower(_kind, _data, _length, _res, _maxchar, 1);
+}
+
+static AlifObject* case_operation(AlifObject* self,
+	AlifSizeT(*perform)(AlifIntT, const void*, AlifSizeT, AlifUCS4*, AlifUCS4*)) { // 9899
+	AlifObject* res = nullptr;
+	AlifSizeT length, newlength = 0;
+	AlifIntT kind{}, outkind{};
+	const void* data{};
+	void* outdata{};
+	AlifUCS4 maxchar = 0, * tmp{}, * tmpend{};
+
+	kind = ALIFUSTR_KIND(self);
+	data = ALIFUSTR_DATA(self);
+	length = ALIFUSTR_GET_LENGTH(self);
+	if ((size_t)length > ALIF_SIZET_MAX / (3 * sizeof(AlifUCS4))) {
+		alifErr_setString(_alifExcOverflowError_, "النص طويل جداً");
+		return nullptr;
+	}
+	tmp = (AlifUCS4*)alifMem_dataAlloc(sizeof(AlifUCS4) * 3 * length);
+	//if (tmp == nullptr)
+	//	return alifErr_noMemory();
+	newlength = perform(kind, data, length, tmp, &maxchar);
+	res = alifUStr_new(newlength, maxchar);
+	if (res == nullptr)
+		goto leave;
+	tmpend = tmp + newlength;
+	outdata = ALIFUSTR_DATA(res);
+	outkind = ALIFUSTR_KIND(res);
+	switch (outkind) {
+	case AlifUStrKind_::AlifUStr_1Byte_Kind:
+		ALIFUSTR_CONVERT_BYTES(AlifUCS4, AlifUCS1, tmp, tmpend, outdata); //* review
+		break;
+	case AlifUStrKind_::AlifUStr_2Byte_Kind:
+		ALIFUSTR_CONVERT_BYTES(AlifUCS4, AlifUCS2, tmp, tmpend, outdata); //* review
+		break;
+	case AlifUStrKind_::AlifUStr_4Byte_Kind:
+		memcpy(outdata, tmp, sizeof(AlifUCS4) * newlength);
+		break;
+	default:
+		ALIF_UNREACHABLE();
+	}
+leave:
+	alifMem_dataFree(tmp);
+	return res;
+}
 
 AlifObject* alifUStr_join(AlifObject* _separator, AlifObject* _seq) { // 9910
 	AlifObject* res{};
@@ -6463,6 +6581,14 @@ static AlifSizeT uStr_length(AlifObject* _self) { // 12231
 
 
 
+static AlifObject* uStr_lowerImpl(AlifObject* _self) { // 12266
+	if (ALIFUSTR_IS_ASCII(_self))
+		return ascii_upperOrLower(_self, 1);
+	return case_operation(_self, do_lower);
+}
+
+
+
 AlifObject* alifUStr_subString(AlifObject* _self,
 	AlifSizeT _start, AlifSizeT _end) { // 12304
 	const unsigned char* data{};
@@ -7286,6 +7412,9 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	//UNICODE_ISDECIMAL_METHODDEF
 	UNICODE_PARTITION_METHODDEF
 	UNICODE_RPARTITION_METHODDEF
+
+	UNICODE_LOWER_METHODDEF
+
 	//{"نسق", ALIF_CPPFUNCTION_CAST(do_stringFormat), METHOD_VARARGS | METHOD_KEYWORDS},
 	UNICODE___FORMAT___METHODDEF
 	{nullptr, nullptr}
