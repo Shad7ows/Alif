@@ -2510,6 +2510,28 @@ ExprTy alifAST_listComp(ExprTy _elt, ASDLComprehensionSeq* _generators,
 	return p;
 }
 
+ExprTy alifAST_setComp(ExprTy _elt, ASDLComprehensionSeq* _generators,
+	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo,
+	AlifIntT _endColOffset, AlifASTMem* _astMem) {
+	ExprTy p{};
+	if (!_elt) {
+		alifErr_setString(_alifExcValueError_,
+			"المعامل 'elt' مطلوب للمميزة_الضمنية");
+		return nullptr;
+	}
+	p = (ExprTy)alifASTMem_malloc(_astMem, sizeof(*p));
+	if (!p)
+		return NULL;
+	p->type = ExprK_::SetCompK;
+	p->V.setComp.elts = _elt;
+	p->V.setComp.generators = _generators;
+	p->lineNo = _lineNo;
+	p->colOffset = _colOffset;
+	p->endLineNo = _endLineNo;
+	p->endColOffset = _endColOffset;
+	return p;
+}
+
 ExprTy alifAST_dictComp(ExprTy _key, ExprTy _val, ASDLComprehensionSeq* _generators,
 	AlifIntT _lineNo, AlifIntT _colOffset, AlifIntT _endLineNo, AlifIntT _endColOffset, AlifASTMem* _astMem) {
 

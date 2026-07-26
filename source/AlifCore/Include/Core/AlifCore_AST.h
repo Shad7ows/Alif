@@ -642,6 +642,7 @@ ExprTy alifAST_ifExpr(ExprTy, ExprTy, ExprTy, AlifIntT, AlifIntT, AlifIntT, Alif
 ExprTy alifAST_dict(ASDLExprSeq*, ASDLExprSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_listComp(ExprTy, ASDLComprehensionSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_dictComp(ExprTy, ExprTy, ASDLComprehensionSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
+ExprTy alifAST_setComp(ExprTy, ASDLComprehensionSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_generatorExp(ExprTy, ASDLComprehensionSeq*, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_await(ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);
 ExprTy alifAST_yield(ExprTy, AlifIntT, AlifIntT, AlifIntT, AlifIntT, AlifASTMem*);

@@ -2794,6 +2794,63 @@ done:
 	return res;
 }
 
+// مميزة_ضمنية: "{" تعبير_اسمي لكل_اذا_بنود "}"
+static ExprTy setComp_rule(AlifParser* _p) {
+
+	if (_p->level++ == MAXSTACK) alifParserEngineError_stackOverflow(_p);
+	if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+	ExprTy res{};
+	AlifIntT mark = _p->mark;
+	if (_p->mark == _p->fill
+		and
+		alifParserEngine_fillToken(_p) < 0) {
+		_p->errorIndicator = 1;
+		_p->level--;
+		return nullptr;
+	}
+
+	AlifIntT startLineNo = _p->tokens[mark]->lineNo;
+	AlifIntT startColOffset = _p->tokens[mark]->colOffset;
+
+	{ // "{" تعبير_اسمي لكل_اذا_بنود "}"
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		AlifPToken* literal{};
+		AlifPToken* literal1{};
+		ExprTy a{};
+		ASDLComprehensionSeq* b{};
+		if (
+			(literal = alifParserEngine_expectToken(_p, LBRACE))  // '{'
+			and
+			(a = expression_rule(_p))  // تعبير // named_expression
+			and
+			(b = forIfClauses_rule(_p))  // لكل_اذا_بنود
+			and
+			(literal1 = alifParserEngine_expectToken(_p, RBRACE))  // '}'
+			) {
+			AlifPToken* token = alifParserEngine_getLastNonWhitespaceToken(_p);
+			if (token == nullptr) { _p->level--; return nullptr; }
+
+			AlifIntT endLineNo = token->endLineNo;
+			AlifIntT endColOffset = token->endColOffset;
+			res = alifAST_setComp(a, b, EXTRA);
+			if (res == nullptr
+				and alifErr_occurred()) {
+				_p->errorIndicator = 1;
+				_p->level--;
+				return nullptr;
+			}
+			goto done;
+		}
+		_p->mark = mark;
+	}
+
+	res = nullptr;
+done:
+	_p->level--;
+	return res;
+}
 
 // فهرس_ضمني: "{" زوج لكل_اذا_بنود "}"
 static ExprTy dictComp_rule(AlifParser* _p) {
@@ -4267,6 +4324,19 @@ static ExprTy alif18(AlifParser* _p) {
 		ExprTy dictCompVar{};
 		if ((dictCompVar = dictComp_rule(_p))) {
 			res = dictCompVar;
+			goto done;
+		}
+		_p->mark = mark;
+	}
+	{ // مميزة_ضمنية
+		if (_p->errorIndicator) { _p->level--; return nullptr; }
+
+		ExprTy setcompVar{};
+		if (
+			(setcompVar = setComp_rule(_p))  // مميزة_ضمنية
+			)
+		{
+			res = setcompVar;
 			goto done;
 		}
 		_p->mark = mark;
