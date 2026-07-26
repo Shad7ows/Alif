@@ -321,6 +321,52 @@ AlifObject* alifTuple_getSlice(AlifObject* _op,
 }
 
 
+static AlifObject* tuple_concat(AlifObject* _aa, AlifObject* _bb) { // 462
+	AlifTupleObject* a = ALIFTUPLE_CAST(_aa);
+	if (ALIF_SIZE(a) == 0 and ALIFTUPLE_CHECKEXACT(_bb)) {
+		return ALIF_NEWREF(_bb);
+	}
+	if (!ALIFTUPLE_CHECK(_bb)) {
+		alifErr_format(_alifExcTypeError_,
+			"يمكن جمع مترابطة فقط (وليس \"%.200s\") لمترابطة",
+			ALIF_TYPE(_bb)->name);
+		return nullptr;
+	}
+	AlifTupleObject* b = (AlifTupleObject*)_bb;
+
+	if (ALIF_SIZE(b) == 0 and ALIFTUPLE_CHECKEXACT(a)) {
+		return ALIF_NEWREF(a);
+	}
+	AlifSizeT size = ALIF_SIZE(a) + ALIF_SIZE(b);
+	if (size == 0) {
+		return tuple_getEmpty();
+	}
+
+	AlifTupleObject* np = tuple_alloc(size);
+	if (np == nullptr) {
+		return nullptr;
+	}
+
+	AlifObject** src = a->item;
+	AlifObject** dest = np->item;
+	for (AlifSizeT i = 0; i < ALIF_SIZE(a); i++) {
+		AlifObject* v = src[i];
+		dest[i] = ALIF_NEWREF(v);
+	}
+
+	src = b->item;
+	dest = np->item + ALIF_SIZE(a);
+	for (AlifSizeT i = 0; i < ALIF_SIZE(b); i++) {
+		AlifObject* v = src[i];
+		dest[i] = ALIF_NEWREF(v);
+	}
+
+	ALIFOBJECT_GC_TRACK(np);
+	return (AlifObject*)np;
+}
+
+
+
 static AlifObject* tuple_subTypeNew(AlifTypeObject*, AlifObject*); // 690
 
 
@@ -381,7 +427,7 @@ static AlifObject* tuple_subTypeNew(AlifTypeObject* _type, AlifObject* _iterable
 
 static AlifSequenceMethods tupleAsSequence = { // 777
 	tuple_length,
-	0,//tuple_concat,
+	tuple_concat,
 	0,//tuple_repeat,
 	tuple_item,
 	0,

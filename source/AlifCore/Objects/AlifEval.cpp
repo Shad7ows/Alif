@@ -2385,6 +2385,23 @@ resume_frame:
 				stackPointer = _alifFrame_getStackPointer(_frame);
 				goto exception_unwind;
 			} // ------------------------------------------------------------ //
+			TARGET(SET_ADD) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				//INSTRUCTION_STATS(SET_ADD);
+				AlifStackRef set{};
+				AlifStackRef v{};
+				v = stackPointer[-1];
+				set = stackPointer[-2 - (oparg-1)];
+				_alifFrame_setStackPointer(_frame, stackPointer);
+				int err = alifSet_add(alifStackRef_asAlifObjectBorrow(set),
+					alifStackRef_asAlifObjectBorrow(v));
+				stackPointer = _alifFrame_getStackPointer(_frame);
+				ALIFSTACKREF_CLOSE(v);
+				if (err) goto pop_1_error;
+				stackPointer += -1;
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(SET_FUNCTION_ATTRIBUTE) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;
