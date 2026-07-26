@@ -391,6 +391,9 @@
     <ClCompile Include="..\source\AlifCore\Objects\MySnprintf.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\BytesMethods.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -1109,6 +1112,15 @@
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Objects\clinic\DescrObject.cpp.h">
       <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\CppType.h">
+      <Filter>Include\Main\StringLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\StringDefs.h">
+      <Filter>Include\Main\StringLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Core\AlifCore_BytesMethods.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

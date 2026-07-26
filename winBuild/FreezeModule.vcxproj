@@ -54,6 +54,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\BoolObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Buffer.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\ByteArrayObject.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\BytesMethods.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\BytesObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Call.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\CellObject.cpp" />

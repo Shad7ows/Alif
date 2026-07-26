@@ -1,6 +1,7 @@
 #include "alif.h"
 
 #include "AlifCore_Abstract.h"
+#include "AlifCore_BytesMethods.h"
 #include "AlifCore_BytesObject.h"
 #include "AlifCore_GlobalObjects.h"
 #include "AlifCore_Long.h"
@@ -285,6 +286,18 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 }
 
 
+/* -------------------------------------------------------------------- */
+/* Methods */
+
+// 1259
+#include "StringLib/StringDefs.h"
+#define STRINGLIB_MUTABLE 0
+
+#include "StringLib/FastSearch.h"
+#include "StringLib/Count.h"
+
+#include "StringLib/CppType.h"
+
 
 static AlifObject* bytes_concat(AlifObject* _a, AlifObject* _b) { // 1414
 	AlifBuffer va{}, vb{};
@@ -439,6 +452,13 @@ static AlifBufferProcs _bytesAsBuffer_ = { // 1701
 
 
 
+static AlifMethodDef _bytesMethods_[] = { // 2603
+	{"حرف_صغير", stringLib_lower, METHOD_NOARGS},
+	{nullptr,     nullptr}
+};
+
+
+
 AlifTypeObject _alifBytesType_ = { // 3028
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "بايت",
@@ -450,6 +470,7 @@ AlifTypeObject _alifBytesType_ = { // 3028
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
 		ALIF_TPFLAGS_BYTES_SUBCLASS | _ALIF_TPFLAGS_MATCH_SELF,
 	.richCompare = (RichCmpFunc)bytes_richCompare,
+	.methods = _bytesMethods_,
 	.free = alifMem_objFree,
 	.versionTag = _ALIF_TYPE_VERSION_BYTES,
 };
