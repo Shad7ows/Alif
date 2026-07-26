@@ -1900,7 +1900,7 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	SETBUILTIN("خاصية", &_alifPropertyType_);
 	SETBUILTIN("صحيح", &_alifLongType_);
 	SETBUILTIN("مصفوفة", &_alifListType_);
-	//SETBUILTIN("map", &_alifMapType_);
+	SETBUILTIN("طبق", &_alifMapType_);
 	SETBUILTIN("كائن", &_alifBaseObjectType_);
 	SETBUILTIN("مدى", &_alifRangeType_);
 	SETBUILTIN("معكوس", &_alifReversedType_);
