@@ -194,10 +194,12 @@ static AlifIntT symtable_visitExpr(AlifSymTable*, ExprTy); // 238
 static AlifIntT symtable_visitTypeParam(AlifSymTable*, TypeParamTy); // 239
 static AlifIntT symtable_visitGenExpr(AlifSymTable*, ExprTy); // 240
 static AlifIntT symtable_visitListComp(AlifSymTable*, ExprTy); // 241
-static AlifIntT symtable_visitArguments(AlifSymTable*, ArgumentsTy); // 244
-static AlifIntT symtable_visitExcepthandler(AlifSymTable*, ExcepthandlerTy); // 245
-static AlifIntT symtable_visitAlias(AlifSymTable*, AliasTy); // 246
-static AlifIntT symtable_visitKeyword(AlifSymTable*, KeywordTy); // 248
+static AlifIntT symtable_visitSetComp(AlifSymTable* _st, ExprTy _e); // 244
+static AlifIntT symtable_visitDictComp(AlifSymTable* _st, ExprTy _e); // 245
+static AlifIntT symtable_visitArguments(AlifSymTable*, ArgumentsTy); // 246
+static AlifIntT symtable_visitExcepthandler(AlifSymTable*, ExcepthandlerTy); // 247
+static AlifIntT symtable_visitAlias(AlifSymTable*, AliasTy); // 248
+static AlifIntT symtable_visitKeyword(AlifSymTable*, KeywordTy); // 250
 static AlifIntT symtable_visitAnnotations(AlifSymTable*, StmtTy, ArgumentsTy, ExprTy, AlifSTEntryObject*); // 253
 static AlifIntT symtable_visitWithItem(AlifSymTable*, WithItemTy); // 257
 static AlifIntT symtable_raiseIfComprehensionBlock(AlifSymTable*, ExprTy); // 260
@@ -1675,6 +1677,14 @@ static AlifIntT symtable_visitExpr(AlifSymTable* _st, ExprTy _e) { // 2334
 		if (!symtable_visitListComp(_st, _e))
 			return 0;
 		break;
+	case SetCompK:
+		if (!symtable_visitSetComp(_st, _e))
+			return 0;
+		break;
+	case DictCompK:
+		if (!symtable_visitDictComp(_st, _e))
+			return 0;
+		break;
 	case YieldK:
 		//if (!symtable_raiseIfAnnotationBlock(_st, "حالة انتج", _e)) {
 		//	return 0;
@@ -2039,6 +2049,19 @@ static AlifIntT symtable_visitListComp(AlifSymTable* _st, ExprTy _e) { // 2966
 	return symtable_handleComprehension(_st, _e, &ALIF_ID(ListComp),
 		_e->V.listComp.generators,
 		_e->V.listComp.elt, nullptr);
+}
+
+static AlifIntT symtable_visitSetComp(AlifSymTable* _st, ExprTy _e) {
+	return symtable_handleComprehension(_st, _e, &ALIF_ID(SetComp),
+		_e->V.setComp.generators,
+		_e->V.setComp.elts, nullptr);
+}
+
+static AlifIntT symtable_visitDictComp(AlifSymTable* _st, ExprTy _e) {
+	return symtable_handleComprehension(_st, _e, &ALIF_ID(DictComp),
+		_e->V.dictComp.generators,
+		_e->V.dictComp.key,
+		_e->V.dictComp.val);
 }
 
 

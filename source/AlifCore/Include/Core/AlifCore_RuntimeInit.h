@@ -761,13 +761,11 @@
 #define ALIF_STR_IDENTIFIERS_INIT { \
     INIT_ID(CANCELLED), \
     INIT_ID(AlifRepr), \
-    /*INIT_ID(__abs__),*/ \
     INIT_ID(__abstractMethods__), \
     INIT_ID(__annotate__), \
     INIT_ID(__bases__), \
     INIT_ID(__buildClass__), \
     INIT_ID(__builtins__), \
-    /*INIT_ID(__call__),*/ \
     INIT_ID(__class__), \
     INIT_ID(__classCell__), \
     INIT_ID(__classDict__), \
@@ -813,15 +811,13 @@
 	INIT_ID(Code), \
 	INIT_ID(Decode), \
 	INIT_ID(Decoder), \
+	INIT_ID(DictComp), \
 	INIT_ID(Encode), \
 	INIT_ID(Encoding), \
-	/*INIT_ID(End),*/ \
 	INIT_ID(Errors), \
-	/*INIT_ID(Excepthook),*/ \
 	INIT_ID(File), \
 	INIT_ID(Filename), \
 	INIT_ID(Fileno), \
-	/*INIT_ID(Flush),*/ \
 	INIT_ID(GenExpr), \
 	INIT_ID(GetState), \
 	INIT_ID(HasLocation), \
@@ -849,19 +845,15 @@
 	INIT_ID(Read1), \
 	INIT_ID(ReadAll), \
 	INIT_ID(ReadInto), \
-	/*INIT_ID(ReadLine),*/ \
-	/*INIT_ID(Replace),*/ \
 	INIT_ID(Reset), \
 	INIT_ID(Reverse), \
 	INIT_ID(Seekable), \
-	/*INIT_ID(Sep),*/ \
+	INIT_ID(SetComp), \
 	INIT_ID(Stderr), \
 	INIT_ID(Stdin), \
 	INIT_ID(strict), \
-	/*INIT_ID(TextIOWrapper),*/ \
 	INIT_ID(Top), \
 	INIT_ID(Translate), \
-	/*INIT_ID(Write),*/ \
 	INIT_ID(Writable), \
 	INIT_ID(WriteThrough), \
 }
