@@ -83,6 +83,9 @@ static AlifObject* _io_openImpl(AlifObject* _module, AlifObject* _file, const ch
 		case 't':
 			text = 1;
 			break;
+		case 171: // 'ث' ثنائي
+			binary = 1;
+			break;
 		case 'b':
 			binary = 1;
 			break;
@@ -284,6 +287,13 @@ error:
 
 
 
+static AlifObject* _io_openCodeImpl(AlifObject* _module,
+	AlifObject* _path) { // 512
+	return alifFile_openCodeObject(_path);
+}
+
+
+
 
 static AlifIntT ioModule_traverse(AlifObject* mod, VisitProc visit, void* arg) { // 564
 	AlifIOState* state = get_ioState(mod);
@@ -321,7 +331,7 @@ static AlifIntT ioModule_traverse(AlifObject* mod, VisitProc visit, void* arg) {
 static AlifMethodDef _moduleMethods_[] = { // 630
 	_IO_OPEN_METHODDEF,
 	//_IO_TEXT_ENCODING_METHODDEF
-	//_IO_OPEN_CODE_METHODDEF
+	_IO_OPEN_CODE_METHODDEF
 	{nullptr, nullptr}
 };
 

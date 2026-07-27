@@ -146,6 +146,49 @@ exit:
 
 
 
+#if defined(_WINDOWS) // 1972
+
+// 1980
+#define OS__PATH_SPLITROOT_METHODDEF    \
+    {"_المسار_افصل_الجذر", ALIF_CPPFUNCTION_CAST(os__pathSplitRoot), METHOD_FASTCALL|METHOD_KEYWORDS},
+
+static AlifObject* os__pathSplitRootImpl(AlifObject*, PathT*);
+
+static AlifObject* os__pathSplitRoot(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nargs, AlifObject* _kwnames) { // 1986
+	AlifObject* returnValue{};
+#define KWTUPLE nullptr
+
+	static const char* const _keywords[] = { "المسار", nullptr };
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "_المسار_افصل_الجذر",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[1]{};
+	PathT path = PATH_T_INITIALIZE_P("_المسار_افصل_الجذر", "المسار", 0, 0, 0, 0);
+
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 1, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+	if (!_args) {
+		goto exit;
+	}
+	if (!path_converter(_args[0], &path)) {
+		goto exit;
+	}
+	returnValue = os__pathSplitRootImpl(_module, &path);
+
+exit:
+	/* Cleanup for path */
+	path_cleanup(&path);
+
+	return returnValue;
+}
+
+#endif // 2035
+
+
 
 
 

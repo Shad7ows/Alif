@@ -9,3 +9,6 @@ AlifIntT _alifSet_nextEntryRef(AlifObject*, AlifSizeT*, AlifObject**, AlifHashT*
 
 
 AlifIntT _alifSet_update(AlifObject*, AlifObject*); // 26
+
+
+AlifIntT _alifSet_contains(AlifSetObject*, AlifObject*);

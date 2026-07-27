@@ -1937,6 +1937,47 @@ AlifIntT _alifOS_getFullPathName(const wchar_t* _path, wchar_t** _absPathP) { //
 
 
 
+
+
+static AlifObject* os__pathSplitRootImpl(AlifObject* _module,
+	PathT* _path) { // 5163
+	wchar_t* buffer{};
+	wchar_t* end{};
+	AlifObject* result{};
+	HRESULT ret{};
+
+	buffer = (wchar_t*)alifMem_dataAlloc(sizeof(wchar_t) * (wcslen(_path->wide) + 1));
+	if (!buffer) {
+		return nullptr;
+	}
+	wcscpy(buffer, _path->wide);
+	for (wchar_t* p = wcschr(buffer, L'/'); p; p = wcschr(p, L'/')) {
+		*p = L'\\';
+	}
+
+	ALIF_BEGIN_ALLOW_THREADS
+	ret = PathCchSkipRoot(buffer, &end);
+	ALIF_END_ALLOW_THREADS
+		if (FAILED(ret)) {
+			result = alif_buildValue("sO", "", _path->object);
+		}
+		else if (end != buffer) {
+			size_t rootLen = (size_t)(end - buffer);
+			result = alif_buildValue("NN",
+				alifUStr_fromWideChar(_path->wide, rootLen),
+				alifUStr_fromWideChar(_path->wide + rootLen, -1)
+			);
+		}
+		else {
+			result = alif_buildValue("Os", _path->object, "");
+		}
+	alifMem_dataFree(buffer);
+
+	return result;
+}
+
+
+
 #endif // 5494
 
 
@@ -2334,6 +2375,8 @@ static AlifMethodDef _posixMethods_[] = { // 16898
 	OS_GETCWD_METHODDEF
 
 	OS_LISTDIR_METHODDEF
+
+	OS__PATH_SPLITROOT_METHODDEF
 
 	OS_MKDIR_METHODDEF
 

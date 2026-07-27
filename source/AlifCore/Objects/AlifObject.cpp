@@ -1139,7 +1139,7 @@ static AlifTypeObject* staticTypes[] = {
 	&_alifSetType_,
 	&_alifSliceType_,
 	&_alifStaticMethodType_,
-	//&_alifStdPrinterType_,
+	&_alifStdPrinterType_,
 	&_alifSuperType_,
 	//&_alifTraceBackType_,
 	//&_alifTupleIterType_,

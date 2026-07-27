@@ -204,14 +204,14 @@ static AlifObject* builtin_compile(AlifObject* _module, AlifObject* const* _args
 
 #define KWTUPLE nullptr
 
-	static const char* const _keywords[] = { "مصدر", "الملف", "الوضع", "الأعلام", "لا_ترث", "تحسين", "نسخة_الميزات", nullptr };
+	static const char* const _keywords[] = { "مصدر", "الملف", "الوضع", "الأعلام", "لا_ترث", "محسن", "نسخة_الميزات", nullptr };
 	static AlifArgParser parser = {
 		.keywords = _keywords,
 		.fname = "ترجم",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
-	AlifObject* argsbuf[7];
+	AlifObject* argsbuf[7]{};
 	AlifSizeT noptargs = _nargs + (_kwnames ? ALIFTUPLE_GET_SIZE(_kwnames) : 0) - 3;
 	AlifObject* source{};
 	AlifObject* filename{};

@@ -504,6 +504,67 @@ static char* xmlCharRef_replace(AlifBytesWriter* _writer, char* _str,
 
 
 
+/* --- Bloom Filters ----------------------------------------------------- */
+
+#if LONG_BIT >= 128
+#define BLOOM_WIDTH 128
+#elif LONG_BIT >= 64
+#define BLOOM_WIDTH 64
+#elif LONG_BIT >= 32
+#define BLOOM_WIDTH 32
+#else
+#error "LONG_BIT is smaller than 32"
+#endif
+
+#define BLOOM_MASK unsigned long
+
+static BLOOM_MASK bloom_linebreak = ~(BLOOM_MASK)0;
+
+#define BLOOM(mask, ch)     ((mask &  (1UL << ((ch) & (BLOOM_WIDTH - 1)))))
+
+#define BLOOM_LINEBREAK(ch)                                             \
+    ((ch) < 128U ? ascii_linebreak[(ch)] :                              \
+     (BLOOM(bloom_linebreak, (ch)) && Py_UNICODE_ISLINEBREAK(ch)))
+
+static inline BLOOM_MASK make_bloomMask(AlifIntT kind, const void* ptr, AlifSizeT len) {
+#define BLOOM_UPDATE(TYPE, MASK, PTR, LEN)             \
+    do {                                               \
+        TYPE *data = (TYPE *)PTR;                      \
+        TYPE *end = data + LEN;                        \
+        AlifUCS4 ch;                                    \
+        for (; data != end; data++) {                  \
+            ch = *data;                                \
+            MASK |= (1UL << (ch & (BLOOM_WIDTH - 1))); \
+        }                                              \
+        break;                                         \
+    } while (0)
+
+	/* calculate simple bloom-style bitmask for a given unicode string */
+
+	BLOOM_MASK mask;
+
+	mask = 0;
+	switch (kind) {
+	case AlifUStrKind_::AlifUStr_1Byte_Kind:
+		BLOOM_UPDATE(AlifUCS1, mask, ptr, len);
+		break;
+	case AlifUStrKind_::AlifUStr_2Byte_Kind:
+		BLOOM_UPDATE(AlifUCS2, mask, ptr, len);
+		break;
+	case AlifUStrKind_::AlifUStr_4Byte_Kind:
+		BLOOM_UPDATE(AlifUCS4, mask, ptr, len);
+		break;
+	default:
+		ALIF_UNREACHABLE();
+	}
+	return mask;
+
+#undef BLOOM_UPDATE
+}
+
+
+
+
 
 
 static AlifIntT ensure_uStr(AlifObject* _obj) { // 960
@@ -6588,7 +6649,61 @@ static AlifObject* uStr_lowerImpl(AlifObject* _self) { // 12266
 	return case_operation(_self, do_lower);
 }
 
+// 12275
+#define LEFTSTRIP 0
+#define RIGHTSTRIP 1
+#define BOTHSTRIP 2
 
+/* Arrays indexed by above */
+static const char* _stripFuncNames_[] = {"قلم_يسار", "قلم_يمين", "قلم"};
+
+#define STRIPNAME(i) (_stripFuncNames_[i])
+
+AlifObject* _alifUStr_xStrip(AlifObject* _self,
+	AlifIntT _stripType, AlifObject* _sepObj) { // 12285
+	const void* data{};
+	AlifIntT kind{};
+	AlifSizeT i{}, j{}, len{};
+	BLOOM_MASK sepmask{};
+	AlifSizeT seplen{};
+
+	kind = ALIFUSTR_KIND(_self);
+	data = ALIFUSTR_DATA(_self);
+	len = ALIFUSTR_GET_LENGTH(_self);
+	seplen = ALIFUSTR_GET_LENGTH(_sepObj);
+	sepmask = make_bloomMask(ALIFUSTR_KIND(_sepObj),
+		ALIFUSTR_DATA(_sepObj),
+		seplen);
+
+	i = 0;
+	if (_stripType != RIGHTSTRIP) {
+		while (i < len) {
+			AlifUCS4 ch = ALIFUSTR_READ(kind, data, i);
+			if (!BLOOM(sepmask, ch))
+				break;
+			if (alifUStr_findChar(_sepObj, ch, 0, seplen, 1) < 0)
+				break;
+			i++;
+		}
+	}
+
+	j = len;
+	if (_stripType != LEFTSTRIP) {
+		j--;
+		while (j >= i) {
+			AlifUCS4 ch = ALIFUSTR_READ(kind, data, j);
+			if (!BLOOM(sepmask, ch))
+				break;
+			if (alifUStr_findChar(_sepObj, ch, 0, seplen, 1) < 0)
+				break;
+			j--;
+		}
+
+		j++;
+	}
+
+	return alifUStr_subString(_self, i, j);
+}
 
 AlifObject* alifUStr_subString(AlifObject* _self,
 	AlifSizeT _start, AlifSizeT _end) { // 12304
@@ -6622,6 +6737,89 @@ AlifObject* alifUStr_subString(AlifObject* _self,
 	}
 }
 
+static AlifObject* do_strip(AlifObject* self, AlifIntT striptype) { // 12366
+	AlifSizeT len{}, i{}, j{};
+
+	len = ALIFUSTR_GET_LENGTH(self);
+
+	if (ALIFUSTR_IS_ASCII(self)) {
+		const AlifUCS1* data = ALIFUSTR_1BYTE_DATA(self);
+
+		i = 0;
+		if (striptype != RIGHTSTRIP) {
+			while (i < len) {
+				AlifUCS1 ch = data[i];
+				if (!_alifASCIIWhitespace_[ch])
+					break;
+				i++;
+			}
+		}
+
+		j = len;
+		if (striptype != LEFTSTRIP) {
+			j--;
+			while (j >= i) {
+				AlifUCS1 ch = data[j];
+				if (!_alifASCIIWhitespace_[ch])
+					break;
+				j--;
+			}
+			j++;
+		}
+	}
+	else {
+		AlifIntT kind = ALIFUSTR_KIND(self);
+		const void* data = ALIFUSTR_DATA(self);
+
+		i = 0;
+		if (striptype != RIGHTSTRIP) {
+			while (i < len) {
+				AlifUCS4 ch = ALIFUSTR_READ(kind, data, i);
+				if (!alifUStr_isSpace(ch))
+					break;
+				i++;
+			}
+		}
+
+		j = len;
+		if (striptype != LEFTSTRIP) {
+			j--;
+			while (j >= i) {
+				AlifUCS4 ch = ALIFUSTR_READ(kind, data, j);
+				if (!alifUStr_isSpace(ch))
+					break;
+				j--;
+			}
+			j++;
+		}
+	}
+
+	return alifUStr_subString(self, i, j);
+}
+
+
+static AlifObject* do_argStrip(AlifObject* _self,
+	AlifIntT _stripType, AlifObject* _sep) { // 12429
+	if (_sep != ALIF_NONE) {
+		if (ALIFUSTR_CHECK(_sep))
+			return _alifUStr_xStrip(_self, _stripType, _sep);
+		else {
+			alifErr_format(_alifExcTypeError_,
+				"%s المعامل يجب أن يكون نص او عدم",
+				STRIPNAME(_stripType));
+			return NULL;
+		}
+	}
+
+	return do_strip(_self, _stripType);
+}
+
+
+
+static AlifObject* uStr_rStripImpl(AlifObject* _self,
+	AlifObject* _chars) { // 12496
+	return do_argStrip(_self, RIGHTSTRIP, _chars);
+}
 
 
 
@@ -7441,7 +7639,7 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	//UNICODE_RFIND_METHODDEF
 	//UNICODE_STRIP_METHODDEF
 	//UNICODE_LSTRIP_METHODDEF
-	//UNICODE_RSTRIP_METHODDEF
+	UNICODE_RSTRIP_METHODDEF
 	UNICODE_ENDSWITH_METHODDEF
 	UNICODE_STARTSWITH_METHODDEF
 	//UNICODE_ISDECIMAL_METHODDEF

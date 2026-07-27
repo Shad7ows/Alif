@@ -116,6 +116,33 @@ static AlifObject* uStr_lower(AlifObject* _self,
 }
 
 
+// 882
+#define UNICODE_RSTRIP_METHODDEF    \
+    {"قلم_يمين", ALIF_CPPFUNCTION_CAST(uStr_rStrip), METHOD_FASTCALL},
+
+static AlifObject* uStr_rStripImpl(AlifObject*, AlifObject*);
+
+static AlifObject* uStr_rStrip(AlifObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 888
+	AlifObject* returnValue{};
+	AlifObject* chars = ALIF_NONE;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("قلم_يمين", _nargs, 0, 1)) {
+		goto exit;
+	}
+	if (_nargs < 1) {
+		goto skip_optional;
+	}
+	chars = _args[0];
+skip_optional:
+	returnValue = uStr_rStripImpl(_self, chars);
+
+exit:
+	return returnValue;
+}
+
+
+
 
 // 919
 #define UNICODE_REPLACE_METHODDEF    \

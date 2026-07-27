@@ -287,6 +287,33 @@ AlifTypeObject _alifStdPrinterType_ = { // 425
 
 
 
+
+AlifObject* alifFile_openCodeObject(AlifObject* _path) { // 494
+	AlifObject* f = nullptr;
+
+	if (!ALIFUSTR_CHECK(_path)) {
+		alifErr_format(_alifExcTypeError_, "'مسار' يجب أن يكون 'نص', وليس '%.200s'",
+			ALIF_TYPE(_path)->name);
+		return NULL;
+	}
+
+	AlifOpenCodeHookFunction hook = _alifRuntime_.openCodeHook;
+	if (hook) {
+		f = hook(_path, _alifRuntime_.openCodeUserdata);
+	}
+	else {
+		AlifObject* open = _alifImport_getModuleAttrString("تبادل", "افتح");
+		if (open) {
+			f = alifObject_callFunction(open, "Os", _path, "rb");
+			ALIF_DECREF(open);
+		}
+	}
+
+	return f;
+}
+
+
+
 AlifIntT _alifFile_flush(AlifObject* _file) { // 533
 	AlifObject* tmp = alifObject_callMethodNoArgs(_file, &ALIF_STR(Flush));
 	if (tmp == nullptr) {

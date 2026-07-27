@@ -169,3 +169,43 @@ skip_optional_pos:
 exit:
 	return returnValue;
 }
+
+
+
+
+// 356
+#define _IO_OPEN_CODE_METHODDEF    \
+    {"افتح_الشيفرة", ALIF_CPPFUNCTION_CAST(_io_openCode), METHOD_FASTCALL|METHOD_KEYWORDS},
+
+static AlifObject* _io_openCodeImpl(AlifObject*, AlifObject*);
+
+static AlifObject* _io_openCode(AlifObject* _module, AlifObject* const* _args,
+	AlifSizeT _nargs, AlifObject* _kwnames) { // 362
+	AlifObject* returnValue{};
+#  define KWTUPLE nullptr
+
+	static const char* const _keywords[] = { "مسار", nullptr };
+	static AlifArgParser _parser = {
+		.keywords = _keywords,
+		.fname = "افتح_الشيفرة",
+		.kwTuple = KWTUPLE,
+	};
+#undef KWTUPLE
+	AlifObject* argsbuf[1]{};
+	AlifObject* path{};
+
+	_args = _ALIFARG_UNPACKKEYWORDS(_args, _nargs, nullptr, _kwnames, &_parser,
+		/*minpos*/ 1, /*maxpos*/ 1, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+	if (!_args) {
+		goto exit;
+	}
+	if (!ALIFUSTR_CHECK(_args[0])) {
+		//_alifArg_badArgument("افتح_الشيفرة", "المعامل 'مسار'", "نص", _args[0]);
+		goto exit;
+	}
+	path = _args[0];
+	returnValue = _io_openCodeImpl(_module, path);
+
+exit:
+	return returnValue;
+}

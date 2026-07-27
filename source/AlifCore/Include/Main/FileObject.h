@@ -23,3 +23,6 @@ AlifObject* alifFile_newStdPrinter(int);
 extern AlifTypeObject _alifStdPrinterType_;
 
 typedef AlifObject* (*AlifOpenCodeHookFunction)(AlifObject*, void*);
+
+
+AlifObject* alifFile_openCodeObject(AlifObject*);

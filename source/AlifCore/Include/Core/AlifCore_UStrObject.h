@@ -65,7 +65,7 @@ extern AlifSizeT _alifUStr_insertThousandsGrouping(AlifUStrWriter*, AlifSizeT, A
 
 AlifIntT _alifUStr_equalToASCIIString(AlifObject*, const char*); // 224
 
-
+extern AlifObject* _alifUStr_xStrip(AlifObject*, AlifIntT, AlifObject*); // 230
 
 AlifIntT _alifUStr_equal(AlifObject*, AlifObject*); // 257
 
