@@ -6959,7 +6959,41 @@ static AlifObject* uStr_startsWithImpl(AlifObject* _self,
 	return alifBool_fromLong(result);
 }
 
-
+static AlifObject* uStr_endsWithImpl(AlifObject* _self,
+	AlifObject* _subobj, AlifSizeT _start, AlifSizeT _end) { // 13352
+	if (ALIFTUPLE_CHECK(_subobj)) {
+		AlifSizeT i{};
+		for (i = 0; i < ALIFTUPLE_GET_SIZE(_subobj); i++) {
+			AlifObject* substring = ALIFTUPLE_GET_ITEM(_subobj, i);
+			if (!ALIFUSTR_CHECK(substring)) {
+				alifErr_format(_alifExcTypeError_,
+					"لاستخدام ينتهي_ب مع مترابطة يجب أن تكون كل محتوياتها نصوص, "
+					"وليس %.100s",
+					ALIF_TYPE(substring)->name);
+				return nullptr;
+			}
+			int result = tail_match(_self, substring, _start, _end, +1);
+			if (result < 0) {
+				return nullptr;
+			}
+			if (result) {
+				ALIF_RETURN_TRUE;
+			}
+		}
+		ALIF_RETURN_FALSE;
+	}
+	if (!ALIFUSTR_CHECK(_subobj)) {
+		alifErr_format(_alifExcTypeError_,
+			"اول معامل ل ينتهي_ب يجب أن يكون نص او "
+			"مترابطة من النصوص, وليس %.100s", ALIF_TYPE(_subobj)->name);
+		return nullptr;
+	}
+	int result = tail_match(_self, _subobj, _start, _end, +1);
+	if (result < 0) {
+		return nullptr;
+	}
+	return alifBool_fromLong(result);
+}
 
 static inline void alifUStrWriter_update(AlifUStrWriter* _writer) { // 13364
 	_writer->maxChar = ALIFUSTR_MAX_CHAR_VALUE(_writer->buffer);
@@ -7408,7 +7442,7 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	//UNICODE_STRIP_METHODDEF
 	//UNICODE_LSTRIP_METHODDEF
 	//UNICODE_RSTRIP_METHODDEF
-	//UNICODE_ENDSWITH_METHODDEF
+	UNICODE_ENDSWITH_METHODDEF
 	UNICODE_STARTSWITH_METHODDEF
 	//UNICODE_ISDECIMAL_METHODDEF
 	UNICODE_PARTITION_METHODDEF

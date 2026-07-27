@@ -392,7 +392,41 @@ exit:
 	return returnValue;
 }
 
+// 1721
+#define UNICODE_ENDSWITH_METHODDEF    \
+    {"ينتهي_ب", ALIF_CPPFUNCTION_CAST(uStr_endsWith), METHOD_FASTCALL},
 
+static AlifObject* uStr_endsWithImpl(AlifObject*, AlifObject*, AlifSizeT, AlifSizeT);
+
+static AlifObject* uStr_endsWith(AlifObject* self,
+	AlifObject* const* args, AlifSizeT nargs) { // 1728
+	AlifObject* returnValue{};
+	AlifObject* subobj{};
+	AlifSizeT start = 0;
+	AlifSizeT end = ALIF_SIZET_MAX;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("ينتهي_ب", nargs, 1, 3)) {
+		goto exit;
+	}
+	subobj = args[0];
+	if (nargs < 2) {
+		goto skip_optional;
+	}
+	if (!_alifEval_sliceIndex(args[1], &start)) {
+		goto exit;
+	}
+	if (nargs < 3) {
+		goto skip_optional;
+	}
+	if (!_alifEval_sliceIndex(args[2], &end)) {
+		goto exit;
+	}
+skip_optional:
+	returnValue = uStr_endsWithImpl(self, subobj, start, end);
+
+exit:
+	return returnValue;
+}
 
 
 
