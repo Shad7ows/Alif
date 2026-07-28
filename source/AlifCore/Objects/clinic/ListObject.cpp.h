@@ -67,6 +67,44 @@ static AlifObject* list_append(AlifListObject* _self, AlifObject* _object) { // 
     {"اطل", (AlifCPPFunction)list_extend, METHOD_O}, // 134
 
 
+// 145
+#define LIST_POP_METHODDEF    \
+    {"اسحب", ALIF_CPPFUNCTION_CAST(list_pop), METHOD_FASTCALL},
+
+static AlifObject* list_popImpl(AlifListObject*, AlifSizeT);
+
+static AlifObject* list_pop(AlifListObject* self,
+	AlifObject* const* args, AlifSizeT nargs) { // 151
+	AlifObject* returnValue{};
+	AlifSizeT index = -1;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("اسحب", nargs, 0, 1)) {
+		goto exit;
+	}
+	if (nargs < 1) {
+		goto skip_optional;
+	}
+	{
+		AlifSizeT ival = -1;
+		AlifObject* iobj = _alifNumber_index(args[0]);
+		if (iobj != nullptr) {
+			ival = alifLong_asSizeT(iobj);
+			ALIF_DECREF(iobj);
+		}
+		if (ival == -1 and alifErr_occurred()) {
+			goto exit;
+		}
+		index = ival;
+	}
+skip_optional:
+	ALIF_BEGIN_CRITICAL_SECTION(self);
+	returnValue = list_popImpl(self, index);
+	ALIF_END_CRITICAL_SECTION();
+
+exit:
+	return returnValue;
+}
+
 
 //198
 #define LIST_SORT_METHODDEF    \

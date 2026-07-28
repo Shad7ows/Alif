@@ -1066,6 +1066,50 @@ static AlifObject* list_inplaceConcat(AlifObject* _self, AlifObject* other) { //
 	return ALIF_NEWREF(self);
 }
 
+
+static AlifObject* list_popImpl(AlifListObject* self,
+	AlifSizeT index) { // 1442
+	AlifObject* v{};
+	AlifIntT status{};
+
+	if (ALIF_SIZE(self) == 0) {
+		/* Special-case most common failure cause */
+		alifErr_setString(_alifExcIndexError_, "يتم السحب من مصفوفة فارغة");
+		return nullptr;
+	}
+	if (index < 0)
+		index += ALIF_SIZE(self);
+	if (!valid_index(index, ALIF_SIZE(self))) {
+		alifErr_setString(_alifExcIndexError_, "مؤشر السحب خارج النطاق");
+		return nullptr;
+	}
+
+	AlifObject** items = self->item;
+	v = items[index];
+	const AlifSizeT size_after_pop = ALIF_SIZE(self) - 1;
+	if (size_after_pop == 0) {
+		ALIF_INCREF(v);
+		list_clear(self);
+		status = 0;
+	}
+	else {
+		if ((size_after_pop - index) > 0) {
+			memmove(&items[index], &items[index + 1], (size_after_pop - index) * sizeof(AlifObject*));
+		}
+		status = list_resize(self, size_after_pop);
+	}
+	if (status >= 0) {
+		return v; // and v now owns the reference the list had
+	}
+	else {
+		// list resize failed, need to restore
+		memmove(&items[index + 1], &items[index], (size_after_pop - index) * sizeof(AlifObject*));
+		items[index] = v;
+		return nullptr;
+	}
+}
+
+
 static void reverse_slice(AlifObject** _lo, AlifObject** _hi) { // 1491
 	--_hi;
 	while (_lo < _hi) {
@@ -2243,7 +2287,7 @@ static AlifMethodDef _listMethods_[] = { // 3445
 	LIST_APPEND_METHODDEF
 	LIST_INSERT_METHODDEF
 	LIST_EXTEND_METHODDEF
-	//LIST_POP_METHODDEF
+	LIST_POP_METHODDEF
 	LIST_REMOVE_METHODDEF
 	//LIST_INDEX_METHODDEF
 	//LIST_COUNT_METHODDEF
