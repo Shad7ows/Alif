@@ -28,7 +28,7 @@ AlifIntT alifOS_vsnprintf(char* _str,
 #if defined(_MSC_VER)
 	len = _vsnprintf(_str, _size, _format, _va);
 #else
-	len = vsnprintf(str, size, format, va);
+	len = vsnprintf(_str, _size, _format, _va);
 #endif
 
 Done:
