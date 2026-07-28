@@ -738,6 +738,7 @@
     INIT_USTR(__neg__, "__سالب__"), /* //* alif */	\
     INIT_USTR(__name__, "__اسم__"), /* //* alif */	\
     INIT_USTR(__pow__, "__اس__"), /* //* alif */	\
+    INIT_USTR(__package__, "__حزمة__"), /* //* alif */	\
     INIT_USTR(__qualname__, "__اسم_مميز__"), /* //* alif */	\
     INIT_USTR(__rpow__, "__اس_ع__"), /* //* alif */	\
     INIT_USTR(__radd__, "__اجمع_ع__"), /* //* alif */	\
@@ -753,6 +754,7 @@
     INIT_USTR(__enter__, "__ادخل__"), /* //* alif */	\
     INIT_USTR(__exit__, "__اخرج__"), /* //* alif */	\
     INIT_USTR(Path, "مسار"), /* //* alif */	\
+    INIT_USTR(Parent, "الوالد"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
     INIT_USTR(nt, "واجهة_نظام_ويندوز"), /* //* alif */	\
     INIT_USTR(posix, "واجهة_نظام_يونكس"), /* //* alif */	\
@@ -788,7 +790,6 @@
     INIT_ID(__notes__), \
     INIT_ID(__origClass__), \
 	INIT_ID(__path__), \
-	INIT_ID(__package__), \
 	INIT_ID(__prepare__), \
 	INIT_ID(__setName__), \
 	INIT_ID(__slots__), \

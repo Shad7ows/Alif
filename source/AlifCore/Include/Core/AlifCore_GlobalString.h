@@ -98,6 +98,7 @@ public:
 		STRUCT_FOR_USTR(__neg__, "__سالب__") //* alif
 		STRUCT_FOR_USTR(__name__, "__اسم__")
 		STRUCT_FOR_USTR(__pow__, "__اس__") //* alif
+		STRUCT_FOR_USTR(__package__, "__حزمة__") //* alif
 		STRUCT_FOR_USTR(__qualname__, "__اسم_مميز__")
 		STRUCT_FOR_USTR(__rpow__, "__اس_ع__") //* alif
 		STRUCT_FOR_USTR(__radd__, "__اجمع_ع__") //* alif
@@ -113,6 +114,7 @@ public:
 		STRUCT_FOR_USTR(__enter__, "__ادخل__")
 		STRUCT_FOR_USTR(__exit__, "__اخرج__")
 		STRUCT_FOR_USTR(Path, "مسار")
+		STRUCT_FOR_USTR(Parent, "الوالد")
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
 		STRUCT_FOR_USTR(nt, "واجهة_نظام_ويندوز")
 		STRUCT_FOR_USTR(posix, "واجهة_نظام_يونكس")
@@ -149,7 +151,6 @@ public:
 		STRUCT_FOR_ID(__notes__)
 		STRUCT_FOR_ID(__origClass__)
 		STRUCT_FOR_ID(__path__)
-		STRUCT_FOR_ID(__package__)
 		STRUCT_FOR_ID(__prepare__)
 		STRUCT_FOR_ID(__setName__)
 		STRUCT_FOR_ID(__slots__)

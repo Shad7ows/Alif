@@ -1535,6 +1535,157 @@ done:
 }
 
 
+static AlifObject* resolve_name(AlifThread* _thread,
+	AlifObject* _name, AlifObject* _globals, AlifIntT _level) { // 3482
+	AlifObject* absName{};
+	AlifObject* package{};
+	AlifObject* spec{};
+	AlifSizeT last_dot{};
+	AlifObject* base{};
+	AlifIntT level_up{};
+
+	if (_globals == nullptr) {
+		_alifErr_setString(_thread, _alifExcKeyError_, "'__اسم__' ليس في اسماء_عامة");
+		goto error;
+	}
+	if (!ALIFDICT_CHECK(_globals)) {
+		_alifErr_setString(_thread, _alifExcTypeError_, "اسماء_عامة يجب أن تكون فهرس");
+		goto error;
+	}
+	if (alifDict_getItemRef(_globals, &ALIF_STR(__package__), &package) < 0) {
+		goto error;
+	}
+	if (package == ALIF_NONE) {
+		ALIF_DECREF(package);
+		package = nullptr;
+	}
+	if (alifDict_getItemRef(_globals, &ALIF_STR(__spec__), &spec) < 0) {
+		goto error;
+	}
+
+	if (package != nullptr) {
+		if (!ALIFUSTR_CHECK(package)) {
+			_alifErr_setString(_thread, _alifExcTypeError_,
+				"متغير الحزمة يجب أن يكون نص");
+			goto error;
+		}
+		else if (spec != nullptr and spec != ALIF_NONE) {
+			AlifIntT equal{};
+			AlifObject* parent = alifObject_getAttr(spec, &ALIF_STR(Parent));
+			if (parent == nullptr) {
+				goto error;
+			}
+
+			equal = alifObject_richCompareBool(package, parent, ALIF_EQ);
+			ALIF_DECREF(parent);
+			if (equal < 0) {
+				goto error;
+			}
+			else if (equal == 0) {
+				//if (alifErr_warnEx(_alifExcDeprecationWarning_,
+				//	"__package__ != __spec__.parent", 1) < 0) {
+				//	goto error;
+				//}
+			}
+		}
+	}
+	else if (spec != nullptr and spec != ALIF_NONE) {
+		package = alifObject_getAttr(spec, &ALIF_STR(Parent));
+		if (package == nullptr) {
+			goto error;
+		}
+		else if (!ALIFUSTR_CHECK(package)) {
+			_alifErr_setString(_thread, _alifExcTypeError_,
+				"__خصائص__.الوالد يجب أن تكون نص");
+			goto error;
+		}
+	}
+	else {
+		//if (alifErr_warnEx(_alifExcImportWarning_,
+		//	"can't resolve package from __spec__ or __package__, "
+		//	"falling back on __name__ and __path__", 1) < 0) {
+		//	goto error;
+		//}
+
+		if (alifDict_getItemRef(_globals, &ALIF_STR(__name__), &package) < 0) {
+			goto error;
+		}
+		if (package == nullptr) {
+			_alifErr_setString(_thread, _alifExcKeyError_,
+				"'__اسم__' ليس في الاسماء العامة");
+			goto error;
+		}
+
+		if (!ALIFUSTR_CHECK(package)) {
+			_alifErr_setString(_thread, _alifExcTypeError_,
+				"__اسم__ يجب أن يكون نص");
+			goto error;
+		}
+
+		AlifIntT haspath = alifDict_contains(_globals, &ALIF_ID(__path__));
+		if (haspath < 0) {
+			goto error;
+		}
+		if (!haspath) {
+			AlifSizeT dot{};
+
+			dot = alifUStr_findChar(package, '.',
+				0, ALIFUSTR_GET_LENGTH(package), -1);
+			if (dot == -2) {
+				goto error;
+			}
+			else if (dot == -1) {
+				goto no_parent_error;
+			}
+			AlifObject* substr = alifUStr_subString(package, 0, dot);
+			if (substr == nullptr) {
+				goto error;
+			}
+			ALIF_SETREF(package, substr);
+		}
+	}
+
+	last_dot = ALIFUSTR_GET_LENGTH(package);
+	if (last_dot == 0) {
+		goto no_parent_error;
+	}
+
+	for (level_up = 1; level_up < _level; level_up += 1) {
+		last_dot = alifUStr_findChar(package, '.', 0, last_dot, -1);
+		if (last_dot == -2) {
+			goto error;
+		}
+		else if (last_dot == -1) {
+			_alifErr_setString(_thread, _alifExcImportError_,
+				"تمت محاولة استيراد نسبي يتجاوز أعلى مستوى "
+				"للحزمة");
+			goto error;
+		}
+	}
+
+	ALIF_XDECREF(spec);
+	base = alifUStr_subString(package, 0, last_dot);
+	ALIF_DECREF(package);
+	if (base == nullptr or ALIFUSTR_GET_LENGTH(_name) == 0) {
+		return base;
+	}
+
+	absName = alifUStr_fromFormat("%U.%U", base, _name);
+	ALIF_DECREF(base);
+	return absName;
+
+no_parent_error:
+	_alifErr_setString(_thread, _alifExcImportError_,
+		"محاولة استيراد نسبي "
+		"ضمن والد حزمة غير معروف");
+
+error:
+	ALIF_XDECREF(spec);
+	ALIF_XDECREF(package);
+	return nullptr;
+}
+
+
 static AlifObject* import_findAndLoad(AlifThread* tstate, AlifObject* abs_name) { // 3633
 	AlifObject* mod = nullptr;
 	AlifInterpreter* interp = tstate->interpreter;
@@ -1629,13 +1780,13 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	}
 
 	if (level > 0) {
-		//absName = resolve_name(tstate, name, globals, level);
+		absName = resolve_name(thread, name, globals, level);
 		if (absName == nullptr)
 			goto error;
 	}
 	else {  /* level == 0 */
 		if (ALIFUSTR_GET_LENGTH(name) == 0) {
-			//_alifErr_setString(tstate, _alifExcValueError_, "Empty module name");
+			_alifErr_setString(thread, _alifExcValueError_, "اسم وحدة فارغ");
 			goto error;
 		}
 		absName = ALIF_NEWREF(name);
@@ -1722,7 +1873,7 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 			goto error;
 		}
 		if (hasPath) {
-			//final_mod = alifObject_callMethodObjArgs(
+			//finalMod = alifObject_callMethodObjArgs(
 			//	IMPORTLIB(interp), &ALIF_ID(_handleFromList),
 			//	mod, fromlist, IMPORT_FUNC(interp), nullptr);
 		}

@@ -484,7 +484,35 @@ AlifObject* _alifExc_createExceptionGroup(const char* _msgStr,
 
 static AlifIntT importError_init(AlifImportErrorObject* self,
 	AlifObject* args, AlifObject* kwds) { // 1560
-	//* todo
+	static const char* kwlist[] = {"اسم", "مسار", "اسم_من", 0};
+	AlifObject* emptyTuple{};
+	AlifObject* msg = nullptr;
+	AlifObject* name = nullptr;
+	AlifObject* path = nullptr;
+	AlifObject* nameFrom = nullptr;
+
+	if (baseException_init((AlifBaseExceptionObject*)self, args, nullptr) == -1)
+		return -1;
+
+	emptyTuple = alifTuple_new(0);
+	if (!emptyTuple)
+		return -1;
+	if (!alifArg_parseTupleAndKeywords(emptyTuple, kwds, "|$OOO:خطأ_استيراد", kwlist,
+		&name, &path, &nameFrom)) {
+		ALIF_DECREF(emptyTuple);
+		return -1;
+	}
+	ALIF_DECREF(emptyTuple);
+
+	ALIF_XSETREF(self->name, ALIF_XNEWREF(name));
+	ALIF_XSETREF(self->path, ALIF_XNEWREF(path));
+	ALIF_XSETREF(self->nameFrom, ALIF_XNEWREF(nameFrom));
+
+	if (ALIFTUPLE_GET_SIZE(args) == 1) {
+		msg = ALIF_NEWREF(ALIFTUPLE_GET_ITEM(args, 0));
+	}
+	ALIF_XSETREF(self->msg, msg);
+
 	return 0;
 }
 

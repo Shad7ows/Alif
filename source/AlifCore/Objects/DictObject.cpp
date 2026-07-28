@@ -2018,7 +2018,7 @@ static AlifObject* dict_subscript(AlifObject* _self, AlifObject* _key) { // 3234
 		//	missing = _alifObject_lookupSpecial(
 		//		(AlifObject*)mp, &ALIF_ID(__missing__));
 		//	if (missing != nullptr) {
-		//		res = AlifObject_callOneArg(missing, key);
+		//		res = alifObject_callOneArg(missing, _key);
 		//		ALIF_DECREF(missing);
 		//		return res;
 		//	}
