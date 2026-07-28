@@ -686,6 +686,7 @@
 	INIT_USTR(_windowsConsoleIO, "طرفية_ويندوز"), \
 	INIT_USTR(_findAndLoad, "_اوجد_وحمل"), \
 	INIT_USTR(_initializing, "_تهيئة"), \
+	INIT_USTR(_handleFromList, "_تعامل_من_القائمة"), \
 	INIT_STR(AnonGenExpr, "<genexpr>"), \
 	INIT_USTR(AnonLambda, "<خطية>"), \
 	INIT_USTR(AnonListComp, "<مصفوفة_ضمنية>"), \
@@ -753,6 +754,7 @@
     INIT_USTR(__spec__, "__خصائص__"), /* //* alif */	\
     INIT_USTR(__enter__, "__ادخل__"), /* //* alif */	\
     INIT_USTR(__exit__, "__اخرج__"), /* //* alif */	\
+    INIT_USTR(__path__, "__مسار__"), /* //* alif */	\
     INIT_USTR(Path, "مسار"), /* //* alif */	\
     INIT_USTR(Parent, "الوالد"), /* //* alif */	\
     INIT_USTR(_io, "تبادل"), /* //* alif */	\
@@ -789,7 +791,6 @@
     INIT_ID(__new__), \
     INIT_ID(__notes__), \
     INIT_ID(__origClass__), \
-	INIT_ID(__path__), \
 	INIT_ID(__prepare__), \
 	INIT_ID(__setName__), \
 	INIT_ID(__slots__), \

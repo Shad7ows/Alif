@@ -59,8 +59,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__origClass__);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(__path__);
-	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__prepare__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__setName__);
@@ -213,6 +211,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(_initializing);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(_handleFromList);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(AnonGenExpr);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(AnonLambda);
@@ -338,6 +338,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(__dict__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__spec__);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__path__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Path);
 	_alifUStr_internStatic(interp, &string);

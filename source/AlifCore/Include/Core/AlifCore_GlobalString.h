@@ -46,6 +46,7 @@ public:
 		STRUCT_FOR_USTR(_windowsConsoleIO, "طرفية_ويندوز")
 		STRUCT_FOR_USTR(_findAndLoad, "_اوجد_وحمل")
 		STRUCT_FOR_USTR(_initializing, "_تهيئة")
+		STRUCT_FOR_USTR(_handleFromList, "_تعامل_من_القائمة")
 		STRUCT_FOR_STR(AnonGenExpr, "<genexpr>")
 		STRUCT_FOR_USTR(AnonLambda, "<خطية>")
 		STRUCT_FOR_USTR(AnonListComp, "<مصفوفة_ضمنية>")
@@ -113,6 +114,7 @@ public:
 		STRUCT_FOR_USTR(__spec__, "__خصائص__")
 		STRUCT_FOR_USTR(__enter__, "__ادخل__")
 		STRUCT_FOR_USTR(__exit__, "__اخرج__")
+		STRUCT_FOR_USTR(__path__, "__مسار__")
 		STRUCT_FOR_USTR(Path, "مسار")
 		STRUCT_FOR_USTR(Parent, "الوالد")
 		STRUCT_FOR_USTR(_io, "تبادل") //* alif
@@ -150,7 +152,6 @@ public:
 		STRUCT_FOR_ID(__new__)
 		STRUCT_FOR_ID(__notes__)
 		STRUCT_FOR_ID(__origClass__)
-		STRUCT_FOR_ID(__path__)
 		STRUCT_FOR_ID(__prepare__)
 		STRUCT_FOR_ID(__setName__)
 		STRUCT_FOR_ID(__slots__)

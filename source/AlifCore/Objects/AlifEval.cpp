@@ -1768,6 +1768,23 @@ resume_frame:
 				}
 				DISPATCH();
 			} // ------------------------------------------------------------ //
+			TARGET(DELETE_FAST) {
+				_frame->instrPtr = nextInstr;
+				nextInstr += 1;
+				//INSTRUCTION_STATS(DELETE_FAST);
+				AlifStackRef v = GETLOCAL(oparg);
+				if (ALIFSTACKREF_ISNULL(v)) {
+					_alifFrame_setStackPointer(_frame, stackPointer);
+					//_alifEval_formatExcCheckArg(_thread, _alifExcUnboundLocalError_,
+					//	UNBOUNDLOCAL_ERROR_MSG,
+					//	alifTuple_getItem(_alifFrame_getCode(_frame)->localsPlusNames, oparg)
+					//);
+					stackPointer = _alifFrame_getStackPointer(_frame);
+					goto error;
+				}
+				SETLOCAL(oparg, _alifStackRefNull_);
+				DISPATCH();
+			} // ------------------------------------------------------------ //
 			TARGET(DELETE_NAME) {
 				_frame->instrPtr = nextInstr;
 				nextInstr += 1;

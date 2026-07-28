@@ -91,7 +91,7 @@ static AlifObject* import_getModule(AlifThread* _thread, AlifObject* _name) { //
 }
 
 
-AlifObject* alifImport_getModule(AlifObject* _name) { // 240
+AlifObject* alifImport_getModule(AlifObject* _name) { // 248
 	AlifThread* thread = _alifThread_get();
 	AlifObject* mod{};
 
@@ -1304,7 +1304,7 @@ AlifIntT alifImport_importFrozenModuleObject(AlifObject* name) { // 2998
 			ALIF_DECREF(m);
 			goto err_return;
 		}
-		err = alifDict_setItemString(d, "__path__", l);
+		err = alifDict_setItemString(d, "__مسار__", l);
 		ALIF_DECREF(l);
 		ALIF_DECREF(m);
 		if (err != 0)
@@ -1622,7 +1622,7 @@ static AlifObject* resolve_name(AlifThread* _thread,
 			goto error;
 		}
 
-		AlifIntT haspath = alifDict_contains(_globals, &ALIF_ID(__path__));
+		AlifIntT haspath = alifDict_contains(_globals, &ALIF_STR(__path__));
 		if (haspath < 0) {
 			goto error;
 		}
@@ -1868,14 +1868,14 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 		}
 	}
 	else {
-		AlifIntT hasPath = alifObject_hasAttrWithError(mod, &ALIF_ID(__path__));
+		AlifIntT hasPath = alifObject_hasAttrWithError(mod, &ALIF_STR(__path__));
 		if (hasPath < 0) {
 			goto error;
 		}
 		if (hasPath) {
-			//finalMod = alifObject_callMethodObjArgs(
-			//	IMPORTLIB(interp), &ALIF_ID(_handleFromList),
-			//	mod, fromlist, IMPORT_FUNC(interp), nullptr);
+			finalMod = alifObject_callMethodObjArgs(
+				IMPORTLIB(interp), &ALIF_STR(_handleFromList),
+				mod, fromlist, IMPORT_FUNC(interp), nullptr);
 		}
 		else {
 			finalMod = ALIF_NEWREF(mod);
@@ -2522,7 +2522,7 @@ static AlifObject* load_package(const char* name, char* pathname) { // 1035
 		goto error;
 	err = alifDict_setItemString(d, "__file__", file);
 	if (err == 0)
-		err = alifDict_setItemString(d, "__path__", path);
+		err = alifDict_setItemString(d, "__مسار__", path);
 	if (err != 0)
 		goto error;
 	buf[0] = '\0';
@@ -3019,12 +3019,12 @@ static AlifObject* get_parent(AlifObject* globals, char* buf,
 			return nullptr;
 	}
 	if (pathstr == nullptr) {
-		pathstr = alifUStr_internFromString("__path__");
+		pathstr = alifUStr_internFromString("__مسار__");
 		if (pathstr == nullptr)
 			return nullptr;
 	}
 	if (pkgstr == nullptr) {
-		pkgstr = alifUStr_internFromString("__package__");
+		pkgstr = alifUStr_internFromString("__حزمة__");
 		if (pkgstr == nullptr)
 			return nullptr;
 	}
@@ -3245,7 +3245,7 @@ static AlifIntT ensure_fromList(AlifObject* mod, AlifObject* fromlist,
 	char* buf, AlifSizeT buflen, AlifIntT recursive) { // 2450
 	AlifIntT i{};
 
-	if (!alifObject_hasAttrWithError(mod, &ALIF_ID(__path__)))
+	if (!alifObject_hasAttrWithError(mod, &ALIF_STR(__path__)))
 		return 1;
 
 	for (i = 0; ; i++) {
@@ -3359,7 +3359,7 @@ static AlifObject* import_submodule(AlifObject* mod,
 		if (mod == ALIF_NONE)
 			path = nullptr;
 		else {
-			path = alifObject_getAttrString(mod, "__path__");
+			path = alifObject_getAttrString(mod, "__مسار__");
 			if (path == nullptr) {
 				alifErr_clear();
 				ALIF_INCREF(ALIF_NONE);
