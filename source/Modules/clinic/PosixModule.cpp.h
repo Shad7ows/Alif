@@ -304,3 +304,42 @@ static AlifObject* os_cpuCount(AlifObject* _module,
 	AlifObject* ALIF_UNUSED(ignored)) { // 11425
 	return os_cpuCountImpl(_module);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 12542
+#ifndef OS__PATH_SPLITROOT_METHODDEF
+    #define OS__PATH_SPLITROOT_METHODDEF
+#endif /* !defined(OS__PATH_SPLITROOT_METHODDEF) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+

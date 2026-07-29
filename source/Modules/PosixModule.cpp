@@ -1648,7 +1648,7 @@ static AlifObject* posix_getcwd(AlifIntT _useBytes) { // 4125
 		 * and fail with ENOENT, matching newer glibc behaviour.
 		 */
 		errno = ENOENT;
-		path_object_error(obj);
+		path_objectError(obj);
 		alifMem_dataFree(buf);
 		return nullptr;
 	}

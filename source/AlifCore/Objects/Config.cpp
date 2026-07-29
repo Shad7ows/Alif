@@ -4,8 +4,11 @@
 
 //extern AlifObject* alifInit__abc(void); // 8
 extern AlifObject* alifInit_math(void); // 16
+#ifdef _WINDOWS
 extern AlifObject* alifInit_nt(void); // 18
-
+#else
+extern AlifObject* alifInit_posix(void); // 18
+#endif
 extern AlifObject* alifInit_time(void);
 
 extern AlifObject* alifInit__random(void); // 41
@@ -18,8 +21,12 @@ class InitTable _alifImportInitTab_[] = { // 87
 	//{"صنف_اساس_مجرد", alifInit__abc},
 
 	{"الرياضيات", alifInit_math}, // 96
-	{"واجهة_نظام_ويندوز", alifInit_nt}, /* Use the NT os functions, not posix */
 
+#ifdef _WINDOWS
+	{"واجهة_نظام_ويندوز", alifInit_nt}, /* Use the NT os functions, not posix */
+#else
+	{"واجهة_نظام_يونكس", alifInit_posix},
+#endif
 
 	{"الوقت", alifInit_time},
 
