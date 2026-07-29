@@ -2389,6 +2389,9 @@ static AlifIntT all_ins(AlifObject* m) { // 17116
 	if (ALIFMODULE_ADDINTMACRO(m, F_OK, F_OK)) return -1;
 #endif
 	//* alif //* todo
+
+
+	return 0;
 };
 
 
@@ -2520,10 +2523,9 @@ static AlifIntT posixModule_exec(AlifObject* m) { // 17979
 	if (state->struct_rusage == nullptr)
 		return -1;
 #endif
-	state->st_mode = alifUStr_internFromString("st_mode");
+	state->st_mode = alifUStr_internFromString("الوضع");
 	if (state->st_mode == nullptr)
 		return -1;
-
 	/* suppress "function not used" warnings */
 	{
 		int ignored;
@@ -2552,7 +2554,7 @@ static AlifIntT posixModule_exec(AlifObject* m) { // 17979
 #ifndef _WINDOWS
 	if (_alif_getTicksPerSecond(&state->ticks_per_second) < 0) {
 		alifErr_setString(_alifExcRuntimeError_,
-			"cannot read ticks_per_second");
+			"لم يتمكن من قراءة ticks_per_second");
 		return -1;
 	}
 #endif

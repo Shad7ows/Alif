@@ -339,6 +339,10 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__spec__);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__enter__);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__exit__);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__path__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Path);
@@ -346,5 +350,9 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(Parent);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(_io);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(nt);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(posix);
 	_alifUStr_internStatic(interp, &string);
 }
