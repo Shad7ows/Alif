@@ -24,6 +24,14 @@ if [ -n "$HOST" ]; then
 else
     # Native build: query kernel name directly
     RAW_SYS=$(uname -s)
+
+    # Native Android: "uname -s" returns "Linux" on a device running Android natively (like in Termux), since Android runs on top of the Linux kernel,
+    # so check if we are on Android :)
+    if [ "$RAW_SYS" = "Linux" ]; then
+        if [ -n "$ANDROID_ROOT" ] || [ -f "/system/bin/getprop" ] || [ "$(uname -o 2>/dev/null)" = "Android" ]; then
+            RAW_SYS="Linux-android"
+        fi
+    fi
 fi
 
 # Lowercase & clean string
