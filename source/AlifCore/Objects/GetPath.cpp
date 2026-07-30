@@ -862,7 +862,7 @@ AlifStatus _alifConfig_initPathConfig(AlifConfig* _config, AlifIntT _computePath
 	#ifdef _WINDOWS
 		!decode_toDict(dict, "النظام", "ويندوز") or
 	#elif defined(__APPLE__)
-		!decode_toDict(dict, "النظام", "أبل") or
+		!decode_toDict(dict, "النظام", "ماك") or
 	#else
 		!decode_toDict(dict, "النظام", "يونكس") or
 	#endif
