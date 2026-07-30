@@ -11,7 +11,7 @@
 
 // 186
 #define _IMP_FIND_FROZEN_METHODDEF    \
-    {"اوجد_مجرد", ALIF_CPPFUNCTION_CAST(_imp_findFrozen), METHOD_FASTCALL|METHOD_KEYWORDS},
+    {"اوجد_مصرف", ALIF_CPPFUNCTION_CAST(_imp_findFrozen), METHOD_FASTCALL|METHOD_KEYWORDS},
 
 static AlifObject* _imp_findFrozenImpl(AlifObject*, AlifObject*, AlifIntT);
 
@@ -39,7 +39,7 @@ static AlifObject* _imp_findFrozen(AlifObject* module, AlifObject* const* args,
 	static const char * const _keywords[] = {"", "مع_بيانات", nullptr};
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "اوجد_مجرد",
+		.fname = "اوجد_مصرف",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
@@ -54,7 +54,7 @@ static AlifObject* _imp_findFrozen(AlifObject* module, AlifObject* const* args,
 		goto exit;
 	}
 	if (!ALIFUSTR_CHECK(args[0])) {
-		//_alifArg_badArgument("اوجد_مجرد", "argument 1", "str", args[0]);
+		//_alifArg_badArgument("اوجد_مصرف", "argument 1", "str", args[0]);
 		goto exit;
 	}
 	name = args[0];
@@ -76,7 +76,7 @@ exit:
 
 // 256
 #define _IMP_GET_FROZEN_OBJECT_METHODDEF    \
-    {"اجلب_كائن_مجرد", ALIF_CPPFUNCTION_CAST(_imp_getFrozenObject), METHOD_FASTCALL},
+    {"اجلب_كائن_مصرف", ALIF_CPPFUNCTION_CAST(_imp_getFrozenObject), METHOD_FASTCALL},
 
 static AlifObject* _imp_getFrozenObjectImpl(AlifObject*, AlifObject*, AlifObject*);
 
@@ -86,11 +86,11 @@ static AlifObject* _imp_getFrozenObject(AlifObject* _module,
 	AlifObject* name{};
 	AlifObject* dataobj = ALIF_NONE;
 
-	if (!_ALIFARG_CHECKPOSITIONAL("اجلب_كائن_مجرد", _nargs, 1, 2)) {
+	if (!_ALIFARG_CHECKPOSITIONAL("اجلب_كائن_مصرف", _nargs, 1, 2)) {
 		goto exit;
 	}
 	if (!ALIFUSTR_CHECK(_args[0])) {
-		//_alifArg_badArgument("اجلب_كائن_مجرد", "argument 1", "نص", _args[0]);
+		//_alifArg_badArgument("اجلب_كائن_مصرف", "argument 1", "نص", _args[0]);
 		goto exit;
 	}
 	name = _args[0];
@@ -135,7 +135,7 @@ exit:
 
 // 353
 #define _IMP_IS_FROZEN_METHODDEF    \
-    {"هل_مجرد", (AlifCPPFunction)_imp_isFrozen, METHOD_O},
+    {"هل_مصرف", (AlifCPPFunction)_imp_isFrozen, METHOD_O},
 
 static AlifObject* _imp_isFrozenImpl(AlifObject*, AlifObject*);
 

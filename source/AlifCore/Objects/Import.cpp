@@ -1403,15 +1403,15 @@ static AlifIntT init_importLib(AlifThread* tstate, AlifObject* sysmod) { // 3150
 	AlifInterpreter* interp = tstate->interpreter;
 	AlifIntT verbose = _alifInterpreterState_getConfig(interp)->verbose;
 
-	// استورد مكتبة_الاستيراد بنسختها المجردة, _مكتبة_استيراد_مجردة.
+	// استورد مكتبة_الاستيراد بنسختها المصرفة, _مكتبة_استيراد_مصرفة.
 	//if (verbose) {
-	//	alifSys_formatStderr("استورد _مكتبة_استيراد_مجردة # مجردة\n");
+	//	alifSys_formatStderr("استورد _مكتبة_استيراد_مصرفة # مصرفة\n");
 	//}
-	if (alifImport_importFrozenModule("_مكتبة_استيراد_مجردة") <= 0) { // _frozen_importlib
+	if (alifImport_importFrozenModule("_مكتبة_استيراد_مصرفة") <= 0) { // _frozen_importlib
 		return -1;
 	}
 
-	AlifObject* importlib = alifImport_addModuleRef("_مكتبة_استيراد_مجردة");
+	AlifObject* importlib = alifImport_addModuleRef("_مكتبة_استيراد_مصرفة");
 	if (importlib == nullptr) {
 		return -1;
 	}
@@ -1483,8 +1483,8 @@ AlifObject* alifImport_importModule(const char* _name) { // 3376
 
 
 static void remove_importLibFrames(AlifThread* _thread) { // 3415
-	const char *importlibFilename = "<جرد Importlib._bootstrap>";
-	const char *externalFilename = "<جرد Importlib._bootstrap_external>";
+	const char *importlibFilename = "<مصرف Importlib._bootstrap>";
+	const char *externalFilename = "<مصرف Importlib._bootstrap_external>";
 	const char *removeFrames = "_استدعي_بدون_إطار";
 	AlifIntT alwaysTrim = 0;
 	AlifIntT inImportlib = 0;
@@ -2150,7 +2150,7 @@ static AlifObject* _imp_getFrozenObjectImpl(AlifObject* _module,
 		info.size = buf.len;
 	}
 	else if (_dataObj != ALIF_NONE) {
-		//_alifArg_badArgument("اجلب_كائن_مجرد", "argument 2", "bytes", _dataObj);
+		//_alifArg_badArgument("اجلب_كائن_مصرف", "argument 2", "bytes", _dataObj);
 		return nullptr;
 	}
 	else {

@@ -6655,7 +6655,7 @@ static AlifObject* uStr_lowerImpl(AlifObject* _self) { // 12266
 #define BOTHSTRIP 2
 
 /* Arrays indexed by above */
-static const char* _stripFuncNames_[] = {"قلم_يسار", "قلم_يمين", "قلم"};
+static const char* _stripFuncNames_[] = {"جرد_يسار", "جرد_يمين", "جرد"};
 
 #define STRIPNAME(i) (_stripFuncNames_[i])
 
