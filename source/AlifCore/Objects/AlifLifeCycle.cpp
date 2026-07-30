@@ -246,7 +246,7 @@ static AlifStatus alifCore_initRuntime(AlifRuntime* _runtime, const AlifConfig* 
 	AlifStatus status = alifConfig_write(_config, _runtime);
 	if (ALIFSTATUS_EXCEPTION(status)) return status;
 
-	status = alifImport_init();
+	status = _alifImport_init();
 	if (ALIFSTATUS_EXCEPTION(status)) return status;
 
 	status = alifInterpreter_enable(_runtime);
