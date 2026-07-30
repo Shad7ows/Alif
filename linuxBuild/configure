@@ -1,0 +1,50 @@
+#!/bin/sh
+
+printf "يتم تحديد MACHDEP... \n"
+
+# Check for cross-compiling via --host flag (e.g. ./configure --host=aarch64-linux-android)
+for arg in "$@"; do
+    case "$arg" in
+        --host=*) HOST=$(echo "$arg" | sed 's/--host=//') ;;
+    esac
+done
+
+# Determine raw OS name
+if [ -n "$HOST" ]; then
+    # Cross-compiling: extract system type from target triplet
+    case "$HOST" in
+        *-*-linux-android*) RAW_SYS="Linux-android" ;;
+        *-*-linux*)         RAW_SYS="Linux" ;;
+        *-*-cygwin*)        RAW_SYS="Cygwin" ;;
+        *-apple-ios*)       RAW_SYS="iOS" ;;
+        *-*-emscripten*)    RAW_SYS="Emscripten" ;;
+        *-*-wasi*)          RAW_SYS="WASI" ;;
+        *)                  RAW_SYS="unknown" ;;
+    esac
+else
+    # Native build: query kernel name directly
+    RAW_SYS=$(uname -s)
+fi
+
+# Lowercase & clean string
+CLEAN_SYS=$(echo "$RAW_SYS" | tr -d '/ ' | tr '[:upper:]' '[:lower:]')
+
+# Map to final MACHDEP name
+case "$CLEAN_SYS" in
+    aix*)            MACHDEP="aix" ;;
+    linux-android*)  MACHDEP="اندرويد" ;;
+    linux*)          MACHDEP="لينكس" ;;
+    cygwin*)         MACHDEP="cygwin" ;;
+    darwin*)         MACHDEP="ماك" ;;
+    ios*)            MACHDEP="اي_او_اس" ;; # يحتاج مراجعة
+    emscripten*)     MACHDEP="emscripten" ;;
+    wasi*)           MACHDEP="wasi" ;;
+    *)               MACHDEP="غير_معروف" ;;
+esac
+
+echo "\"$MACHDEP\""
+
+# Replace placeholder in Makefile.in to output Makefile
+sed "s/@MACHDEP@/$MACHDEP/g" Makefile.in > Makefile
+
+echo "تم إنشاء Makefile بنجاح."

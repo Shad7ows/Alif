@@ -73,7 +73,7 @@
 #endif
 
 
-
+#define PLATFORM "ويندوز32"
 
 #define LONG_BIT    32
 
@@ -195,7 +195,6 @@
 	using AlifUIntT = uint32_t;
 	using AlifSizeT = int64_t;
 	using AlifUSizeT = uint64_t;
-    #define PLATFORM "ويندوز32"
 	#define ALIF_SIZET_MAX LLONG_MAX
 	#define SIZEOF_SIZE_T 8
 	#define ALIGNOF_SIZE_T 8
@@ -206,7 +205,6 @@
 
 	#define HAVE_LARGEFILE_SUPPORT
 #else
-    #define PLATFORM "ويندوز32"
 	using AlifIntT = int;
 	using AlifUIntT = unsigned int;
 	using AlifSizeT = long;
