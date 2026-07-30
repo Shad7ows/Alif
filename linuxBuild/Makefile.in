@@ -12,6 +12,7 @@ OBJ_DIR = $(BUILD_DIR)/obj
 TARGET_FREEZE =  $(BUILD_DIR)/freezemodule
 TARGET_ALIF = $(BUILD_DIR)/alif
 TARGET_FROZEN_MODULES = FrozenModules
+MACHDEP = @MACHDEP@
 
 # اكتشاف النظام
 OS_NAME := $(shell uname -s)
@@ -89,6 +90,7 @@ CPPFLAGS += $(addprefix ,$(INCLUDES))
 # (على سبيل المثال، file1 في file1.cpp و file1.o).
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | $(OBJ_DIR)
 	@echo "ترجمة.." $<
+	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/GetPlatform.cpp -DPLATFORM='"$(MACHDEP)"' -o $(OBJ_DIR)/AlifCore/Objects/GetPlatform.o
 	@$(CPP) $(CPPFLAGS) -c $< -o $@
 
 # يقوم بتحديد قاعدة لربط ملفات الكائنات (OBJECTS)
@@ -163,4 +165,5 @@ help:
 	@echo "make release  # لبناء اللغة في وضع الإصدار"
 	@echo "make debug    # لبناء اللغة في وضع تتبع الاخطاء"
 	@echo "make clean    # لحذف جميع ملفات البناء"
+
 
