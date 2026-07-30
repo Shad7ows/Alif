@@ -16,8 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      # - name: configure
-      #   run: ./configure
+      - name: configure
+        run: ./configure
       - name: make
         run: cd linuxBuild && make ${{matrix.BUILD-CONFIGURATION}}
     # - name: make check
@@ -38,5 +38,7 @@ jobs:
           submodules: true
           # lfs: true
 
+      - name: configure
+        run: ./configure
       - name: make
         run: cd linuxBuild && make ${{matrix.BUILD-CONFIGURATION}}
