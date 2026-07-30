@@ -811,7 +811,7 @@ MIDDLINGEXTENDSEXCEPTION(_excOSError_, BlockingIOError, خطأ_منع_التبا
 
 
 
-MIDDLINGEXTENDSEXCEPTION(_excOSError_, FileNotFoundError, خطأ_الملف_غير_موجود, OSError,
+MIDDLINGEXTENDSEXCEPTION(_excOSError_, FileNotFoundError, خطأ_ملف_غير_موجود, OSError,
 	"لم يتم العثور على الملف.");
 
 MIDDLINGEXTENDSEXCEPTION(_excOSError_, NotADirectoryError, خطأ_ليس_مجلد, OSError,
