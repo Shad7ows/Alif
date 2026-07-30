@@ -48,3 +48,4 @@ echo "\"$MACHDEP\""
 sed "s/@MACHDEP@/$MACHDEP/g" Makefile.in > Makefile
 
 echo "تم إنشاء Makefile بنجاح."
+echo "الان قم بكتابة الأمر make في الطرفية لبناء اللغة"
