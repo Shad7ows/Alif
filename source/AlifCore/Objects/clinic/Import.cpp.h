@@ -7,6 +7,17 @@
     {"انشئ_ضمني", (AlifCPPFunction)_imp_createBuiltin, METHOD_O},
 
 
+// 131
+#define _IMP_EXTENSION_SUFFIXES_METHODDEF    \
+    {"لاحقات_الامتداد", (AlifCPPFunction)_imp_extensionSuffixes, METHOD_NOARGS},
+
+static AlifObject* _imp_extensionSuffixesImpl(AlifObject*);
+
+static AlifObject* _imp_extensionSuffixes(AlifObject* _module,
+	AlifObject* ALIF_UNUSED(ignored)) { // 137
+	return _imp_extensionSuffixesImpl(_module);
+}
+
 
 
 // 186
@@ -150,6 +161,26 @@ static AlifObject* _imp_isFrozen(AlifObject* _module,
 	}
 	name = _arg;
 	returnValue = _imp_isFrozenImpl(_module, name);
+
+exit:
+	return returnValue;
+}
+
+// 502
+#define _IMP_EXEC_DYNAMIC_METHODDEF    \
+    {"نفذ_حيوي", (AlifCPPFunction)_imp_execDynamic, METHOD_O},
+
+static AlifIntT _imp_execDynamicImpl(AlifObject*, AlifObject*);
+
+static AlifObject* _imp_execDynamic(AlifObject* _module, AlifObject* _mod) { // 508
+	AlifObject* returnValue{};
+	AlifIntT _returnValue{};
+
+	_returnValue = _imp_execDynamicImpl(_module, _mod);
+	if ((_returnValue == -1) and alifErr_occurred()) {
+		goto exit;
+	}
+	returnValue = alifLong_fromLong((long)_returnValue);
 
 exit:
 	return returnValue;

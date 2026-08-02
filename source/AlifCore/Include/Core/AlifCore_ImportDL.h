@@ -3,6 +3,8 @@
 
 
 
+extern const char* _alifImportDynLoadFiletab_[]; // 15
+
 
 enum AlifExtModuleKind { // 18
 	Alif_Ext_Module_Kind_UNKNOWN = 0,
@@ -72,3 +74,12 @@ typedef AlifObject* (*AlifModInitFunction)(void); // 91
 
 extern AlifIntT _alifImport_runModInitFunc(AlifModInitFunction,
 	AlifExtModuleLoaderInfo*, AlifExtModuleLoaderResult*); // 97
+
+
+
+
+
+
+//#define ALIFD_TAGGED_SUFFIX ALIFD_DEBUG_SUFFIX "." ALIFD_SOABI ".alifd"
+//#define ALIFD_UNTAGGED_SUFFIX ALIFD_DEBUG_SUFFIX ".alifd"
+#define ALIFD_UNTAGGED_SUFFIX ".alifd" //* alif

@@ -393,5 +393,8 @@
     <ClCompile Include="..\source\AlifCore\Objects\BytesMethods.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\AlifCore\Objects\DynLoadWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

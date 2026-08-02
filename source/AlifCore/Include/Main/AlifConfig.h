@@ -242,3 +242,4 @@
 
 #define HAVE_SYS_STAT_H 1
 
+#define HAVE_DYNAMIC_LOADING

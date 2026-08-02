@@ -67,6 +67,7 @@
     <ClCompile Include="..\source\AlifCore\Objects\DescrObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\DictObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\dtoa\DoubleToASCII.cpp" />
+    <ClCompile Include="..\source\AlifCore\Objects\DynLoadWin.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\EnumObject.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Errors.cpp" />
     <ClCompile Include="..\source\AlifCore\Objects\Exceptions.cpp" />
@@ -204,6 +205,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(Platform)\$(Configuration)\$(TargetName)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(Platform)\$(Configuration)\$(TargetName)\</IntDir>
@@ -270,6 +272,9 @@
 "$(LocalDebuggerCommand)" Importlib._bootstrap "$(ProjectDir)..\library\مكتبة_الاستيراد\برنامج_الاقلاع.alif" Importlib._bootstrap.h &amp;&amp; move Importlib._bootstrap.h "$(ProjectDir)..\source\AlifCore\Include\Main\FrozenModules"
 "$(LocalDebuggerCommand)" Importlib._bootstrap_external "$(ProjectDir)..\library\مكتبة_الاستيراد\برنامج_الاقلاع_الخارجي.alif" Importlib._bootstrap_external.h &amp;&amp; move Importlib._bootstrap_external.h "$(ProjectDir)..\source\AlifCore\Include\Main\FrozenModules"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist "$(TargetDir)FreezeModule" rmdir /s /q "$(TargetDir)FreezeModule"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

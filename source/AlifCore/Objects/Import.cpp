@@ -2097,6 +2097,34 @@ static AlifObject* _imp_createBuiltin(AlifObject* _module,
 }
 
 
+static AlifObject* _imp_extensionSuffixesImpl(AlifObject* _module) { // 4330
+	AlifObject* list{};
+
+	list = alifList_new(0);
+	if (list == nullptr)
+		return nullptr;
+#ifdef HAVE_DYNAMIC_LOADING
+	const char* suffix;
+	unsigned int index = 0;
+
+	while ((suffix = _alifImportDynLoadFiletab_[index])) {
+		AlifObject* item = alifUStr_fromString(suffix);
+		if (item == nullptr) {
+			ALIF_DECREF(list);
+			return nullptr;
+		}
+		if (alifList_append(list, item) < 0) {
+			ALIF_DECREF(list);
+			ALIF_DECREF(item);
+			return nullptr;
+		}
+		ALIF_DECREF(item);
+		index += 1;
+	}
+#endif
+	return list;
+}
+
 
 static AlifObject* _imp_findFrozenImpl(AlifObject* _module,
 	AlifObject* _name, AlifIntT _withdata) { // 4405
@@ -2194,6 +2222,20 @@ static AlifObject* _imp_isFrozenImpl(AlifObject* _module,
 }
 
 
+
+#ifdef HAVE_DYNAMIC_LOADING // 4628
+
+
+
+
+
+static AlifIntT _imp_execDynamicImpl(AlifObject* _module,
+	AlifObject* _mod) { // 4738
+	return exec_builtinOrDynamic(_mod);
+}
+
+#endif // 4746
+
 static AlifIntT _imp_execBuiltinImpl(AlifObject* _module,
 	AlifObject* _mod) { // 4757
 	return exec_builtinOrDynamic(_mod);
@@ -2214,7 +2256,7 @@ static AlifObject* _imp_printImpl(AlifObject* module, AlifObject* msg) { //* ali
 }
 
 static AlifMethodDef _impMethods_[] = { // 4788
-	//_IMP_EXTENSION_SUFFIXES_METHODDEF
+	_IMP_EXTENSION_SUFFIXES_METHODDEF
 	//_IMP_LOCK_HELD_METHODDEF
 	//_IMP_ACQUIRE_LOCK_METHODDEF
 	//_IMP_RELEASE_LOCK_METHODDEF
@@ -2229,7 +2271,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP__OVERRIDE_FROZEN_MODULES_FOR_TESTS_METHODDEF
 	//_IMP__OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK_METHODDEF
 	//_IMP_CREATE_DYNAMIC_METHODDEF
-	//_IMP_EXEC_DYNAMIC_METHODDEF
+	_IMP_EXEC_DYNAMIC_METHODDEF
 	_IMP_EXEC_BUILTIN_METHODDEF
 	//_IMP__FIX_CO_FILENAME_METHODDEF
 	//_IMP_SOURCE_HASH_METHODDEF
