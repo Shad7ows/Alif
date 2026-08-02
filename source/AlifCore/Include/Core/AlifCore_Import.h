@@ -29,6 +29,9 @@ public:
 	AlifObject* modulesByIndex{};
 
 	AlifObject* importLib{};
+
+	AlifIntT overrideMultiInterpExtensionsCheck{};
+
 	AlifObject* importFunc{};
 	//class {
 	//public:
@@ -80,3 +83,6 @@ extern const Frozen* _alifImportFrozenBootstrap_; // 182
 
 
 extern const ModuleAlias* _alifImportFrozenAliases_; // 186
+
+
+extern AlifIntT _alifImport_checkSubinterpIncompatibleExtensionAllowed(const char*); // 189

@@ -37,6 +37,8 @@ InitTable* _alifImportInitTable_ = _alifImportInitTab_; // 59
     (interp)->imports.modulesByIndex
 #define IMPORTLIB(_interp) \
     (_interp)->imports.importLib
+#define OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK(_interp) \
+    (_interp)->imports.overrideMultiInterpExtensionsCheck
 #define IMPORT_FUNC(_interp) \
     (_interp)->imports.importFunc
 // 94
@@ -593,6 +595,33 @@ static void _extensions_cacheDelete(AlifObject* path, AlifObject* name) { // 141
 }
 
 
+static bool check_multiInterpExtensions(AlifInterpreter* interp) { // 1459
+	AlifIntT override = OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK(interp);
+	if (override < 0) {
+		return false;
+	}
+	else if (override > 0) {
+		return true;
+	}
+	else if (_alifInterpreterState_hasFeature(
+		interp, ALIF_RTFLAGS_MULTI_INTERP_EXTENSIONS)) {
+		return true;
+	}
+	return false;
+}
+
+AlifIntT _alifImport_checkSubinterpIncompatibleExtensionAllowed(const char* _name) { // 1476
+	AlifInterpreter* interp = _alifInterpreter_get();
+	if (check_multiInterpExtensions(interp)) {
+		alifErr_format(_alifExcImportError_,
+			"الوحدة %s لا تدعم التحميل ضمن مفسرات فرعية",
+			_name);
+		return -1;
+	}
+	return 0;
+}
+
+
 
 static AlifThread* switchTo_mainInterpreter(AlifThread* _thread) { // 1523
 	if (alif_isMainInterpreter(_thread->interpreter)) {
@@ -697,9 +726,9 @@ static AlifObject* reload_singlephaseExtension(AlifThread* _thread,
 	AlifObject* mod = nullptr;
 
 	const char* name_buf = alifUStr_asUTF8(info->name);
-	//if (_alifImport_checkSubinterpIncompatibleExtensionAllowed(name_buf) < 0) {
-	//	return nullptr;
-	//}
+	if (_alifImport_checkSubinterpIncompatibleExtensionAllowed(name_buf) < 0) {
+		return nullptr;
+	}
 
 	AlifObject* modules = get_modulesDict(_thread, true);
 	if (def->size == -1) {
@@ -742,7 +771,7 @@ static AlifObject* reload_singlephaseExtension(AlifThread* _thread,
 		_alifExtModule_loaderResultClear(&res);
 
 		if (info->filename != nullptr) {
-			if (alifModule_addObjectRef(mod, "__file__", info->filename) < 0) {
+			if (alifModule_addObjectRef(mod, "__ملف__", info->filename) < 0) {
 				alifErr_clear(); /* Not important enough to report */
 			}
 		}
@@ -777,9 +806,9 @@ static AlifObject* import_findExtension(AlifThread* tstate,
 	*p_cached = cached;
 
 	const char* name_buf = alifUStr_asUTF8(info->name);
-	//if (_alifImport_checkSubinterpIncompatibleExtensionAllowed(name_buf) < 0) {
-	//	return nullptr;
-	//}
+	if (_alifImport_checkSubinterpIncompatibleExtensionAllowed(name_buf) < 0) {
+		return nullptr;
+	}
 
 	AlifObject* mod = reload_singlephaseExtension(tstate, cached, info);
 	if (mod == nullptr) {
@@ -2225,7 +2254,71 @@ static AlifObject* _imp_isFrozenImpl(AlifObject* _module,
 
 #ifdef HAVE_DYNAMIC_LOADING // 4628
 
+static AlifObject* _imp_createDynamicImpl(AlifObject* module,
+	AlifObject* spec, AlifObject* file) { // 4640
+	AlifObject* mod{};
+	AlifThread* tstate = _alifThread_get();
 
+	class AlifExtModuleLoaderInfo info{};
+	if (_alifExtModule_loaderInfoInitFromSpec(&info, spec) < 0) {
+		return nullptr;
+	}
+
+	class ExtensionsCacheValue* cached = nullptr;
+	mod = import_findExtension(tstate, &info, &cached);
+	if (mod != nullptr) {
+		goto finally;
+	}
+	else if (_alifErr_occurred(tstate)) {
+		goto finally;
+	}
+	/* Otherwise it must be multi-phase init or the first time it's loaded. */
+
+	if (cached != nullptr) {
+		/* For now we clear the cache and move on. */
+		_extensions_cacheDelete(info.path, info.name);
+	}
+
+	//if (alifSys_audit("استورد", "OOOOO", info.name, info.filename,
+	//	ALIF_NONE, ALIF_NONE, ALIF_NONE) < 0) {
+	//	goto finally;
+	//}
+
+	FILE* fp;
+	if (file != nullptr) {
+		fp = _alif_fOpenObj(info.filename, "r");
+		if (fp == nullptr) {
+			goto finally;
+		}
+	}
+	else {
+		fp = nullptr;
+	}
+
+	AlifModInitFunction p0; p0 = _alifImport_getModInitFunc(&info, fp);
+	if (p0 == nullptr) {
+		goto finally;
+	}
+
+	_alifEval_enableGILTransient(tstate);
+
+	mod = import_runExtension(
+		tstate, p0, &info, spec, get_modulesDict(tstate, true));
+
+	if (_alifImport_checkGILForModule(mod, info.name) < 0) {
+		ALIF_CLEAR(mod);
+		goto finally;
+	}
+
+	// XXX Shouldn't this happen in the error cases too (i.e. in "finally")?
+	if (fp) {
+		fclose(fp);
+	}
+
+	finally:
+	_alifExtModule_loaderInfoClear(&info);
+	return mod;
+}
 
 
 
@@ -2270,7 +2363,7 @@ static AlifMethodDef _impMethods_[] = { // 4788
 	//_IMP__FROZEN_MODULE_NAMES_METHODDEF
 	//_IMP__OVERRIDE_FROZEN_MODULES_FOR_TESTS_METHODDEF
 	//_IMP__OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK_METHODDEF
-	//_IMP_CREATE_DYNAMIC_METHODDEF
+	_IMP_CREATE_DYNAMIC_METHODDEF
 	_IMP_EXEC_DYNAMIC_METHODDEF
 	_IMP_EXEC_BUILTIN_METHODDEF
 	//_IMP__FIX_CO_FILENAME_METHODDEF

@@ -967,7 +967,7 @@ FILE* _alif_wfOpen(const wchar_t* _path, const wchar_t* _mode) { // 1716
 }
 
 
-FILE* alif_fOpenObj(AlifObject* _path, const char* _mode) { // 1764
+FILE* _alif_fOpenObj(AlifObject* _path, const char* _mode) { // 1764
 	FILE* f{};
 	AlifIntT asyncErr = 0;
 #ifdef _WINDOWS

@@ -42,8 +42,11 @@ extern void _alifExtModule_loaderInfoClear(AlifExtModuleLoaderInfo*); // 46
 extern AlifIntT
 _alifExtModule_loaderInfoInitForBuiltin(AlifExtModuleLoaderInfo*, AlifObject*); // 56
 
-
-
+#ifdef HAVE_DYNAMIC_LOADING
+extern AlifIntT _alifExtModule_loaderInfoInitFromSpec(
+	class AlifExtModuleLoaderInfo*,
+	AlifObject*); // 60
+#endif
 
 class AlifExtModuleLoaderResult { // 66
 public:

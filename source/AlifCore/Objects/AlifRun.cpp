@@ -111,7 +111,7 @@ AlifIntT alifRun_simpleFileObject(FILE* _fp, AlifObject* _filename,
 	//		fclose(_fp);
 	//	}
 
-	//	alifcFP = alif_fOpenObj(_filename, "rb");
+	//	alifcFP = _alif_fOpenObj(_filename, "rb");
 	//	if (alifcFP == nullptr) {
 	//		fprintf(stderr, "alif: Can't reopen .alifc file\n");
 	//		goto done;

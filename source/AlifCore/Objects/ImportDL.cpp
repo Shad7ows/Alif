@@ -49,7 +49,27 @@ AlifIntT _alifExtModule_loaderInfoInitForBuiltin(AlifExtModuleLoaderInfo* _info,
 
 
 
-
+#ifdef HAVE_DYNAMIC_LOADING
+AlifIntT _alifExtModule_loaderInfoInitFromSpec(
+	class AlifExtModuleLoaderInfo* _pInfo,
+	AlifObject* _spec) { // 210
+	AlifObject* name = alifObject_getAttrString(_spec, "اسم");
+	if (name == nullptr) {
+		return -1;
+	}
+	AlifObject* filename = alifObject_getAttrString(_spec, "اساس");
+	if (filename == nullptr) {
+		ALIF_DECREF(name);
+		return -1;
+	}
+	/* We could also accommodate builtin modules here without much trouble. */
+	AlifExtModuleOrigin origin = AlifExtModuleOrigin::Alif_Ext_Module_Origin_DYNAMIC;
+	AlifIntT err = _alifExtModule_loaderInfoInit(_pInfo, name, filename, origin);
+	ALIF_DECREF(name);
+	ALIF_DECREF(filename);
+	return err;
+}
+#endif /* HAVE_DYNAMIC_LOADING */
 
 
 

@@ -728,6 +728,12 @@ const AlifConfig* alif_getConfig() { // 2903
 }
 
 
+AlifIntT _alifInterpreterState_hasFeature(AlifInterpreter* _interp,
+	unsigned long _feature) {
+	return ((_interp->featureFlags & _feature) != 0);
+}
+
+
 #define MINIMUM_OVERHEAD 1000 // 2919
 
 static AlifObject** push_chunk(AlifThread* _tState, AlifIntT _size) { // 2922

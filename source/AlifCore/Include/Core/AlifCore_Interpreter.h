@@ -178,7 +178,9 @@ static inline AlifThread* alifInterpreter_getFinalizing(AlifInterpreter* _interp
 	return (AlifThread*)alifAtomic_loadPtrRelaxed(&_interp->finalizing);
 }
 
-AlifStatus alifInterpreter_new(AlifThread*, AlifInterpreter**); // 399
+extern AlifIntT _alifInterpreterState_hasFeature(AlifInterpreter*, unsigned long); // 399
+
+AlifStatus alifInterpreter_new(AlifThread*, AlifInterpreter**); // 402
 
 // 407
 #define RARE_EVENT_INTERP_INC(_interp, _name) \

@@ -166,6 +166,41 @@ exit:
 	return returnValue;
 }
 
+
+
+#if defined(HAVE_DYNAMIC_LOADING) // 456
+
+
+#define _IMP_CREATE_DYNAMIC_METHODDEF    \
+    {"انشئ_حيوي", ALIF_CPPFUNCTION_CAST(_imp_createDynamic), METHOD_FASTCALL},
+
+static AlifObject* _imp_createDynamicImpl(AlifObject*, AlifObject*, AlifObject*);
+
+static AlifObject* _imp_createDynamic(AlifObject* _module,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 470
+	AlifObject* returnValue{};
+	AlifObject* spec{};
+	AlifObject* file{};
+
+	if (!_ALIFARG_CHECKPOSITIONAL("انشئ_حيوي", _nargs, 1, 2)) {
+		goto exit;
+	}
+	spec = _args[0];
+	if (_nargs < 2) {
+		goto skip_optional;
+	}
+	file = _args[1];
+skip_optional:
+	returnValue = _imp_createDynamicImpl(_module, spec, file);
+
+exit:
+	return returnValue;
+}
+
+#endif /* defined(HAVE_DYNAMIC_LOADING) */
+
+
+
 // 502
 #define _IMP_EXEC_DYNAMIC_METHODDEF    \
     {"نفذ_حيوي", (AlifCPPFunction)_imp_execDynamic, METHOD_O},
