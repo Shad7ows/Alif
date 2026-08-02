@@ -2300,15 +2300,15 @@ static AlifObject* _imp_createDynamicImpl(AlifObject* module,
 		goto finally;
 	}
 
-	_alifEval_enableGILTransient(tstate);
+	//_alifEval_enableGILTransient(tstate);
 
 	mod = import_runExtension(
 		tstate, p0, &info, spec, get_modulesDict(tstate, true));
 
-	if (_alifImport_checkGILForModule(mod, info.name) < 0) {
-		ALIF_CLEAR(mod);
-		goto finally;
-	}
+	//if (_alifImport_checkGILForModule(mod, info.name) < 0) {
+	//	ALIF_CLEAR(mod);
+	//	goto finally;
+	//}
 
 	// XXX Shouldn't this happen in the error cases too (i.e. in "finally")?
 	if (fp) {

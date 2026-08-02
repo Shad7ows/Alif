@@ -6,6 +6,18 @@
 #include "AlifCore_ImportDL.h"
 
 
+#ifdef HAVE_DYNAMIC_LOADING // 18
+
+#ifdef _WINDOWS
+extern DLFuncPtr _alifImport_findSharedFuncptrWindows(const char*, const char*, AlifObject*, FILE*);
+#else
+extern DLFuncPtr _alifImport_findSharedFuncptr(const char*,
+	const char*, const char*, FILE*);
+#endif
+
+#endif /* HAVE_DYNAMIC_LOADING */
+// 31
+
 
 static const char* const _asciiOnlyPrefix_ = "alifInit"; // 38
 static const char* const _nonasciiPrefix_ = "alifInitU"; // 39
@@ -79,6 +91,41 @@ void _alifExtModule_loaderResultClear(AlifExtModuleLoaderResult* res) { // 239
 
 
 
+
+#ifdef HAVE_DYNAMIC_LOADING
+AlifModInitFunction _alifImport_getModInitFunc(class AlifExtModuleLoaderInfo* _info,
+	FILE* _fp) { // 380
+	const char* name_buf = ALIFBYTES_AS_STRING(_info->nameEncoded);
+	DLFuncPtr exportfunc{};
+#ifdef _WINDOWS
+	exportfunc = _alifImport_findSharedFuncptrWindows(
+		_info->hookPrefix, name_buf, _info->filename, _fp);
+#else
+	{
+		const char* path_buf = ALIFBYTES_AS_STRING(_info->filenameEncoded);
+		exportfunc = _alifImport_findSharedFuncptr(
+			_info->hookPrefix, name_buf, path_buf, _fp);
+	}
+#endif
+
+	if (exportfunc == nullptr) {
+		if (!alifErr_occurred()) {
+			AlifObject* msg{};
+			msg = alifUStr_fromFormat(
+				"الوحدة الحيوية لا تعرف  "
+				"دالة استخراج الوحدة (%s_%s)",
+				_info->hookPrefix, name_buf);
+			if (msg != nullptr) {
+				//alifErr_setImportError(msg, _info->name, _info->filename);
+				ALIF_DECREF(msg);
+			}
+		}
+		return nullptr;
+	}
+
+	return (AlifModInitFunction)exportfunc;
+}
+#endif /* HAVE_DYNAMIC_LOADING */
 
 
 

@@ -73,14 +73,26 @@ public:
 extern void _alifExtModule_loaderResultClear(AlifExtModuleLoaderResult*); // 84
 
 typedef AlifObject* (*AlifModInitFunction)(void); // 91
-
+#ifdef HAVE_DYNAMIC_LOADING
+extern AlifModInitFunction _alifImport_getModInitFunc(
+	class AlifExtModuleLoaderInfo*, FILE*); // 92
+#endif
 
 extern AlifIntT _alifImport_runModInitFunc(AlifModInitFunction,
 	AlifExtModuleLoaderInfo*, AlifExtModuleLoaderResult*); // 97
 
 
 
+// 106
+#ifdef _WINDOWS
+#include <windows.h>
+typedef FARPROC DLFuncPtr;
 
+
+#else
+typedef void (*DLFuncPtr)(void);
+#endif
+// 133
 
 
 //#define ALIFD_TAGGED_SUFFIX ALIFD_DEBUG_SUFFIX "." ALIFD_SOABI ".alifd"
