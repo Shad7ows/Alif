@@ -771,7 +771,7 @@ static AlifIntT library_toDict(AlifObject* _dict, const char* _key) { // 803
 #ifdef ALIF_ENABLE_SHARED
 	extern HMODULE _alifWinDLLhModule_;
 	if (_alifWinDLLhModule_) {
-		return winmodule_toDict(_dict, _key, _alifWinDLLhModule_);
+		return winModule_toDict(_dict, _key, _alifWinDLLhModule_);
 	}
 #endif
 #elif defined(WITH_NEXT_FRAMEWORK)
