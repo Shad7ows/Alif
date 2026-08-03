@@ -126,7 +126,7 @@ static char* get_alifImport(HINSTANCE hModule) { // 39
 						pch++;
 					}
 					else {
-						pch = NULL;
+						pch = nullptr;
 						break;
 					}
 				}
@@ -140,7 +140,7 @@ static char* get_alifImport(HINSTANCE hModule) { // 39
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -151,7 +151,7 @@ static char* get_alifImport(HINSTANCE hModule) { // 39
 
 
 
-
+extern HMODULE _alifWinDLLhModule_; // 154
 
 
 
@@ -163,9 +163,9 @@ DLFuncPtr _alifImport_findSharedFuncptrWindows(const char* _prefix,
 	DLFuncPtr p{};
 	char funcname[258]{}, * importAlif{};
 
-#ifdef ALIF_ENABLE_SHARED
-	_alif_checkAlif();
-#endif 
+//#ifdef ALIF_ENABLE_SHARED
+//	_alif_checkAlif();
+//#endif 
 
 	wchar_t* wpathname = alifUStr_asWideCharString(_pathname, nullptr);
 	if (wpathname == nullptr)
@@ -259,7 +259,7 @@ DLFuncPtr _alifImport_findSharedFuncptrWindows(const char* _prefix,
 				"alif%d%d.dll",
 #endif
 				ALIF_MAJOR_VERSION, ALIF_MINOR_VERSION);
-			//importAlif = get_alifImport(hDLL);
+			importAlif = get_alifImport(hDLL);
 
 			if (importAlif and
 				_stricmp(buffer, importAlif)) {

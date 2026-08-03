@@ -166,6 +166,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\DictObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\EnumObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\ErrorCode.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\Exports.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FileObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\FileUtils.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\Codecs.h" />
@@ -395,6 +396,7 @@
     <ClCompile Include="..\source\Modules\_io\TextIO.cpp" />
     <ClCompile Include="..\source\Modules\_io\_IOModule.cpp" />
     <ClCompile Include="..\source\Modules\_RandomModule.cpp" />
+    <ClCompile Include="..\source\Windows\dl_nt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="FreezeModule.vcxproj">
