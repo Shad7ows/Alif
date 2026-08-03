@@ -832,7 +832,7 @@ AlifObject* _alifErr_programDecodedTextObject(AlifObject* filename, AlifIntT lin
 		return nullptr;
 	}
 
-	FILE* fp = alif_fOpenObj(filename, "r");
+	FILE* fp = _alif_fOpenObj(filename, "r");
 	if (fp == nullptr) {
 		alifErr_clear();
 		return nullptr;

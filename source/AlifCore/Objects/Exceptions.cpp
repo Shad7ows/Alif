@@ -1087,6 +1087,94 @@ SIMPLEEXTENDSEXCEPTION(_excArithmeticError_, OverflowError, خطأ_فائض,
 
 
 
+/*
+*    UnicodeError extends ValueError
+*/
+
+SIMPLEEXTENDSEXCEPTION(_excValueError_, UnicodeError, خطأ_ترميز,
+	"Unicode related error."); // 2663
+
+
+static AlifIntT set_unicodeFromString(AlifObject** _attr,
+	const char* _value) { // 2701
+	AlifObject* obj = alifUStr_fromString(_value);
+	if (!obj)
+		return -1;
+	ALIF_XSETREF(*_attr, obj);
+	return 0;
+}
+
+
+AlifIntT alifUnicodeEncodeError_setStart(AlifObject* _exc,
+	AlifSizeT _start) { // 2785
+	((AlifUnicodeErrorObject*)_exc)->start = _start;
+	return 0;
+}
+
+
+AlifIntT alifUnicodeEncodeError_setEnd(AlifObject* _exc,
+	AlifSizeT _end) { // 2853
+	((AlifUnicodeErrorObject*)_exc)->end = _end;
+	return 0;
+}
+
+
+AlifIntT alifUnicodeEncodeError_setReason(AlifObject* _exc,
+	const char* _reason) { // 2897
+	return set_unicodeFromString(&((AlifUnicodeErrorObject*)_exc)->reason,
+		_reason);
+}
+
+
+
+static AlifIntT unicodeEncodeError_init(AlifObject* _self,
+	AlifObject* _args, AlifObject* _kwds) { // 2966
+	AlifUnicodeErrorObject* err{};
+
+	if (baseException_init((AlifBaseExceptionObject*)_self, _args, _kwds) == -1)
+		return -1;
+
+	err = (AlifUnicodeErrorObject*)_self;
+
+	ALIF_CLEAR(err->encoding);
+	ALIF_CLEAR(err->object);
+	ALIF_CLEAR(err->reason);
+
+	if (!alifArg_parseTuple(_args, "UUnnU",
+		&err->encoding, &err->object,
+		&err->start, &err->end, &err->reason)) {
+		err->encoding = err->object = err->reason = NULL;
+		return -1;
+	}
+
+	ALIF_INCREF(err->encoding);
+	ALIF_INCREF(err->object);
+	ALIF_INCREF(err->reason);
+
+	return 0;
+}
+
+static AlifTypeObject _excUnicodeEncodeError_ = { // 3054
+	.objBase = ALIFVAROBJECT_HEAD_INIT(nullptr, 0),
+	.name = "خطأ_ترميز_نص",
+	.basicSize = sizeof(AlifUnicodeErrorObject),
+	//.dealloc = (Destructor)unicodeError_dealloc,
+	//.repr = (ReprFunc)unicodeEncodeError_str,
+	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_HAVE_GC,
+	//.traverse = (TraverseProc)unicodeError_traverse,
+	//.clear = (Inquiry)unicodeError_clear,
+	//.members = _unicodeErrorMembers_,
+	.base = &_excUnicodeError_,
+	.dictOffset = offsetof(AlifUnicodeErrorObject, dict),
+	.init = (InitProc)unicodeEncodeError_init,
+	.new_ = baseException_new,
+};
+AlifObject* _alifExcUnicodeEncodeError_ = (AlifObject*)&_excUnicodeEncodeError_;
+
+
+
+
+
 class StaticException { // 3610
 public:
 	AlifTypeObject* exc{};
@@ -1150,11 +1238,11 @@ static StaticException _staticExceptions_[] = { // 3615
 	//ITEM(ChildProcessError),
 	//ITEM(ConnectionError),
 	//ITEM(FileExistsError),
-	//ITEM(FileNotFoundError),
+	ITEM(FileNotFoundError, خطأ_ملف_غير_موجود),
 	//ITEM(InterruptedError),
 	//ITEM(IsADirectoryError),
-	//ITEM(NotADirectoryError),
-	//ITEM(PermissionError),
+	ITEM(NotADirectoryError, خطأ_ليس_مجلد),
+	ITEM(PermissionError, خطأ_صلاحيات),
 	//ITEM(ProcessLookupError),
 	//ITEM(TimeoutError),
 
@@ -1168,7 +1256,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	//ITEM(AlifFinalizationError),  // base: RuntimeError(Exception)
 	//ITEM(RecursionError),  // base: RuntimeError(Exception)
 	//ITEM(UnboundLocalError), // base: NameError(Exception)
-	//ITEM(UnicodeError),  // base: ValueError(Exception)
+	ITEM(UnicodeError, خطأ_ترميز),  // base: ValueError(Exception)
 
 	// Level 5: ConnectionError(OSError) subclasses
 	//ITEM(BrokenPipeError),
@@ -1181,7 +1269,7 @@ static StaticException _staticExceptions_[] = { // 3615
 
 	// Level 5: UnicodeError(ValueError) subclasses
 	//ITEM(UnicodeDecodeError),
-	//ITEM(UnicodeEncodeError),
+	ITEM(UnicodeEncodeError, خطأ_ترميز_نص),
 	//ITEM(UnicodeTranslateError),
 #undef ITEM
 };

@@ -2618,11 +2618,11 @@ AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 		return b;
 	}
 
-	//alifErr_format(_alifExcTypeError_,
-	//	"'%.400s' encoder returned '%.400s' instead of 'bytes'; "
-	//	"use codecs.encode() to encode to arbitrary types",
-	//	encoding,
-	//	ALIF_TYPE(v)->name);
+	alifErr_format(_alifExcTypeError_,
+		"المرمز '%.400s' ارجع '%.400s' بدل من 'بايتات'; "
+		"استخدم الترميزات.ترميز() للترميز إلى انواع مختلفة",
+		encoding,
+		ALIF_TYPE(v)->name);
 	ALIF_DECREF(v);
 	return nullptr;
 }
@@ -2928,6 +2928,11 @@ onError:
 }
 
 
+#undef IS_BASE64
+#undef FROM_BASE64
+#undef TO_BASE64
+#undef DECODE_DIRECT
+#undef ENCODE_DIRECT
 
 /* ------------------------------------------ UTF-8 Codec ------------------------------------------ */
 
@@ -4437,6 +4442,39 @@ static AlifObject* uStr_encodeCallErrorhandler(const char* errors,
 }
 
 
+/* create or adjust a UnicodeEncodeError */
+static void make_encodeException(AlifObject** _exceptionObject,
+	const char* _encoding, AlifObject* _unicode, AlifSizeT _startpos,
+	AlifSizeT _endpos, const char* _reason) { // 6965
+	if (*_exceptionObject == nullptr) {
+		*_exceptionObject = alifObject_callFunction(
+			_alifExcUnicodeEncodeError_, "sOnns",
+			_encoding, _unicode, _startpos, _endpos, _reason);
+	}
+	else {
+		if (alifUnicodeEncodeError_setStart(*_exceptionObject, _startpos))
+			goto onError;
+		if (alifUnicodeEncodeError_setEnd(*_exceptionObject, _endpos))
+			goto onError;
+		if (alifUnicodeEncodeError_setReason(*_exceptionObject, _reason))
+			goto onError;
+		return;
+onError:
+		ALIF_CLEAR(*_exceptionObject);
+	}
+}
+
+/* raises a UnicodeEncodeError */
+static void raise_encodeException(AlifObject** _exceptionObject,
+	const char* _encoding, AlifObject* _unicode, AlifSizeT _startpos,
+	AlifSizeT _endpos, const char* _reason) { // 6991
+	make_encodeException(_exceptionObject,
+		_encoding, _unicode, _startpos, _endpos, _reason);
+	if (*_exceptionObject != nullptr)
+		alifCodec_strictErrors(*_exceptionObject);
+}
+
+
 
 static AlifObject* uStr_encodeUcs1(AlifObject* unicode,
 	const char* errors, const AlifUCS4 limit) { // 7044
@@ -4496,7 +4534,7 @@ static AlifObject* uStr_encodeUcs1(AlifObject* unicode,
 
 			switch (error_handler) {
 			case AlifErrorHandler_::Alif_Error_Strict:
-				//raise_encodeException(&exc, encoding, unicode, collstart, collend, reason);
+				raise_encodeException(&exc, encoding, unicode, collstart, collend, reason);
 				goto onError;
 
 			case AlifErrorHandler_::Alif_Error_Replace:

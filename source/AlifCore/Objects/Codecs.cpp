@@ -326,9 +326,9 @@ AlifObject* _alifCodec_decodeText(AlifObject* _object,
 
 
 
-AlifObject* alifCodec_strictErrors(AlifObject* exc) { // 669
-	if (ALIFEXCEPTIONINSTANCE_CHECK(exc))
-		alifErr_setObject(ALIFEXCEPTIONINSTANCE_CLASS(exc), exc);
+AlifObject* alifCodec_strictErrors(AlifObject* _exc) { // 669
+	if (ALIFEXCEPTIONINSTANCE_CHECK(_exc))
+		alifErr_setObject(ALIFEXCEPTIONINSTANCE_CLASS(_exc), _exc);
 	else
 		alifErr_setString(_alifExcTypeError_, "codec must pass exception instance");
 	return nullptr;

@@ -69,6 +69,8 @@ extern AlifObject* _alifExcSystemError_; // 112
 extern AlifObject* _alifExcSystemExit_; // 113
 extern AlifObject* _alifExcTypeError_; // 114
 
+extern AlifObject* _alifExcUnicodeEncodeError_; // 117
+
 extern AlifObject* _alifExcValueError_; // 120
 
 extern AlifObject* _alifExcBlockingIOError_; // 124
@@ -94,6 +96,14 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
 
 AlifObject* alifErr_newException(const char*, AlifObject*, AlifObject*); // 229
 
+
+
+AlifIntT alifUnicodeEncodeError_setStart(AlifObject*, AlifSizeT); // 285
+
+AlifIntT alifUnicodeEncodeError_setEnd(AlifObject*, AlifSizeT); // 297
+
+
+AlifIntT alifUnicodeEncodeError_setReason(AlifObject*, const char*); // 308
 
 
 // 320
@@ -146,6 +156,17 @@ public:
 	AlifObject* name{};
 	AlifObject* path{};
 	AlifObject* nameFrom{};
+};
+
+
+class AlifUnicodeErrorObject { // 43
+public:
+	ALIFEXCEPTION_HEAD;
+	AlifObject* encoding{};
+	AlifObject* object{};
+	AlifSizeT start{};
+	AlifSizeT end{};
+	AlifObject* reason{};
 };
 
 

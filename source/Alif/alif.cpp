@@ -91,7 +91,7 @@ static AlifIntT alifMain_exitErrPrint(void) { // 112
 }
 
 static AlifIntT alifMain_runFileObj(AlifObject* _pn, AlifObject* _fn, AlifIntT _skipFirstLine) { // 365
-	FILE* fp_ = alif_fOpenObj(_fn, "rb");
+	FILE* fp_ = _alif_fOpenObj(_fn, "rb");
 
 	if (fp_ == nullptr) {
 		alifErr_clear();
@@ -243,7 +243,7 @@ static AlifIntT alifMain_runStartup(AlifConfig* _config, AlifIntT* _exitcode) { 
 		//	goto error;
 		//}
 
-	fp = alif_fOpenObj(startup, "r");
+	fp = _alif_fOpenObj(startup, "r");
 	if (fp == nullptr) {
 		AlifIntT save_errno = errno;
 		alifErr_clear();
