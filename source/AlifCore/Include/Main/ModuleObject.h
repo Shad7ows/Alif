@@ -24,7 +24,7 @@ AlifObject* alifModule_getFilenameObject(AlifObject*); // 29
 AlifModuleDef* alifModule_getDef(AlifObject*); // 30
 void* alifModule_getState(AlifObject*); // 31
 
-AlifObject* alifModuleDef_init(AlifModuleDef*); // 35
+ALIFAPI_FUNC(AlifObject*) alifModuleDef_init(AlifModuleDef*); // 35
 extern AlifTypeObject _alifModuleDefType_; // 36
 
 

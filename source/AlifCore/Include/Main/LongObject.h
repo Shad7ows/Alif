@@ -15,7 +15,7 @@
 #define ALIFLONG_CHECKEXACT(_op) ALIF_IS_TYPE((_op), &_alifLongType_)
 
 
-AlifObject* alifLong_fromLong(long); // 16
+ALIFAPI_FUNC(AlifObject*)alifLong_fromLong(long); // 16
 AlifObject* alifLong_fromUnsignedLong(unsigned long); // 17
 
 AlifObject* alifLong_fromSizeT(AlifSizeT); // 19

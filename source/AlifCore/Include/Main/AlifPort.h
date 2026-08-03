@@ -116,6 +116,8 @@ typedef AlifUSizeT AlifUHashT;
 #endif
 
 
+#include "Exports.h" // 377
+
 
 #if defined(__GNUC__) or defined(__clang__) or defined(__INTEL_COMPILER)
 #  define ALIF_NO_INLINE __attribute__ ((noinline))
