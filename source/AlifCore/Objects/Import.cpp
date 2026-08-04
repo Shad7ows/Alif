@@ -1799,7 +1799,7 @@ AlifObject* alifImport_importModuleLevelObject(AlifObject* name, AlifObject* glo
 	AlifIntT hasFrom{};
 
 	if (name == nullptr) {
-		//_alifErr_setString(tstate, _alifExcValueError_, "Empty module name");
+		_alifErr_setString(thread, _alifExcValueError_, "اسم الوحدة فارغ");
 		goto error;
 	}
 
