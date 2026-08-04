@@ -9,7 +9,9 @@ extern AlifObject* alifInit_nt(void); // 18
 #else
 extern AlifObject* alifInit_posix(void); // 18
 #endif
-extern AlifObject* alifInit_time(void);
+extern AlifObject* alifInit_time(void); // 28
+
+extern AlifObject* alifInit__codecs(void);
 
 extern AlifObject* alifInit__random(void); // 41
 
@@ -31,7 +33,7 @@ class InitTable _alifImportInitTab_[] = { // 87
 	{"الوقت", alifInit_time},
 
 
-
+	{"برمجيات_ترميز", alifInit__codecs},
 	{"عشوائي", alifInit__random},
 
 	{"_ورد", alifInit__imp}, // _imp *import support system

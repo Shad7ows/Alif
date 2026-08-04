@@ -4,6 +4,10 @@
 
 
 
+ALIFAPI_FUNC(AlifIntT) alifCodec_register(AlifObject*);
+
+
+
 
 
 

@@ -400,6 +400,9 @@
     <ClCompile Include="..\source\Windows\dl_nt.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Modules\_CodecsModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\AlifCore\Include\Main\Atomics\AlifAtomic.h">
@@ -1133,6 +1136,9 @@
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Objects\clinic\TupleObject.cpp.h">
       <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Modules\clinic\_CodecsModule.cpp.h">
+      <Filter>Modules\clinic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
