@@ -8,6 +8,7 @@
 #include "AlifCore_FreeList.h"
 #include "AlifCore_Import.h"
 #include "AlifCore_PathConfig.h"
+#include "AlifCore_Errors.h"
 #include "AlifCore_InitConfig.h"
 #include "AlifCore_LifeCycle.h"
 #include "AlifCore_Memory.h"
@@ -933,7 +934,7 @@ done:
 
 
 
-static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
+static AlifStatus init_sysStreams(AlifThread* _thread) { // 2772
 	AlifObject* iomod = nullptr;
 	AlifObject* std = nullptr;
 	AlifIntT fd{};
@@ -992,7 +993,7 @@ static AlifStatus init_sysStreams(AlifThread* _thread) { // 2742
 		}
 		ALIF_DECREF(encodingAttr);
 	}
-	//_alifErr_clear(_thread);  /* Not a fatal error if codec isn't available */
+	_alifErr_clear(_thread);  /* Not a fatal error if codec isn't available */
 
 	if (alifSys_setObject("__stderr__", std) < 0) {
 		ALIF_DECREF(std);

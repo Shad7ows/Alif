@@ -2049,7 +2049,7 @@ static const char* uStr_fromFormatArg(AlifUStrWriter* _writer,
 	//	if (!typeName) {
 	//		return nullptr;
 	//	}
-	//	if (unicode_fromFormatWriteStr(_writer, typeName,
+	//	if (uStr_fromFormatWriteStr(_writer, typeName,
 	//		width, precision, flags) == -1) {
 	//		ALIF_DECREF(typeName);
 	//		return nullptr;
@@ -2057,7 +2057,7 @@ static const char* uStr_fromFormatArg(AlifUStrWriter* _writer,
 	//	ALIF_DECREF(typeName);
 	//	break;
 	//}
-	//
+	
 	default:
 invalid_format:
 		alifErr_format(_alifExcSystemError_, "تنسيق نصي غير صحيح: %s", p);
