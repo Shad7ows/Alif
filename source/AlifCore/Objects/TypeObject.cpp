@@ -2036,7 +2036,7 @@ static AlifIntT typeNew_setAttrs(const TypeNewCtx* _ctx, AlifTypeObject* _type) 
 
 	/* Special-case __new__: if it's a plain function,
 	   make it a static function */
-	if (typeNew_staticMethod(_type, &ALIF_ID(__new__)) < 0) {
+	if (typeNew_staticMethod(_type, &ALIF_STR(__new__)) < 0) {
 		return -1;
 	}
 
@@ -2242,7 +2242,7 @@ static AlifIntT typeNew_getBases(TypeNewCtx* _ctx, AlifObject** _type) { // 4414
 static AlifObject* type_new(AlifTypeObject* _metatype,
 	AlifObject* _args, AlifObject* _kwds) { // 4478
 	AlifObject* name{}, * bases{}, * orig_dict{};
-	if (!alifArg_parseTuple(_args, "UO!O!:type.__new__",
+	if (!alifArg_parseTuple(_args, "UO!O!:نوع.__جديد__",
 		&name,
 		&_alifTupleType_, &bases,
 		&_alifDictType_, &orig_dict)) {
@@ -4321,9 +4321,9 @@ static AlifObject* tpNew_wrapper(AlifObject* _self,
 	AlifTypeObject* type = (AlifTypeObject*)_self;
 
 	if (!ALIFTUPLE_CHECK(_args) or ALIFTUPLE_GET_SIZE(_args) < 1) {
-		//alifErr_format(_alifExcTypeError_,
-		//	"%s.__new__(): not enough arguments",
-		//	type->name);
+		alifErr_format(_alifExcTypeError_,
+			"%s.__جديد__(): لم يتم تمرير معاملات كافية",
+			type->name);
 		return nullptr;
 	}
 	arg0 = ALIFTUPLE_GET_ITEM(_args, 0);
@@ -4367,18 +4367,15 @@ static AlifObject* tpNew_wrapper(AlifObject* _self,
 
 
 static AlifMethodDef _tpNewMethodDef_[] = { // 9294
-	{"__new__", ALIF_CPPFUNCTION_CAST(tpNew_wrapper), METHOD_VARARGS | METHOD_KEYWORDS
-	/*,ALIFDOC_STR("__new__($type, *args, **kwargs)\n--\n\n"
-			  "Create and return a new object.  "
-			  "See help(type) for accurate signature.")*/},
-   {0}
+	{"__جديد__", ALIF_CPPFUNCTION_CAST(tpNew_wrapper), METHOD_VARARGS | METHOD_KEYWORDS},
+    {0}
 };
 
 
 
 static AlifIntT add_tpNewWrapper(AlifTypeObject* _type) { // 9302
 	AlifObject* dict = lookup_tpDict(_type);
-	AlifIntT r_ = alifDict_contains(dict, &ALIF_ID(__new__));
+	AlifIntT r_ = alifDict_contains(dict, &ALIF_STR(__new__));
 	if (r_ > 0) {
 		return 0;
 	}
@@ -4390,7 +4387,7 @@ static AlifIntT add_tpNewWrapper(AlifTypeObject* _type) { // 9302
 	if (func == nullptr) {
 		return -1;
 	}
-	r_ = alifDict_setItem(dict, &ALIF_ID(__new__), func);
+	r_ = alifDict_setItem(dict, &ALIF_STR(__new__), func);
 	ALIF_DECREF(func);
 	return r_;
 }
@@ -4590,7 +4587,7 @@ static AlifObject* slot_tpNew(AlifTypeObject* _type,
 	AlifThread* thread = _alifThread_get();
 	AlifObject* func{}, * result{};
 
-	func = alifObject_getAttr((AlifObject*)_type, &ALIF_ID(__new__));
+	func = alifObject_getAttr((AlifObject*)_type, &ALIF_STR(__new__));
 	if (func == nullptr) {
 		return nullptr;
 	}
@@ -4642,6 +4639,9 @@ static AlifTypeSlotDef _slotDefs_[] = { // 10550
 		nullptr, ALIFWRAPPERFLAG_KEYWORDS),
 	FLSLOT(__init__, init, slot_tpInit, (WrapperFunc)(void(*)(void))wrap_init,
 		   nullptr, ALIFWRAPPERFLAG_KEYWORDS),
+	TPSLOT(__new__, new_, slot_tpNew, nullptr,
+		"__جديد__(نوع, /, *وسيطات, **وسيطات_مفتاحية)\n--\n\n"
+		"إنشاء وإرجاع طائن جديد."),
 
 
 	BINSLOT(__add__, add_, slot_nbAdd, "+"),

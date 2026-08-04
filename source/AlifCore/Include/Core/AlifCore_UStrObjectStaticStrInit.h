@@ -53,8 +53,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__mroEntries__);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(__new__);
-	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__notes__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(__origClass__);
@@ -306,6 +304,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(__mul__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__module__);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__new__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__neg__);
 	_alifUStr_internStatic(interp, &string);

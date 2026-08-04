@@ -249,6 +249,7 @@
     <ClInclude Include="..\source\AlifCore\Objects\clinic\SetObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\SysModule.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\Traceback.cpp.h" />
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\TupleObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\TypeObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\UStrObject.cpp.h" />
     <ClInclude Include="..\source\Modules\clinic\PosixModule.cpp.h" />

@@ -8354,6 +8354,6 @@ AlifStatus _alifUnicode_initEncodings(AlifThread* _thread) { // 16100
 		return status;
 	}
 
-	//return init_stdioEncoding(_thread->interpreter);
+	//return init_stdioEncoding(_thread->interpreter); //* todo
 	return ALIFSTATUS_OK(); //* alif
 }

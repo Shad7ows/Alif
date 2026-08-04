@@ -7,6 +7,7 @@
 #include "AlifCore_Object.h"
 
 
+#include "clinic/TupleObject.cpp.h"
 
 static inline AlifIntT maybe_freeListPush(AlifTupleObject*); // 21
 
@@ -454,7 +455,7 @@ AlifTypeObject _alifTupleType_ = { // 865
 		ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_TUPLE_SUBCLASS |
 		_ALIF_TPFLAGS_MATCH_SELF | ALIF_TPFLAGS_SEQUENCE,
 	.iter = tuple_iter,
-	//.new_ = tuple_new,
+	.new_ = tuple_new,
 	.free = alifObject_gcDel,
 	.versionTag = _ALIF_TYPE_VERSION_TUPLE,
 	.vectorCall = tuple_vectorCall,

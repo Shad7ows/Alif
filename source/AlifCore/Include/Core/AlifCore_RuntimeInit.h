@@ -736,6 +736,7 @@
     INIT_USTR(__loader__, "__محمل__"), /* //* alif */	\
     INIT_USTR(__mul__, "__اضرب__"), /* //* alif */	\
     INIT_USTR(__module__, "__وحدة__"), /* //* alif */	\
+    INIT_USTR(__new__, "__جديد__"), /* //* alif */	\
     INIT_USTR(__neg__, "__سالب__"), /* //* alif */	\
     INIT_USTR(__name__, "__اسم__"), /* //* alif */	\
     INIT_USTR(__pow__, "__اس__"), /* //* alif */	\
@@ -788,7 +789,6 @@
 	INIT_ID(__IOBaseClosed), \
 	INIT_ID(__lengthHint__), \
 	INIT_ID(__mroEntries__), \
-    INIT_ID(__new__), \
     INIT_ID(__notes__), \
     INIT_ID(__origClass__), \
 	INIT_ID(__prepare__), \
