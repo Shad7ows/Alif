@@ -37,7 +37,7 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 #  define KWTUPLE nullptr
 #endif 
 
-	static const char* const _keywords[] = { "اسم", "متغيرات_عامة", "متغيرات_محلية", "fromlist", "level", nullptr };
+	static const char* const _keywords[] = { "اسم", "اسماء_عامة", "اسماء_محلية", "من_مصفوفة", "مستوى", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
 		.fname = "__استورد__",

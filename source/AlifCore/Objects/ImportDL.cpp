@@ -58,7 +58,7 @@ static AlifObject* get_encodedName(AlifObject* _name,
 	else {
 		if (alifErr_exceptionMatches(_alifExcUnicodeEncodeError_)) {
 			alifErr_clear();
-			encoded = alifUStr_asEncodedString(_name, "punycode", nullptr);
+			encoded = alifUStr_asEncodedString(_name, "ترميز_سقيم", nullptr);
 			if (encoded == nullptr) {
 				goto error;
 			}
