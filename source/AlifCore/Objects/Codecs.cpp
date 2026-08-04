@@ -5,8 +5,28 @@
 
 
 
-const char* _alifHexDigits_ = "0123456789abcdef"; // 19 // need review
+const char* _alifHexDigits_ = "0123456789abcdef"; // 19 //* todo
 
+
+
+AlifIntT alifCodec_register(AlifObject* _searchFunction) { // 29
+	AlifInterpreter* interp = _alifInterpreter_get();
+	if (_searchFunction == nullptr) {
+		//alifErr_badArgument();
+		goto onError;
+	}
+	if (!alifCallable_check(_searchFunction)) {
+		alifErr_setString(_alifExcTypeError_, "الوسيط يجب أن يكون قابل للاستدعاء");
+		goto onError;
+	}
+	alifMutex_lock(&interp->codecs.searchPathMutex);
+	AlifIntT ret; ret = alifList_append(interp->codecs.searchPath, _searchFunction);
+	alifMutex_unlock(&interp->codecs.searchPathMutex);
+	return ret;
+
+onError:
+	return -1;
+}
 
 
 extern AlifIntT _alif_normalizeEncoding(const char*, char*, AlifUSizeT); // 85
@@ -22,14 +42,16 @@ static AlifObject* normalize_string(const char* string) { // 90
 	}
 
 	encoding = (char*)alifMem_dataAlloc(len + 1);
-	if (encoding == nullptr)
+	if (encoding == nullptr) {
 		//return alifErr_noMemory();
+		return nullptr; //* alif
+	}
 
-		if (!_alif_normalizeEncoding(string, encoding, len + 1)) {
-			alifErr_setString(_alifExcRuntimeError_, "_alif_normalizeEncoding() فشل");
-			alifMem_dataFree(encoding);
-			return nullptr;
-		}
+	if (!_alif_normalizeEncoding(string, encoding, len + 1)) {
+		alifErr_setString(_alifExcRuntimeError_, "_alif_normalizeEncoding() فشل");
+		alifMem_dataFree(encoding);
+		return nullptr;
+	}
 
 	v = alifUStr_fromString(encoding);
 	alifMem_dataFree(encoding);
@@ -502,11 +524,11 @@ AlifStatus _alifCodec_initRegistry(AlifInterpreter* _interp) { // 1405
 
 	_interp->codecs.initialized = 1;
 
-	//AlifObject* mod = alifImport_importModule("encodings");
-	//if (mod == NULL) {
-	//	return alifStatus_error("Failed to import encodings module");
-	//}
-	//ALIF_DECREF(mod);
+	AlifObject* mod = alifImport_importModule("الترميزات");
+	if (mod == nullptr) {
+		return alifStatus_error("فشل استيراد مكتبة الترميزات");
+	}
+	ALIF_DECREF(mod);
 
 	return alifStatus_ok();
 }
