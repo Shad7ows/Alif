@@ -1140,6 +1140,9 @@
     <ClInclude Include="..\source\Modules\clinic\_CodecsModule.cpp.h">
       <Filter>Modules\clinic</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\BytesObject.cpp.h">
+      <Filter>Objects\clinic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">

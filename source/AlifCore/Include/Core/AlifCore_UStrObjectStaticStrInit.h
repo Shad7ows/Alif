@@ -293,6 +293,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__add__);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(__bytes__);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__call__);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(__format__);

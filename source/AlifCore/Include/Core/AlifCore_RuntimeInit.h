@@ -729,6 +729,7 @@
     INIT_USTR(__abs__, "__مطلق__"), /* //* alif */	\
     INIT_USTR(__all__, "__كل__"), /* //* alif */	\
     INIT_USTR(__add__, "__اجمع__"), /* //* alif */	\
+    INIT_USTR(__bytes__, "__بايت__"), /* //* alif */	\
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
     INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
     INIT_USTR(__fspath__, "__مسار_ملف_نظام__"), /* //* alif */	\

@@ -89,6 +89,7 @@ public:
 		STRUCT_FOR_USTR(__abs__, "__مطلق__") //* alif
 		STRUCT_FOR_USTR(__all__, "__كل__") //* alif
 		STRUCT_FOR_USTR(__add__, "__اجمع__") //* alif
+		STRUCT_FOR_USTR(__bytes__, "__بايت__") //* alif
 		STRUCT_FOR_USTR(__call__, "__استدعاء__") //* alif
 		STRUCT_FOR_USTR(__format__, "__تنسيق__") //* alif
 		STRUCT_FOR_USTR(__fspath__, "__مسار_ملف_نظام__") //* alif

@@ -13,6 +13,7 @@ extern AlifTypeObject _alifBytesIterType_;
 
 AlifObject* alifBytes_fromStringAndSize(const char*, AlifSizeT); // 31
 AlifObject* alifBytes_fromString(const char*);
+ALIFAPI_FUNC(AlifObject*) alifBytes_fromObject(AlifObject*); // 33
 
 AlifSizeT alifBytes_size(AlifObject*); // 38
 char* alifBytes_asString(AlifObject*); // 39

@@ -3,12 +3,13 @@
 #include "AlifCore_Abstract.h"
 #include "AlifCore_BytesMethods.h"
 #include "AlifCore_BytesObject.h"
+#include "AlifCore_Call.h"
 #include "AlifCore_GlobalObjects.h"
 #include "AlifCore_Long.h"
 #include "AlifCore_Object.h"
 
 
-
+#include "clinic/BytesObject.cpp.h"
 
 
 
@@ -30,7 +31,7 @@ static inline AlifObject* bytes_getEmpty(void) { // 46
 
 
 
-static AlifObject* alifBytes_fromSize(AlifSizeT _size, AlifIntT _useCalloc) { // 76
+static AlifObject* _alifBytes_fromSize(AlifSizeT _size, AlifIntT _useCalloc) { // 76
 	AlifBytesObject* op{};
 
 	if (_size == 0) {
@@ -77,7 +78,7 @@ AlifObject* alifBytes_fromStringAndSize(const char* _str, AlifSizeT _size) { // 
 		return bytes_getEmpty();
 	}
 
-	op = (AlifBytesObject*)alifBytes_fromSize(_size, 0);
+	op = (AlifBytesObject*)_alifBytes_fromSize(_size, 0);
 	if (op == nullptr)
 		return nullptr;
 	if (_str == nullptr)
@@ -180,7 +181,7 @@ AlifObject* _alifBytes_decodeEscape(const char* _str, AlifSizeT _len, const char
 					c_ = (c_ << 3) + *_str++ - '0';
 			}
 			if (c_ > 0377) {
-				if (*_firstInvalidEscape == NULL) {
+				if (*_firstInvalidEscape == nullptr) {
 					*_firstInvalidEscape = _str - 3; /* Back up 3 chars, since we've
 													already incremented s. */
 				}
@@ -459,6 +460,320 @@ static AlifMethodDef _bytesMethods_[] = { // 2603
 
 
 
+static AlifObject* bytes_subTypeNew(AlifTypeObject*, AlifObject*); // 2680
+
+static AlifObject* bytes_newImpl(AlifTypeObject* type,
+	AlifObject* x, const char* encoding,
+	const char* errors) { // 2692
+	AlifObject* bytes{};
+	AlifObject* func{};
+	AlifSizeT size{};
+
+	if (x == nullptr) {
+		if (encoding != nullptr || errors != nullptr) {
+			alifErr_setString(_alifExcTypeError_,
+				encoding != nullptr ?
+				"ترميز بدون وسيط نصي" :
+				"اخطاء بدون وسيط نصي");
+			return nullptr;
+		}
+		bytes = alifBytes_fromStringAndSize(nullptr, 0);
+	}
+	else if (encoding != nullptr) {
+		/* Encode via the codec registry */
+		if (!ALIFUSTR_CHECK(x)) {
+			alifErr_setString(_alifExcTypeError_,
+				"ترميز بدون وسيط نصي");
+			return nullptr;
+		}
+		bytes = alifUStr_asEncodedString(x, encoding, errors);
+	}
+	else if (errors != nullptr) {
+		alifErr_setString(_alifExcTypeError_,
+			ALIFUSTR_CHECK(x) ?
+			"وسيط نصي بدون ترميز" :
+			"اخطاء بدون وسيط نصي");
+		return nullptr;
+	}
+	else if ((func = _alifObject_lookupSpecial(x, &ALIF_STR(__bytes__))) != nullptr) {
+		bytes = _alifObject_callNoArgs(func);
+		ALIF_DECREF(func);
+		if (bytes == nullptr)
+			return nullptr;
+		if (!ALIFBYTES_CHECK(bytes)) {
+			alifErr_format(_alifExcTypeError_,
+				"__بايت__ ارجعت ليس-بايت (نوع %.200s)",
+				ALIF_TYPE(bytes)->name);
+			ALIF_DECREF(bytes);
+			return nullptr;
+		}
+	}
+	else if (alifErr_occurred())
+		return nullptr;
+	else if (ALIFUSTR_CHECK(x)) {
+		alifErr_setString(_alifExcTypeError_,
+			"وسيط نصي بدون ترميز");
+		return nullptr;
+	}
+	/* Is it an integer? */
+	else if (_alifIndex_check(x)) {
+		size = alifNumber_asSizeT(x, _alifExcOverflowError_);
+		if (size == -1 and alifErr_occurred()) {
+			if (!alifErr_exceptionMatches(_alifExcTypeError_))
+				return nullptr;
+			alifErr_clear();  /* fall through */
+			bytes = alifBytes_fromObject(x);
+		}
+		else {
+			if (size < 0) {
+				alifErr_setString(_alifExcValueError_, "عد بالسالب");
+				return nullptr;
+			}
+			bytes = _alifBytes_fromSize(size, 1);
+		}
+	}
+	else {
+		bytes = alifBytes_fromObject(x);
+	}
+
+	if (bytes != nullptr and type != &_alifBytesType_) {
+		ALIF_SETREF(bytes, bytes_subTypeNew(type, bytes));
+	}
+
+	return bytes;
+}
+
+static AlifObject* _alifBytes_fromBuffer(AlifObject* x) { // 2778
+	AlifObject* new_{};
+	AlifBuffer view{};
+
+	if (alifObject_getBuffer(x, &view, ALIFBUF_FULL_RO) < 0)
+		return nullptr;
+
+	new_ = alifBytes_fromStringAndSize(nullptr, view.len);
+	if (!new_)
+		goto fail;
+	if (alifBuffer_toContiguous(((AlifBytesObject*)new_)->val,
+		&view, view.len, 'C') < 0)
+		goto fail;
+	alifBuffer_release(&view);
+	return new_;
+
+fail:
+	ALIF_XDECREF(new_);
+	alifBuffer_release(&view);
+	return nullptr;
+}
+
+static AlifObject* _alifBytes_fromList(AlifObject* x) { // 2802
+	AlifSizeT i{}, size = ALIFLIST_GET_SIZE(x);
+	AlifSizeT value{};
+	char* str{};
+	AlifObject* item{};
+	AlifBytesWriter writer{};
+
+	alifBytesWriter_init(&writer);
+	str = (char*)alifBytesWriter_alloc(&writer, size);
+	if (str == nullptr)
+		return nullptr;
+	writer.overAllocate = 1;
+	size = writer.allocated;
+
+	for (i = 0; i < ALIFLIST_GET_SIZE(x); i++) {
+		item = ALIFLIST_GET_ITEM(x, i);
+		ALIF_INCREF(item);
+		value = alifNumber_asSizeT(item, nullptr);
+		ALIF_DECREF(item);
+		if (value == -1 and alifErr_occurred())
+			goto error;
+
+		if (value < 0 or value >= 256) {
+			alifErr_setString(_alifExcValueError_,
+				"البايت يجب أن يكون في المدى(0, 256)");
+			goto error;
+		}
+
+		if (i >= size) {
+			str = (char*)alifBytesWriter_resize(&writer, str, size + 1);
+			if (str == nullptr)
+				return nullptr;
+			size = writer.allocated;
+		}
+		*str++ = (char)value;
+	}
+	return alifBytesWriter_finish(&writer, str);
+
+error:
+	alifBytesWriter_dealloc(&writer);
+	return nullptr;
+}
+
+static AlifObject* _alifBytes_fromTuple(AlifObject* x) { // 2847
+	AlifObject* bytes{};
+	AlifSizeT i{}, size = ALIFTUPLE_GET_SIZE(x);
+	AlifSizeT value{};
+	char* str{};
+	AlifObject* item{};
+
+	bytes = alifBytes_fromStringAndSize(nullptr, size);
+	if (bytes == nullptr)
+		return nullptr;
+	str = ((AlifBytesObject*)bytes)->val;
+
+	for (i = 0; i < size; i++) {
+		item = ALIFTUPLE_GET_ITEM(x, i);
+		value = alifNumber_asSizeT(item, nullptr);
+		if (value == -1 and alifErr_occurred())
+			goto error;
+
+		if (value < 0 or value >= 256) {
+			alifErr_setString(_alifExcValueError_,
+				"البايت يجب أن يكون في المدى(0, 256)");
+			goto error;
+		}
+		*str++ = (char)value;
+	}
+	return bytes;
+
+error:
+	ALIF_DECREF(bytes);
+	return nullptr;
+}
+
+static AlifObject* _alifBytes_fromIterator(AlifObject* it,
+	AlifObject* x) { // 2881
+	char* str{};
+	AlifSizeT i{}, size{};
+	AlifBytesWriter writer{};
+
+	/* For iterator version, create a bytes object and resize as needed */
+	size = alifObject_lengthHint(x, 64);
+	if (size == -1 and alifErr_occurred())
+		return nullptr;
+
+	alifBytesWriter_init(&writer);
+	str = (char*)alifBytesWriter_alloc(&writer, size);
+	if (str == nullptr)
+		return nullptr;
+	writer.overAllocate = 1;
+	size = writer.allocated;
+
+	/* Run the iterator to exhaustion */
+	for (i = 0; ; i++) {
+		AlifObject* item{};
+		AlifSizeT value{};
+
+		/* Get the next item */
+		item = alifIter_next(it);
+		if (item == nullptr) {
+			if (alifErr_occurred())
+				goto error;
+			break;
+		}
+
+		/* Interpret it as an int (__index__) */
+		value = alifNumber_asSizeT(item, nullptr);
+		ALIF_DECREF(item);
+		if (value == -1 and alifErr_occurred())
+			goto error;
+
+		/* Range check */
+		if (value < 0 or value >= 256) {
+			alifErr_setString(_alifExcValueError_,
+				"البايت يجب أن يكون في المدى(0, 256)");
+			goto error;
+		}
+
+		/* Append the byte */
+		if (i >= size) {
+			str = (char*)alifBytesWriter_resize(&writer, str, size + 1);
+			if (str == nullptr)
+				return nullptr;
+			size = writer.allocated;
+		}
+		*str++ = (char)value;
+	}
+
+	return alifBytesWriter_finish(&writer, str);
+
+error:
+	alifBytesWriter_dealloc(&writer);
+	return nullptr;
+}
+
+AlifObject* alifBytes_fromObject(AlifObject* _x) { // 2943
+	AlifObject* it{}, * result{};
+
+	if (_x == nullptr) {
+		//ALIFERR_BADINTERNALCALL();
+		return nullptr;
+	}
+
+	if (ALIFBYTES_CHECKEXACT(_x)) {
+		return ALIF_NEWREF(_x);
+	}
+
+	/* Use the modern buffer interface */
+	if (alifObject_checkBuffer(_x))
+		return _alifBytes_fromBuffer(_x);
+
+	if (ALIFLIST_CHECKEXACT(_x))
+		return _alifBytes_fromList(_x);
+
+	if (ALIFTUPLE_CHECKEXACT(_x))
+		return _alifBytes_fromTuple(_x);
+
+	if (!ALIFUSTR_CHECK(_x)) {
+		it = alifObject_getIter(_x);
+		if (it != nullptr) {
+			result = _alifBytes_fromIterator(it, _x);
+			ALIF_DECREF(it);
+			return result;
+		}
+		if (!alifErr_exceptionMatches(_alifExcTypeError_)) {
+			return nullptr;
+		}
+	}
+
+	alifErr_format(_alifExcTypeError_,
+		"لا يمكن تحويل الكائن '%.200s' إلى نوع بايت",
+		ALIF_TYPE(_x)->name);
+	return nullptr;
+}
+
+
+static AlifObject* bytes_alloc(AlifTypeObject* _self,
+	AlifSizeT _nitems) { // 2990
+	AlifBytesObject* obj = (AlifBytesObject*)alifType_genericAlloc(_self, _nitems);
+	if (obj == nullptr) {
+		return nullptr;
+	}
+	ALIF_COMP_DIAG_PUSH
+	ALIF_COMP_DIAG_IGNORE_DEPR_DECLS
+		obj->hash = -1;
+	ALIF_COMP_DIAG_POP
+	return (AlifObject*)obj;
+}
+
+static AlifObject* bytes_subTypeNew(AlifTypeObject* _type,
+	AlifObject* _tmp) { // 3004
+	AlifObject* pnew{};
+	AlifSizeT n{};
+
+	n = ALIFBYTES_GET_SIZE(_tmp);
+	pnew = _type->alloc(_type, n);
+	if (pnew != nullptr) {
+		memcpy(ALIFBYTES_AS_STRING(pnew),
+			ALIFBYTES_AS_STRING(_tmp), n + 1);
+		ALIF_COMP_DIAG_PUSH
+		ALIF_COMP_DIAG_IGNORE_DEPR_DECLS
+		((AlifBytesObject*)pnew)->hash =
+			((AlifBytesObject*)_tmp)->hash;
+		ALIF_COMP_DIAG_POP
+	}
+	return pnew;
+}
+
 AlifTypeObject _alifBytesType_ = { // 3028
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "بايت",
@@ -471,6 +786,8 @@ AlifTypeObject _alifBytesType_ = { // 3028
 		ALIF_TPFLAGS_BYTES_SUBCLASS | _ALIF_TPFLAGS_MATCH_SELF,
 	.richCompare = (RichCmpFunc)bytes_richCompare,
 	.methods = _bytesMethods_,
+	.alloc = bytes_alloc,
+	.new_ = bytes_new,
 	.free = alifMem_objFree,
 	.versionTag = _ALIF_TYPE_VERSION_BYTES,
 };
@@ -537,7 +854,7 @@ AlifIntT _alifBytes_resize(AlifObject** _pv, AlifSizeT _newSize) { // 3141
 		return 0;
 	}
 	if (oldsize == 0) {
-		*_pv = alifBytes_fromSize(_newSize, 0);
+		*_pv = _alifBytes_fromSize(_newSize, 0);
 		ALIF_DECREF(v);
 		return (*_pv == nullptr) ? -1 : 0;
 	}
@@ -548,7 +865,7 @@ AlifIntT _alifBytes_resize(AlifObject** _pv, AlifSizeT _newSize) { // 3141
 	}
 	if (ALIF_REFCNT(v) != 1) {
 		if (oldsize < _newSize) {
-			*_pv = alifBytes_fromSize(_newSize, 0);
+			*_pv = _alifBytes_fromSize(_newSize, 0);
 			if (*_pv) {
 				memcpy(ALIFBYTES_AS_STRING(*_pv), ALIFBYTES_AS_STRING(v), oldsize);
 			}
@@ -674,7 +991,7 @@ void* alifBytesWriter_resize(AlifBytesWriter* _writer, void* _str, AlifSizeT _si
 
 error:
 	alifBytesWriter_dealloc(_writer);
-	return NULL;
+	return nullptr;
 }
 
 
