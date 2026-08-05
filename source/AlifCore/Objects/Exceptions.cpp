@@ -822,6 +822,22 @@ MIDDLINGEXTENDSEXCEPTION(_excOSError_, PermissionError, خطأ_صلاحيات, O
 
 
 
+
+/*
+*    RuntimeError extends Exception
+*/
+SIMPLEEXTENDSEXCEPTION(_excException_, RuntimeError, خطأ_اثناء_التشغيل,
+	"خطأ غير محدد أثناء التشغيل."); // 2210
+
+
+/*
+*    NotImplementedError extends RuntimeError
+*/
+SIMPLEEXTENDSEXCEPTION(_excRuntimeError_, NotImplementedError, خطأ_غير_منتهي,
+	"دالة او وظيفة لم يتم الإنتهاء من العمل عليها بعد."); // 2226
+
+
+
 /*
 *    NameError extends Exception
 */
@@ -868,12 +884,6 @@ COMPLEXEXTENDSEXCEPTION(_excException_, NameError, NameError, خطأ_اسم,
 
 
 
-
-/*
- *    RuntimeError extends Exception
- */
-SIMPLEEXTENDSEXCEPTION(_excException_, RuntimeError, خطأ_اثناء_التشغيل,
-	"خطأ غير محدد أثناء التشغيل.");
 
 
 static AlifIntT attributeError_init(AlifAttributeErrorObject* _self,
@@ -1252,7 +1262,7 @@ static StaticException _staticExceptions_[] = { // 3615
 	ITEM(IndexError, خطأ_مؤشر),  // base: LookupError(Exception)
 	ITEM(KeyError, خطأ_مفتاح),  // base: LookupError(Exception)
 	ITEM(ModuleNotFoundError, خطأ_مكتبة_غير_موجودة), // base: ImportError(Exception)
-	//ITEM(NotImplementedError),  // base: RuntimeError(Exception)
+	ITEM(NotImplementedError, خطأ_غير_منتهي),  // base: RuntimeError(Exception)
 	//ITEM(AlifFinalizationError),  // base: RuntimeError(Exception)
 	//ITEM(RecursionError),  // base: RuntimeError(Exception)
 	//ITEM(UnboundLocalError), // base: NameError(Exception)

@@ -62,7 +62,7 @@ extern AlifObject* _alifExcKeyError_; // 98
 extern AlifObject* _alifExcNameError_; // 101
 extern AlifObject* _alifExcOverflowError_; // 102
 extern AlifObject* _alifExcRuntimeError_; // 103
-
+ALIFAPI_DATA(AlifObject*) _alifExcNotImplementedError; // 107
 extern AlifObject* _alifExcSyntaxError_; // 108
 extern AlifObject* _alifExcIndentationError_; // 109
 extern AlifObject* _alifExcSystemError_; // 112
