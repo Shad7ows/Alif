@@ -479,7 +479,8 @@ static AlifObject* builtin_locals(AlifObject* _module, AlifObject* ALIF_UNUSED(_
 
 
 
-
+#define BUILTIN_ORD_METHODDEF    \
+    {"رمز", (AlifCPPFunction)builtin_ord, METHOD_O} // 818
 
 
 

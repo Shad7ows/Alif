@@ -1039,13 +1039,52 @@ static AlifObject* builtin_max(AlifObject* _self, AlifObject* const* _args,
 }
 
 
+static AlifObject* builtin_ord(AlifObject* _module,
+	AlifObject* _c) { // 2062
+	long ord{};
+	AlifSizeT size{};
 
+	if (ALIFBYTES_CHECK(_c)) {
+		size = ALIFBYTES_GET_SIZE(_c);
+		if (size == 1) {
+			ord = (long)((unsigned char)*ALIFBYTES_AS_STRING(_c));
+			return alifLong_fromLong(ord);
+		}
+	}
+	else if (ALIFUSTR_CHECK(_c)) {
+		size = ALIFUSTR_GET_LENGTH(_c);
+		if (size == 1) {
+			ord = (long)ALIFUSTR_READ_CHAR(_c, 0);
+			return alifLong_fromLong(ord);
+		}
+	}
+	else if (ALIFBYTEARRAY_CHECK(_c)) {
+		/* XXX Hopefully this is temporary */
+		size = ALIFBYTEARRAY_GET_SIZE(_c);
+		if (size == 1) {
+			ord = (long)((unsigned char)*ALIFBYTEARRAY_AS_STRING(_c));
+			return alifLong_fromLong(ord);
+		}
+	}
+	else {
+		alifErr_format(_alifExcTypeError_,
+			"رمز() يتوقع تمرير نص مكون من حرف واحد, ولكن " \
+			"تم تمرير %.200s", ALIF_TYPE(_c)->name);
+		return nullptr;
+	}
+
+	alifErr_format(_alifExcTypeError_,
+		"رمز() يتوقع تمرير حرف واحد, "
+		"ولكن تم تمرير نص بطول %zd",
+		size);
+	return nullptr;
+}
 
 
 
 static AlifObject* builtin_printImpl(AlifObject* _module, AlifObject* const* _args,
 	AlifSizeT _argsLength, AlifObject* _sep, AlifObject* _end,
-	AlifObject* _file, AlifIntT _flush) { // 2058
+	AlifObject* _file, AlifIntT _flush) { // 2144
 	AlifIntT i{}, err{};
 
 	if (_file == ALIF_NONE) {
@@ -1846,6 +1885,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	BUILTIN_LEN_METHODDEF,
 	{"اقصى", ALIF_CPPFUNCTION_CAST(builtin_max), METHOD_FASTCALL | METHOD_KEYWORDS},
 	{"ادنى", ALIF_CPPFUNCTION_CAST(builtin_min), METHOD_FASTCALL | METHOD_KEYWORDS},
+	BUILTIN_ORD_METHODDEF,
 	BUILTIN_PRINT_METHODDEF,
 	BUILTIN_SUM_METHODDEF,
 	BUILTIN_ROUND_METHODDEF,
@@ -1883,12 +1923,12 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 
 	SETBUILTIN("عدم", ALIF_NONE);
 	SETBUILTIN("Ellipsis", ALIF_ELLIPSIS);
-	SETBUILTIN("NotImplemented", ALIF_NOTIMPLEMENTED);
+	SETBUILTIN("غير_منتهي", ALIF_NOTIMPLEMENTED);
 	SETBUILTIN("خطأ", ALIF_FALSE);
 	SETBUILTIN("صح", ALIF_TRUE);
 	SETBUILTIN("منطق", &_alifBoolType_);
 	//SETBUILTIN("memoryview", &_alifMemoryViewType_);
-	SETBUILTIN("bytearray", &_alifByteArrayType_);
+	SETBUILTIN("مصفوفة_بايت", &_alifByteArrayType_);
 	SETBUILTIN("بايت", &_alifBytesType_);
 	SETBUILTIN("وظيفة_صنف", &_alifClassMethodType_);
 	SETBUILTIN("complex", &_alifComplexType_);

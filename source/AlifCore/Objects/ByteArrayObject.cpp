@@ -163,8 +163,11 @@ AlifTypeObject _alifByteArrayType_ = { // 2389
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "مصفوفة_بايت",
 	.basicSize = sizeof(AlifByteArrayObject),
-	.itemSize = 0,
+	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
 		_ALIF_TPFLAGS_MATCH_SELF,
+	.alloc = alifType_genericAlloc,
+	.new_ = alifType_genericNew,
+	.free = alifMem_objFree,
 	.versionTag = _ALIF_TYPE_VERSION_BYTEARRAY,
 };

@@ -99,6 +99,23 @@ exit:
 }
 
 
+
+
+// 482
+#define UNICODE_ISASCII_METHODDEF    \
+    {"هل_ترميز_بدائي", (AlifCPPFunction)uStr_isascii, METHOD_NOARGS},
+
+static AlifObject* uStr_isasciiImpl(AlifObject*);
+
+static AlifObject* uStr_isascii(AlifObject* self,
+	AlifObject* ALIF_UNUSED(ignored)) {
+	return uStr_isasciiImpl(self);
+}
+
+
+
+
+
 // 608
 #define UNICODE_ISALNUM_METHODDEF    \
     {"هل_حرف_عدد", (AlifCPPFunction)uStr_isalnum, METHOD_NOARGS},

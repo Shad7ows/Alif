@@ -2577,7 +2577,8 @@ AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 		}
 		else {
 			if (strcmp(lower, "ascii") == 0
-				or strcmp(lower, "us_ascii") == 0) {
+				or strcmp(lower, "us_ascii") == 0
+				or strcmp(lower, "ترميز_بدائي") == 0) {
 				return _alifUStr_asASCIIString(unicode, errors);
 			}
 		#ifdef _WINDOWS
@@ -6643,6 +6644,10 @@ static AlifHashT uStr_hash(AlifObject* _self) { // 11663
 }
 
 
+static AlifObject* uStr_isasciiImpl(AlifObject* _self) { // 11743
+	return alifBool_fromLong(ALIFUSTR_IS_ASCII(_self));
+}
+
 
 static AlifObject* uStr_isalnumImpl(AlifObject* _self) { // 11976
 	AlifIntT kind{};
@@ -7718,6 +7723,7 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	UNICODE_PARTITION_METHODDEF
 	UNICODE_RPARTITION_METHODDEF
 
+	UNICODE_ISASCII_METHODDEF
 	UNICODE_LOWER_METHODDEF
 	UNICODE_ISALNUM_METHODDEF
 
