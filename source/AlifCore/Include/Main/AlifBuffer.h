@@ -23,6 +23,8 @@ AlifIntT alifObject_checkBuffer(AlifObject*); // 39
 
 AlifIntT alifObject_getBuffer(AlifObject*, AlifBuffer*, AlifIntT); // 46
 
+ALIFAPI_FUNC(AlifIntT) alifBuffer_toContiguous(void*, const AlifBuffer*, AlifSizeT, char); // 58
+
 AlifIntT alifBuffer_isContiguous(const AlifBuffer*, char); // 80
 
 AlifIntT alifBuffer_fillInfo(AlifBuffer*, AlifObject*, void*,

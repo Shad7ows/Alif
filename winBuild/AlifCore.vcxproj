@@ -187,6 +187,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\LongIntRepr.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\LongObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\Marshal.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\MemoryHelpers.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\MethodObject.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\mimalloc\mimalloc.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\mimalloc\mimalloc\atomic.h" />
