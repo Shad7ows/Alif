@@ -51,14 +51,14 @@ static AlifObject* get_encodedName(AlifObject* _name,
 	}
 
 	/* Encode to ASCII or Punycode, as needed */
-	encoded = alifUStr_asEncodedString(_name, "ascii", nullptr);
+	encoded = alifUStr_asEncodedString(_name, "ترميز_بدائي", nullptr); // == ascii
 	if (encoded != nullptr) {
 		*_hookPrefix = _asciiOnlyPrefix_;
 	}
 	else {
 		if (alifErr_exceptionMatches(_alifExcUnicodeEncodeError_)) {
 			alifErr_clear();
-			encoded = alifUStr_asEncodedString(_name, "ترميز_سقيم", nullptr);
+			encoded = alifUStr_asEncodedString(_name, "ترميز_سقيم", nullptr); // == punycode
 			if (encoded == nullptr) {
 				goto error;
 			}

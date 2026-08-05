@@ -1732,8 +1732,8 @@ static AlifIntT vGetArgsKeywordsFast_impl(AlifObject* const* args, AlifSizeT nar
 
 
 AlifObject* const* _alifArg_unpackKeywords(AlifObject* const* args, AlifSizeT nargs,
-	AlifObject* kwargs, AlifObject* kwnames, AlifArgParser* parser,
-	AlifIntT minpos, AlifIntT maxpos, AlifIntT minkw, AlifIntT varpos, AlifObject** buf) { // 2313
+	AlifObject* kwargs, AlifObject* kwnames, AlifArgParser* parser, AlifIntT minpos, AlifIntT maxpos,
+	AlifIntT minkw, AlifIntT varpos, AlifObject** buf) { // 2313
 	AlifObject* kwtuple{};
 	AlifObject* keyword{};
 	AlifIntT i{}, posonly{}, minposonly{}, maxargs{};
@@ -2117,7 +2117,22 @@ AlifIntT alifArg_unpackTuple(AlifObject* args,
 	return retval;
 }
 
+AlifIntT _alifArg_unpackStack(AlifObject* const* _args,
+	AlifSizeT _nargs, const char* _name,
+	AlifSizeT _min, AlifSizeT _max, ...) { // 2714
+	AlifIntT retval{};
+	va_list vargs{};
 
+	va_start(vargs, _max);
+	retval = unpack_stack(_args, _nargs, _name, _min, _max, vargs);
+	va_end(vargs);
+	return retval;
+}
+
+// 2728
+//#undef _ALIFARG_NOKEYWORDS
+//#undef _ALIFARG_NOKWNAMES
+//#undef _ALIFARG_NOPOSITIONAL
 
 AlifIntT _alifArg_noKeywords(const char* funcname, AlifObject* kwargs) { // 2885
 	if (kwargs == nullptr) {

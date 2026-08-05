@@ -28,6 +28,10 @@ extern AlifObject** _alif_vaBuildStack(AlifObject**, AlifSizeT,
 
 extern AlifObject* alifModule_createInitialized(AlifModuleDef*); // 44
 
+extern AlifIntT _alifArg_unpackStack(AlifObject* const*, AlifSizeT,
+	const char*, AlifSizeT, AlifSizeT, ...); // 53
+
+
 AlifIntT _alifArg_parseStackAndKeywords(AlifObject* const*,
 	AlifSizeT, AlifObject*, AlifArgParser*, ...); // 71
 
