@@ -26,6 +26,11 @@ static inline void _alifUStrWriter_initWithBuffer(AlifUStrWriter*, AlifObject*);
 
 #define MAX_UNICODE 0x10ffff // 106
 
+//* alif
+#define IS_ARABIC_LETTER(_c) ((_c >= 161 and _c <= 191)	\
+								or (_c >= 128 and _c <= 138) /* الاحرف العربية - البايت الثاني منها */	\
+								or (_c == 216) or (_c == 217)) \
+
 
 // 114
 #define _ALIFUSTR_UTF8(_op)                             \
@@ -2342,7 +2347,7 @@ AlifObject* alifUStr_fromEncodedObject(AlifObject* _obj,
 }
 
 AlifIntT _alif_normalizeEncoding(const char* encoding,
-	char* lower, AlifUSizeT lower_len) { // 3520
+	char* lower, AlifUSizeT lower_len) { // 3520 //* alif
 	const char* e{};
 	char* l{};
 	char* l_end{};
@@ -2358,7 +2363,7 @@ AlifIntT _alif_normalizeEncoding(const char* encoding,
 			break;
 		}
 
-		if (ALIF_ISALNUM(c) or c == '.') {
+		if (ALIF_ISALNUM(c) or IS_ARABIC_LETTER((unsigned char)c) or c == '.') { //* alif
 			if (punct and l != lower) {
 				if (l == l_end) {
 					return 0;
@@ -2387,7 +2392,7 @@ AlifObject* alifUStr_decode(const char* s, AlifSizeT size,
 	const char* encoding, const char* errors) { // 3566
 	AlifObject* buffer = nullptr, * unicode{};
 	AlifBuffer info{};
-	char buflower[11]{};
+	char buflower[22]{};
 
 	//if (uStr_checkEncodingErrors(encoding, errors) < 0) {
 	//	return nullptr;
@@ -2533,7 +2538,7 @@ AlifObject* alifUStr_encodeFSDefault(AlifObject* _uStr) { // 3806
 AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 	const char* encoding, const char* errors) { // 3840
 	AlifObject* v{};
-	char buflower[11]{};
+	char buflower[22]{};
 
 	if (!ALIFUSTR_CHECK(unicode)) {
 		//alifErr_badArgument();
