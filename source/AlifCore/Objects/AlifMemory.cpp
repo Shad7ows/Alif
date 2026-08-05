@@ -1032,50 +1032,8 @@ const void alif_getMemState() {
 
 
 
-static inline void initStrides_fromShape(AlifBuffer* view) {
-	AlifSizeT i{};
 
-	view->strides[view->nDim - 1] = view->itemSize;
-	for (i = view->nDim - 2; i >= 0; i--)
-		view->strides[i] = view->strides[i + 1] * view->shape[i + 1];
-}
-
-static inline void init_sharedValues(AlifBuffer* dest, const AlifBuffer* src) {
-	dest->obj = src->obj;
-	dest->buf = src->buf;
-	dest->len = src->len;
-	dest->itemSize = src->itemSize;
-	dest->readonly = src->readonly;
-	src->format ? dest->format = src->format : dest->format = (char*)"B";
-	dest->internal = src->internal;
-}
-
-static void init_shapeStrides(AlifBuffer* dest, const AlifBuffer* src) {
-	AlifSizeT i{};
-
-	if (src->nDim == 0) {
-		dest->shape = nullptr;
-		dest->strides = nullptr;
-		return;
-	}
-	if (src->nDim == 1) {
-		dest->shape[0] = src->shape ? src->shape[0] : src->len / src->itemSize;
-		dest->strides[0] = src->strides ? src->strides[0] : src->itemSize;
-		return;
-	}
-
-	for (i = 0; i < src->nDim; i++)
-		dest->shape[i] = src->shape[i];
-	if (src->strides) {
-		for (i = 0; i < src->nDim; i++)
-			dest->strides[i] = src->strides[i];
-	}
-	else {
-		initStrides_fromShape(dest);
-	}
-}
-
-static inline void init_suboffsets(AlifBuffer* dest, const AlifBuffer* src) {
+static inline void init_subOffsets(AlifBuffer* dest, const AlifBuffer* src) {
 	AlifSizeT i{};
 
 	if (src->subOffsets == nullptr) {
@@ -1158,7 +1116,7 @@ static AlifObject* mbuf_addView(AlifManagedBufferObject* _mbuf, const AlifBuffer
 	dest = &mv->view;
 	init_sharedValues(dest, _src);
 	init_shapeStrides(dest, _src);
-	init_suboffsets(dest, _src);
+	init_subOffsets(dest, _src);
 	init_flags(mv);
 
 	mv->mbuf = (AlifManagedBufferObject*)ALIF_NEWREF(_mbuf);
@@ -1166,6 +1124,7 @@ static AlifObject* mbuf_addView(AlifManagedBufferObject* _mbuf, const AlifBuffer
 
 	return (AlifObject*)mv;
 }
+
 
 
 static inline AlifManagedBufferObject* mbuf_alloc(void) {
@@ -1337,6 +1296,178 @@ static AlifBufferProcs _memoryAsBuffer_ = {
 	.getBuffer = memory_getBuf,
 	.releaseBuffer = memory_releaseBuf,
 };
+
+
+
+
+static AlifIntT copy_buffer(const AlifBuffer* dest,
+	const AlifBuffer* src) {
+	char* mem = nullptr;
+
+	if (!equiv_structure(dest, src))
+		return -1;
+
+	if (!lastDim_isContiguous(dest, src)) {
+		mem = (char*)alifMem_dataAlloc(dest->shape[dest->nDim - 1] * dest->itemSize);
+		if (mem == nullptr) {
+			//alifErr_noMemory();
+			return -1;
+		}
+	}
+
+	copy_rec(dest->shape, dest->nDim, dest->itemSize,
+		dest->buf, dest->strides, dest->subOffsets,
+		src->buf, src->strides, src->subOffsets,
+		mem);
+
+	if (mem)
+		alifMem_dataFree(mem);
+
+	return 0;
+}
+
+static inline void initStrides_fromShape(AlifBuffer* view) {
+	AlifSizeT i{};
+
+	view->strides[view->nDim - 1] = view->itemSize;
+	for (i = view->nDim - 2; i >= 0; i--)
+		view->strides[i] = view->strides[i + 1] * view->shape[i + 1];
+}
+
+static inline void init_sharedValues(AlifBuffer* dest, const AlifBuffer* src) {
+	dest->obj = src->obj;
+	dest->buf = src->buf;
+	dest->len = src->len;
+	dest->itemSize = src->itemSize;
+	dest->readonly = src->readonly;
+	src->format ? dest->format = src->format : dest->format = (char*)"B";
+	dest->internal = src->internal;
+}
+
+static void init_shapeStrides(AlifBuffer* dest, const AlifBuffer* src) {
+	AlifSizeT i{};
+
+	if (src->nDim == 0) {
+		dest->shape = nullptr;
+		dest->strides = nullptr;
+		return;
+	}
+	if (src->nDim == 1) {
+		dest->shape[0] = src->shape ? src->shape[0] : src->len / src->itemSize;
+		dest->strides[0] = src->strides ? src->strides[0] : src->itemSize;
+		return;
+	}
+
+	for (i = 0; i < src->nDim; i++)
+		dest->shape[i] = src->shape[i];
+	if (src->strides) {
+		for (i = 0; i < src->nDim; i++)
+			dest->strides[i] = src->strides[i];
+	}
+	else {
+		initStrides_fromShape(dest);
+	}
+}
+
+
+
+
+
+
+static inline void initFortranStrides_fromShape(AlifBuffer* view) {
+	AlifSizeT i{};
+
+	view->strides[0] = view->itemSize;
+	for (i = 1; i < view->nDim; i++)
+		view->strides[i] = view->strides[i - 1] * view->shape[i - 1];
+}
+
+static AlifIntT buffer_toContiguous(char* mem,
+	const AlifBuffer* src, char order) {
+	AlifBuffer dest{};
+	AlifSizeT* strides{};
+	AlifIntT ret{};
+
+	strides = (AlifSizeT*)alifMem_dataAlloc(src->nDim * (sizeof * src->strides));
+	if (strides == nullptr) {
+		//alifErr_noMemory();
+		return -1;
+	}
+
+	/* initialize dest */
+	dest = *src;
+	dest.buf = mem;
+
+	dest.strides = strides;
+	if (order == 'C' || order == 'A') {
+		initStrides_fromShape(&dest);
+	}
+	else {
+		initFortranStrides_fromShape(&dest);
+	}
+
+	dest.subOffsets = nullptr;
+
+	ret = copy_buffer(&dest, src);
+
+	alifMem_dataFree(strides);
+	return ret;
+}
+
+
+
+class AlifBufferFull {
+public:
+	AlifBuffer view{};
+	AlifSizeT array[1]{};
+};
+
+AlifIntT alifBuffer_toContiguous(void* _buf,
+	const AlifBuffer* _src, AlifSizeT _len, char _order) {
+	AlifBufferFull* fb{};
+	AlifIntT ret{};
+
+	if (_len != _src->len) {
+		alifErr_setString(_alifExcValueError_,
+			"alifBuffer_toContiguous: len != view->len");
+		return -1;
+	}
+
+	if (alifBuffer_isContiguous(_src, _order)) {
+		memcpy((char*)_buf, _src->buf, _len);
+		return 0;
+	}
+
+	fb = (AlifBufferFull*)alifMem_dataAlloc(sizeof * fb + 3 * _src->nDim * (sizeof * fb->array));
+	if (fb == nullptr) {
+		//alifErr_noMemory();
+		return -1;
+	}
+	fb->view.nDim = _src->nDim;
+	fb->view.shape = fb->array;
+	fb->view.strides = fb->array + _src->nDim;
+	fb->view.subOffsets = fb->array + 2 * _src->nDim;
+
+	init_sharedValues(&fb->view, _src);
+	init_shapeStrides(&fb->view, _src);
+	init_subOffsets(&fb->view, _src);
+
+	_src = &fb->view;
+
+	ret = buffer_toContiguous((char*)_buf, _src, _order);
+	alifMem_dataFree(fb);
+	return ret;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
