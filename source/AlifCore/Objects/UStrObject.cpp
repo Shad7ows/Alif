@@ -6639,6 +6639,35 @@ static AlifHashT uStr_hash(AlifObject* _self) { // 11663
 
 
 
+static AlifObject* uStr_isalnumImpl(AlifObject* _self) { // 11976
+	AlifIntT kind{};
+	const void* data{};
+	AlifSizeT len{}, i{};
+
+	kind = ALIFUSTR_KIND(_self);
+	data = ALIFUSTR_DATA(_self);
+	len = ALIFUSTR_GET_LENGTH(_self);
+
+	/* Shortcut for single character strings */
+	if (len == 1) {
+		const AlifUCS4 ch = ALIFUSTR_READ(kind, data, 0);
+		return alifBool_fromLong(alifUStr_isalnum(ch));
+	}
+
+	/* Special case for empty strings */
+	if (len == 0)
+		ALIF_RETURN_FALSE;
+
+	for (i = 0; i < len; i++) {
+		const AlifUCS4 ch = ALIFUSTR_READ(kind, data, i);
+		if (!alifUStr_isalnum(ch))
+			ALIF_RETURN_FALSE;
+	}
+	ALIF_RETURN_TRUE;
+}
+
+
+
 AlifSizeT _alifUStr_scanIdentifier(AlifObject* _self) { // 12090
 	AlifSizeT i{};
 	AlifSizeT len = ALIFUSTR_GET_LENGTH(_self);
@@ -7685,6 +7714,7 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	UNICODE_RPARTITION_METHODDEF
 
 	UNICODE_LOWER_METHODDEF
+	UNICODE_ISALNUM_METHODDEF
 
 	//{"نسق", ALIF_CPPFUNCTION_CAST(do_stringFormat), METHOD_VARARGS | METHOD_KEYWORDS},
 	UNICODE___FORMAT___METHODDEF

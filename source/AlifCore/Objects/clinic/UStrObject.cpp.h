@@ -99,6 +99,19 @@ exit:
 }
 
 
+// 608
+#define UNICODE_ISALNUM_METHODDEF    \
+    {"هل_حرف_عدد", (AlifCPPFunction)uStr_isalnum, METHOD_NOARGS},
+
+static AlifObject* uStr_isalnumImpl(AlifObject*);
+
+static AlifObject* uStr_isalnum(AlifObject* self,
+	AlifObject* ALIF_UNUSED(ignored)) { // 614
+	return uStr_isalnumImpl(self);
+}
+
+
+
 
 // 734
 #define UNICODE_JOIN_METHODDEF {"اربط", (AlifCPPFunction)uStr_join, METHOD_O},

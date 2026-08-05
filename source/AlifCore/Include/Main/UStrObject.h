@@ -460,8 +460,18 @@ AlifIntT _alifUStr_isWhitespace(const AlifUCS4); // 652
 
 AlifIntT _alifUStr_toDecimalDigit(AlifUCS4); // 672
 
+ALIFAPI_FUNC(AlifIntT)_alifUStr_toDigit(AlifUCS4); // 676
+
+ALIFAPI_FUNC(AlifIntT) _alifUStr_isDecimalDigit(AlifUCS4); // 684
+
+ALIFAPI_FUNC(AlifIntT)_alifUStr_isDigit(AlifUCS4); // 688
+
+ALIFAPI_FUNC(AlifIntT)_alifUStr_isNumeric(AlifUCS4); // 692
+
 AlifIntT _alifUStr_isPrintable(AlifUCS4); // 696
 
+
+ALIFAPI_FUNC(AlifIntT)_alifUStr_isAlpha(AlifUCS4); // 700
 
 extern const unsigned char _alifASCIIWhitespace_[]; // 705
 
@@ -475,3 +485,18 @@ static inline int alifUStr_isSpace(AlifUCS4 ch) { // 711
 
 #define ALIF_USTR_ISPRINTABLE(_ch) _alifUStr_isPrintable(_ch) // 730
 #define ALIF_USTR_TODECIMAL(_ch) _alifUStr_toDecimalDigit(_ch) // 732
+
+
+#define ALIF_USTR_ISDECIMAL(_ch) _alifUStr_isDecimalDigit(_ch) // 727
+#define ALIF_USTR_ISDIGIT(_ch) _alifUStr_isDigit(_ch) // 728
+#define ALIF_USTR_ISNUMERIC(_ch) _alifUStr_isNumeric(_ch) // 729
+
+#define ALIF_USTR_ISALPHA(_ch) _alifUStr_isAlpha(_ch) // 736
+
+
+static inline AlifIntT alifUStr_isalnum(AlifUCS4 _ch) { // 738
+	return (ALIF_USTR_ISALPHA(_ch)
+		or ALIF_USTR_ISDECIMAL(_ch)
+		or ALIF_USTR_ISDIGIT(_ch)
+		or ALIF_USTR_ISNUMERIC(_ch));
+}
