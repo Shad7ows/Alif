@@ -722,6 +722,7 @@
 	INIT_STR(Raw, "raw"), /* //* alif */	\
 	INIT_USTR(End, "النهاية"), /* //* alif */	\
 	INIT_USTR(Sep, "الفاصل"), /* //* alif */	\
+	INIT_USTR(Sort, "رتب"), /* //* alif */	\
 	INIT_USTR(Stdout, "مخرجات"), /* //* alif */	\
 	INIT_USTR(TextIOWrapper, "غلاف_النص"), /* //* alif */	\
 	INIT_USTR(Write, "اكتب"), /* //* alif */	\

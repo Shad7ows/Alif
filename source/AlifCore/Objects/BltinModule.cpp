@@ -1397,6 +1397,43 @@ static AlifObject* builtin_roundImpl(AlifObject* _module,
 
 
 
+// 2543
+#define BUILTIN_SORTED_METHODDEF    \
+    {"مرتب", ALIF_CPPFUNCTION_CAST(builtin_sorted), METHOD_FASTCALL | METHOD_KEYWORDS}
+
+static AlifObject* builtin_sorted(AlifObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs, AlifObject* _kwnames) { // 2546
+	AlifObject* newlist{}, * v{}, * seq{}, * callable{};
+
+	/* Keyword arguments are passed through مصفوفة.رتب() which will check
+	them. */
+	if (!_alifArg_unpackStack(_args, _nargs, "مرتب", 1, 1, &seq))
+		return nullptr;
+
+	newlist = alifSequence_list(seq);
+	if (newlist == nullptr)
+		return nullptr;
+
+	callable = alifObject_getAttr(newlist, &ALIF_STR(Sort));
+	if (callable == nullptr) {
+		ALIF_DECREF(newlist);
+		return nullptr;
+	}
+
+	v = alifObject_vectorCall(callable, _args + 1, _nargs - 1, _kwnames);
+	ALIF_DECREF(callable);
+	if (v == nullptr) {
+		ALIF_DECREF(newlist);
+		return nullptr;
+	}
+	ALIF_DECREF(v);
+	return newlist;
+}
+
+
+
+
+
 class CompensatedSum { // 2534
 public:
 	double hi{};     /* high-order bits for a running sum */
@@ -1887,6 +1924,7 @@ static AlifMethodDef _builtinMethods_[] = { // 3141
 	{"ادنى", ALIF_CPPFUNCTION_CAST(builtin_min), METHOD_FASTCALL | METHOD_KEYWORDS},
 	BUILTIN_ORD_METHODDEF,
 	BUILTIN_PRINT_METHODDEF,
+	BUILTIN_SORTED_METHODDEF,
 	BUILTIN_SUM_METHODDEF,
 	BUILTIN_ROUND_METHODDEF,
 	{nullptr, nullptr},

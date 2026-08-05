@@ -82,6 +82,7 @@ public:
 		STRUCT_FOR_STR(Raw, "raw") //* alif
 		STRUCT_FOR_USTR(End, "النهاية") //* alif
 		STRUCT_FOR_USTR(Sep, "الفاصل") //* alif
+		STRUCT_FOR_USTR(Sort, "رتب") //* alif
 		STRUCT_FOR_USTR(Stdout, "مخرجات") //* alif
 		STRUCT_FOR_USTR(TextIOWrapper, "غلاف_النص") //* alif
 		STRUCT_FOR_USTR(Write, "اكتب") //* alif

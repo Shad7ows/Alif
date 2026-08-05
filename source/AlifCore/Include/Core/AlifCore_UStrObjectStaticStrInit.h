@@ -281,6 +281,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Sep);
 	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(Sort);
+	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Stdout);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(TextIOWrapper);
