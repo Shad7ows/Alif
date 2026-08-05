@@ -300,6 +300,85 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 #include "StringLib/CppType.h"
 
 
+AlifObject* alifBytes_repr(AlifObject* _obj,
+	AlifIntT _smartquotes) { // 1314
+	AlifBytesObject* op = (AlifBytesObject*)_obj;
+	AlifSizeT i{}, length = ALIF_SIZE(op);
+	AlifSizeT newsize{}, squotes{}, dquotes{};
+	AlifObject* v{};
+	unsigned char quote{};
+	const unsigned char* s{};
+	AlifUCS1* p{};
+
+	/* Compute size of output string */
+	squotes = dquotes = 0;
+	newsize = 3; /* b'' */
+	s = (const unsigned char*)op->val;
+	for (i = 0; i < length; i++) {
+		AlifSizeT incr = 1;
+		switch (s[i]) {
+		case '\'': squotes++; break;
+		case '"':  dquotes++; break;
+		case '\\': case '\t': case '\n': case '\r':
+			incr = 2; break; /* \C */
+		default:
+			if (s[i] < ' ' || s[i] >= 0x7f)
+				incr = 4; /* \xHH */
+		}
+		if (newsize > ALIF_SIZET_MAX - incr)
+			goto overflow;
+		newsize += incr;
+	}
+	quote = '\'';
+	if (_smartquotes and squotes and !dquotes)
+		quote = '"';
+	if (squotes and quote == '\'') {
+		if (newsize > ALIF_SIZET_MAX - squotes)
+			goto overflow;
+		newsize += squotes;
+	}
+
+	v = alifUStr_new(newsize, 127);
+	if (v == nullptr) {
+		return nullptr;
+	}
+	p = ALIFUSTR_1BYTE_DATA(v);
+
+	*p++ = 'b', *p++ = quote;
+	for (i = 0; i < length; i++) {
+		unsigned char c = op->val[i];
+		if (c == quote || c == '\\')
+			*p++ = '\\', *p++ = c;
+		else if (c == '\t')
+			*p++ = '\\', *p++ = 't';
+		else if (c == '\n')
+			*p++ = '\\', *p++ = 'n';
+		else if (c == '\r')
+			*p++ = '\\', *p++ = 'r';
+		else if (c < ' ' || c >= 0x7f) {
+			*p++ = '\\';
+			*p++ = 'x';
+			*p++ = _alifHexDigits_[(c & 0xf0) >> 4];
+			*p++ = _alifHexDigits_[c & 0xf];
+		}
+		else
+			*p++ = c;
+	}
+	*p++ = quote;
+	return v;
+
+overflow:
+	alifErr_setString(_alifExcOverflowError_,
+		"طول البايتات كبير جدا ليتم عرضه");
+	return NULL;
+}
+
+static AlifObject* bytes_repr(AlifObject* op) { // 1389
+	return alifBytes_repr(op, 1);
+}
+
+
+
 static AlifObject* bytes_concat(AlifObject* _a, AlifObject* _b) { // 1414
 	AlifBuffer va{}, vb{};
 	AlifObject* result = nullptr;
@@ -779,6 +858,7 @@ AlifTypeObject _alifBytesType_ = { // 3028
 	.name = "بايت",
 	.basicSize = ALIFBYTESOBJECT_SIZE,
 	.itemSize = sizeof(char),
+	.repr = bytes_repr,
 	.hash = bytes_hash,
 	.getAttro = alifObject_genericGetAttr,
 	.asBuffer = &_bytesAsBuffer_,

@@ -4491,7 +4491,7 @@ static AlifObject* uStr_encodeUcs1(AlifObject* unicode,
 	/* pointer into the output */
 	char* str{};
 	const char* encoding = (limit == 256) ? "latin-1" : "ascii";
-	const char* reason = (limit == 256) ? "ordinal not in range(256)" : "ordinal not in range(128)";
+	const char* reason = (limit == 256) ? "الرمز ليس ضمن المدى(256)" : "الرمز ليس ضمن المدى(128)";
 	AlifObject* error_handler_obj = nullptr;
 	AlifObject* exc = nullptr;
 	AlifErrorHandler_ error_handler = AlifErrorHandler_::Alif_Error_Unknown;
@@ -4740,7 +4740,7 @@ AlifObject* alifUStr_decodeASCII(const char* _s,
 			endinpos = startinpos + 1;
 			if (uStrDecode_callErrorHandlerWriter(
 				_errors, &error_handler_obj,
-				"ascii", "ordinal not in range(128)",
+				"ascii", "الرمز ليس في المدى(128)",
 				&starts, &e, &startinpos, &endinpos, &exc, &_s,
 				&writer))
 				goto onError;
