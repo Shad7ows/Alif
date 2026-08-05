@@ -51,3 +51,22 @@ exit:
 
 
 
+
+
+
+
+
+
+
+
+
+// 106
+#define TUPLE___GETNEWARGS___METHODDEF    \
+    {"__اجلب_وسيطات_جديدة__", (AlifCPPFunction)tuple___getnewargs__, METHOD_NOARGS},
+
+static AlifObject* tuple___getnewargs__Impl(AlifTupleObject*);
+
+static AlifObject* tuple___getnewargs__(AlifTupleObject* self,
+	AlifObject* ALIF_UNUSED(ignored)) {
+	return tuple___getnewargs__Impl(self);
+}

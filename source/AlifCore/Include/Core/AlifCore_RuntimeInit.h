@@ -731,6 +731,7 @@
     INIT_USTR(__call__, "__استدعاء__"), /* //* alif */	\
     INIT_USTR(__format__, "__تنسيق__"), /* //* alif */	\
     INIT_USTR(__fspath__, "__مسار_ملف_نظام__"), /* //* alif */	\
+    INIT_USTR(__getnewargs__, "__اجلب_وسيطات_جديدة__"), /* //* alif */	\
     INIT_USTR(__init__, "__تهيئة__"), /* //* alif */	\
     INIT_USTR(__import__, "__استورد__"), /* //* alif */	\
     INIT_USTR(__loader__, "__محمل__"), /* //* alif */	\

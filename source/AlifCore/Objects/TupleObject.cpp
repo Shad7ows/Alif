@@ -438,6 +438,16 @@ static AlifSequenceMethods tupleAsSequence = { // 777
 };
 
 
+static AlifObject* tuple___getnewargs__Impl(AlifTupleObject* _self) { // 846
+	return alif_buildValue("(N)", tuple_slice(_self, 0, ALIF_SIZE(_self)));
+}
+
+
+static AlifMethodDef _tupleMethods_[] = { // 853
+	TUPLE___GETNEWARGS___METHODDEF
+	{nullptr,              nullptr}           /* sentinel */
+};
+
 
 static AlifObject* tuple_iter(AlifObject* _seq); // 863
 
@@ -455,6 +465,7 @@ AlifTypeObject _alifTupleType_ = { // 865
 		ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_TUPLE_SUBCLASS |
 		_ALIF_TPFLAGS_MATCH_SELF | ALIF_TPFLAGS_SEQUENCE,
 	.iter = tuple_iter,
+	.methods = _tupleMethods_,
 	.new_ = tuple_new,
 	.free = alifObject_gcDel,
 	.versionTag = _ALIF_TYPE_VERSION_TUPLE,

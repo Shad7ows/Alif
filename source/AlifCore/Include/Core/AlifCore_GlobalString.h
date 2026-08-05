@@ -91,6 +91,7 @@ public:
 		STRUCT_FOR_USTR(__call__, "__استدعاء__") //* alif
 		STRUCT_FOR_USTR(__format__, "__تنسيق__") //* alif
 		STRUCT_FOR_USTR(__fspath__, "__مسار_ملف_نظام__") //* alif
+		STRUCT_FOR_USTR(__getnewargs__, "__اجلب_وسيطات_جديدة__") //* alif
 		STRUCT_FOR_USTR(__init__, "__تهيئة__") //* alif
 		STRUCT_FOR_USTR(__import__, "__استورد__") //* alif
 		STRUCT_FOR_USTR(__loader__, "__محمل__")
