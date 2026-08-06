@@ -7,9 +7,12 @@
 #include "AlifParserEngine.h"
 #include "StringParser.h"
 
+//* alif //* review
+#define IS_1ST_ARABIC_BYTE(_c) ((_c == 216) or (_c == 217))
 
-#define IS_1STBYTE_ARABIC(_c) ((_c == 216) or (_c == 217)) //* alif
-
+#define IS_ARABIC_CHAR(_c) ((_c >= 161 and _c <= 191)	\
+								or (_c >= 128 and _c <= 138)) /* الاحرف العربية - الثمانية الثانية منها */
+//* alif
 
 static AlifObject* decode_utf8(const char** _sPtr, const char* _end) { // 70
 	const char* s_{};
@@ -141,28 +144,28 @@ AlifObject* alifParserEngine_parseString(AlifParser* _p, AlifPToken* _t) { // 19
 	AlifIntT rawMode{};
 
 	//* alif
-	if (IS_1STBYTE_ARABIC(quote)) {
+	if (IS_1ST_ARABIC_BYTE(quote)) {
 		quote = (unsigned char)*++s;
 	}
-	if (ALIF_ISARALPHA(quote)) {
+	if (IS_ARABIC_CHAR(quote)) {
 		while (!bytesMode or !rawMode) {
-			if (IS_1STBYTE_ARABIC(quote)) {
+			if (IS_1ST_ARABIC_BYTE(quote)) {
 				quote = (unsigned char)*++s;
 			}
 			if ((unsigned char)quote == 171 /* 'ث' */) {
 				quote = (unsigned char)*++s;
 				bytesMode = 1;
 			}
-			else if ((unsigned char)quote == 170 /* 'ت' */) {
-				quote = (unsigned char)*++s;
-			}
 			//* review
 			// هذه قد لا يكون لها داعي لان اللغة تعتبر النص مرمز دون إضافة أي لاحقة قبله
-			//else if ((unsigned char)quote == 174 /* 'خ' */) {
+			//else if ((unsigned char)quote == 170 /* 'ت' */) {
 			//	quote = (unsigned char)*++s;
-			//	rawMode = 1;
 			//}
 			// ---------------------
+			else if ((unsigned char)quote == 174 /* 'خ' */) {
+				quote = (unsigned char)*++s;
+				rawMode = 1;
+			}
 			else {
 				break;
 			}
