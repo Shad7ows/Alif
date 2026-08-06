@@ -179,7 +179,7 @@ static AlifIntT vGetArgs1_impl(AlifObject* _compatArgs,
 
 	if (max > STATIC_FREELIST_ENTRIES) {
 		freelist.entries = ((AlifUSizeT)max > ALIF_SIZET_MAX / sizeof(FreeListEntryT)) ? nullptr : \
-			(FreeListEntryT*)alifMem_dataAlloc(max * sizeof(FreeListEntryT)); //* alif
+			(FreeListEntryT*)alifMem_dataAlloc(max * sizeof(FreeListEntryT)); //* alif //* todo
 		if (freelist.entries == nullptr) {
 			//alifErr_noMemory();
 			return 0;
@@ -398,12 +398,12 @@ static const char* convert_simple(AlifObject* _arg, const char** _pFormat, va_li
 			RETURN_ERR_OCCURRED;
 		if (iVal < 0) {
 			alifErr_setString(_alifExcOverflowError_,
-				"بايت العدد الصحيح الذي لا يملك إشارة أقل من الحد الأدنى");
+				"ثمانية العدد الصحيح الذي لا يملك إشارة أقل من الحد الأدنى");
 			RETURN_ERR_OCCURRED;
 		}
 		else if (iVal > UCHAR_MAX) {
 			alifErr_setString(_alifExcOverflowError_,
-				"بايت العدد الصحيح الذي لا يملك إشارة أكبر من الحد الأقصى");
+				"ثمانية العدد الصحيح الذي لا يملك إشارة أكبر من الحد الأقصى");
 			RETURN_ERR_OCCURRED;
 		}
 		else
@@ -973,7 +973,7 @@ static AlifSizeT convert_buffer(AlifObject* arg,
 	*errmsg = nullptr;
 	*p = nullptr;
 	if (pb != nullptr and pb->releaseBuffer != nullptr) {
-		*errmsg = "كائن بايت للقراءة-فقط";
+		*errmsg = "كائن ثمانيات للقراءة-فقط";
 		return -1;
 	}
 
@@ -987,7 +987,7 @@ static AlifSizeT convert_buffer(AlifObject* arg,
 
 static AlifIntT get_buffer(AlifObject* arg, AlifBuffer* view, const char** errmsg) { // 1259
 	if (alifObject_getBuffer(arg, view, ALIFBUF_SIMPLE) != 0) {
-		*errmsg = "كائن بايت";
+		*errmsg = "كائن ثمانيات";
 		return -1;
 	}
 	return 0;

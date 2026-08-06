@@ -589,8 +589,8 @@ static AlifObject* _ioFileIO_readallImpl(FileIO * _self) { // 731
 			bufsize = new_bufferSize(_self, bytesRead);
 			if (bufsize > ALIF_SIZET_MAX || bufsize <= 0) {
 				alifErr_setString(_alifExcOverflowError_,
-					"القراءة غير المحدودة قامت بإرجاع عددا من البايتات أكبر "
-					"من عدد البايتات التي يمكن أن يستوعبها كائن ألف");
+					"القراءة غير المحدودة قامت بإرجاع عددا من الثمانيات أكبر "
+					"من عدد الثمانيات التي يمكن أن يستوعبها كائن ألف");
 				ALIF_DECREF(result);
 				return nullptr;
 			}

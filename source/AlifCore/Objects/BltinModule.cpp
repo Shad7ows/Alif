@@ -452,7 +452,7 @@ static AlifObject* builtin_compileImpl(AlifObject* _module,
 	//	goto finally;
 	}
 
-	str = _alif_sourceAsString(_source, "ترجم", "نص او بايت او شجرة_عقد", &cf, &sourceCopy);
+	str = _alif_sourceAsString(_source, "ترجم", "نص او ثمانيات او شجرة_عقد", &cf, &sourceCopy);
 	if (str == nullptr)
 		goto error;
 
@@ -584,7 +584,7 @@ static AlifObject* builtin_execImpl(AlifObject* _module,
 		AlifCompilerFlags cf = ALIFCOMPILERFLAGS_INIT;
 		cf.flags = ALIFCF_SOURCE_IS_UTF8;
 		str = _alif_sourceAsString(_source, "نفذ",
-			"نص او بايت او شيفرة", &cf,
+			"نص او ثمانيات او شيفرة", &cf,
 			&sourceCopy);
 		if (str == nullptr)
 			goto error;
@@ -1491,13 +1491,13 @@ static AlifObject* builtin_sumImpl(AlifObject* module,
 		}
 		if (ALIFBYTES_CHECK(result)) {
 			//alifErr_setString(_alifExcTypeError_,
-			//	"اجمع() لا تستطيع جمع البايتات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
+			//	"اجمع() لا تستطيع جمع الثمانيات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
 			ALIF_DECREF(iter);
 			return nullptr;
 		}
 		if (ALIFBYTEARRAY_CHECK(result)) {
 			//alifErr_setString(_alifExcTypeError_,
-			//	"اجمع() لا تستطيع جمع مصفوفة البايتات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
+			//	"اجمع() لا تستطيع جمع مصفوفة الثمانيات [بدل من ذلك استخدم ب''.ضم(سلسلة)]");
 			ALIF_DECREF(iter);
 			return nullptr;
 		}
@@ -1966,8 +1966,8 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	SETBUILTIN("صح", ALIF_TRUE);
 	SETBUILTIN("منطق", &_alifBoolType_);
 	//SETBUILTIN("memoryview", &_alifMemoryViewType_);
-	SETBUILTIN("مصفوفة_بايت", &_alifByteArrayType_);
-	SETBUILTIN("بايت", &_alifBytesType_);
+	SETBUILTIN("مصفوفة_ثمانيات", &_alifByteArrayType_);
+	SETBUILTIN("ثمانيات", &_alifBytesType_);
 	SETBUILTIN("وظيفة_صنف", &_alifClassMethodType_);
 	SETBUILTIN("complex", &_alifComplexType_);
 	SETBUILTIN("قاموس", &_alifDictType_);

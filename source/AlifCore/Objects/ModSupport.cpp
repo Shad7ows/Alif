@@ -393,7 +393,7 @@ static AlifObject* do_mkValue(const char** _pFormat, va_list* _pVa) { // 272
 					AlifUSizeT m = strlen(str);
 					if (m > ALIF_SIZET_MAX) {
 						alifErr_setString(_alifExcOverflowError_,
-							"النص طويل جداً ولا يتسع في نوع بايتات ألف");
+							"النص طويل جداً ولا يتسع في نوع ثمانيات ألف");
 						return nullptr;
 					}
 					n = (AlifSizeT)m;

@@ -676,7 +676,7 @@ AlifObject* _alifLong_fromByteArray(const unsigned char* _bytes, AlifUSizeT _n,
 	   /* catch overflow before it happens */
 	if (numsignificantbytes > (ALIF_SIZET_MAX - ALIFLONG_SHIFT) / 8) {
 		alifErr_setString(_alifExcOverflowError_,
-			"مصفوفة-بايت طويلة جداً ولا يمكن تحويلها إلى نوع عدد صحيح");
+			"مصفوفة-ثمانيات طويلة جداً ولا يمكن تحويلها إلى نوع عدد صحيح");
 		return nullptr;
 	}
 	ndigits = (numsignificantbytes * 8 + ALIFLONG_SHIFT - 1) / ALIFLONG_SHIFT;
@@ -2014,7 +2014,7 @@ static AlifIntT long_fromBinaryBase(const char* _start,
 	p_ = _end;
 	while (--p_ >= _start) {
 		if ((unsigned char)*p_ == 216
-			or (unsigned char)*p_ == 217) { //* alif // هذه تقوم بتخطي البايت العلوي من الحرف العربي
+			or (unsigned char)*p_ == 217) { //* alif // هذه تقوم بتخطي الثمانية العلوية من الحرف العربي
 			continue;
 		}
 
@@ -2216,7 +2216,7 @@ static AlifIntT long_fromStringBase(const char** _str,
 		return -1;
 	}
 
-	// تخطي البايت العلوي من الحرف العربي
+	// تخطي الثمانية العلوية من الحرف العربي
 	if ((unsigned char)*p == 216 or (unsigned char)*p == 217) ++p; //* alif
 
 	/* Verify all characters are digits and underscores. */
@@ -2234,7 +2234,7 @@ static AlifIntT long_fromStringBase(const char** _str,
 		prev = *p;
 		++p;
 
-		// تخطي البايت العلوي من الحرف العربي
+		// تخطي الثمانية العلوية من الحرف العربي
 		if ((unsigned char)*p == 216 or (unsigned char)*p == 217) ++p; //* alif
 	}
 	/* Trailing underscore not allowed. */

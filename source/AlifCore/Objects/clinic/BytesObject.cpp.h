@@ -76,7 +76,7 @@ static AlifObject* bytes_new(AlifTypeObject* _type,
 	static const char* const _keywords[] = { "مصدر", "ترميز", "اخطاء", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "بايت",
+		.fname = "ثمانيات",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE

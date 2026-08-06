@@ -274,7 +274,7 @@ AlifIntT alifObject_getBuffer(AlifObject* obj, AlifBuffer* view, AlifIntT flags)
 
 	if (pb == nullptr or pb->getBuffer == nullptr) {
 		alifErr_format(_alifExcTypeError_,
-			"من المفترض كائن من نوع بايت, وليس '%.100s'",
+			"من المفترض كائن من نوع ثمانيات, وليس '%.100s'",
 			ALIF_TYPE(obj)->name);
 		return -1;
 	}

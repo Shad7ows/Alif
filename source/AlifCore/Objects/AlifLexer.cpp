@@ -13,19 +13,19 @@
 
 //* review
 #define IS_IDENTIFIER_START(_c) ((_c >= 161 and _c <= 191)	\
-								or (_c >= 128 and _c <= 138) /* الاحرف العربية - البايت الثاني منها */	\
+								or (_c >= 128 and _c <= 138) /* الاحرف العربية - الثمانية الثانية منها */	\
 								or (_c == '_')) \
 
 
 #define IS_IDENTIFIER_CHAR(_c) ((_c >= 161 and _c <= 191)	\
-								or (_c >= 128 and _c <= 138) /* الاحرف العربية - البايت الثاني منها */	\
+								or (_c >= 128 and _c <= 138) /* الاحرف العربية - الثمانية الثانية منها */	\
 								or (_c >= '0' and _c <= '9') \
                                 or (_c >= 'A' and _c <= 'Z')    \
                                 or (_c >= 'a' and _c <= 'z')    \
 								or (_c == '_')) \
 
 
-#define IS_2BYTE_IDENTIFIER(_c) (_c == 216 or _c == 217) // يكتشف اذا كان الحرف يبدأ ببايت يدل على بداية الاحرف العربية
+#define IS_2BYTE_IDENTIFIER(_c) (_c == 216 or _c == 217) // يكتشف اذا كان الحرف يبدأ بثمانية تدل على بداية الاحرف العربية
 
 
 #define TOK_GET_MODE(_tokState) (&(_tokState->tokModeStack[_tokState->tokModeStackIndex]))
@@ -510,8 +510,11 @@ again:
 	if (IS_IDENTIFIER_START(c_)) {
 		AlifIntT b_ = 0, r_ = 0, u_ = 0, f_ = 0;
 		while (true) {
-			if (!(b_ or u_ or f_) and c_ == (unsigned char)"ب"[secondByte]) b_ = 1; // ب = بايت
+			if (!(b_ or u_ or f_) and c_ == (unsigned char)"ث"[secondByte]) b_ = 1; // ث = ثمانية او بايت
+			//* review
+			// هذه قد لا يكون لها داعي لان اللغة تعتبر النص مرمز دون إضافة أي لاحقة قبله
 			else if (!(b_ or u_ or r_) and c_ == (unsigned char)"ت"[secondByte]) u_ = 1; // ت = ترميز
+			//* ---------------------
 			else if (!(r_ or u_) and c_ == (unsigned char)"خ"[secondByte]) r_ = 1; // خ = خام
 			else if (!(f_ or b_ or u_) and c_ == (unsigned char)"م"[secondByte]) f_ = 1; // م = منسق
 			else {
@@ -533,7 +536,7 @@ again:
 
 		/*
 			هذا الإجراء للرجوع خطوتين الى الوراء في حال
-			كان الحرف التالي مكون من 2 بايت
+			كان الحرف التالي مكون من 2 ثمانية "بايت"
 			مثل الفاصلة والفاصلة المنقوطة العربية
 		*/
 		if (c_ > 126) { //* alif

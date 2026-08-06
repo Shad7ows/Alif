@@ -193,7 +193,7 @@ static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { 
 			}
 			if (!ALIFBYTES_CHECK(readahead)) {
 				alifErr_format(_alifExcOSError_,
-					"اختلس() يجب أن تقوم بإرجاع كائن من نوع بايت, "
+					"اختلس() يجب أن تقوم بإرجاع كائن من نوع ثمانيات, "
 					"وليس '%.200s'", ALIF_TYPE(readahead)->name);
 				ALIF_DECREF(readahead);
 				goto fail;
@@ -233,7 +233,7 @@ static AlifObject* _io_IOBase_readlineImpl(AlifObject* self, AlifSizeT limit) { 
 		}
 		if (!ALIFBYTES_CHECK(b)) {
 			alifErr_format(_alifExcOSError_,
-				"اقرا() يجب أن تقوم بإرجاع كائن من نوع بايت, "
+				"اقرا() يجب أن تقوم بإرجاع كائن من نوع ثمانيات, "
 				"وليس '%.200s'", ALIF_TYPE(b)->name);
 			ALIF_DECREF(b);
 			goto fail;

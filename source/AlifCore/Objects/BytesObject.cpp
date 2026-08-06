@@ -40,7 +40,7 @@ static AlifObject* _alifBytes_fromSize(AlifSizeT _size, AlifIntT _useCalloc) { /
 
 	if ((AlifUSizeT)_size > (AlifUSizeT)ALIF_SIZET_MAX - ALIFBYTESOBJECT_SIZE) {
 		alifErr_setString(_alifExcOverflowError_,
-			"نص نوع بايت كبير جداً");
+			"نص نوع ثمانيات كبير جداً");
 		return nullptr;
 	}
 
@@ -96,7 +96,7 @@ AlifObject* alifBytes_fromString(const char* _str) { // 139
 	size = strlen(_str);
 	if (size > ALIF_SIZET_MAX - ALIFBYTESOBJECT_SIZE) {
 		alifErr_setString(_alifExcOverflowError_,
-			"نص نوع بايت طويل جداً");
+			"نص نوع ثمانيات طويل جداً");
 		return nullptr;
 	}
 
@@ -245,7 +245,7 @@ failed:
 AlifSizeT alifBytes_size(AlifObject* op) { // 1211
 	if (!ALIFBYTES_CHECK(op)) {
 		alifErr_format(_alifExcTypeError_,
-			"متوقع تمرير نوع بايت, وليس %.200s", ALIF_TYPE(op)->name);
+			"متوقع تمرير نوع ثمانيات, وليس %.200s", ALIF_TYPE(op)->name);
 		return -1;
 	}
 	return ALIF_SIZE(op);
@@ -255,7 +255,7 @@ AlifSizeT alifBytes_size(AlifObject* op) { // 1211
 char* alifBytes_asString(AlifObject* _op) { // 1221
 	if (!ALIFBYTES_CHECK(_op)) {
 		alifErr_format(_alifExcTypeError_,
-			"متوقع تمرير نوع بايت, وليس %.200s", ALIF_TYPE(_op)->name);
+			"متوقع تمرير نوع ثمانيات, وليس %.200s", ALIF_TYPE(_op)->name);
 		return nullptr;
 	}
 	return ((AlifBytesObject*)_op)->val;
@@ -271,7 +271,7 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 
 	if (!ALIFBYTES_CHECK(_obj)) {
 		alifErr_format(_alifExcTypeError_,
-			"متوقع تمرير نوع بايت, وليس %.200s", ALIF_TYPE(_obj)->name);
+			"متوقع تمرير نوع ثمانيات, وليس %.200s", ALIF_TYPE(_obj)->name);
 		return -1;
 	}
 
@@ -280,7 +280,7 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 		*_len = ALIFBYTES_GET_SIZE(_obj);
 	else if (strlen(*_str) != (AlifUSizeT)ALIFBYTES_GET_SIZE(_obj)) {
 		alifErr_setString(_alifExcValueError_,
-			"يوجد بايت فارغ");
+			"يوجد ثمانية فارغة");
 		return -1;
 	}
 	return 0;
@@ -369,7 +369,7 @@ AlifObject* alifBytes_repr(AlifObject* _obj,
 
 overflow:
 	alifErr_setString(_alifExcOverflowError_,
-		"طول البايتات كبير جدا ليتم عرضه");
+		"طول الثمانيات كبير جدا ليتم عرضه");
 	return NULL;
 }
 
@@ -514,6 +514,70 @@ static AlifHashT bytes_hash(AlifObject* self) { // 1596
 	ALIF_COMP_DIAG_POP
 }
 
+static AlifObject* bytes_subscript(AlifObject* op,
+	AlifObject* item) { // 1610
+	AlifBytesObject* self = ALIFBYTES_CAST(op);
+	if (_alifIndex_check(item)) {
+		AlifSizeT i = alifNumber_asSizeT(item, _alifExcIndexError_);
+		if (i == -1 and alifErr_occurred())
+			return nullptr;
+		if (i < 0)
+			i += ALIFBYTES_GET_SIZE(self);
+		if (i < 0 || i >= ALIFBYTES_GET_SIZE(self)) {
+			alifErr_setString(_alifExcIndexError_,
+				"المؤشر خارج النطاق");
+			return nullptr;
+		}
+		return _alifLong_fromUnsignedChar((unsigned char)self->val[i]);
+	}
+	else if (ALIFSLICE_CHECK(item)) {
+		AlifSizeT start{}, stop{}, step{}, slicelength{}, i{};
+		AlifUSizeT cur{};
+		const char* source_buf{};
+		char* result_buf{};
+		AlifObject* result{};
+
+		if (alifSlice_unpack(item, &start, &stop, &step) < 0) {
+			return nullptr;
+		}
+		slicelength = alifSlice_adjustIndices(ALIFBYTES_GET_SIZE(self), &start,
+			&stop, step);
+
+		if (slicelength <= 0) {
+			return alif_getConstant(ALIF_CONSTANT_EMPTY_BYTES);
+		}
+		else if (start == 0 and step == 1 and
+			slicelength == ALIFBYTES_GET_SIZE(self) and
+			ALIFBYTES_CHECKEXACT(self)) {
+			return ALIF_NEWREF(self);
+		}
+		else if (step == 1) {
+			return alifBytes_fromStringAndSize(
+				ALIFBYTES_AS_STRING(self) + start,
+				slicelength);
+		}
+		else {
+			source_buf = ALIFBYTES_AS_STRING(self);
+			result = alifBytes_fromStringAndSize(nullptr, slicelength);
+			if (result == nullptr)
+				return nullptr;
+
+			result_buf = ALIFBYTES_AS_STRING(result);
+			for (cur = start, i = 0; i < slicelength;
+				cur += step, i++) {
+				result_buf[i] = source_buf[cur];
+			}
+
+			return result;
+		}
+	}
+	else {
+		alifErr_format(_alifExcTypeError_,
+			"مؤشر الثمانية يجب أن يكون عدد صحيح او قاطع, وليس %.200s",
+			ALIF_TYPE(item)->name);
+		return nullptr;
+	}
+}
 
 static AlifIntT bytesBuffer_getBuffer(AlifObject* op,
 	AlifBuffer* view, AlifIntT flags) { // 1676
@@ -522,6 +586,10 @@ static AlifIntT bytesBuffer_getBuffer(AlifObject* op,
 		1, flags);
 }
 
+static AlifMappingMethods _bytesAsMapping_ = { // 1695
+	//.length = bytes_length,
+	.subscript = bytes_subscript,
+};
 
 static AlifBufferProcs _bytesAsBuffer_ = { // 1701
 	bytesBuffer_getBuffer,
@@ -581,7 +649,7 @@ static AlifObject* bytes_newImpl(AlifTypeObject* type,
 			return nullptr;
 		if (!ALIFBYTES_CHECK(bytes)) {
 			alifErr_format(_alifExcTypeError_,
-				"__بايت__ ارجعت ليس-بايت (نوع %.200s)",
+				"__ثمانيات__ ارجعت ليس-ثمانيات (نوع %.200s)",
 				ALIF_TYPE(bytes)->name);
 			ALIF_DECREF(bytes);
 			return nullptr;
@@ -668,7 +736,7 @@ static AlifObject* _alifBytes_fromList(AlifObject* x) { // 2802
 
 		if (value < 0 or value >= 256) {
 			alifErr_setString(_alifExcValueError_,
-				"البايت يجب أن يكون في المدى(0, 256)");
+				"الثمانية يجب أن تكون في المدى(0, 256)");
 			goto error;
 		}
 
@@ -707,7 +775,7 @@ static AlifObject* _alifBytes_fromTuple(AlifObject* x) { // 2847
 
 		if (value < 0 or value >= 256) {
 			alifErr_setString(_alifExcValueError_,
-				"البايت يجب أن يكون في المدى(0, 256)");
+				"الثمانية يجب أن تكون في المدى(0, 256)");
 			goto error;
 		}
 		*str++ = (char)value;
@@ -759,7 +827,7 @@ static AlifObject* _alifBytes_fromIterator(AlifObject* it,
 		/* Range check */
 		if (value < 0 or value >= 256) {
 			alifErr_setString(_alifExcValueError_,
-				"البايت يجب أن يكون في المدى(0, 256)");
+				"الثمانية يجب أن تكون في المدى(0, 256)");
 			goto error;
 		}
 
@@ -815,7 +883,7 @@ AlifObject* alifBytes_fromObject(AlifObject* _x) { // 2943
 	}
 
 	alifErr_format(_alifExcTypeError_,
-		"لا يمكن تحويل الكائن '%.200s' إلى نوع بايت",
+		"لا يمكن تحويل الكائن '%.200s' إلى نوع ثمانيات",
 		ALIF_TYPE(_x)->name);
 	return nullptr;
 }
@@ -855,10 +923,11 @@ static AlifObject* bytes_subTypeNew(AlifTypeObject* _type,
 
 AlifTypeObject _alifBytesType_ = { // 3028
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "بايت",
+	.name = "ثمانيات",
 	.basicSize = ALIFBYTESOBJECT_SIZE,
 	.itemSize = sizeof(char),
 	.repr = bytes_repr,
+	.asMapping = &_bytesAsMapping_,
 	.hash = bytes_hash,
 	.getAttro = alifObject_genericGetAttr,
 	.asBuffer = &_bytesAsBuffer_,

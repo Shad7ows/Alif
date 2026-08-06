@@ -21,6 +21,10 @@ static inline AlifObject* _alifLong_getOne(void) { // 73
 	return (AlifObject*)&ALIFLONG_SMALL_INTS[ALIF_NSMALLNEGINTS + 1];
 }
 
+static inline AlifObject* _alifLong_fromUnsignedChar(unsigned char i) { // 76
+	return (AlifObject*)&ALIFLONG_SMALL_INTS[ALIF_NSMALLNEGINTS+i];
+}
+
 double _alifLong_frexp(AlifLongObject* , int64_t* ); // 88
 
 

@@ -392,7 +392,7 @@ static AlifIntT path_converter(AlifObject* o, void* p) { // 1260
 		}
 		else {
 			alifErr_format(_alifExcTypeError_,
-				"يتوقع %.200s.__fspath__() ليرجع نص او بايت, "
+				"يتوقع %.200s.__fspath__() ليرجع نص او ثمانيات, "
 				"وليس %.200s", _alifType_name(ALIF_TYPE(o)),
 				_alifType_name(ALIF_TYPE(res)));
 			ALIF_DECREF(res);
@@ -449,11 +449,11 @@ error_format:
 			path->functionName ? path->functionName : "",
 			path->functionName ? ": " : "",
 			path->argumentName ? path->argumentName : "مسار",
-			path->allowFD and path->nullable ? "نص, بايت, نظام_التشغيل.كمسار, "
+			path->allowFD and path->nullable ? "نص, ثمانيات, نظام_التشغيل.كمسار, "
 			"عدد صحيح او عدم" :
-			path->allowFD ? "نص, بايت, نظام_التشغيل.كمسار او عدد صحيح" :
-			path->nullable ? "نص, بايت, نظام_التشغيل.كمسار او عدم" :
-			"نص, بايت او نظام_التشغيل.كمسار",
+			path->allowFD ? "نص, ثمانيات, نظام_التشغيل.كمسار او عدد صحيح" :
+			path->nullable ? "نص, ثمانيات, نظام_التشغيل.كمسار او عدم" :
+			"نص, ثمانيات او نظام_التشغيل.كمسار",
 			_alifType_name(ALIF_TYPE(o)));
 		goto error_exit;
 	}
@@ -1048,13 +1048,13 @@ static AlifIntT win32_stat(const wchar_t* _path,
 
 //* alif //* todo
 static AlifStructSequenceField _statResultFields_[] = { // 2255
-	{"الوضع",    "بايتات الحماية"},
+	{"الوضع",    "ثمانيات الحماية"},
 	{"st_ino",     "inode"},
 	{"st_dev",     "جهاز"},
 	{"st_nlink",   "عدد الروابط المتينة"},
 	{"st_uid",     "هوية المالك"},
 	{"st_gid",     "هوية المجموعة المالكة"},
-	{"الحجم",    "الحجم الكلي, بالبايت"},
+	{"الحجم",    "الحجم الكلي, بالثمانية"},
 	/* The NULL is replaced with alifStructSequence_unnamedField later. */
 	{nullptr,   "integer time of last access"},
 	{nullptr,   "integer time of last modification"},
@@ -2347,7 +2347,7 @@ AlifObject* alifOS_fsPath(AlifObject* path) { // 16477
 
 	if (!(ALIFUSTR_CHECK(pathRepr) or ALIFBYTES_CHECK(pathRepr))) {
 		alifErr_format(_alifExcTypeError_,
-			"يتوقع %.200s.__fspath__() ان يرجع نص او بايت, "
+			"يتوقع %.200s.__fspath__() ان يرجع نص او ثمانيات, "
 			"وليس %.200s", _alifType_name(ALIF_TYPE(path)),
 			_alifType_name(ALIF_TYPE(pathRepr)));
 		ALIF_DECREF(pathRepr);

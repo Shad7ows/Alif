@@ -8,7 +8,7 @@
 #include "StringParser.h"
 
 
-
+#define IS_1STBYTE_ARABIC(_c) ((_c == 216) or (_c == 217)) //* alif
 
 
 static AlifObject* decode_utf8(const char** _sPtr, const char* _end) { // 70
@@ -140,24 +140,35 @@ AlifObject* alifParserEngine_parseString(AlifParser* _p, AlifPToken* _t) { // 19
 	AlifIntT bytesMode{};
 	AlifIntT rawMode{};
 
-	if (ALIF_ISALPHA(quote)) {
+	//* alif
+	if (IS_1STBYTE_ARABIC(quote)) {
+		quote = (unsigned char)*++s;
+	}
+	if (ALIF_ISARALPHA(quote)) {
 		while (!bytesMode or !rawMode) {
-			if (quote == 'b' or quote == 'B') {
+			if (IS_1STBYTE_ARABIC(quote)) {
+				quote = (unsigned char)*++s;
+			}
+			if ((unsigned char)quote == 171 /* 'ث' */) {
 				quote = (unsigned char)*++s;
 				bytesMode = 1;
 			}
-			else if (quote == 'u' or quote == 'U') {
+			else if ((unsigned char)quote == 170 /* 'ت' */) {
 				quote = (unsigned char)*++s;
 			}
-			else if (quote == 'r' or quote == 'R') {
+			//* review
+			// هذه قد لا يكون لها داعي لان اللغة تعتبر النص مرمز دون إضافة أي لاحقة قبله
+			else if ((unsigned char)quote == 174 /* 'خ' */) {
 				quote = (unsigned char)*++s;
 				rawMode = 1;
 			}
+			// ---------------------
 			else {
 				break;
 			}
 		}
 	}
+	//* alif
 
 	if (quote != L'\'' and quote != L'\"') {
 		//ALIFERR_BADINTERNALCALL();
@@ -187,16 +198,15 @@ AlifObject* alifParserEngine_parseString(AlifParser* _p, AlifPToken* _t) { // 19
 
 	rawMode = rawMode or strchr(s, '\\') == nullptr;
 	if (bytesMode) {
-		/* Disallow non-ASCII characters. */
-		const char* ch{};
-		for (ch = s; *ch; ch++) {
-			if (ALIF_CHARMASK(*ch) >= 0x80) {
-				//RAISE_SYNTAX_ERROR_KNOWN_LOCATION( _t,
-				//	"bytes can only contain ASCII "
-				//	"literal characters");
-				return nullptr;
-			}
-		}
+		/* Allow all characters because this is an arabic programming language :) */ //* important
+		//const char* ch{};
+		//for (ch = s; *ch; ch++) {
+		//	if (ALIF_CHARMASK(*ch) >= 0x80) {
+		//		RAISE_SYNTAX_ERROR_KNOWN_LOCATION( _t,
+		//			"النص 'نوع ثمانية' يمكن أن يحتوي حروف ذات ترميز بدائي (ascii) فقط");
+		//		return nullptr;
+		//	}
+		//}
 		if (rawMode) {
 			return alifBytes_fromStringAndSize(s, (AlifSizeT)len);
 		}

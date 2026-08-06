@@ -27,8 +27,8 @@ static inline void _alifUStrWriter_initWithBuffer(AlifUStrWriter*, AlifObject*);
 #define MAX_UNICODE 0x10ffff // 106
 
 //* alif
-#define IS_ARABIC_LETTER(_c) ((_c >= 161 and _c <= 191)	\
-								or (_c >= 128 and _c <= 138) /* الاحرف العربية - البايت الثاني منها */	\
+#define IS_ARABIC_CHAR(_c) ((_c >= 161 and _c <= 191)	\
+								or (_c >= 128 and _c <= 138) /* الاحرف العربية - الثمانية الثانية منها */	\
 								or (_c == 216) or (_c == 217)) \
 
 
@@ -2328,7 +2328,7 @@ AlifObject* alifUStr_fromEncodedObject(AlifObject* _obj,
 
 	if (alifObject_getBuffer(_obj, &buffer, ALIFBUF_SIMPLE) < 0) {
 		alifErr_format(_alifExcTypeError_,
-			"فك الترميز إلى نص: يحتاج إلى كائن نوع بايت, %.80s ولكن الممرر",
+			"فك الترميز إلى نص: يحتاج إلى كائن نوع ثمانيات, %.80s ولكن الممرر",
 			ALIF_TYPE(_obj)->name);
 		return nullptr;
 	}
@@ -2363,7 +2363,7 @@ AlifIntT _alif_normalizeEncoding(const char* encoding,
 			break;
 		}
 
-		if (ALIF_ISALNUM(c) or IS_ARABIC_LETTER((unsigned char)c) or c == '.') { //* alif
+		if (ALIF_ISALNUM(c) or IS_ARABIC_CHAR((unsigned char)c) or c == '.') { //* alif
 			if (punct and l != lower) {
 				if (l == l_end) {
 					return 0;
@@ -2625,7 +2625,7 @@ AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 	}
 
 	alifErr_format(_alifExcTypeError_,
-		"المرمز '%.400s' ارجع '%.400s' بدل من 'بايتات'; "
+		"المرمز '%.400s' ارجع '%.400s' بدل من 'ثمانيات'; "
 		"استخدم الترميزات.ترميز() للترميز إلى انواع مختلفة",
 		encoding,
 		ALIF_TYPE(v)->name);
@@ -2637,7 +2637,7 @@ AlifObject* alifUStr_asEncodedString(AlifObject* unicode,
 static AlifObject* uStr_decodeLocale(const char* _str, AlifSizeT _len,
 	AlifErrorHandler_ _errors, AlifIntT _currentLocale) { // 3998
 	if (_str[_len] != '\0' or (AlifUSizeT)_len != strlen(_str)) {
-		alifErr_setString(_alifExcValueError_, "يحتوي على بايت فارغ");
+		alifErr_setString(_alifExcValueError_, "يحتوي على ثمانية فارغة");
 		return nullptr;
 	}
 
@@ -3055,7 +3055,7 @@ static AlifIntT unicode_decodeUTF8Impl(AlifUStrWriter* writer, const char* start
 			endInpos = end - starts;
 			break;
 		case 1:
-			errMsg = "خطأ في بايت البداية";
+			errMsg = "خطأ في ثمانية البداية";
 			startInPos = _s - starts;
 			endInpos = startInPos + 1;
 			break;
@@ -3068,7 +3068,7 @@ static AlifIntT unicode_decodeUTF8Impl(AlifUStrWriter* writer, const char* start
 			ALIF_FALLTHROUGH;
 		case 3:
 		case 4:
-			errMsg = "امتداد بايت غير صحيح";
+			errMsg = "امتداد ثمانيات غير صحيح";
 			startInPos = _s - starts;
 			endInpos = startInPos + ch_ - 1;
 			break;

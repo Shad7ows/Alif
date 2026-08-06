@@ -161,7 +161,7 @@ AlifIntT alifByteArray_resize(AlifObject* _self, AlifSizeT _requestedSize) { // 
 
 AlifTypeObject _alifByteArrayType_ = { // 2389
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	.name = "مصفوفة_بايت",
+	.name = "مصفوفة_ثمانيات",
 	.basicSize = sizeof(AlifByteArrayObject),
 	.getAttro = alifObject_genericGetAttr,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_BASETYPE |
