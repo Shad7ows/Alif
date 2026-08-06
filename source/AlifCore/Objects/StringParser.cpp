@@ -158,10 +158,10 @@ AlifObject* alifParserEngine_parseString(AlifParser* _p, AlifPToken* _t) { // 19
 			}
 			//* review
 			// هذه قد لا يكون لها داعي لان اللغة تعتبر النص مرمز دون إضافة أي لاحقة قبله
-			else if ((unsigned char)quote == 174 /* 'خ' */) {
-				quote = (unsigned char)*++s;
-				rawMode = 1;
-			}
+			//else if ((unsigned char)quote == 174 /* 'خ' */) {
+			//	quote = (unsigned char)*++s;
+			//	rawMode = 1;
+			//}
 			// ---------------------
 			else {
 				break;

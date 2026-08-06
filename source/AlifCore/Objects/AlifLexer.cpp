@@ -513,7 +513,7 @@ again:
 			if (!(b_ or u_ or f_) and c_ == (unsigned char)"ث"[secondByte]) b_ = 1; // ث = ثمانية او بايت
 			//* review
 			// هذه قد لا يكون لها داعي لان اللغة تعتبر النص مرمز دون إضافة أي لاحقة قبله
-			else if (!(b_ or u_ or r_) and c_ == (unsigned char)"ت"[secondByte]) u_ = 1; // ت = ترميز
+			//else if (!(b_ or u_ or r_) and c_ == (unsigned char)"ت"[secondByte]) u_ = 1; // ت = ترميز
 			//* ---------------------
 			else if (!(r_ or u_) and c_ == (unsigned char)"خ"[secondByte]) r_ = 1; // خ = خام
 			else if (!(f_ or b_ or u_) and c_ == (unsigned char)"م"[secondByte]) f_ = 1; // م = منسق
