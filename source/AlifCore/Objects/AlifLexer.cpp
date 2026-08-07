@@ -621,6 +621,9 @@ again:
 			if (c_ == 179 /*س*/ or c_ == 'x' or c_ == 'X') { // نظام عد ست_عشري
 				c_ = tok_nextChar(_tokState);
 				do {
+					if (IS_2BYTE_IDENTIFIER(c_)) {
+						c_ = tok_nextChar(_tokState);
+					}
 					if (c_ == '_') {
 						c_ = tok_nextChar(_tokState);
 					}

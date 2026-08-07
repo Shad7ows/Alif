@@ -96,6 +96,10 @@ unsigned long alifOS_strToULong(const char* _str, char** _ptr, AlifIntT _base) {
 				or (unsigned char)*_str == 217) { _str++; }
 
 			if ((unsigned char)*_str == 179 /*س*/ or *_str == 'x' or *_str == 'X') {
+				if ((unsigned char)_str[1] == 216
+					or (unsigned char)_str[1] == 217) {
+					_str++;
+				}
 				/* there must be at least one digit after 0x */
 				if (_alifLongDigitValue_[ALIF_CHARMASK(_str[1])] >= 16) {
 					if (_ptr)
