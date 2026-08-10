@@ -534,8 +534,7 @@ static AlifObject* stringLib_replaceSubstring(AlifObject* self,
 }
 
 
-static AlifObject*
-stringlib_replace(AlifObject* self,
+static AlifObject* stringLib_replace(AlifObject* self,
 	const char* from_s, AlifSizeT from_len,
 	const char* to_s, AlifSizeT to_len,
 	AlifSizeT maxcount) {
