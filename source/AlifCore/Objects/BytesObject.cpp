@@ -296,9 +296,13 @@ AlifIntT alifBytes_asStringAndSize(AlifObject* _obj,
 
 #include "StringLib/FastSearch.h"
 #include "StringLib/Count.h"
+#include "StringLib/Find.h"
 
 #include "StringLib/CppType.h"
 
+#include "StringLib/Transmogrify.h"
+
+#undef STRINGLIB_GET_EMPTY
 
 AlifObject* alifBytes_repr(AlifObject* _obj,
 	AlifIntT _smartquotes) { // 1314
@@ -377,7 +381,10 @@ static AlifObject* bytes_repr(AlifObject* op) { // 1389
 	return alifBytes_repr(op, 1);
 }
 
-
+static AlifSizeT bytes_length(AlifObject* _self) { // 1407
+	AlifBytesObject* a = ALIFBYTES_CAST(_self);
+	return ALIF_SIZE(a);
+}
 
 static AlifObject* bytes_concat(AlifObject* _a, AlifObject* _b) { // 1414
 	AlifBuffer va{}, vb{};
@@ -587,7 +594,7 @@ static AlifIntT bytesBuffer_getBuffer(AlifObject* op,
 }
 
 static AlifMappingMethods _bytesAsMapping_ = { // 1695
-	//.length = bytes_length,
+	.length = bytes_length,
 	.subscript = bytes_subscript,
 };
 
@@ -600,8 +607,21 @@ static AlifBufferProcs _bytesAsBuffer_ = { // 1701
 
 
 
+
+static AlifObject* bytes_replaceImpl(AlifBytesObject* _self, AlifBuffer* _old, AlifBuffer* _new,
+	AlifSizeT _count) { // 2285
+	return stringLib_replace((AlifObject*)_self,
+		(const char*)_old->buf, _old->len,
+		(const char*)_new->buf, _new->len, _count);
+}
+
+
+
 static AlifMethodDef _bytesMethods_[] = { // 2603
 	{"حرف_صغير", stringLib_lower, METHOD_NOARGS},
+
+	BYTES_REPLACE_METHODDEF
+
 	{nullptr,     nullptr}
 };
 

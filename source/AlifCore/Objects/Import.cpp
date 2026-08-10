@@ -2343,7 +2343,17 @@ static AlifObject* _imp_printImpl(AlifObject* module, AlifObject* msg) { //* ali
 		return nullptr;
 	}
 
-	alifFile_writeObject(msg, file, 0);
+	AlifIntT err = 0;
+
+	err = alifFile_writeString(" ", file);
+	if (err) {
+		return nullptr;
+	}
+	err = alifFile_writeObject(msg, file, ALIF_PRINT_RAW);
+	if (err) {
+		return nullptr;
+	}
+
 	alifFile_writeString("\n", file);
 	return ALIF_NONE;
 }

@@ -1143,6 +1143,13 @@
     <ClInclude Include="..\source\AlifCore\Objects\clinic\BytesObject.cpp.h">
       <Filter>Objects\clinic</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\MemoryHelpers.h" />
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\ByteArrayObject.cpp.h">
+      <Filter>Objects\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\Transmogrify.h">
+      <Filter>Include\Main\StringLib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">

@@ -221,6 +221,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\Repr.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\Split.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\StringDefs.h" />
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\Transmogrify.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\UCS1Lib.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\UCS2Lib.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\UCS4Lib.h" />
@@ -239,6 +240,7 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\UStrTypeDB.h" />
     <ClInclude Include="..\source\AlifCore\Include\Main\WeakRefObject.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\BltinModule.cpp.h" />
+    <ClInclude Include="..\source\AlifCore\Objects\clinic\ByteArrayObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\BytesObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\DescrObject.cpp.h" />
     <ClInclude Include="..\source\AlifCore\Objects\clinic\DictObject.cpp.h" />

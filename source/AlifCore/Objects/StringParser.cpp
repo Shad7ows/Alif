@@ -8,7 +8,7 @@
 #include "StringParser.h"
 
 //* alif //* review
-#define IS_1ST_ARABIC_BYTE(_c) ((_c == 216) or (_c == 217))
+#define IS_2BYTE_IDENTIFIER(_c) ((_c == 216) or (_c == 217))
 
 #define IS_ARABIC_CHAR(_c) ((_c >= 161 and _c <= 191)	\
 								or (_c >= 128 and _c <= 138)) /* الاحرف العربية - الثمانية الثانية منها */
@@ -144,12 +144,12 @@ AlifObject* alifParserEngine_parseString(AlifParser* _p, AlifPToken* _t) { // 19
 	AlifIntT rawMode{};
 
 	//* alif
-	if (IS_1ST_ARABIC_BYTE(quote)) {
+	if (IS_2BYTE_IDENTIFIER(quote)) {
 		quote = (unsigned char)*++s;
 	}
 	if (IS_ARABIC_CHAR(quote)) {
 		while (!bytesMode or !rawMode) {
-			if (IS_1ST_ARABIC_BYTE(quote)) {
+			if (IS_2BYTE_IDENTIFIER(quote)) {
 				quote = (unsigned char)*++s;
 			}
 			if ((unsigned char)quote == 171 /* 'ث' */) {

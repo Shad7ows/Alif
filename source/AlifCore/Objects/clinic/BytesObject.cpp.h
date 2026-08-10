@@ -28,8 +28,59 @@
 
 
 
+// 785
+#define BYTES_REPLACE_METHODDEF    \
+    {"استبدل", ALIF_CPPFUNCTION_CAST(bytes_replace), METHOD_FASTCALL},
 
+static AlifObject* bytes_replaceImpl(AlifBytesObject*, AlifBuffer*, AlifBuffer*,
+	AlifSizeT);
 
+static AlifObject* bytes_replace(AlifBytesObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 792
+	AlifObject* returnValue{};
+	AlifBuffer old = { nullptr, nullptr };
+	AlifBuffer new_ = { nullptr, nullptr };
+	AlifSizeT count = -1;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("استبدل", _nargs, 2, 3)) {
+		goto exit;
+	}
+	if (alifObject_getBuffer(_args[0], &old, ALIFBUF_SIMPLE) != 0) {
+		goto exit;
+	}
+	if (alifObject_getBuffer(_args[1], &new_, ALIFBUF_SIMPLE) != 0) {
+		goto exit;
+	}
+	if (_nargs < 3) {
+		goto skip_optional;
+	}
+	{
+		AlifSizeT ival = -1;
+		AlifObject* iobj = _alifNumber_index(_args[2]);
+		if (iobj != nullptr) {
+			ival = alifLong_asSizeT(iobj);
+			ALIF_DECREF(iobj);
+		}
+		if (ival == -1 and alifErr_occurred()) {
+			goto exit;
+		}
+		count = ival;
+	}
+skip_optional:
+	returnValue = bytes_replaceImpl(_self, &old, &new_, count);
+
+exit:
+	/* Cleanup for old */
+	if (old.obj) {
+		alifBuffer_release(&old);
+	}
+	/* Cleanup for new */
+	if (new_.obj) {
+		alifBuffer_release(&new_);
+	}
+
+	return returnValue;
+}
 
 
 

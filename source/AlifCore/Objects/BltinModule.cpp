@@ -1966,7 +1966,7 @@ AlifObject* alifBuiltin_init(AlifInterpreter* _interpreter) { // 3215
 	SETBUILTIN("صح", ALIF_TRUE);
 	SETBUILTIN("منطق", &_alifBoolType_);
 	//SETBUILTIN("memoryview", &_alifMemoryViewType_);
-	SETBUILTIN("مصفوفة_ثمانيات", &_alifByteArrayType_);
+	SETBUILTIN("مصفوفة_ثمانية", &_alifByteArrayType_);
 	SETBUILTIN("ثمانيات", &_alifBytesType_);
 	SETBUILTIN("وظيفة_صنف", &_alifClassMethodType_);
 	SETBUILTIN("complex", &_alifComplexType_);
