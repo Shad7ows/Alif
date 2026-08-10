@@ -63,6 +63,6 @@ static AlifModuleDef _codecsModule_ = { // 1082
 };
 
 
-ALIFMODINIT_FUNC alifInit__codecs(void) {
+AlifObject* alifInit__codecs(void) {
 	return alifModuleDef_init(&_codecsModule_);
 }

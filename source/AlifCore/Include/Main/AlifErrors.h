@@ -94,6 +94,10 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
 #endif /* _WINDOWS */ // 210
 
 
+
+ALIFAPI_FUNC(AlifObject*) alifErr_setImportError(AlifObject*, AlifObject*, AlifObject*); // 217
+
+
 AlifObject* alifErr_newException(const char*, AlifObject*, AlifObject*); // 229
 
 

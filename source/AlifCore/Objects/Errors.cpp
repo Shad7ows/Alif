@@ -554,8 +554,75 @@ AlifObject* alifErr_setExcFromWindowsErrWithFilenameObjects(
 
 #endif /* _WINDOWS */ // 1046
 
+static AlifObject* _alifErr_setImportErrorSubclassWithNameFrom(
+	AlifObject* exception, AlifObject* msg,
+	AlifObject* name, AlifObject* path, AlifObject* from_name) { // 1049
+	AlifThread* tstate = _alifThread_get();
+	AlifIntT issubclass{};
+	AlifObject* kwargs{}, * error{};
+
+	issubclass = alifObject_isSubclass(exception, _alifExcImportError_);
+	if (issubclass < 0) {
+		return nullptr;
+	}
+	else if (!issubclass) {
+		_alifErr_setString(tstate, _alifExcTypeError_,
+			"تجاوز الاصناف الفرعية ل خطأ_استيراد");
+		return nullptr;
+	}
+
+	if (msg == nullptr) {
+		_alifErr_setString(tstate, _alifExcTypeError_,
+			"يتوقع وجود رسالة خطأ");
+		return nullptr;
+	}
+
+	if (name == nullptr) {
+		name = ALIF_NONE;
+	}
+	if (path == nullptr) {
+		path = ALIF_NONE;
+	}
+	if (from_name == nullptr) {
+		from_name = ALIF_NONE;
+	}
 
 
+	kwargs = alifDict_new();
+	if (kwargs == nullptr) {
+		return nullptr;
+	}
+	if (alifDict_setItemString(kwargs, "اسم", name) < 0) {
+		goto done;
+	}
+	if (alifDict_setItemString(kwargs, "مسار", path) < 0) {
+		goto done;
+	}
+	if (alifDict_setItemString(kwargs, "اسم_من", from_name) < 0) {
+		goto done;
+	}
+
+	error = alifObject_vectorCallDict(exception, &msg, 1, kwargs);
+	if (error != nullptr) {
+		_alifErr_setObject(tstate, (AlifObject*)ALIF_TYPE(error), error);
+		ALIF_DECREF(error);
+	}
+
+done:
+	ALIF_DECREF(kwargs);
+	return nullptr;
+}
+
+AlifObject* alifErr_setImportErrorSubclass(AlifObject* _exception, AlifObject* _msg,
+	AlifObject* _name, AlifObject* _path) { // 1111
+	return _alifErr_setImportErrorSubclassWithNameFrom(_exception, _msg, _name, _path, nullptr);
+}
+
+
+AlifObject* alifErr_setImportError(AlifObject* _msg,
+	AlifObject* _name, AlifObject* _path) { // 1124
+	return alifErr_setImportErrorSubclass(_alifExcImportError_, _msg, _name, _path);
+}
 
 
 static AlifObject* _alifErr_formatV(AlifThread* _thread, AlifObject* _exception,

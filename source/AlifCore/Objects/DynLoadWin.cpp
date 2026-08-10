@@ -221,7 +221,7 @@ DLFuncPtr _alifImport_findSharedFuncptrWindows(const char* _prefix,
 			   This should not happen if called correctly. */
 			if (theLength == 0) {
 				message = alifUStr_fromFormat(
-					"فشل تحميل DLL مع إرجاع رمز الخطأ %u بينما يتم استيراد %s",
+					"فشل تحميل DLL مع إرجاع رمز الخطأ %u اثناء استيراد %s",
 					errorCode, _shortname);
 			}
 			else {
@@ -234,7 +234,7 @@ DLFuncPtr _alifImport_findSharedFuncptrWindows(const char* _prefix,
 					theInfo[theLength] = '\0';
 				}
 				message = alifUStr_fromFormat(
-					"فشل تحميل DLL بينما يتم استيراد %s: ", _shortname);
+					"فشل تحميل DLL اثناء استيراد %s: ", _shortname);
 
 				alifUStr_appendAndDel(&message,
 					alifUStr_fromWideChar(
@@ -243,7 +243,7 @@ DLFuncPtr _alifImport_findSharedFuncptrWindows(const char* _prefix,
 			}
 			if (message != nullptr) {
 				AlifObject* shortname_obj = alifUStr_fromString(_shortname);
-				//alifErr_setImportError(message, shortname_obj, _pathname);
+				alifErr_setImportError(message, shortname_obj, _pathname);
 				ALIF_XDECREF(shortname_obj);
 				ALIF_DECREF(message);
 			}
@@ -276,6 +276,20 @@ DLFuncPtr _alifImport_findSharedFuncptrWindows(const char* _prefix,
 		ALIF_BEGIN_ALLOW_THREADS
 		p = GetProcAddress(hDLL, funcname);
 		ALIF_END_ALLOW_THREADS
+
+		//* alif
+		// to detect not loaded mangaled names from c++
+		if (p == nullptr) {
+			AlifObject* message = alifUStr_fromFormat(
+				"لم يتم العثور على الدالة %s اثناء استيراد الوحدة %s: ", funcname, _shortname);
+			AlifObject* shortname_obj = alifUStr_fromString(_shortname);
+			alifErr_setImportError(message, shortname_obj, _pathname);
+			ALIF_XDECREF(shortname_obj);
+			ALIF_DECREF(message);
+
+			return nullptr;
+		}
+		//* alif
 	}
 
 	return p;
