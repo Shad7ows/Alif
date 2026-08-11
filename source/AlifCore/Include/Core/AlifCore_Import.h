@@ -31,7 +31,9 @@ public:
 	AlifObject* importLib{};
 
 	AlifIntT overrideMultiInterpExtensionsCheck{};
-
+#ifdef HAVE_DLOPEN
+	AlifIntT dlopenflags;
+#endif
 	AlifObject* importFunc{};
 	//class {
 	//public:

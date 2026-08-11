@@ -39,6 +39,10 @@ InitTable* _alifImportInitTable_ = _alifImportInitTab_; // 59
     (_interp)->imports.importLib
 #define OVERRIDE_MULTI_INTERP_EXTENSIONS_CHECK(_interp) \
     (_interp)->imports.overrideMultiInterpExtensionsCheck
+#ifdef HAVE_DLOPEN
+#  define DLOPENFLAGS(interp) \
+        (interp)->imports.dlopenflags
+#endif
 #define IMPORT_FUNC(_interp) \
     (_interp)->imports.importFunc
 // 94
