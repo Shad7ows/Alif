@@ -1,6 +1,26 @@
 #!/bin/sh
 
-printf "يتم تحديد MACHDEP... \n"
+
+printf "بدأ تحديد SOABI... \n"
+
+VERSION=5.40
+ABIFLAGS=""
+
+case $ac_sys_system in #(
+  iOS) :
+    SOABI_PLATFORM=`echo "$PLATFORM_TRIPLET" | cut -d '-' -f2` ;; #(
+  *) :
+    SOABI_PLATFORM=$PLATFORM_TRIPLET
+ ;;
+esac
+
+SOABI='alif-'`echo $VERSION | tr -d .`${SOABI_PLATFORM:+-$SOABI_PLATFORM}
+
+echo "\"$SOABI\""
+
+
+
+printf "بدأ تحديد MACHDEP... \n"
 
 # Check for cross-compiling via --host flag (e.g. ./configure --host=aarch64-linux-android)
 for arg in "$@"; do
@@ -53,7 +73,9 @@ esac
 echo "\"$MACHDEP\""
 
 # Replace placeholder in Makefile.in to output Makefile
-sed "s/@MACHDEP@/$MACHDEP/g" Makefile.in > Makefile
+sed -e "s/@SOABI@/$SOABI/g" \
+    -e "s/@MACHDEP@/$MACHDEP/g" \
+    Makefile.in > Makefile
 
 echo "تم إنشاء Makefile بنجاح."
 echo "الان قم بكتابة الأمر make في الطرفية لبناء اللغة"

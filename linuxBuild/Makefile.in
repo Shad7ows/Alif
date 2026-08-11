@@ -13,13 +13,16 @@ TARGET_FREEZE =  $(BUILD_DIR)/freezemodule
 TARGET_ALIF = $(BUILD_DIR)/alif
 TARGET_FROZEN_MODULES = FrozenModules
 MACHDEP = @MACHDEP@
+SOABI=@SOABI@
+
 
 # اكتشاف النظام
 OS_NAME := $(shell uname -s)
 
 
 SOURCES = 	$(wildcard $(SOURCE_DIR)/Alif/*.cpp)				\
-			$(filter-out $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp $(SOURCE_DIR)/AlifCore/Objects/Frozen.cpp, $(wildcard $(SOURCE_DIR)/AlifCore/Objects/*.cpp))	\
+			$(filter-out $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp $(SOURCE_DIR)/AlifCore/Objects/Frozen.cpp	\
+			 $(SOURCE_DIR)/AlifCore/Objects/DynLoadWin.cpp, $(wildcard $(SOURCE_DIR)/AlifCore/Objects/*.cpp))	\
 			$(wildcard $(SOURCE_DIR)/AlifCore/Objects/dtoa/*.cpp)	\
 			$(wildcard $(SOURCE_DIR)/Modules/*.cpp)			\
 			$(wildcard $(SOURCE_DIR)/Modules/_io/*.cpp)		\
@@ -91,6 +94,7 @@ CPPFLAGS += $(addprefix ,$(INCLUDES))
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | $(OBJ_DIR)
 	@echo "ترجمة.." $<
 	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/GetPlatform.cpp -DPLATFORM='"$(MACHDEP)"' -o $(OBJ_DIR)/AlifCore/Objects/GetPlatform.o
+	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/DynLoadShlib.cpp -DSOABI='"$(SOABI)"' -o $(OBJ_DIR)/AlifCore/Objects/DynLoadShlib.o
 	@$(CPP) $(CPPFLAGS) -c $< -o $@
 
 # يقوم بتحديد قاعدة لربط ملفات الكائنات (OBJECTS)
