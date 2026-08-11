@@ -43,6 +43,21 @@ public:
 	//} findAndLoad;
 };
 
+// 107
+#ifdef HAVE_DLOPEN
+#  include <dlfcn.h>              // RTLD_NOW, RTLD_LAZY
+#  if HAVE_DECL_RTLD_NOW
+#    define _ALIF_DLOPEN_FLAGS RTLD_NOW
+#  else
+#    define _ALIF_DLOPEN_FLAGS RTLD_LAZY
+#  endif
+#  define DLOPENFLAGS_INIT .dlopenflags = _ALIF_DLOPEN_FLAGS,
+#else
+#  define _ALIF_DLOPEN_FLAGS 0
+#  define DLOPENFLAGS_INIT
+#endif
+
+
 // 119
 /*
 #define IMPORTS_INIT \
