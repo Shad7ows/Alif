@@ -43,7 +43,7 @@ linkage handling and it uses __declspec().
 * have 4 < gcc < 5.
 */
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) ||\
-        (defined(__clang__) && _alif__has_attribute(visibility))
+        (defined(__clang__) && ALIF_HAS_ATTRIBUTE(visibility))
 #define ALIF_IMPORTED_SYMBOL __attribute__ ((visibility ("default")))
 #define ALIF_EXPORTED_SYMBOL __attribute__ ((visibility ("default")))
 #define ALIF_LOCAL_SYMBOL  __attribute__ ((visibility ("hidden")))
