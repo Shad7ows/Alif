@@ -245,3 +245,5 @@
 #define HAVE_DYNAMIC_LOADING
 
 #define HAVE_DLFCN_H 1
+
+#define HAVE_DLOPEN 1
