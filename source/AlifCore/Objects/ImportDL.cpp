@@ -226,7 +226,7 @@ AlifModInitFunction _alifImport_getModInitFunc(class AlifExtModuleLoaderInfo* _i
 				"دالة استخراج الوحدة (%s_%s)",
 				_info->hookPrefix, name_buf);
 			if (msg != nullptr) {
-				//alifErr_setImportError(msg, _info->name, _info->filename);
+				alifErr_setImportError(msg, _info->name, _info->filename);
 				ALIF_DECREF(msg);
 			}
 		}

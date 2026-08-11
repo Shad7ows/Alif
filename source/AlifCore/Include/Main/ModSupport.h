@@ -29,8 +29,21 @@ AlifIntT alifModule_execDef(AlifObject*, AlifModuleDef*); // 54
 #define ALIF_CLEANUP_SUPPORTED 0x20000 // 57
 
  // 59
-#define ALIF_API_VERSION 5
-#define ALIF_API_STRING "5"
+// we chose random version
+#define ALIF_API_VERSION 104
+#define ALIF_API_STRING "104"
+
+
+
+
+
+
+ /* The ALIF_ABI_VERSION for the lifetime of
+ Alif 5, it will stay at the value of 5; changes to the limited API
+ must be performed in a strictly backwards-compatible manner. */
+ // 108
+#define ALIF_ABI_VERSION 5
+#define ALIF_ABI_STRING "5"
 
 
 AlifObject* alifModule_fromDefAndSpec2(AlifModuleDef*, AlifObject*, AlifIntT); // 123

@@ -239,6 +239,17 @@ const char* _alifImport_swapPackageContext(const char* newcontext) { // 759
 	return oldcontext;
 }
 
+// 781
+#ifdef HAVE_DLOPEN
+AlifIntT _alifImport_getDLOpenFlags(AlifInterpreter* _interp) {
+	return DLOPENFLAGS(_interp);
+}
+
+void _alifImport_setDLOpenFlags(AlifInterpreter* _interp,
+	AlifIntT _newVal) {
+	DLOPENFLAGS(_interp) = _newVal;
+}
+#endif  // HAVE_DLOPEN
 
 static AlifIntT exec_builtinOrDynamic(AlifObject* mod) { // 790
 	AlifModuleDef* def{};
