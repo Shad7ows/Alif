@@ -93,9 +93,15 @@ CPPFLAGS += $(addprefix ,$(INCLUDES))
 # (على سبيل المثال، file1 في file1.cpp و file1.o).
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | $(OBJ_DIR)
 	@echo "ترجمة.." $<
-	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/GetPlatform.cpp -DPLATFORM='"$(MACHDEP)"' -o $(OBJ_DIR)/AlifCore/Objects/GetPlatform.o
-	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/DynLoadShlib.cpp -DSOABI='"$(SOABI)"' -o $(OBJ_DIR)/AlifCore/Objects/DynLoadShlib.o
 	@$(CPP) $(CPPFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/AlifCore/Objects/GetPlatform.o: $(SOURCE_DIR)/AlifCore/Objects/GetPlatform.cpp | $(OBJ_DIR)
+	@echo "ترجمة.." $<
+	@$(CPP) $(CPPFLAGS) -DPLATFORM='"$(MACHDEP)"' -c $< -o $@
+
+$(OBJ_DIR)/AlifCore/Objects/DynLoadShlib.o: $(SOURCE_DIR)/AlifCore/Objects/DynLoadShlib.cpp | $(OBJ_DIR)
+	@echo "ترجمة.." $<
+	@$(CPP) $(CPPFLAGS) -DSOABI='"$(SOABI)"' -c $< -o $@
 
 # يقوم بتحديد قاعدة لربط ملفات الكائنات (OBJECTS)
 # إلى ملف الهدف النهائي (TARGET). 
