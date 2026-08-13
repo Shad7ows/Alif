@@ -2,6 +2,7 @@ CPP = c++ # المترجم
 CPPFLAGS = -std=c++20
 RELEASE_FLAGS = -O2 -w
 DEBUG_FLAGS = -O0 -g
+LDFLAGS = 
 # -g تخزين معلومات debug
 # -Wall طباعة معظم التنبيهات
 # -w عدم طباعة التنبيهات
@@ -48,6 +49,10 @@ freeze_release: CPPFLAGS += $(RELEASE_FLAGS)
 alif_release:  CPPFLAGS += $(RELEASE_FLAGS)
 freeze_debug: CPPFLAGS += $(DEBUG_FLAGS)
 alif_debug: CPPFLAGS += $(DEBUG_FLAGS)
+freeze_asan: LDFLAGS += -fsanitize=address
+freeze_asan: CPPFLAGS += $(DEBUG_FLAGS) -fsanitize=address
+alif_asan: LDFLAGS += -fsanitize=address
+alif_asan: CPPFLAGS += $(DEBUG_FLAGS) -fsanitize=address
 
 # تقوم هذه التعليمة بإضافة أمر الى make
 # حيث يصبح make -j(nproc)
@@ -64,12 +69,17 @@ endif
 
 debug:
 	@make -j2 freeze_debug
-	@make alif_debug 
+	@make alif_debug
+asan:
+	@make -j2 freeze_asan
+	@make alif_asan
 
 freeze_release: $(TARGET_FREEZE)
 alif_release : $(TARGET_ALIF)
 freeze_debug: $(TARGET_FREEZE)
 alif_debug: $(TARGET_ALIF)
+freeze_asan: $(TARGET_FREEZE)
+alif_asan: $(TARGET_ALIF)
 
 
 # تقوم هذه التعليمة بأخذ كل ملفات المصدر المنتهية ب .cpp 
@@ -125,7 +135,7 @@ frozen_modules_folder:
 # يجب أن يكون موجودًا قبل بدء عملية الربط.
 $(TARGET_FREEZE): $(OBJECTS) | $(BUILD_DIR) frozen_modules_folder
 	@echo "جاري ربط مجرد الشيفرة..."
-	@$(CPP) $(filter-out build/obj/Alif/alif.o build/obj/AlifCore/Objects/Frozen.o, $^) -o $@
+	@$(CPP) $(LDFLAGS) $(filter-out build/obj/Alif/alif.o build/obj/AlifCore/Objects/Frozen.o, $^) -o $@
 	@echo "تم بناء مجرد الشيفرة بنجاح"
 	@echo "جاري بناء ومعالجة البرامج المكتوبة بلغة ألف"
 	@$(shell) ./build/freezemodule "GetPath" "../source/Modules/تحديد_المسارات.alif" "GetPath.h"
@@ -142,7 +152,7 @@ $(TARGET_ALIF): $(OBJECTS) | $(BUILD_DIR)
 	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/GetPath.cpp -o $(OBJ_DIR)/AlifCore/Objects/GetPath.o
 	@$(CPP) $(CPPFLAGS) -c $(SOURCE_DIR)/AlifCore/Objects/Frozen.cpp -o $(OBJ_DIR)/AlifCore/Objects/Frozen.o
 	@echo "جاري ربط لغة ألف..."
-	@$(CPP) $(filter-out build/obj/FreezeModule/FreezeModule.o build/obj/FreezeModule/GetPathFreeze.o, $^)	\
+	@$(CPP) $(LDFLAGS) $(filter-out build/obj/FreezeModule/FreezeModule.o build/obj/FreezeModule/GetPathFreeze.o, $^)	\
 	 -o $@ $(OBJ_DIR)/AlifCore/Objects/GetPath.o $(OBJ_DIR)/AlifCore/Objects/Frozen.o
 	@echo "تم بناء لغة ألف بنجاح"
 
@@ -174,6 +184,7 @@ help:
 	@echo "make          # لبناء اللغة في وضع الإصدار"
 	@echo "make release  # لبناء اللغة في وضع الإصدار"
 	@echo "make debug    # لبناء اللغة في وضع تتبع الاخطاء"
+	@echo "make asan    # لبناء اللغة في وضع إكتشاف الخطأ ضمن العنوان"
 	@echo "make clean    # لحذف جميع ملفات البناء"
 
 
