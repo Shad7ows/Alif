@@ -49,6 +49,7 @@
 #define ALIF_INTERPRETERSTATE_INIT(interpreter)						\
     {																\
 		.eval = {.recursionLimit = ALIF_DEFAULT_RECURSION_LIMIT},	\
+		/*.imports = IMPORTS_INIT,*/                                \
 		.qsbr = {													\
 			.wrSeq = QSBR_INITIAL,									\
 			.rdSeq = QSBR_INITIAL,									\
@@ -60,7 +61,6 @@
 			.nextVersionTag = _ALIF_TYPE_BASE_VERSION_TAG,			\
 		},															\
     }
-		//IMPORTS_INIT,
 
 
 
