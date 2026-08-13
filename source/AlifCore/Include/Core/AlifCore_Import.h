@@ -22,6 +22,19 @@ public:
 	} extensions;
 };
 
+
+// 107
+//* alif
+// we use cpp way to set value while initialize a new ImportState class
+#ifdef HAVE_DLOPEN
+#  include <dlfcn.h>              // RTLD_NOW, RTLD_LAZY
+#  if HAVE_DECL_RTLD_NOW
+#    define _ALIF_DLOPEN_FLAGS RTLD_NOW
+#  else
+#    define _ALIF_DLOPEN_FLAGS RTLD_LAZY
+#  endif
+#endif
+
 class ImportState { // 63
 public:
 	AlifObject* modules{};
@@ -32,41 +45,30 @@ public:
 
 	AlifIntT overrideMultiInterpExtensionsCheck{};
 #ifdef HAVE_DLOPEN
-	AlifIntT dlopenflags;
+	AlifIntT dlopenflags{_ALIF_DLOPEN_FLAGS};
 #endif
 	AlifObject* importFunc{};
-	//class {
-	//public:
-	//	AlifIntT importLevel{};
-	//	AlifTimeT accumulated{};
-	//	AlifIntT header{};
-	//} findAndLoad;
+	class {
+	public:
+		AlifIntT importLevel{};
+		AlifTimeT accumulated{};
+		AlifIntT header{1};
+	} findAndLoad;
 };
 
-// 107
-#ifdef HAVE_DLOPEN
-#  include <dlfcn.h>              // RTLD_NOW, RTLD_LAZY
-#  if HAVE_DECL_RTLD_NOW
-#    define _ALIF_DLOPEN_FLAGS RTLD_NOW
-#  else
-#    define _ALIF_DLOPEN_FLAGS RTLD_LAZY
-#  endif
-#  define DLOPENFLAGS_INIT .dlopenflags = _ALIF_DLOPEN_FLAGS,
-#else
-#  define _ALIF_DLOPEN_FLAGS 0
-#  define DLOPENFLAGS_INIT
-#endif
 
 
+//* alif
+//* delete
 // 119
-/*
-#define IMPORTS_INIT \
-	{ \
-		.findAndLoad = { \
-			.header = 1, \
-		}, \
-	}
-*/
+//#define IMPORTS_INIT \
+//	{ \
+//		DLOPENFLAGS_INIT \
+//		.findAndLoad = { \
+//			.header = 1, \
+//		}, \
+//	}
+
 
 
 AlifSizeT alifImport_getNextModuleIndex(); // 129
