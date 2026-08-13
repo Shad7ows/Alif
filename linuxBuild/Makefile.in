@@ -3,6 +3,7 @@ CPPFLAGS = -std=c++20
 RELEASE_FLAGS = -O2 -w
 DEBUG_FLAGS = -O0 -g
 LDFLAGS = 
+
 # -g تخزين معلومات debug
 # -Wall طباعة معظم التنبيهات
 # -w عدم طباعة التنبيهات
@@ -16,6 +17,15 @@ TARGET_FROZEN_MODULES = FrozenModules
 MACHDEP = @MACHDEP@
 SOABI=@SOABI@
 
+
+ifeq ($(shared), 1)
+	CPPFLAGS += -fPIC
+	LDFLAGS += -rdynamic -ldl
+endif
+
+ifeq ($(asan), 1)
+	LDFLAGS += -fsanitize=address
+endif
 
 # اكتشاف النظام
 OS_NAME := $(shell uname -s)
@@ -49,10 +59,6 @@ freeze_release: CPPFLAGS += $(RELEASE_FLAGS)
 alif_release:  CPPFLAGS += $(RELEASE_FLAGS)
 freeze_debug: CPPFLAGS += $(DEBUG_FLAGS)
 alif_debug: CPPFLAGS += $(DEBUG_FLAGS)
-freeze_asan: LDFLAGS += -fsanitize=address
-freeze_asan: CPPFLAGS += $(DEBUG_FLAGS) -fsanitize=address
-alif_asan: LDFLAGS += -fsanitize=address
-alif_asan: CPPFLAGS += $(DEBUG_FLAGS) -fsanitize=address
 
 # تقوم هذه التعليمة بإضافة أمر الى make
 # حيث يصبح make -j(nproc)
@@ -70,16 +76,11 @@ endif
 debug:
 	@make -j2 freeze_debug
 	@make alif_debug
-asan:
-	@make -j2 freeze_asan
-	@make alif_asan
 
 freeze_release: $(TARGET_FREEZE)
 alif_release : $(TARGET_ALIF)
 freeze_debug: $(TARGET_FREEZE)
 alif_debug: $(TARGET_ALIF)
-freeze_asan: $(TARGET_FREEZE)
-alif_asan: $(TARGET_ALIF)
 
 
 # تقوم هذه التعليمة بأخذ كل ملفات المصدر المنتهية ب .cpp 
@@ -184,7 +185,9 @@ help:
 	@echo "make          # لبناء اللغة في وضع الإصدار"
 	@echo "make release  # لبناء اللغة في وضع الإصدار"
 	@echo "make debug    # لبناء اللغة في وضع تتبع الاخطاء"
-	@echo "make asan    # لبناء اللغة في وضع إكتشاف الخطأ ضمن العنوان"
 	@echo "make clean    # لحذف جميع ملفات البناء"
+	@echo "يمكن تمرير الوسيطات التالية لخيارات اكثر في البناء:"
+	@echo "		asan=1   -> بناء اللغة مع تتبع خطأ العنوان"
+	@echo "		shared=1 -> لبناء اللغة في وضع المشاركة وبالتالي يمكن ربطها مع مكتبات خارجية"
 
 
