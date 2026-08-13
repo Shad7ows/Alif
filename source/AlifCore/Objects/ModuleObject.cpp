@@ -22,10 +22,10 @@ static AlifMemberDef _moduleMembers_[] = {
 
 
 AlifTypeObject _alifModuleDefType_ = { // 24
-	ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
-	"تعريف-الوحدة",
-	sizeof(AlifModuleDef),
-	0,
+	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
+	.name = "تعريف-الوحدة",
+	.basicSize = sizeof(AlifModuleDef),
+	.itemSize = 0,
 };
 
 
