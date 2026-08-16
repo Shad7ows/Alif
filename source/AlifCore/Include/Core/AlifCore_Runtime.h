@@ -88,7 +88,7 @@ public:
 	AlifInterpreter mainInterpreter{};
 };
 
-extern AlifRuntime _alifRuntime_; // 318
+ALIFAPI_DATA(AlifRuntime) _alifRuntime_; // 318
 
 extern AlifStatus _alifRuntimeState_init(AlifRuntime*); // 320
 extern void _alifRuntimeState_fini(AlifRuntime*); // 321

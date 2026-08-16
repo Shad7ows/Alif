@@ -1279,7 +1279,7 @@ AlifIntT _alif_absPath(const wchar_t* _path, wchar_t** _absPathP) { // 2176
 	if (_path[0] == '\0' or !wcscmp(_path, L".")) {
 		wchar_t cwd[MAXPATHLEN + 1]{};
 		cwd[ALIF_ARRAY_LENGTH(cwd) - 1] = 0;
-		if (!alif_wGetCWD(cwd, ALIF_ARRAY_LENGTH(cwd) - 1)) {
+		if (!_alif_wGetCWD(cwd, ALIF_ARRAY_LENGTH(cwd) - 1)) {
 			/* unable to get the current directory */
 			return -1;
 		}
@@ -1297,7 +1297,7 @@ AlifIntT _alif_absPath(const wchar_t* _path, wchar_t** _absPathP) { // 2176
 #else
 	wchar_t cwd[MAXPATHLEN + 1]{};
 	cwd[ALIF_ARRAY_LENGTH(cwd) - 1] = 0;
-	if (!alif_wGetCWD(cwd, ALIF_ARRAY_LENGTH(cwd) - 1)) {
+	if (!_alif_wGetCWD(cwd, ALIF_ARRAY_LENGTH(cwd) - 1)) {
 		/* unable to get the current directory */
 		return -1;
 	}
@@ -1583,7 +1583,7 @@ wchar_t* _alif_normPath(wchar_t* path, AlifSizeT size) { // 2606
 
 
 
-wchar_t* alif_wGetCWD(wchar_t* _buf, AlifUSizeT _bufLen) { // 2620
+wchar_t* _alif_wGetCWD(wchar_t* _buf, AlifUSizeT _bufLen) { // 2620
 #ifdef _WINDOWS
 	AlifIntT iBufLen = (AlifIntT)ALIF_MIN(_bufLen, INT_MAX);
 	return _wgetcwd(_buf, iBufLen);
@@ -1785,7 +1785,7 @@ done:
 #ifndef _WINDOWS
 // Ticks per second used by clock() and times() functions.
 // See os.times() and time.process_time() implementations.
-AlifIntT _alif_getTicksPerSecond(long *ticks_per_second) { // 3036
+AlifIntT _alif_getTicksPerSecond(long* ticks_per_second) { // 3036
 #if defined(HAVE_SYSCONF) && defined(_SC_CLK_TCK)
     long value = sysconf(_SC_CLK_TCK);
     if (value < 1) {

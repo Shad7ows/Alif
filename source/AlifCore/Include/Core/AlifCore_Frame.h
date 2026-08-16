@@ -247,10 +247,10 @@ static inline bool _alifThreadState_hasStackSpace(AlifThread* _tState, AlifIntT 
 
 extern AlifInterpreterFrame* _alifThreadState_pushFrame(AlifThread*, AlifUSizeT); // 294
 
-void _alifThreadState_popFrame(AlifThread*, AlifInterpreterFrame*); // 296
+ALIFAPI_FUNC(void) _alifThreadState_popFrame(AlifThread*, AlifInterpreterFrame*); // 347
 
 
 AlifObject* _alifFrame_getLocals(AlifInterpreterFrame*); // 330
 
-AlifInterpreterFrame* _alifEval_framePushAndInit(AlifThread* _thread, AlifStackRef,
+ALIFAPI_FUNC(AlifInterpreterFrame*) _alifEval_framePushAndInit(AlifThread* _thread, AlifStackRef,
 	AlifObject*, AlifStackRef const*, AlifUSizeT, AlifObject*, AlifInterpreterFrame*); // 347

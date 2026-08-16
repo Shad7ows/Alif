@@ -7,8 +7,8 @@
 extern AlifIntT _alifImport_fixupBuiltin(AlifThread*, AlifObject*, const char*, AlifObject*); // 26
 
 
-AlifObject* _alifImport_getModuleAttr(AlifObject*, AlifObject*); // 34
-AlifObject* _alifImport_getModuleAttrString(const char*, const char*); // 37
+ALIFAPI_FUNC(AlifObject*) _alifImport_getModuleAttr(AlifObject*, AlifObject*); // 34
+ALIFAPI_FUNC(AlifObject*) _alifImport_getModuleAttrString(const char*, const char*); // 37
 
 class ImportRuntimeState { // 40
 public:
@@ -100,7 +100,7 @@ public:
 };
 
 
-extern const Frozen* _alifImportFrozenBootstrap_; // 182
+ALIFAPI_DATA(const Frozen*) _alifImportFrozenBootstrap_; // 182
 
 
 extern const ModuleAlias* _alifImportFrozenAliases_; // 186

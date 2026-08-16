@@ -77,7 +77,7 @@ static AlifInterpreterFrame* _alifEval_framePushAndInitEx(AlifThread*, AlifStack
 	AlifSizeT, AlifObject*, AlifObject*, AlifInterpreterFrame*); // 279
 
 
-AlifIntT alif_checkRecursiveCall(AlifThread* _thread, const char* _where) { // 305
+AlifIntT _alif_checkRecursiveCall(AlifThread* _thread, const char* _where) { // 305
 #ifdef USE_STACKCHECK
 	if (alifOS_checkStack()) {
 		++_thread->cppRecursionRemaining;

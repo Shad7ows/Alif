@@ -16,10 +16,10 @@ enum AlifErrorHandler_ { // 26
 };
 
 
-AlifErrorHandler_ alif_getErrorHandler(const char*); // 39
+ALIFAPI_FUNC(AlifErrorHandler_) alif_getErrorHandler(const char*); // 39
 
 
-AlifIntT alif_decodeLocaleEx(const char*, wchar_t**, AlifUSizeT*,
+ALIFAPI_FUNC(AlifIntT) alif_decodeLocaleEx(const char*, wchar_t**, AlifUSizeT*,
 	const char**, AlifIntT, AlifErrorHandler_); // 42
 
 
@@ -70,18 +70,18 @@ public:
 #endif
 
 
-AlifIntT _alif_fStat(AlifIntT, class AlifStatStruct*); // 105
+ALIFAPI_FUNC(AlifIntT) _alif_fStat(AlifIntT, class AlifStatStruct*); // 105
 
-AlifIntT _alifFStat_noraise(AlifIntT, class AlifStatStruct*); // 110
+ALIFAPI_FUNC(AlifIntT) _alifFStat_noraise(AlifIntT, class AlifStatStruct*); // 110
 
-AlifIntT _alif_open(const char*, AlifIntT); // 120
-AlifIntT _alifOpen_noraise(const char*, AlifIntT); // 125
+ALIFAPI_FUNC(AlifIntT) _alif_open(const char*, AlifIntT); // 120
+ALIFAPI_FUNC(AlifIntT) _alifOpen_noraise(const char*, AlifIntT); // 125
 
 extern FILE* _alif_wfOpen(const wchar_t*, const wchar_t*); // 129
 
 extern AlifSizeT _alif_read(AlifIntT, void*, AlifUSizeT); // 133
 
-AlifSizeT _alif_write(AlifIntT, const void*, AlifUSizeT); // 139
+ALIFAPI_FUNC(AlifSizeT) _alif_write(AlifIntT, const void*, AlifUSizeT); // 139
 
 #ifdef HAVE_READLINK
 extern int alif_wReadLink(const wchar_t*, wchar_t*, AlifUSizeT); // 151
@@ -91,14 +91,14 @@ extern int alif_wReadLink(const wchar_t*, wchar_t*, AlifUSizeT); // 151
 extern wchar_t* alif_wRealPath(const wchar_t*, wchar_t*, AlifUSizeT); // 160
 #endif
 
-extern wchar_t* alif_wGetCWD(wchar_t*, AlifUSizeT); // 168
+extern wchar_t* _alif_wGetCWD(wchar_t*, AlifUSizeT); // 168
 
-AlifIntT _alif_dup(AlifIntT); // 185
+ALIFAPI_FUNC(AlifIntT) _alif_dup(AlifIntT); // 185
 
 #ifdef _WINDOWS
 extern void* _alifGet_osfHandleNoRaise(AlifIntT); // 192
 
-void* _alifGet_osfHandle(AlifIntT); // 195
+ALIFAPI_FUNC(void*) _alifGet_osfHandle(AlifIntT); // 195
 
 extern AlifIntT _alifOpen_osfHandleNoRaise(void*, AlifIntT); // 197
 
@@ -119,8 +119,6 @@ extern wchar_t* _alifDecodeUTF8_surrogateEscape(const char*, AlifSizeT, AlifUSiz
 
 extern AlifIntT _alif_wStat(const wchar_t*, struct stat*); // 231
 
-//wchar_t* alifUniversal_newLineFGetsWithSize(wchar_t*, int, FILE*, AlifSizeT*);
-
 extern AlifIntT _alif_getLocaleConvNumeric(lconv*, AlifObject**, AlifObject**); // 244
 
 extern wchar_t* _alif_getLocaleEncoding(void); // 252
@@ -134,7 +132,7 @@ extern AlifIntT _alifOS_getFullPathName(const wchar_t*, wchar_t**); // 270
 
 extern AlifIntT _alif_addRelfile(wchar_t*, const wchar_t*, AlifUSizeT); // 274
 
-wchar_t* _alif_normPath(wchar_t*, AlifSizeT); // 280
+ALIFAPI_FUNC(wchar_t*) _alif_normPath(wchar_t*, AlifSizeT); // 280
 
 // 302
 #if defined _MSC_VER && _MSC_VER >= 1900
@@ -154,12 +152,12 @@ extern _invalid_parameter_handler _alifSilentInvalidParameterHandler_;
 
 
 
-char* alifUniversal_newLineFGetsWithSize(char*, AlifIntT, FILE*, AlifObject*, AlifUSizeT*); // 321
+ALIFAPI_FUNC(char*) _alifUniversal_newLineFGetsWithSize(char*, AlifIntT, FILE*, AlifObject*, AlifUSizeT*); // 321
 
 extern AlifIntT _alifFile_flush(AlifObject*); // 323
 
 #ifndef _WINDOWS
-extern AlifIntT _alif_getTicksPerSecond(long *ticks_per_second); // 325
+extern AlifIntT _alif_getTicksPerSecond(long* ticks_per_second); // 325
 #endif
 
-AlifIntT _alif_isValidFD(AlifIntT); // 330
+ALIFAPI_FUNC(AlifIntT) _alif_isValidFD(AlifIntT); // 330

@@ -995,7 +995,7 @@ AlifIntT alifSet_add(AlifObject* _anySet, AlifObject* _key) { // 2658
 	return rv_;
 }
 
-AlifIntT alifSet_nextEntry(AlifObject* _set,
+AlifIntT _alifSet_nextEntry(AlifObject* _set,
 	AlifSizeT* _pos, AlifObject** _key, AlifHashT* _hash) { // 2674
 	SetEntry* entry{};
 

@@ -507,7 +507,7 @@ void alifUnset_evalBreakerBitAll(AlifInterpreter* _interp, uintptr_t _bit) { // 
 
 
 
-AlifIntT alifEval_makePendingCalls(AlifThread* _thread) { // 1029
+AlifIntT _alifEval_makePendingCalls(AlifThread* _thread) { // 1029
 	AlifIntT res{};
 	if (alif_isMainThread() and alif_isMainInterpreter(_thread->interpreter)) {
 		res = handle_signals(_thread);
@@ -533,5 +533,5 @@ AlifIntT alif_makePendingCalls() { // 1054
 	if (!alif_isMainThread() or !alif_isMainInterpreter(thread->interpreter)) {
 		return 0;
 	}
-	return alifEval_makePendingCalls(thread);
+	return _alifEval_makePendingCalls(thread);
 }

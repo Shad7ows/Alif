@@ -80,7 +80,7 @@
 
 
 
-extern const char* const _alifParserTokenNames_[];
-AlifIntT alifToken_oneChar(AlifIntT);
-AlifIntT alifToken_twoChars(AlifIntT, AlifIntT);
-AlifIntT alifToken_threeChars(AlifIntT, AlifIntT, AlifIntT);
+ALIFAPI_DATA(const char* const) _alifParserTokenNames_[];
+ALIFAPI_FUNC(AlifIntT) alifToken_oneChar(AlifIntT);
+ALIFAPI_FUNC(AlifIntT) alifToken_twoChars(AlifIntT, AlifIntT);
+ALIFAPI_FUNC(AlifIntT) alifToken_threeChars(AlifIntT, AlifIntT, AlifIntT);

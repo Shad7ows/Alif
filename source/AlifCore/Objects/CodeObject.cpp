@@ -66,7 +66,7 @@ static AlifIntT intern_strings(AlifObject* _tuple) { // 137
 				"تم العثور على نوع غير-نصي في خانة الشيفرة");
 			return -1;
 		}
-		alifUStr_internImmortal(interp, &ALIFTUPLE_ITEMS(_tuple)[i]);
+		_alifUStr_internImmortal(interp, &ALIFTUPLE_ITEMS(_tuple)[i]);
 	}
 	return 0;
 }
@@ -80,7 +80,7 @@ static AlifIntT intern_constants(AlifObject* _tuple, AlifIntT* _modified) { // 1
 			//if (should_internString(v)) { //* alif
 			// The free-threaded build interns (and immortalizes) all string constants
 			AlifObject* w = v;
-			alifUStr_internMortal(interp, &v);
+			_alifUStr_internMortal(interp, &v);
 			if (w != v) {
 				ALIFTUPLE_SET_ITEM(_tuple, i, v);
 				if (_modified) {
@@ -301,9 +301,9 @@ static AlifIntT init_code(AlifCodeObject* _co, AlifCodeConstructor* _con) { // 4
 	_co->filename = ALIF_NEWREF(_con->filename);
 	_co->name = ALIF_NEWREF(_con->name);
 	_co->qualname = ALIF_NEWREF(_con->qualname);
-	alifUStr_internMortal(interp, &_co->filename);
-	alifUStr_internMortal(interp, &_co->name);
-	alifUStr_internMortal(interp, &_co->qualname);
+	_alifUStr_internMortal(interp, &_co->filename);
+	_alifUStr_internMortal(interp, &_co->name);
+	_alifUStr_internMortal(interp, &_co->qualname);
 	_co->flags = _con->flags;
 
 	_co->firstLineno = _con->firstLineno;
@@ -437,7 +437,7 @@ AlifCodeObject* alifCode_new(AlifCodeConstructor* _con) { // 647
 
 	AlifObject* replacementLocations = nullptr;
 
-	//if (!alif_getConfig()->codeDebugRanges) {
+	//if (!_alif_getConfig()->codeDebugRanges) {
 	//	replacementLocations = remove_columnInfo(_con->lineTable);
 	//	if (replacementLocations == nullptr) {
 	//		return nullptr;
@@ -722,7 +722,7 @@ AlifObject* _alifCode_constantKey(AlifObject* _op) { // 2331
 			return nullptr;
 
 		i_ = 0;
-		while (alifSet_nextEntry(_op, &pos_, &item, &hash)) {
+		while (_alifSet_nextEntry(_op, &pos_, &item, &hash)) {
 			AlifObject* itemKey{};
 
 			itemKey = _alifCode_constantKey(item);
@@ -800,7 +800,7 @@ static AlifObject* intern_oneConstant(AlifObject* _op) { // 2461
 		}
 
 
-		alif_setImmortal(_op);
+		_alif_setImmortal(_op);
 		return _op;
 	}
 	return (AlifObject*)entry->value;
@@ -835,8 +835,8 @@ static AlifIntT compare_constants(const void* _key1, const void* _key2) { // 249
 		AlifSizeT pos1 = 0, pos2 = 0;
 		AlifObject* obj1{}, * obj2{};
 		AlifHashT hash1{}, hash2{};
-		while ((alifSet_nextEntry(op1, &pos1, &obj1, &hash1)) and
-			(alifSet_nextEntry(op2, &pos2, &obj2, &hash2))) {
+		while ((_alifSet_nextEntry(op1, &pos1, &obj1, &hash1)) and
+			(_alifSet_nextEntry(op2, &pos2, &obj2, &hash2))) {
 			if (obj1 != obj2) {
 				return 0;
 			}

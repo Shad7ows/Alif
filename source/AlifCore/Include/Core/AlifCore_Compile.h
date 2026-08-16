@@ -16,7 +16,7 @@
 
 
 
-AlifCodeObject* _alifAST_compile(Module*, AlifObject*,
+ALIFAPI_FUNC(AlifCodeObject*) _alifAST_compile(Module*, AlifObject*,
 	AlifCompilerFlags*, AlifIntT, AlifASTMem*);
 
 

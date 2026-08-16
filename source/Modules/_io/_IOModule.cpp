@@ -155,7 +155,7 @@ invalid_mode:
 	{
 		AlifObject* RawIOClass = (AlifObject*)state->alifFileIOType;
 	#ifdef HAVE_WINDOWS_CONSOLE_IO
-		const AlifConfig* config = alif_getConfig();
+		const AlifConfig* config = _alif_getConfig();
 		if (!config->legacyWindowsStdio and _alifIO_getConsoleType(pathOrFD) != '\0') {
 			RawIOClass = (AlifObject*)state->alifWindowsConsoleIOType;
 			_encoding = "utf-8";

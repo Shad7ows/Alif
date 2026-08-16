@@ -17,7 +17,7 @@ const char* const _alifStructSequenceUnnamedField_ = "unnamed field"; // 24
 
 
 static AlifSizeT getTypeAttr_asSize(AlifTypeObject* _tp, AlifObject* _name) { // 26
-	AlifObject* v = alifDict_getItemWithError(alifType_getDict(_tp), _name);
+	AlifObject* v = alifDict_getItemWithError(_alifType_getDict(_tp), _name);
 	if (v == nullptr and !alifErr_occurred()) {
 		//alifErr_format(_alifExcTypeError_,
 		//	"Missed attribute '%U' of type %s",
@@ -230,7 +230,7 @@ AlifIntT _alifStructSequence_initBuiltinWithFlags(AlifInterpreter* _interp,
 		}
 		initialize_staticFields(_type, _desc, members, nMembers, _tpFlags);
 
-		alif_setImmortal((AlifObject*)_type);
+		_alif_setImmortal((AlifObject*)_type);
 	}
 
 	if (alifStaticType_initBuiltin(_interp, _type) < 0) {
@@ -241,7 +241,7 @@ AlifIntT _alifStructSequence_initBuiltinWithFlags(AlifInterpreter* _interp,
 	}
 
 	if (initialize_structSeqDict(
-		_desc, alifType_getDict(_type), nMembers, nUnnamedMembers) < 0) {
+		_desc, _alifType_getDict(_type), nMembers, nUnnamedMembers) < 0) {
 		goto error;
 	}
 
@@ -294,7 +294,7 @@ AlifTypeObject* _alifStructSequence_newType(AlifStructSequenceDesc* desc, unsign
 	}
 
 	if (initialize_structSeqDict(
-		desc, alifType_getDict(type), n_members, n_unnamed_members) < 0) {
+		desc, _alifType_getDict(type), n_members, n_unnamed_members) < 0) {
 		ALIF_DECREF(type);
 		return nullptr;
 	}

@@ -864,7 +864,7 @@ static AlifObject* err_programText(FILE* _fp, AlifIntT _lineno, const char* _enc
 
 	for (AlifIntT i = 0; i < _lineno; ) {
 		line_size = 0;
-		if (alifUniversal_newLineFGetsWithSize(linebuf, sizeof(linebuf),
+		if (_alifUniversal_newLineFGetsWithSize(linebuf, sizeof(linebuf),
 			_fp, nullptr, &line_size) == nullptr) {
 			/* Error or EOF. */
 			return nullptr;

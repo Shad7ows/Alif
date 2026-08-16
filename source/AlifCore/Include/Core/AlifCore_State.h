@@ -26,9 +26,9 @@ static inline AlifIntT alif_isMainInterpreter(AlifInterpreter* _interpreter) { /
 }
 
 
-AlifIntT alifInterpreter_setRunningMain(AlifInterpreter*); // 82
-void _alifInterpreter_setNotRunningMain(AlifInterpreter*); // 83
-void _alifErr_setInterpreterAlreadyRunning(void); // 85
+ALIFAPI_FUNC(AlifIntT) _alifInterpreter_setRunningMain(AlifInterpreter*); // 82
+ALIFAPI_FUNC(void) _alifInterpreter_setNotRunningMain(AlifInterpreter*); // 83
+ALIFAPI_FUNC(void) _alifErr_setInterpreterAlreadyRunning(void); // 85
 
 
 extern AlifIntT _alifThread_isRunningMain(AlifThread*); // 87
@@ -45,7 +45,7 @@ extern ALIF_LOCAL_THREAD AlifThread* _alifTSSThread_;
 
 AlifIntT alifThreadState_mustExit(AlifThread*); // 121
 
-AlifThread* alifThread_getCurrent(); // 125
+ALIFAPI_FUNC(AlifThread*) alifThread_getCurrent(); // 125
 
 static inline AlifThread* _alifThread_get() { // 134
 #ifdef HAVE_LOCAL_THREAD
@@ -93,10 +93,10 @@ static inline AlifInterpreter* _alifInterpreter_get() { // 207
 }
 
 
-AlifThread* alifThreadState_new(AlifInterpreter*); // 219
+ALIFAPI_FUNC(AlifThread*) _alifThreadState_new(AlifInterpreter*); // 219
 extern void alifThread_bind(AlifThread*); // 222
 
-AlifObject* _alifThreadState_getDict(AlifThread*); // 231
+ALIFAPI_FUNC(AlifObject*) _alifThreadState_getDict(AlifThread*); // 231
 
 extern AlifStatus alifInterpreter_enable(AlifRuntime*); // 245
 
@@ -107,4 +107,4 @@ extern AlifStatus alifInterpreter_enable(AlifRuntime*); // 245
 #define HEAD_UNLOCK(_runtime) \
     ALIFMUTEX_UNLOCK(&(_runtime)->interpreters.mutex)
 
-const AlifConfig* alif_getConfig(); // 269
+ALIFAPI_FUNC(const AlifConfig*) _alif_getConfig(); // 269

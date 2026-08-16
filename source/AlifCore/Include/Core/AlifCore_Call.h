@@ -7,7 +7,7 @@
 #define ALIF_FASTCALL_SMALL_STACK 5 // 22
 
 
-AlifObject* _alif_checkFunctionResult(AlifThread*, AlifObject*, AlifObject*, const wchar_t*); // 27 
+ALIFAPI_FUNC(AlifObject*) _alif_checkFunctionResult(AlifThread*, AlifObject*, AlifObject*, const wchar_t*); // 27 
 
 
 extern AlifObject* _alifObject_callPrepend(AlifThread*, AlifObject*,
@@ -17,10 +17,10 @@ extern AlifObject* _alifObject_callPrepend(AlifThread*, AlifObject*,
 extern AlifObject* _alifObject_call(AlifThread*, AlifObject*, AlifObject*, AlifObject*); // 47
 
 
-AlifObject* _alifObject_callMethod(AlifObject*, AlifObject*, const char*, ...); // 60
+ALIFAPI_FUNC(AlifObject*) _alifObject_callMethod(AlifObject*, AlifObject*, const char*, ...); // 60
 
 
-AlifObject* alifObject_makeTpCall(AlifThread*, AlifObject*, AlifObject* const*, AlifSizeT, AlifObject*); // 106
+ALIFAPI_FUNC(AlifObject*) alifObject_makeTpCall(AlifThread*, AlifObject*, AlifObject* const*, AlifSizeT, AlifObject*); // 106
 
 
 static inline VectorCallFunc _alifVectorCall_functionInline(AlifObject* callable) { // 113 

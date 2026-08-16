@@ -1435,7 +1435,7 @@ static AlifObject* new_kwTuple(const char * const* _keywords,
 			return nullptr;
 		}
 		AlifInterpreter* interp = _alifInterpreter_get();
-		alifUStr_internImmortal(interp, &str);
+		_alifUStr_internImmortal(interp, &str);
 		ALIFTUPLE_SET_ITEM(kwtuple, i, str);
 	}
 	return kwtuple;
@@ -1469,7 +1469,7 @@ static AlifIntT _parser_init(void* _arg) { // 1944
 		AlifThread* saveThread = nullptr;
 		AlifThread* tempThread = nullptr;
 		if (!alif_isMainInterpreter(alifInterpreter_get())) {
-			tempThread = alifThreadState_new(alifInterpreter_main());
+			tempThread = _alifThreadState_new(alifInterpreter_main());
 			if (tempThread == nullptr) {
 				return -1;
 			}

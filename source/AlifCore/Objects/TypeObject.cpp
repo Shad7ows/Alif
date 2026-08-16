@@ -188,7 +188,7 @@ static inline AlifObject* lookup_tpDict(AlifTypeObject* _self) { // 401
 	return _self->dict;
 }
 
-AlifObject* alifType_getDict(AlifTypeObject* _self) { // 413
+AlifObject* _alifType_getDict(AlifTypeObject* _self) { // 413
 	return lookup_tpDict(_self);
 }
 
@@ -217,7 +217,7 @@ AlifObject* alifType_getBases(AlifTypeObject* _self) { // 460
 
 static inline void set_tpBases(AlifTypeObject* _self, AlifObject* _bases, AlifIntT _initial) { // 473
 	if (_self->flags & ALIF_TPFLAGS_STATIC_BUILTIN) {
-		alif_setImmortal(_bases);
+		_alif_setImmortal(_bases);
 	}
 	_self->bases = _bases;
 }
@@ -230,7 +230,7 @@ static inline AlifObject* lookup_tpMro(AlifTypeObject* _self) { // 517
 static inline void set_tpMro(AlifTypeObject* _self,
 	AlifObject* _mro, AlifIntT _initial) { // 545
 	if (_self->flags & ALIF_TPFLAGS_STATIC_BUILTIN) {
-		alif_setImmortal(_mro);
+		_alif_setImmortal(_mro);
 	}
 	_self->mro = _mro;
 }
@@ -410,7 +410,7 @@ clear:
 
 
 
-void alifType_setVersion(AlifTypeObject* _tp, AlifUIntT _version) { // 1184
+void _alifType_setVersion(AlifTypeObject* _tp, AlifUIntT _version) { // 1184
 	BEGIN_TYPE_LOCK();
 	setVersion_unlocked(_tp, _version);
 	END_TYPE_LOCK();
@@ -579,7 +579,7 @@ static AlifObject* type_module(AlifTypeObject *_type) { // 1396
 				_type->name, (AlifSizeT)(s - _type->name));
 			if (mod != nullptr) {
 				AlifInterpreter* interp = _alifInterpreter_get();
-				alifUStr_internMortal(interp, &mod);
+				_alifUStr_internMortal(interp, &mod);
 			}
 		}
 		else {
@@ -2974,14 +2974,14 @@ AlifObject* _alifType_lookupRef(AlifTypeObject* _type, AlifObject* _name) { // 5
 	TypeCache* cache = get_typeCache();
 	TypeCacheEntry* entry = &cache->hashTable[h_];
 	while (1) {
-		uint32_t sequence = alifSeqLock_beginRead(&entry->sequence);
+		uint32_t sequence = _alifSeqLock_beginRead(&entry->sequence);
 		uint32_t entryVersion = alifAtomic_loadUint32Relaxed(&entry->version);
 		uint32_t typeVersion = alifAtomic_loadUint32Acquire(&_type->versionTag);
 		if (entryVersion == typeVersion and
 			alifAtomic_loadPtrRelaxed(&entry->name) == _name) {
 			AlifObject* value = (AlifObject*)alifAtomic_loadPtrRelaxed(&entry->value);
 			if (value == nullptr or alif_tryIncRef(value)) {
-				if (alifSeqLock_endRead(&entry->sequence, sequence)) {
+				if (_alifSeqLock_endRead(&entry->sequence, sequence)) {
 					return value;
 				}
 				ALIF_XDECREF(value);
@@ -3019,7 +3019,7 @@ AlifObject* _alifType_lookupRef(AlifTypeObject* _type, AlifObject* _name) { // 5
 	return res;
 }
 
-AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
+AlifObject* _alifType_getAttroImpl(AlifTypeObject* _type,
 	AlifObject* _name, AlifIntT* _suppressMissingAttribute) { // 5580
 	AlifTypeObject* metatype = ALIF_TYPE(_type);
 	AlifObject* metaAttribute{}, * attribute{};
@@ -3095,8 +3095,8 @@ AlifObject* alifType_getAttroImpl(AlifTypeObject* _type,
 }
 
 
-AlifObject* alifType_getAttro(AlifObject* _type, AlifObject* _name) { // 5672
-	return alifType_getAttroImpl((AlifTypeObject*)_type, _name, nullptr);
+AlifObject* _alifType_getAttro(AlifObject* _type, AlifObject* _name) { // 5672
+	return _alifType_getAttroImpl((AlifTypeObject*)_type, _name, nullptr);
 }
 
 static void type_dealloc(AlifObject* self) { // 5911
@@ -3167,7 +3167,7 @@ AlifTypeObject _alifTypeType_ = { // 6309
 	.repr = type_repr,
 	.asNumber = &_typeAsNumber_,
 	.call = type_call,
-	.getAttro = alifType_getAttro,
+	.getAttro = _alifType_getAttro,
 	.flags = ALIF_TPFLAGS_DEFAULT | ALIF_TPFLAGS_HAVE_GC |
 	ALIF_TPFLAGS_BASETYPE | ALIF_TPFLAGS_TYPE_SUBCLASS |
 	ALIF_TPFLAGS_HAVE_VECTORCALL |
@@ -4110,7 +4110,7 @@ AlifIntT alifType_ready(AlifTypeObject* _type) { // 8462
 
 	if (!(_type->flags & ALIF_TPFLAGS_HEAPTYPE)) {
 		_type->flags |= ALIF_TPFLAGS_IMMUTABLETYPE;
-		alif_setImmortalUntracked((AlifObject*)_type);
+		_alif_setImmortalUntracked((AlifObject*)_type);
 	}
 
 	AlifIntT res{};
@@ -4134,7 +4134,7 @@ static AlifIntT init_staticType(AlifInterpreter* _interp, AlifTypeObject* _self,
 		_self->flags |= ALIF_TPFLAGS_IMMUTABLETYPE;
 
 		if (_self->versionTag == 0) {
-			alifType_setVersion(_self, NEXT_GLOBAL_VERSION_TAG++);
+			_alifType_setVersion(_self, NEXT_GLOBAL_VERSION_TAG++);
 		}
 	}
 

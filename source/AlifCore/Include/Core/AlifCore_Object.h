@@ -51,8 +51,8 @@ static inline AlifIntT _alifObject_isUniquelyReferenced(AlifObject* ob) { // 144
 		alifAtomic_loadSizeRelaxed(&ob->refShared) == 0);
 }
 
-void alif_setImmortal(AlifObject*); // 162
-void alif_setImmortalUntracked(AlifObject*); // 163 
+ALIFAPI_FUNC(void) _alif_setImmortal(AlifObject*); // 162
+ALIFAPI_FUNC(void) _alif_setImmortalUntracked(AlifObject*); // 163 
 
 
 static inline void _alif_setMortal(AlifObject* _op, AlifSizeT _refCnt) { // 167
@@ -348,13 +348,13 @@ static inline AlifDictValues* alifObject_inlineValues(AlifObject* _obj) { // 803
 }
 
 
-extern AlifObject** _alifObject_computedDictPointer(AlifObject*); // 813
+extern AlifObject** _alifObject_computedDictPointer(AlifObject*); // 860
 
 
-AlifObject* _alifObject_lookupSpecial(AlifObject*, AlifObject*); // 860
-AlifObject* _alifObject_lookupSpecialMethod(AlifObject*, AlifObject*, AlifObject**); // 861
+ALIFAPI_FUNC(AlifObject*) _alifObject_lookupSpecial(AlifObject*, AlifObject*); // 860
+ALIFAPI_FUNC(AlifObject*) _alifObject_lookupSpecialMethod(AlifObject*, AlifObject*, AlifObject**); // 861
 
-AlifIntT _alifObject_getMethod(AlifObject*, AlifObject*, AlifObject**); // 822
+ALIFAPI_FUNC(AlifIntT) _alifObject_getMethod(AlifObject*, AlifObject*, AlifObject**); // 822
 extern AlifObject* _alifObject_nextNotImplemented(AlifObject*); // 823
 
 
@@ -365,10 +365,10 @@ extern AlifObject* _alifObject_nextNotImplemented(AlifObject*); // 823
 #define ALIFCPPFUNCTIONWITHKEYWORDS_TRAMPOLINECALL(_meth, _self, _args, _kw) \
     (_meth)((_self), (_args), (_kw)) // 846
 
-extern AlifTypeObject _alifNoneType_; // 894
+ALIFAPI_DATA(AlifTypeObject) _alifNoneType_; // 894
 
 
-extern AlifIntT _alifSwappedOp_[]; // 899
+ALIFAPI_DATA(AlifIntT) _alifSwappedOp_[]; // 899
 
 
 

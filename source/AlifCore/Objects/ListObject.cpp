@@ -321,7 +321,7 @@ AlifIntT alifList_insert(AlifObject* _op,
 }
 
 
-AlifIntT alifList_appendTakeRefListResize(AlifListObject* _self,
+AlifIntT _alifList_appendTakeRefListResize(AlifListObject* _self,
 	AlifObject* _newItem) { // 468
 	AlifSizeT len_ = ALIF_SIZE(_self);
 	if (list_resize(_self, len_ + 1) < 0) {

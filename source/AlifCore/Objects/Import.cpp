@@ -332,7 +332,7 @@ static AlifSizeT _getCached_moduleIndex(ExtensionsCacheValue* _cached) { // 992
 static void fixup_cachedDef(ExtensionsCacheValue* value) { // 999
 	AlifModuleDef* def = value->def;
 
-	alif_setImmortalUntracked((AlifObject*)def);
+	_alif_setImmortalUntracked((AlifObject*)def);
 
 	def->base.init = value->init;
 
@@ -881,7 +881,7 @@ static AlifObject* import_runExtension(AlifThread* tstate, AlifModInitFunction p
 					filename = ALIF_NEWREF(info->filename);
 				}
 				AlifInterpreter* interp = _alifInterpreter_get();
-				alifUStr_internImmortal(interp, &filename);
+				_alifUStr_internImmortal(interp, &filename);
 
 				if (alifModule_addObjectRef(mod, "__file__", filename) < 0) {
 					alifErr_clear(); /* Not important enough to report */

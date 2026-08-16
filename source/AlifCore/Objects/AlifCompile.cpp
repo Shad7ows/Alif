@@ -121,7 +121,7 @@ static AlifIntT compiler_setup(AlifCompiler* _c, ModuleTy _mod, AlifObject* _fil
 	_c->future.features = merged;
 	_flags->flags = merged;
 	_c->flags = *_flags;
-	_c->optimize = (_optimize == -1) ? alif_getConfig()->optimizationLevel : _optimize;
+	_c->optimize = (_optimize == -1) ? _alif_getConfig()->optimizationLevel : _optimize;
 	_c->saveNestedSeqs = false;
 
 	if (!alifAST_optimize(_mod, _astMem, _c->optimize, merged)) {
@@ -362,7 +362,7 @@ static AlifObject* const_cacheInsert(AlifObject* _constCache,
 		AlifSizeT i_ = 0, pos_ = 0;
 		AlifObject* item{};
 		AlifHashT hash{};
-		while (alifSet_nextEntry(_o, &pos_, &item, &hash)) {
+		while (_alifSet_nextEntry(_o, &pos_, &item, &hash)) {
 			AlifObject* k_ = const_cacheInsert(_constCache, item, _recursive);
 			if (k_ == nullptr) {
 				ALIF_DECREF(tuple);
@@ -1403,7 +1403,7 @@ AlifIntT _alifCompile_astOptimize(ModuleTy _mod, AlifObject* _filename,
 	}
 	AlifIntT flags = future.features | _cf->flags;
 	if (_optimize == -1) {
-		_optimize = alif_getConfig()->optimizationLevel;
+		_optimize = _alif_getConfig()->optimizationLevel;
 	}
 	if (!alifAST_optimize(_mod, _astMem, _optimize, flags)) {
 		return -1;

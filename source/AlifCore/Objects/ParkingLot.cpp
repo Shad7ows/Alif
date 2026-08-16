@@ -46,7 +46,7 @@ static Bucket buckets[NUM_BUCKETS] = { // 48
 };
 
 
-void alifSemaphore_init(AlifSemaphore* _sema) { // 53
+void _alifSemaphore_init(AlifSemaphore* _sema) { // 53
 #if defined(_WINDOWS)
 	_sema->platformSem = CreateSemaphore(
 		nullptr,	//  attributes
@@ -76,7 +76,7 @@ void alifSemaphore_init(AlifSemaphore* _sema) { // 53
 #endif
 }
 
-void alifSemaphore_destroy(AlifSemaphore* _sema) { // 81
+void _alifSemaphore_destroy(AlifSemaphore* _sema) { // 81
 #if defined(_WINDOWS)
 	CloseHandle(_sema->platformSem);
 #elif defined(ALIF_USE_SEMAPHORES)
@@ -299,7 +299,7 @@ static AlifIntT atomic_memcmp(const void* _addr,
 }
 
 
-AlifIntT alifParkingLot_park(const void* addr, const void* expected, AlifUSizeT size,
+AlifIntT _alifParkingLot_park(const void* addr, const void* expected, AlifUSizeT size,
 	AlifTimeT timeout_ns, void* park_arg, AlifIntT detach) { // 295
 	WaitEntry wait = {
 		.parkArg = park_arg,
@@ -314,7 +314,7 @@ AlifIntT alifParkingLot_park(const void* addr, const void* expected, AlifUSizeT 
 		alifRawMutex_unlock(&bucket->mutex);
 		return Alif_Park_Again;
 	}
-	alifSemaphore_init(&wait.sema);
+	_alifSemaphore_init(&wait.sema);
 	enqueue(bucket, addr, &wait);
 	alifRawMutex_unlock(&bucket->mutex);
 
@@ -340,14 +340,14 @@ AlifIntT alifParkingLot_park(const void* addr, const void* expected, AlifUSizeT 
 	alifRawMutex_unlock(&bucket->mutex);
 
 done:
-	alifSemaphore_destroy(&wait.sema);
+	_alifSemaphore_destroy(&wait.sema);
 	return res;
 
 }
 
 
 
-void alifParkingLot_unpark(const void* addr, AlifUnparkFnT* fn, void* arg) { // 344
+void _alifParkingLot_unpark(const void* addr, AlifUnparkFnT* fn, void* arg) { // 344
 	Bucket* bucket = &buckets[((uintptr_t)addr) % NUM_BUCKETS];
 
 	alifRawMutex_lock(&bucket->mutex);
@@ -366,7 +366,7 @@ void alifParkingLot_unpark(const void* addr, AlifUnparkFnT* fn, void* arg) { // 
 	}
 }
 
-void alifParkingLot_unparkAll(const void* _addr) { // 367
+void _alifParkingLot_unparkAll(const void* _addr) { // 367
 	LListNode head = LLIST_INIT(head);
 	Bucket* bucket = &buckets[((uintptr_t)_addr) % NUM_BUCKETS];
 

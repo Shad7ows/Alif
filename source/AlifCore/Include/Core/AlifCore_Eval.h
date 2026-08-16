@@ -13,7 +13,7 @@
 
 
 
-AlifIntT alifEval_makePendingCalls(AlifThread*); // 37
+ALIFAPI_FUNC(AlifIntT) _alifEval_makePendingCalls(AlifThread*); // 37
 
 
 #define ALIF_DEFAULT_RECURSION_LIMIT 1000 // 40
@@ -83,13 +83,13 @@ static inline AlifIntT alif_makeRecCheck(AlifThread* _thread) {
 }
 #endif
 
-AlifIntT alif_checkRecursiveCall(AlifThread*, const char*); // 202
+ALIFAPI_FUNC(AlifIntT) _alif_checkRecursiveCall(AlifThread*, const char*); // 202
 
 AlifIntT _alif_checkRecursiveCallAlif(AlifThread*); // 206
 
 static inline AlifIntT _alif_enterRecursiveCallThread(AlifThread* _thread,
 	const char* where) { // 209
-	return (alif_makeRecCheck(_thread) and alif_checkRecursiveCall(_thread, where));
+	return (alif_makeRecCheck(_thread) and _alif_checkRecursiveCall(_thread, where));
 }
 
 static inline AlifIntT _alif_enterRecursiveCall(const char* _where) { // 219
@@ -108,7 +108,7 @@ static inline void _alif_leaveRecursiveCall(void) { // 228
 
 
 
-AlifObject* _alif_makeCoro(AlifFunctionObject*); // 244
+ALIFAPI_FUNC(AlifObject*) _alif_makeCoro(AlifFunctionObject*); // 244
 
 
 extern AlifObject* _alifEval_getFrameLocals(void); // 250
@@ -120,28 +120,28 @@ public:
 	const char* error{};
 };
 
-extern const AlifSpecialMethod _alifSpecialMethods_[]; // 262
+ALIFAPI_DATA(const AlifSpecialMethod) _alifSpecialMethods_[]; // 262
 
 
-AlifIntT _alifEval_checkExceptStarTypeValid(AlifThread*, AlifObject*); // 265
-AlifIntT _alifEval_checkExceptTypeValid(AlifThread*, AlifObject*); // 267
-AlifIntT _alifEval_exceptionGroupMatch(AlifObject*, AlifObject*, AlifObject**, AlifObject**); // 258
+ALIFAPI_FUNC(AlifIntT) _alifEval_checkExceptStarTypeValid(AlifThread*, AlifObject*); // 265
+ALIFAPI_FUNC(AlifIntT) _alifEval_checkExceptTypeValid(AlifThread*, AlifObject*); // 267
+ALIFAPI_FUNC(AlifIntT) _alifEval_exceptionGroupMatch(AlifObject*, AlifObject*, AlifObject**, AlifObject**); // 258
 
-AlifObject* _alifEval_importFrom(AlifThread*, AlifObject*, AlifObject*); // 262
-AlifObject* _alifEval_importName(AlifThread*, AlifInterpreterFrame*, AlifObject*, AlifObject*, AlifObject*); // 263
-AlifIntT _alifEval_unpackIterableStackRef(AlifThread*, AlifStackRef, AlifIntT, AlifIntT, AlifStackRef*); // 267
-void _alifEval_frameClearAndPop(AlifThread* _thread, AlifInterpreterFrame*); // 268
-void _alifEval_formatExcCheckArg(AlifThread*, AlifObject*, const char*, AlifObject*); // 269
-AlifObject** _alifObjectArray_fromStackRefArray(AlifStackRef*, AlifSizeT, AlifObject**); // 269
+ALIFAPI_FUNC(AlifObject*) _alifEval_importFrom(AlifThread*, AlifObject*, AlifObject*); // 262
+ALIFAPI_FUNC(AlifObject*) _alifEval_importName(AlifThread*, AlifInterpreterFrame*, AlifObject*, AlifObject*, AlifObject*); // 263
+ALIFAPI_FUNC(AlifIntT) _alifEval_unpackIterableStackRef(AlifThread*, AlifStackRef, AlifIntT, AlifIntT, AlifStackRef*); // 267
+ALIFAPI_FUNC(void) _alifEval_frameClearAndPop(AlifThread* _thread, AlifInterpreterFrame*); // 268
+ALIFAPI_FUNC(void) _alifEval_formatExcCheckArg(AlifThread*, AlifObject*, const char*, AlifObject*); // 269
+ALIFAPI_FUNC(AlifObject**) _alifObjectArray_fromStackRefArray(AlifStackRef*, AlifSizeT, AlifObject**); // 269
 
 
-void _alifObjectArray_free(AlifObject**, AlifObject**); // 271
+ALIFAPI_FUNC(void) _alifObjectArray_free(AlifObject**, AlifObject**); // 271
 
-void _alifEval_loadGlobalStackRef(AlifObject*, AlifObject*, AlifObject*, AlifStackRef*); // 274
+ALIFAPI_FUNC(void) _alifEval_loadGlobalStackRef(AlifObject*, AlifObject*, AlifObject*, AlifStackRef*); // 274
 
-AlifObject* _alifEval_loadName(AlifThread*, AlifInterpreterFrame*, AlifObject*); // 276
+ALIFAPI_FUNC(AlifObject*) _alifEval_loadName(AlifThread*, AlifInterpreterFrame*, AlifObject*); // 276
 
-AlifIntT _alifCheck_argsIterable(AlifThread*, AlifObject*, AlifObject*); // 279
+ALIFAPI_FUNC(AlifIntT) _alifCheck_argsIterable(AlifThread*, AlifObject*, AlifObject*); // 279
 
 // 282
 #define ALIF_GIL_DROP_REQUEST_BIT (1U << 0)
@@ -176,4 +176,4 @@ void alifUnset_evalBreakerBitAll(AlifInterpreter*, uintptr_t); // 313
 
 
 
-AlifObject* _alifFloat_fromDoubleConsumeInputs(AlifStackRef, AlifStackRef, double); // 328
+ALIFAPI_FUNC(AlifObject*) _alifFloat_fromDoubleConsumeInputs(AlifStackRef, AlifStackRef, double); // 328

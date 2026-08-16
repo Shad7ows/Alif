@@ -2679,7 +2679,7 @@ AlifIntT alifDict_setItemString(AlifObject* _v,
 	kv = alifUStr_fromString(_key);
 	if (kv == nullptr) return -1;
 	AlifInterpreter* interp = _alifInterpreter_get();
-	alifUStr_internImmortal(interp, &kv);
+	_alifUStr_internImmortal(interp, &kv);
 	err = alifDict_setItem(_v, kv, _item);
 	ALIF_DECREF(kv);
 	return err;

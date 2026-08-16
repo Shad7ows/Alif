@@ -2177,7 +2177,7 @@ static AlifStructSequenceDesc _terminalSizeDesc_ = { // 15259
 
 
 static AlifObject* os_cpuCountImpl(AlifObject* _module) { // 15362
-	const AlifConfig* config = alif_getConfig();
+	const AlifConfig* config = _alif_getConfig();
 	if (config->cpuCount > 0) {
 		return alifLong_fromLong(config->cpuCount);
 	}

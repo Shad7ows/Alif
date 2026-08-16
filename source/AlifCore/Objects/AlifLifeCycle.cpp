@@ -317,7 +317,7 @@ static AlifStatus alifCore_createInterpreter(AlifRuntime* _runtime,
 	AlifStatus status{};
 	AlifInterpreter* interpreter{};
 
-	status = alifInterpreter_new(nullptr, &interpreter);
+	status = _alifInterpreterState_new(nullptr, &interpreter);
 	if (ALIFSTATUS_EXCEPTION(status)) return status;
 
 	interpreter->ready = 1;
@@ -347,7 +347,7 @@ static AlifStatus alifCore_createInterpreter(AlifRuntime* _runtime,
 		return ALIFSTATUS_NO_MEMORY();
 	}
 
-	AlifThread* thread = alifThreadState_new(interpreter);
+	AlifThread* thread = _alifThreadState_new(interpreter);
 
 	if (thread == nullptr) {
 		return ALIFSTATUS_ERR("can't make first thread");

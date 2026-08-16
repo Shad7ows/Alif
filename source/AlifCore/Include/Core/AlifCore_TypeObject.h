@@ -117,16 +117,16 @@ static inline void* _alifType_getModuleState(AlifTypeObject* _type) { // 191
 }
 
 
-AlifObject* alifType_getDict(AlifTypeObject*); // 207
+ALIFAPI_FUNC(AlifObject*) _alifType_getDict(AlifTypeObject*); // 207
 
 static inline AlifIntT alifType_isReady(AlifTypeObject* _type) { // 221
-	return alifType_getDict(_type) != nullptr;
+	return _alifType_getDict(_type) != nullptr;
 }
 
-extern AlifObject* alifType_getAttroImpl(AlifTypeObject*, AlifObject*, AlifIntT*); // 226
+extern AlifObject* _alifType_getAttroImpl(AlifTypeObject*, AlifObject*, AlifIntT*); // 226
 
-extern AlifObject* alifType_getAttro(AlifObject*, AlifObject*); // 228
+extern AlifObject* _alifType_getAttro(AlifObject*, AlifObject*); // 228
 
 
 
-void alifType_setVersion(AlifTypeObject*, AlifUIntT); // 255
+ALIFAPI_FUNC(void) _alifType_setVersion(AlifTypeObject*, AlifUIntT); // 269

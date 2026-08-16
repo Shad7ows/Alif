@@ -1077,7 +1077,7 @@ _read_ascii:
 				// marshal is meant to serialize .alifc files with code
 				// objects, and code-related strings are currently immortal.
 				AlifInterpreter* interp = _alifInterpreter_get();
-				alifUStr_internImmortal(interp, &v);
+				_alifUStr_internImmortal(interp, &v);
 			}
 			retval = v;
 			R_REF(retval);
@@ -1114,7 +1114,7 @@ _read_ascii:
 			// marshal is meant to serialize .alifc files with code
 			// objects, and code-related strings are currently immortal.
 			AlifInterpreter* interp = _alifInterpreter_get();
-			alifUStr_internImmortal(interp, &v);
+			_alifUStr_internImmortal(interp, &v);
 		}
 		retval = v;
 		R_REF(retval);

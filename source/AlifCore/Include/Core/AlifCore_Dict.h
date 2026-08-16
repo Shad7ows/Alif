@@ -7,7 +7,7 @@
 extern AlifObject* _alifDict_getItemWithError(AlifObject*, AlifObject*); // 15
 
 
-AlifIntT alifDict_delItemKnownHash(AlifObject*, AlifObject*, AlifHashT); // 29
+ALIFAPI_FUNC(AlifIntT) alifDict_delItemKnownHash(AlifObject*, AlifObject*, AlifHashT); // 29
 
 extern AlifIntT alifDict_containsKnownHash(AlifObject*, AlifObject*, AlifHashT); // 31
 
@@ -22,7 +22,7 @@ extern void _alifDict_maybeUntrack(AlifObject*); // 46
 #define ALIFDICT_HASSPLITTABLE(_d) ((_d)->values != nullptr) // 50
 
 
-AlifIntT _alifDict_mergeEx(AlifObject*, AlifObject*, AlifIntT); // 58
+ALIFAPI_FUNC(AlifIntT) _alifDict_mergeEx(AlifObject*, AlifObject*, AlifIntT); // 58
 
 
 class AlifDictViewObject { // 64
@@ -54,8 +54,8 @@ extern AlifUSizeT _alifDict_keysSize(AlifDictKeysObject*); // 94
 
 extern void alifDictKeys_decRef(AlifDictKeysObject*); // 96
 
-AlifObject* _alifDict_loadGlobal(AlifDictObject*, AlifDictObject*, AlifObject*); // 106
-void _alifDict_loadGlobalStackRef(AlifDictObject*, AlifDictObject*, AlifObject*, AlifStackRef*); // 109
+ALIFAPI_FUNC(AlifObject*) _alifDict_loadGlobal(AlifDictObject*, AlifDictObject*, AlifObject*); // 106
+ALIFAPI_FUNC(void) _alifDict_loadGlobalStackRef(AlifDictObject*, AlifDictObject*, AlifObject*, AlifStackRef*); // 109
 
 extern AlifObject* _alifDict_loadBuiltinsFromGlobals(AlifObject*); // 112
 
@@ -143,7 +143,7 @@ static inline AlifDictUStrEntry* dk_uStrEntries(AlifDictKeysObject* _dk) { // 21
 
 
 
-void _alifDict_sendEvent(AlifIntT, AlifDictWatchEvent_,
+ALIFAPI_FUNC(void) _alifDict_sendEvent(AlifIntT, AlifDictWatchEvent_,
 	AlifDictObject*, AlifObject*, AlifObject*); // 256
 
 
@@ -159,7 +159,7 @@ static inline void _alifDict_notifyEvent(AlifInterpreter* _interp,
 
 extern AlifDictObject* _alifObject_materializeManagedDict(AlifObject*); // 279
 
-AlifObject* _alifDict_fromItems(AlifObject* const*, AlifSizeT,
+ALIFAPI_FUNC(AlifObject*) _alifDict_fromItems(AlifObject* const*, AlifSizeT,
 	AlifObject* const*, AlifSizeT, AlifSizeT); // 281
 
 static inline uint8_t* getInsertion_orderArray(AlifDictValues* _values) { // 287

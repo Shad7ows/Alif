@@ -156,7 +156,7 @@ AlifIntT alifObject_asFileDescriptor(AlifObject* _o) { // 164
 	return fd;
 }
 
-char* alifUniversal_newLineFGetsWithSize(char* _buf,
+char* _alifUniversal_newLineFGetsWithSize(char* _buf,
 	AlifIntT _n, FILE* _stream, AlifObject* _fObj, AlifUSizeT* _size) { // 228
 	char* p = _buf;
 	AlifIntT c_{};

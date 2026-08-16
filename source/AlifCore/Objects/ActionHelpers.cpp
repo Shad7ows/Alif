@@ -68,7 +68,7 @@ ExprTy alifParserEngine_joinNamesWithDot(AlifParser* _p,
 	if (!str_) return nullptr;
 
 	AlifInterpreter* interp = _alifInterpreter_get();
-	alifUStr_internImmortal(interp, &str_);
+	_alifUStr_internImmortal(interp, &str_);
 	if (alifASTMem_listAddAlifObj(_p->astMem, str_) < 0) {
 		ALIF_DECREF(str_);
 		return nullptr;

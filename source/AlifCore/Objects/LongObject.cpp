@@ -1495,7 +1495,7 @@ static AlifIntT alifLong_intToDecimalString(AlifObject* _aa,
 		AlifSizeT size = ALIFUSTR_GET_LENGTH(s_);
 		const void* data = ALIFUSTR_DATA(s_);
 		AlifIntT kind = ALIFUSTR_KIND(s_);
-		*_bytesStr = (char*)alifBytesWriter_prepare(_bytesWriter, *_bytesStr, size);
+		*_bytesStr = (char*)_alifBytesWriter_prepare(_bytesWriter, *_bytesStr, size);
 		if (*_bytesStr == nullptr) {
 			goto error;
 		}
@@ -1620,7 +1620,7 @@ static AlifIntT long_toDecimalStringInternal(AlifObject* _aa,
 		}
 	}
 	else if (_bytesWriter) {
-		*_bytesStr = (char*)alifBytesWriter_prepare(_bytesWriter, *_bytesStr, strLen);
+		*_bytesStr = (char*)_alifBytesWriter_prepare(_bytesWriter, *_bytesStr, strLen);
 		if (*_bytesStr == nullptr) {
 			ALIF_DECREF(scratch);
 			return -1;
@@ -1772,7 +1772,7 @@ static AlifIntT long_formatBinary(AlifObject* _aa, AlifIntT _base,
 			return -1;
 	}
 	else if (_bytesWriter) {
-		*_bytesStr = (char*)alifBytesWriter_prepare(_bytesWriter, *_bytesStr, sz);
+		*_bytesStr = (char*)_alifBytesWriter_prepare(_bytesWriter, *_bytesStr, sz);
 		if (*_bytesStr == nullptr)
 			return -1;
 	}
@@ -2780,7 +2780,7 @@ static void long_dealloc(AlifObject* _self) { // 3595
 		if (IS_SMALL_INT(ival)) {
 			AlifLongObject* smallAlifLong = (AlifLongObject*)get_smallInt((sdigit)ival);
 			if (alifLong == smallAlifLong) {
-				alif_setImmortal(_self);
+				_alif_setImmortal(_self);
 				return;
 			}
 		}

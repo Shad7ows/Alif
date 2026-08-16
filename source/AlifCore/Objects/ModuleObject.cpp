@@ -597,7 +597,7 @@ static void module_dealloc(AlifObject* self) { // 767
 
 	alifObject_gcUnTrack(m);
 
-	AlifIntT verbose = alif_getConfig()->verbose;
+	AlifIntT verbose = _alif_getConfig()->verbose;
 	if (verbose and m->name) {
 		//alifSys_formatStderr("# destroy %U\n", m->name);
 	}
@@ -668,7 +668,7 @@ AlifIntT _alifModule_isPossiblyShadowing(AlifObject* _origin) { // 870
 		return 0;
 	}
 
-	const AlifConfig* config = alif_getConfig();
+	const AlifConfig* config = _alif_getConfig();
 	if (config->safePath) {
 		return 0;
 	}
@@ -701,7 +701,7 @@ AlifIntT _alifModule_isPossiblyShadowing(AlifObject* _origin) { // 870
 
 	wchar_t sysPath0Buf[MAXPATHLEN];
 	if (sysPath0[0] == L'\0') {
-		if (!alif_wGetCWD(sysPath0Buf, MAXPATHLEN)) {
+		if (!_alif_wGetCWD(sysPath0Buf, MAXPATHLEN)) {
 			return -1;
 		}
 		sysPath0 = sysPath0Buf;

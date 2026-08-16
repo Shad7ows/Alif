@@ -367,7 +367,7 @@ AlifObject* alifParserEngine_newIdentifier(AlifParser* _p, const char* _s) { // 
 		//id = id2;
 	}
 	interp = _alifInterpreter_get();
-	alifUStr_internImmortal(interp, &id);
+	_alifUStr_internImmortal(interp, &id);
 	if (alifASTMem_listAddAlifObj(_p->astMem, id) < 0) {
 		ALIF_DECREF(id);
 		goto error;

@@ -76,7 +76,7 @@ AlifObject* _alifCodec_lookup(const char* _encoding) { // 133
 		return nullptr;
 	}
 
-	alifUStr_internMortal(interp, &v);
+	_alifUStr_internMortal(interp, &v);
 
 	/* First, try to lookup the name in the registry dictionary */
 	AlifObject* result;
@@ -128,7 +128,7 @@ AlifObject* _alifCodec_lookup(const char* _encoding) { // 133
 		goto onError;
 	}
 
-	alifUStr_internImmortal(interp, &v);
+	_alifUStr_internImmortal(interp, &v);
 
 	/* Cache and return the result */
 	if (alifDict_setItem(interp->codecs.searchCache, v, result) < 0) {

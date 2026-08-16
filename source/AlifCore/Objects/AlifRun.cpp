@@ -212,7 +212,7 @@ static AlifIntT parse_exitCode(AlifObject* _code, AlifIntT* _exitcodeP) { // 567
 }
 
 AlifIntT _alif_handleSystemExit(AlifIntT* _exitcodeP) { // 591
-	AlifIntT inspect = alif_getConfig()->inspect;
+	AlifIntT inspect = _alif_getConfig()->inspect;
 	if (inspect) {
 		return 0;
 	}

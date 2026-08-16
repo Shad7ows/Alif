@@ -136,9 +136,9 @@ AlifObject* _alifBytes_decodeEscape(const char* _str, AlifSizeT _len, const char
 	const char* end{};
 	AlifBytesWriter writer{};
 
-	alifBytesWriter_init(&writer);
+	_alifBytesWriter_init(&writer);
 
-	p_ = (char*)alifBytesWriter_alloc(&writer, _len);
+	p_ = (char*)_alifBytesWriter_alloc(&writer, _len);
 	if (p_ == nullptr)
 		return nullptr;
 	writer.overAllocate = 1;
@@ -234,10 +234,10 @@ AlifObject* _alifBytes_decodeEscape(const char* _str, AlifSizeT _len, const char
 		}
 	}
 
-	return alifBytesWriter_finish(&writer, p_);
+	return _alifBytesWriter_finish(&writer, p_);
 
 failed:
-	alifBytesWriter_dealloc(&writer);
+	_alifBytesWriter_dealloc(&writer);
 	return nullptr;
 }
 
@@ -450,7 +450,7 @@ static AlifObject* bytes_richCompare(AlifObject* _aa,
 	AlifObject* _bb, AlifIntT _op) { // 1533
 	/* Make sure both arguments are strings. */
 	if (!(ALIFBYTES_CHECK(_aa) and ALIFBYTES_CHECK(_bb))) {
-		if (alif_getConfig()->bytesWarning and (_op == ALIF_EQ or _op == ALIF_NE)) {
+		if (_alif_getConfig()->bytesWarning and (_op == ALIF_EQ or _op == ALIF_NE)) {
 			if (ALIFUSTR_CHECK(_aa) or ALIFUSTR_CHECK(_bb)) {
 				//if (alifErr_warnEx(_alifExcBytesWarning_,
 				//	"Comparison between bytes and string", 1))
@@ -739,8 +739,8 @@ static AlifObject* _alifBytes_fromList(AlifObject* x) { // 2802
 	AlifObject* item{};
 	AlifBytesWriter writer{};
 
-	alifBytesWriter_init(&writer);
-	str = (char*)alifBytesWriter_alloc(&writer, size);
+	_alifBytesWriter_init(&writer);
+	str = (char*)_alifBytesWriter_alloc(&writer, size);
 	if (str == nullptr)
 		return nullptr;
 	writer.overAllocate = 1;
@@ -761,17 +761,17 @@ static AlifObject* _alifBytes_fromList(AlifObject* x) { // 2802
 		}
 
 		if (i >= size) {
-			str = (char*)alifBytesWriter_resize(&writer, str, size + 1);
+			str = (char*)_alifBytesWriter_resize(&writer, str, size + 1);
 			if (str == nullptr)
 				return nullptr;
 			size = writer.allocated;
 		}
 		*str++ = (char)value;
 	}
-	return alifBytesWriter_finish(&writer, str);
+	return _alifBytesWriter_finish(&writer, str);
 
 error:
-	alifBytesWriter_dealloc(&writer);
+	_alifBytesWriter_dealloc(&writer);
 	return nullptr;
 }
 
@@ -818,8 +818,8 @@ static AlifObject* _alifBytes_fromIterator(AlifObject* it,
 	if (size == -1 and alifErr_occurred())
 		return nullptr;
 
-	alifBytesWriter_init(&writer);
-	str = (char*)alifBytesWriter_alloc(&writer, size);
+	_alifBytesWriter_init(&writer);
+	str = (char*)_alifBytesWriter_alloc(&writer, size);
 	if (str == nullptr)
 		return nullptr;
 	writer.overAllocate = 1;
@@ -853,7 +853,7 @@ static AlifObject* _alifBytes_fromIterator(AlifObject* it,
 
 		/* Append the byte */
 		if (i >= size) {
-			str = (char*)alifBytesWriter_resize(&writer, str, size + 1);
+			str = (char*)_alifBytesWriter_resize(&writer, str, size + 1);
 			if (str == nullptr)
 				return nullptr;
 			size = writer.allocated;
@@ -861,10 +861,10 @@ static AlifObject* _alifBytes_fromIterator(AlifObject* it,
 		*str++ = (char)value;
 	}
 
-	return alifBytesWriter_finish(&writer, str);
+	return _alifBytesWriter_finish(&writer, str);
 
 error:
-	alifBytesWriter_dealloc(&writer);
+	_alifBytesWriter_dealloc(&writer);
 	return nullptr;
 }
 
@@ -1080,13 +1080,13 @@ AlifIntT _alifBytes_resize(AlifObject** _pv, AlifSizeT _newSize) { // 3141
 #endif
 
 
-void alifBytesWriter_init(AlifBytesWriter* _writer) { // 3371
+void _alifBytesWriter_init(AlifBytesWriter* _writer) { // 3371
 	memset(_writer, 0, offsetof(AlifBytesWriter, smallBuffer));
 }
 
 
 
-void alifBytesWriter_dealloc(AlifBytesWriter* _writer) { // 3382
+void _alifBytesWriter_dealloc(AlifBytesWriter* _writer) { // 3382
 	ALIF_CLEAR(_writer->buffer);
 }
 
@@ -1109,7 +1109,7 @@ alifBytesWriter_getSize(AlifBytesWriter* _writer, char* _str) { // 3405
 	return _str - start;
 }
 
-void* alifBytesWriter_resize(AlifBytesWriter* _writer, void* _str, AlifSizeT _size) { // 3452
+void* _alifBytesWriter_resize(AlifBytesWriter* _writer, void* _str, AlifSizeT _size) { // 3452
 	AlifSizeT allocated{}, pos{};
 
 	allocated = _size;
@@ -1159,14 +1159,14 @@ void* alifBytesWriter_resize(AlifBytesWriter* _writer, void* _str, AlifSizeT _si
 	return _str;
 
 error:
-	alifBytesWriter_dealloc(_writer);
+	_alifBytesWriter_dealloc(_writer);
 	return nullptr;
 }
 
 
 
 
-void* alifBytesWriter_prepare(AlifBytesWriter* _writer, void* _str, AlifSizeT _size) { // 3522
+void* _alifBytesWriter_prepare(AlifBytesWriter* _writer, void* _str, AlifSizeT _size) { // 3522
 	AlifSizeT newMinSize{};
 
 	if (_size == 0) {
@@ -1176,28 +1176,28 @@ void* alifBytesWriter_prepare(AlifBytesWriter* _writer, void* _str, AlifSizeT _s
 
 	if (_writer->minSize > ALIF_SIZET_MAX - _size) {
 		//alifErr_noMemory();
-		alifBytesWriter_dealloc(_writer);
+		_alifBytesWriter_dealloc(_writer);
 		return nullptr;
 	}
 	newMinSize = _writer->minSize + _size;
 
 	if (newMinSize > _writer->allocated)
-		_str = alifBytesWriter_resize(_writer, _str, newMinSize);
+		_str = _alifBytesWriter_resize(_writer, _str, newMinSize);
 
 	_writer->minSize = newMinSize;
 	return _str;
 }
 
 
-void* alifBytesWriter_alloc(AlifBytesWriter* writer, AlifSizeT size) { // 3552
+void* _alifBytesWriter_alloc(AlifBytesWriter* writer, AlifSizeT size) { // 3552
 	writer->useSmallBuffer = 1;
 	writer->allocated = sizeof(writer->smallBuffer);
-	return alifBytesWriter_prepare(writer, writer->smallBuffer, size);
+	return _alifBytesWriter_prepare(writer, writer->smallBuffer, size);
 }
 
 
 
-AlifObject* alifBytesWriter_finish(AlifBytesWriter* _writer, void* _str) { // 3582
+AlifObject* _alifBytesWriter_finish(AlifBytesWriter* _writer, void* _str) { // 3582
 	AlifSizeT size{};
 	AlifObject* result{};
 
@@ -1244,7 +1244,7 @@ void* _alifBytesWriter_writeBytes(AlifBytesWriter* _writer, void* _ptr,
 	const void* _bytes, AlifSizeT _size) { // 3626
 	char* str = (char*)_ptr;
 
-	str = (char*)alifBytesWriter_prepare(_writer, str, _size);
+	str = (char*)_alifBytesWriter_prepare(_writer, str, _size);
 	if (str == nullptr)
 		return nullptr;
 

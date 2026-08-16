@@ -534,9 +534,9 @@ AlifIntT alifObject_getOptionalAttr(AlifObject* _v,
 		}
 		return 0;
 	}
-	if (tp_->getAttro == alifType_getAttro) {
+	if (tp_->getAttro == _alifType_getAttro) {
 		AlifIntT suppressMissingAttributeException = 0;
-		*_result = alifType_getAttroImpl((AlifTypeObject*)_v, _name, &suppressMissingAttributeException);
+		*_result = _alifType_getAttroImpl((AlifTypeObject*)_v, _name, &suppressMissingAttributeException);
 		if (suppressMissingAttributeException) {
 			return 0;
 		}
@@ -600,7 +600,7 @@ AlifIntT alifObject_setAttr(AlifObject* _v,
 	ALIF_INCREF(_name);
 
 	AlifInterpreter* interp = _alifInterpreter_get();
-	alifUStr_internMortal(interp, &_name);
+	_alifUStr_internMortal(interp, &_name);
 	if (tp_->setAttro != nullptr) {
 		err = (*tp_->setAttro)(_v, _name, _value);
 		ALIF_DECREF(_name);
@@ -1228,18 +1228,18 @@ void alif_newReferenceNoTotal(AlifObject* _op) { //2438
 	new_reference(_op);
 }
 
-void alif_setImmortalUntracked(AlifObject* _op) { // 2444
+void _alif_setImmortalUntracked(AlifObject* _op) { // 2444
 
 	_op->threadID = ALIF_UNOWNED_TID;
 	_op->refLocal = ALIF_IMMORTAL_REFCNT_LOCAL;
 	_op->refShared = 0;
 }
 
-void alif_setImmortal(AlifObject* _op) { // 2463
+void _alif_setImmortal(AlifObject* _op) { // 2463
 	if (alifObject_isGC(_op) and ALIFOBJECT_GC_IS_TRACKED(_op)) {
 		ALIFOBJECT_GC_UNTRACK(_op);
 	}
-	alif_setImmortalUntracked(_op);
+	_alif_setImmortalUntracked(_op);
 }
 
 void alifObject_setDeferredRefcount(AlifObject* _op) { // 2472

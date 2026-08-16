@@ -368,7 +368,7 @@ static void alifMain_runAlif(AlifIntT* _exitcode) { // 614
 
 	alifMain_header(config);
 
-	alifInterpreter_setRunningMain(interp);
+	_alifInterpreter_setRunningMain(interp);
 
 	if (config->runCommand) {
 		*_exitcode = alifMain_runCommand(config->runCommand);

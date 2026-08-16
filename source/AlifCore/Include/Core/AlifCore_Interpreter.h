@@ -180,7 +180,7 @@ static inline AlifThread* alifInterpreter_getFinalizing(AlifInterpreter* _interp
 
 extern AlifIntT _alifInterpreterState_hasFeature(AlifInterpreter*, unsigned long); // 399
 
-AlifStatus alifInterpreter_new(AlifThread*, AlifInterpreter**); // 402
+ALIFAPI_FUNC(AlifStatus) _alifInterpreterState_new(AlifThread*, AlifInterpreter**); // 402
 
 // 407
 #define RARE_EVENT_INTERP_INC(_interp, _name) \

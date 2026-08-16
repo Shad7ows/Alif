@@ -25,29 +25,29 @@ static inline AlifObject* _alifLong_fromUnsignedChar(unsigned char i) { // 76
 	return (AlifObject*)&ALIFLONG_SMALL_INTS[ALIF_NSMALLNEGINTS+i];
 }
 
-double _alifLong_frexp(AlifLongObject* , int64_t* ); // 88
+ALIFAPI_DATA(double) _alifLong_frexp(AlifLongObject*, int64_t*); // 88
 
 
 extern AlifObject* _alifLong_fromBytes(const char*, AlifSizeT, AlifIntT); // 91
 
-extern AlifObject* _alifLong_format(AlifObject*, AlifIntT, AlifIntT); // 104
+ALIFAPI_DATA(AlifObject*) _alifLong_format(AlifObject*, AlifIntT, AlifIntT); // 104
 
-extern AlifObject* _alifLong_rShift(AlifObject*, int64_t); // 107
+ALIFAPI_DATA(AlifObject*) _alifLong_rShift(AlifObject*, int64_t); // 107
 
-extern AlifObject* _alifLong_lShift(AlifObject*, int64_t); // 111
+ALIFAPI_DATA(AlifObject*) _alifLong_lShift(AlifObject*, int64_t); // 111
 
-extern AlifIntT _alifLong_formatWriter(AlifUStrWriter*, AlifObject*, AlifIntT, AlifIntT); // 128
 
-AlifObject* _alifLong_add(AlifLongObject*, AlifLongObject*); // 112
-AlifObject* _alifLong_multiply(AlifLongObject*, AlifLongObject*); // 113
-AlifObject* _alifLong_subtract(AlifLongObject*, AlifLongObject*); // 114
+ALIFAPI_FUNC(AlifObject*) _alifLong_add(AlifLongObject*, AlifLongObject*); // 112
+ALIFAPI_FUNC(AlifObject*) _alifLong_multiply(AlifLongObject*, AlifLongObject*); // 113
+ALIFAPI_FUNC(AlifObject*) _alifLong_subtract(AlifLongObject*, AlifLongObject*); // 114
 
-extern unsigned char _alifLongDigitValue_[256]; // 118
+ALIFAPI_DATA(unsigned char) _alifLongDigitValue_[256]; // 118
 
 
 extern AlifIntT _alifLong_formatAdvancedWriter(AlifUStrWriter*,
 	AlifObject*, AlifObject*, AlifSizeT, AlifSizeT); // 121
 
+extern AlifIntT _alifLong_formatWriter(AlifUStrWriter*, AlifObject*, AlifIntT, AlifIntT); // 128
 
 
 
