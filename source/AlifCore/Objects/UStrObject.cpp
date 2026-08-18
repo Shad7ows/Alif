@@ -683,12 +683,12 @@ static AlifObject* resize_compact(AlifObject* _uStr, AlifSizeT _length) { // 109
 
 	newUStr = (AlifObject*)alifMem_objRealloc(_uStr, newSize);
 	if (newUStr == nullptr) {
-		alif_newReferenceNoTotal(_uStr);
+		_alif_newReferenceNoTotal(_uStr);
 		//alifErr_noMemory();
 		return nullptr;
 	}
 	_uStr = newUStr;
-	alif_newReferenceNoTotal(_uStr);
+	_alif_newReferenceNoTotal(_uStr);
 
 	ALIFUSTR_LENGTH(_uStr) = _length;
 	ALIFUSTR_WRITE(ALIFUSTR_KIND(_uStr), ALIFUSTR_DATA(_uStr), _length, 0);

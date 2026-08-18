@@ -154,7 +154,7 @@ static inline void _alif_decRefCode(AlifCodeObject* _co) { // 381
 static inline void _alifObject_init(AlifObject* _op, AlifTypeObject* _typeObj) { // 370
 	ALIF_SET_TYPE(_op, _typeObj);
 	_alif_incRefType(_typeObj);
-	alif_newReference(_op);
+	_alif_newReference(_op);
 }
 
 static inline void _alifObject_initVar(AlifVarObject* _op,

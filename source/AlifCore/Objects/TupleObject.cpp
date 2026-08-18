@@ -517,7 +517,7 @@ AlifIntT _alifTuple_resize(AlifObject** _pv, AlifSizeT _newSize) { // 922
 		alifObject_gcDel(v_);
 		return -1;
 	}
-	alif_newReferenceNoTotal((AlifObject*)sv_);
+	_alif_newReferenceNoTotal((AlifObject*)sv_);
 	if (_newSize > oldSize)
 		memset(&sv_->item[oldSize], 0,
 			sizeof(*sv_->item) * (_newSize - oldSize));

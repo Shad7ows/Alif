@@ -1054,7 +1054,7 @@ AlifIntT _alifBytes_resize(AlifObject** _pv, AlifSizeT _newSize) { // 3141
 		//alifErr_noMemory();
 		return -1;
 	}
-	alif_newReferenceNoTotal(*_pv);
+	_alif_newReferenceNoTotal(*_pv);
 	sv = (AlifBytesObject*)*_pv;
 	ALIF_SET_SIZE(sv, _newSize);
 	sv->val[_newSize] = '\0';

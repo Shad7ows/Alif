@@ -55,7 +55,7 @@ static inline void* alifFreeList_popNoStats(AlifFreeList* _fl)  { // 80
 static inline AlifObject* alifFreeList_pop(AlifFreeList* _fl)  {// 91
 	AlifObject* op_ = (AlifObject*)alifFreeList_popNoStats(_fl);
 	if (op_ != nullptr) {
-		alif_newReference(op_);
+		_alif_newReference(op_);
 	}
 	return op_;
 }

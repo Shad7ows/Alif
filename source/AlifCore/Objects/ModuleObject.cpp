@@ -717,7 +717,7 @@ AlifObject* alifModule_getAttroImpl(AlifModuleObject* _m,
 	AlifIntT isPossiblyShadowing{};
 	AlifIntT isPossiblyShadowingStdLib = 0;
 
-	attr = alifObject_genericGetAttrWithDict((AlifObject*)_m, _name, nullptr, _suppress);
+	attr = _alifObject_genericGetAttrWithDict((AlifObject*)_m, _name, nullptr, _suppress);
 	if (attr) {
 		return attr;
 	}
