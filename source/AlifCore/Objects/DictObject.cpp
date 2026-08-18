@@ -267,7 +267,7 @@ static AlifDictKeysObject* new_keysObject(AlifInterpreter* _interp,
 
 static void free_keysObject(AlifDictKeysObject* _keys, bool _useqsbr) { // 804
 	if (_useqsbr) {
-		alifMem_freeDelayed(_keys);
+		_alifMem_freeDelayed(_keys);
 		return;
 	}
 	if (DK_LOG_SIZE(_keys) == ALIFDICT_LOG_MINSIZE and _keys->kind == DictKeysKind_::Dict_Keys_UStr) {
@@ -301,7 +301,7 @@ static inline AlifDictValues* new_values(AlifUSizeT _size) { // 832
 
 static inline void free_values(AlifDictValues* _values, bool _useqsbr) { // 848
 	if (_useqsbr) {
-		alifMem_freeDelayed(_values);
+		_alifMem_freeDelayed(_values);
 		return;
 	}
 	alifMem_objFree(_values);

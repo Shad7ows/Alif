@@ -982,7 +982,7 @@ static AlifCodeUnit* createTlbc_lockHeld(AlifCodeObject* co,
 		}
 		memcpy(newTlbc->entries, tlbc->entries, tlbc->size * sizeof(void *));
 		alifAtomic_storePtrRelease(&co->coTlbc, newTlbc);
-		alifMem_freeDelayed(tlbc);
+		_alifMem_freeDelayed(tlbc);
 		tlbc = newTlbc;
 	}
 	char* bc = (char*)alifMem_dataAlloc(ALIFCODE_NBYTES(co));

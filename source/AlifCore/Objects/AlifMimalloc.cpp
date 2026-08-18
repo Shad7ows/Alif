@@ -178,7 +178,7 @@ static void free_delayed(uintptr_t _ptr) { // 1107
 	}
 }
 
-void alifMem_freeDelayed(void* _ptr) { // 1163
+void _alifMem_freeDelayed(void* _ptr) { // 1163
 	free_delayed((uintptr_t)_ptr);
 }
 

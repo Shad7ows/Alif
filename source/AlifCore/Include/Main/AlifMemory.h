@@ -15,15 +15,14 @@
 
 extern class AlifMemory _alifMem_;
 
-void* alifMem_objAlloc(AlifUSizeT);
-void* alifMem_dataAlloc(AlifUSizeT);
+ALIFAPI_FUNC(void*) alifMem_objAlloc(AlifUSizeT);
+ALIFAPI_FUNC(void*) alifMem_dataAlloc(AlifUSizeT);
 
-void alifMem_objFree(void*);
-void alifMem_dataFree(void*);
-void alifMem_freeDelayed(void*); // 120
+ALIFAPI_FUNC(void) alifMem_objFree(void*);
+ALIFAPI_FUNC(void) alifMem_dataFree(void*);
 
-void* alifMem_objRealloc(void*, AlifUSizeT);
-void* alifMem_dataRealloc(void*, AlifUSizeT);
+ALIFAPI_FUNC(void*) alifMem_objRealloc(void*, AlifUSizeT);
+ALIFAPI_FUNC(void*) alifMem_dataRealloc(void*, AlifUSizeT);
 
 const void alif_getMemState();
 

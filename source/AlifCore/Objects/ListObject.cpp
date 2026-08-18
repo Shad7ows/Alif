@@ -39,7 +39,7 @@ static AlifSizeT list_capacity(AlifObject** _items) { // 48
 static void free_listItems(AlifObject** _items, bool _useQSBR) { // 55
 	AlifListArray* array = ALIF_CONTAINER_OF(_items, AlifListArray, item);
 	if (_useQSBR) {
-		alifMem_freeDelayed(array);
+		_alifMem_freeDelayed(array);
 	}
 	else {
 		alifMem_objFree(array);
