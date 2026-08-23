@@ -278,7 +278,7 @@ void alifEval_initGIL(AlifThread* _thread, AlifIntT _ownGIL) { // 488
 		init_ownGIL(_thread->interpreter, &_thread->interpreter->gil_);
 	}
 
-	alifThread_attach(_thread);
+	_alifThread_attach(_thread);
 }
 
 
@@ -316,19 +316,19 @@ void alifEval_releaseLock(AlifInterpreter* _interp,
 
 void alifEval_acquireThread(AlifThread* _thread) { // 591
 	ALIF_ENSURETHREADNOTNULL(_thread);
-	alifThread_attach(_thread);
+	_alifThread_attach(_thread);
 }
 
 
 void alifEval_releaseThread(AlifThread* _thread) { // 598
-	alifThread_detach(_thread);
+	_alifThread_detach(_thread);
 }
 
 
 
 AlifThread* alifEval_saveThread() { // 628
 	AlifThread* tstate = _alifThread_get();
-	alifThread_detach(tstate);
+	_alifThread_detach(tstate);
 	return tstate;
 }
 
@@ -338,7 +338,7 @@ void alifEval_restoreThread(AlifThread* _thread) { // 636
 #endif
 
 	ALIF_ENSURETHREADNOTNULL(_thread);
-	alifThread_attach(_thread);
+	_alifThread_attach(_thread);
 
 #ifdef _WINDOWS
 	SetLastError(err);

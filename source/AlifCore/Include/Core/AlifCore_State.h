@@ -62,9 +62,9 @@ static inline AlifIntT _alifThreadState_isAttached(AlifThread* _thread) { // 144
 }
 
 
-extern void alifThread_attach(AlifThread*); // 157
+extern void _alifThread_attach(AlifThread*); // 157
 
-
+extern void _alifThread_detach(AlifThread*); // 163
 
 
 extern void _alifEval_stopTheWorld(AlifInterpreter*); // 179

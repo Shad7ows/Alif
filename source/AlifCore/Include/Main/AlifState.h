@@ -10,15 +10,15 @@
 
 
 
-AlifInterpreter* alifInterpreter_get(); // 26
+ALIFAPI_FUNC(AlifInterpreter*) alifInterpreter_get(); // 26
 
-int64_t alifInterpreter_getID(AlifInterpreter*); // 36
+ALIFAPI_FUNC(int64_t) alifInterpreter_getID(AlifInterpreter*); // 36
 
-AlifThread* alifThread_get(); // 60
+ALIFAPI_FUNC(AlifThread*) alifThread_get(); // 60
 
 #define ALIFTHREADSTATE_GET() alifThread_get() // 63
 
-AlifObject* alifThreadState_getDict(); // 66
+ALIFAPI_FUNC(AlifObject*) alifThreadState_getDict(); // 66
 
 
 
@@ -113,7 +113,7 @@ public:
 
 
 
-extern void alifThread_detach(AlifThread*); // 157
+
 
 
 
@@ -123,7 +123,7 @@ extern void alifThread_detach(AlifThread*); // 157
 
 
 
-AlifInterpreter* alifInterpreter_head(); // 263
+ALIFAPI_FUNC(AlifInterpreter*) alifInterpreter_head(); // 269
 
 typedef AlifObject* (*AlifFrameEvalFunction)(AlifThread*,
 	class AlifInterpreterFrame*, AlifIntT); // 271

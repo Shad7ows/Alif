@@ -28,5 +28,3 @@
                           (ALIF_RELEASE_LEVEL << 0))
 
 
-
-//const char* alif_getVersion();

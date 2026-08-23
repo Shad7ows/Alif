@@ -139,7 +139,7 @@ class AlifCodeObject ALIFCODE_DEF(1); // 140
 
 #define MAXBLOCKS 21
 
-extern AlifTypeObject _alifCodeType_; // 189
+ALIFAPI_DATA(AlifTypeObject) _alifCodeType_; // 189
 #define ALIFCODE_CHECK(_op) ALIF_IS_TYPE((_op), &_alifCodeType_)
 
 
@@ -153,7 +153,7 @@ static inline AlifIntT alifUnstableCode_getFirstFree(AlifCodeObject* _op) { // 2
 }
 
 
-AlifIntT alifCode_addr2Line(AlifCodeObject*, AlifIntT); // 243
+ALIFAPI_FUNC(AlifIntT) alifCode_addr2Line(AlifCodeObject*, AlifIntT); // 243
 
 
 // 247
@@ -189,10 +189,10 @@ public:
 typedef AlifCodeAddressRange LineOffsets;
 
 
-AlifIntT _alifCode_checkLineNumber(AlifIntT, AlifCodeAddressRange*); // 304
+ALIFAPI_FUNC(AlifIntT) _alifCode_checkLineNumber(AlifIntT, AlifCodeAddressRange*); // 329
 
 
-AlifObject* _alifCode_constantKey(AlifObject*); // 309
+ALIFAPI_FUNC(AlifObject*) _alifCode_constantKey(AlifObject*); // 309
 
 enum AlifCodeLocationInfoKind { // 340
 	AlifCode_Location_Info_Short = 0,

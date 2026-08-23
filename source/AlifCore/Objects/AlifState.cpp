@@ -499,7 +499,7 @@ static void thread_setDetached(AlifThread* _thread, AlifIntT _detachedState) { /
 }
 
 
-void alifThread_attach(AlifThread* _thread) { // 2070
+void _alifThread_attach(AlifThread* _thread) { // 2070
 	ALIF_ENSURETHREADNOTNULL(_thread);
 	if (current_fastGet() != nullptr) {
 		//alif_fatalError("non-nullptr old thread state");
@@ -546,7 +546,7 @@ static void detach_thread(AlifThread* _thread, AlifIntT detachedState) { // 2122
 	alifEval_releaseLock(_thread->interpreter, _thread, 0);
 }
 
-void alifThread_detach(AlifThread* _thread) { // 2140
+void _alifThread_detach(AlifThread* _thread) { // 2140
 	detach_thread(_thread, ALIF_THREAD_DETACHED);
 }
 

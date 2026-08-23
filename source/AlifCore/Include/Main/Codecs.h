@@ -8,14 +8,14 @@ ALIFAPI_FUNC(AlifIntT) alifCodec_register(AlifObject*);
 
 
 
+ALIFAPI_FUNC(AlifObject*) alifCodec_strictErrors(AlifObject*); // 150
 
 
 
-extern const char* _alifHexDigits_;
+ALIFAPI_DATA(const char*) _alifHexDigits_;
 
 
 
 
 
 
-AlifObject* alifCodec_strictErrors(AlifObject*); // 150
