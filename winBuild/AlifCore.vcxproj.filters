@@ -597,9 +597,6 @@
     <ClInclude Include="..\source\AlifCore\Include\Main\FileUtils.h">
       <Filter>Include\Main</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\FindMaxChar.h">
-      <Filter>Include\Main</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\AlifCore\Include\Main\Import.h">
       <Filter>Include\Main</Filter>
     </ClInclude>
@@ -1151,6 +1148,9 @@
     </ClInclude>
     <ClInclude Include="..\source\AlifCore\Include\Main\MemoryHelpers.h">
       <Filter>Include\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\AlifCore\Include\Main\StringLib\FindMaxChar.h">
+      <Filter>Include\Main\StringLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
