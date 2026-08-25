@@ -773,7 +773,7 @@ static AlifObject* r_alifLong(RFILE* p) { // 854
 
 	n = r_long(p);
 	if (n == 0)
-		return (AlifObject*)alifLong_new(0);
+		return (AlifObject*)_alifLong_new(0);
 	if (n == -1 and alifErr_occurred()) {
 		return nullptr;
 	}
@@ -785,7 +785,7 @@ static AlifObject* r_alifLong(RFILE* p) { // 854
 
 	size = 1 + (ALIF_ABS(n) - 1) / ALIFLONG_MARSHAL_RATIO;
 	shorts_in_top_digit = 1 + (ALIF_ABS(n) - 1) % ALIFLONG_MARSHAL_RATIO;
-	ob = alifLong_new(size);
+	ob = _alifLong_new(size);
 	if (ob == nullptr)
 		return nullptr;
 

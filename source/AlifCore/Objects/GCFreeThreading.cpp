@@ -155,7 +155,7 @@ AlifVarObject* alifObject_gcNewVar(AlifTypeObject* _tp, AlifSizeT _nItems) { // 
 	return op_;
 }
 
-AlifVarObject* alifObject_gcResize(AlifVarObject* _op, AlifSizeT _nItems) { // 1852 
+AlifVarObject* _alifObject_gcResize(AlifVarObject* _op, AlifSizeT _nItems) { // 1852 
 	const AlifUSizeT basicSize = alifObject_varSize(ALIF_TYPE(_op), _nItems);
 	const AlifUSizeT preSize = alifType_preHeaderSize(((AlifObject*)_op)->type);
 	if (basicSize > (AlifUSizeT)ALIF_SIZET_MAX - preSize) {
