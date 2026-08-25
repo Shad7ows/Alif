@@ -1,7 +1,7 @@
 #pragma once
 
 
-ALIFAPI_FUNC(AlifTypeObject) _alifZipType_;
+ALIFAPI_DATA(AlifTypeObject) _alifZipType_;
 
 
 

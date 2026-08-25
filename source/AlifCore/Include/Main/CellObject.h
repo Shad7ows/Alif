@@ -8,7 +8,7 @@ public:
 	AlifObject* ref{};
 };
 
-ALIFAPI_FUNC(AlifTypeObject) _alifCellType_; // 16
+ALIFAPI_DATA(AlifTypeObject) _alifCellType_; // 16
 
 #define ALIFCELL_CHECK(_op) ALIF_IS_TYPE(_op, &_alifCellType_) // 18
 

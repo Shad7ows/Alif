@@ -16,7 +16,7 @@ public:
 };
 
 
-ALIFAPI_FUNC(AlifTypeObject) _alifMethodType_; // 20
+ALIFAPI_DATA(AlifTypeObject) _alifMethodType_; // 20
 
 #define ALIFMETHOD_CHECK(_op) ALIF_IS_TYPE((_op), &_alifMethodType_) // 22
 
