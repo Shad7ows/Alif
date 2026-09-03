@@ -207,6 +207,9 @@ static AlifStatus init_interpreter(AlifInterpreter* _interpreter,
 	_interpreter->runtime = _Runtime;
 	_interpreter->id_ = _id;
 	_interpreter->next = _next;
+
+	_interpreter->threads.preallocated = &_interpreter->initialThread;
+
 	alifGC_initState(&_interpreter->gc);
 	alifConfig_initAlifConfig(&_interpreter->config);
 
@@ -327,15 +330,15 @@ AlifInterpreter* alifInterpreter_get() { // 1331
 	ALIF_ENSURETHREADNOTNULL(tstate);
 	AlifInterpreter* interp = tstate->interpreter;
 	if (interp == nullptr) {
-		//alif_fatalError("no current interpreter");
-		return nullptr; //* alif //* delete
+		alif_fatalError("لا يوجد مفسر");
 	}
 	return interp;
 }
 
 #define DATA_STACK_CHUNK_SIZE (16*1024) // 1414
 
-static AlifStackChunk* allocate_chunk(AlifIntT _sizeInBytes, AlifStackChunk* _previous) { // 1417
+static AlifStackChunk* allocate_chunk(AlifIntT _sizeInBytes,
+	AlifStackChunk* _previous) { // 1417
 	AlifStackChunk* res_ = (AlifStackChunk*)alifMem_dataAlloc(_sizeInBytes); //* alif
 	if (res_ == nullptr) {
 		return nullptr;
@@ -347,8 +350,42 @@ static AlifStackChunk* allocate_chunk(AlifIntT _sizeInBytes, AlifStackChunk* _pr
 }
 
 
+static void reset_thread(AlifThreadImpl* _thread) { // 1393
+	memcpy(_thread,
+		&_initial_.mainInterpreter.initialThread,
+		sizeof(*_thread));
+}
 
-static void init_thread(AlifThreadImpl* _thread, AlifInterpreter* _interpreter, AlifUSizeT _id) { // 1460
+static AlifThreadImpl* alloc_thread(AlifInterpreter* _interp) { // 1402
+	AlifThreadImpl* thread{};
+
+	// Try the preallocated thread first.
+	thread = (AlifThreadImpl*)alifAtomic_exchangePtr(&_interp->threads.preallocated, nullptr);
+
+	// Fall back to the allocator.
+	if (thread == nullptr) {
+		thread = (AlifThreadImpl*)alifMem_dataAlloc(sizeof(AlifThreadImpl));
+		if (thread == nullptr) {
+			return nullptr;
+		}
+		reset_thread(thread);
+	}
+	return thread;
+}
+
+static void free_thread(AlifThreadImpl* _thread) { // 1421
+	AlifInterpreter* interp = _thread->base.interpreter;
+	if (_thread == &interp->initialThread) {
+		reset_thread(_thread);
+		alifAtomic_storePtr(&interp->threads.preallocated, _thread);
+	}
+	else {
+		alifMem_dataFree(_thread);
+	}
+}
+
+static void init_thread(AlifThreadImpl* _thread,
+	AlifInterpreter* _interpreter, AlifUSizeT _id) { // 1460
 	AlifThread* thread = (AlifThread*)_thread;
 	if (thread->status.initialized) {
 		// error
@@ -387,50 +424,32 @@ static void add_thread(AlifInterpreter* _interpreter,
 
 static AlifThread* new_thread(AlifInterpreter* _interpreter) { // 1533
 
-	AlifThreadImpl* thread{};
-
-	AlifRuntime* runtime = _interpreter->runtime;
-	AlifThreadImpl* newThread = (AlifThreadImpl*)alifMem_dataAlloc(sizeof(AlifThreadImpl));
-	AlifIntT usedNewThread{};
-	if (newThread == nullptr) {
+	AlifThreadImpl* thread = alloc_thread(_interpreter);
+	if (thread == nullptr) {
 		return nullptr;
 	}
 
 	AlifSizeT qsbrIDx = alifQSBR_reserve(_interpreter);
 	if (qsbrIDx < 0) {
-		alifMem_dataFree(newThread);
+		free_thread(thread);
 		return nullptr;
 	}
 	int32_t tlbcIdx = _alif_reserveTLBCIndex(_interpreter);
 	if (tlbcIdx < 0) {
-		alifMem_dataFree(newThread);
+		free_thread(thread);
 		return nullptr;
 	}
 
-	HEAD_LOCK(runtime);
+	HEAD_LOCK(_interpreter->runtime);
 
 	_interpreter->threads.nextUniquID += 1;
 	AlifSizeT id = _interpreter->threads.nextUniquID;
+	init_thread(thread, _interpreter, id);
 
 	AlifThread* oldHead = _interpreter->threads.head;
-	if (oldHead == nullptr) {
-		// It's the interpreter's initial thread state.
-		usedNewThread = 0;
-		thread = &_interpreter->initialThread;
-	}
-	else {
-		usedNewThread = 1;
-		thread = newThread;
-		memcpy(thread, &_initial_.mainInterpreter.initialThread, sizeof(*thread));
-	}
-
-	init_thread(thread, _interpreter, id);
 	add_thread(_interpreter, (AlifThread*)thread, oldHead);
 
-	HEAD_UNLOCK(runtime);
-	if (!usedNewThread) {
-		alifMem_dataFree(newThread);
-	}
+	HEAD_UNLOCK(_interpreter->runtime);
 
 	// Must be called with lock unlocked to avoid lock ordering deadlocks.
 	alifQSBR_register(thread, _interpreter, qsbrIDx);

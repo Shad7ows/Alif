@@ -1991,13 +1991,16 @@ resume_frame:
 						_alifFrame_setStackPointer(_frame, stackPointer);
 						AlifIntT optimized = _alifOptimizer_optimize(_frame, start, stackPointer, &executor, 0);
 						stackPointer = _alifFrame_getStackPointer(_frame);
-						if (optimized < 0) goto error;
-						if (optimized) {
-							_thread->previousExecutor = ALIF_NONE;
-							GOTO_TIER_TWO(executor);
+						if (optimized <= 0) {
+							thisInstr[1].counter = restart_backoffCounter(counter);
+							if (optimized < 0) goto error;
 						}
 						else {
-							thisInstr[1].counter = restart_backoffCounter(counter);
+							_alifFrame_setStackPointer(_frame, stackPointer);
+							thisInstr[1].counter = initial_jumpBackoffCounter();
+							stackPointer = _alifFrame_getStackPointer(_frame);
+							_thread->previousExecutor = ALIF_NONE;
+							GOTO_TIER_TWO(executor);
 						}
 					}
 					else {

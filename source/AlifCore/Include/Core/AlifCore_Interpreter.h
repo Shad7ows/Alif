@@ -75,6 +75,7 @@ public:
 	public:
 		AlifUSizeT nextUniquID{};
 		AlifThread* head{};
+		AlifThreadImpl *preallocated{};
 		AlifThread* main{};
 		AlifUSizeT count{};
 
@@ -147,6 +148,7 @@ public:
 
 
 	AlifInterpCachedObjects cachedObjects{};
+	AlifSizeT _interactiveSrcCount{};
 
 	AlifThreadImpl initialThread{};
 };
