@@ -136,7 +136,7 @@ static inline AlifSizeT alifAtomic_exchangeSize(AlifSizeT* _obj, AlifSizeT _valu
 	return __atomic_exchange_n(_obj, _value, __ATOMIC_SEQ_CST);
 }
 
-static inline void* alifAtomic_exchangeptr(void* _obj, void* _value) { // 193
+static inline void* alifAtomic_exchangePtr(void* _obj, void* _value) { // 193
 	return __atomic_exchange_n((void**)_obj, _value, __ATOMIC_SEQ_CST);
 }
 
