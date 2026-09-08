@@ -7,10 +7,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <locale.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef _WINDOWS
+#  include <locale.h>
 #  include <windows.h>
 #else
 #  include <unistd.h>
@@ -232,8 +232,6 @@ error:
 }
 
 #ifdef _WINDOWS
-/* تصل المعاملات إلى main بترميز صفحة النظام، فتتحول الحروف العربية في
-   المسار إلى '?' ويفشل فتح الملف على نظام لغته ليست العربية. */
 int wmain(int argc, wchar_t* wargv[]) {
 	setlocale(LC_ALL, ".UTF-8");
 
