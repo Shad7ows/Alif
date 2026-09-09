@@ -9,7 +9,10 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef _WINDOWS
+#ifdef _WINDOWS
+#  include <locale.h>
+#  include <windows.h>
+#else
 #  include <unistd.h>
 #endif
 
@@ -183,7 +186,7 @@ static int write_frozen(const char* outpath, const char* inpath,
 	return 0;
 }
 
-int main(int argc, char* argv[]) {
+static int freeze_main(int argc, char* argv[]) {
 	const char* name, * inpath, * outpath;
 
 	_alifImportFrozenBootstrap_ = _noModules_;
@@ -227,3 +230,27 @@ error:
 	alif_finalize();
 	return 1;
 }
+
+#ifdef _WINDOWS
+int wmain(int argc, wchar_t* wargv[]) {
+	setlocale(LC_ALL, ".UTF-8");
+
+	char** argv = (char**)calloc(argc + 1, sizeof(char*));
+	if (!argv) return 2;
+
+	for (int i = 0; i < argc; i++) {
+		int n = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, nullptr, 0, nullptr, nullptr);
+		if (n <= 0) return 2;
+		argv[i] = (char*)malloc(n);
+		if (!argv[i]) return 2;
+		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, argv[i], n, nullptr, nullptr);
+	}
+
+	int r = freeze_main(argc, argv);
+	return r;
+}
+#else
+int main(int argc, char* argv[]) {
+	return freeze_main(argc, argv);
+}
+#endif
