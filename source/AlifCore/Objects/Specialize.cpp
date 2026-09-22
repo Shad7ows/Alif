@@ -21,8 +21,10 @@
 
 
 
-
-
+// 435
+#ifndef SPECIALIZATION_FAIL
+#  define SPECIALIZATION_FAIL(opcode, kind) ((void)0)
+#endif
 
 
 // Initialize warmup counters and optimize instructions. This cannot fail.
@@ -160,21 +162,20 @@ static inline AlifBackoffCounter load_counter(AlifBackoffCounter* _counter) { //
 static inline void specialize(AlifCodeUnit* _instr, uint8_t _specializedOpcode) {
 	if (!set_opcode(_instr, _specializedOpcode)) {
 		//STAT_INC(_alifOpcodeDeopt_[_specializedOpcode], failure);
-		//SPECIALIZATION_FAIL(_alifOpcodeDeopt_[_specializedOpcode], SPEC_FAIL_OTHER);
+		SPECIALIZATION_FAIL(_alifOpcodeDeopt_[_specializedOpcode], SPEC_FAIL_OTHER);
 		return;
 	}
 	set_counter((AlifBackoffCounter*)_instr + 1, adaptive_counterCooldown());
 }
 
-static inline void unspecialize(AlifCodeUnit* _instr, AlifIntT _reason) { // 721
+static inline void unspecialize(AlifCodeUnit* _instr) { // 721
 	uint8_t opcode = alifAtomic_loadUint8Relaxed(&_instr->op.code);
 	uint8_t genericOpcode = _alifOpcodeDeopt_[opcode];
 	//STAT_INC(generic_opcode, failure);
 	if (!set_opcode(_instr, genericOpcode)) {
-		//SPECIALIZATION_FAIL(genericOpcode, SPEC_FAIL_OTHER);
+		SPECIALIZATION_FAIL(genericOpcode, SPEC_FAIL_OTHER);
 		return;
 	}
-	//SPECIALIZATION_FAIL(genericOpcode, reason);
 	AlifBackoffCounter *counter = (AlifBackoffCounter*)_instr + 1;
 	AlifBackoffCounter cur = load_counter(counter);
 	set_counter(counter, adaptive_counterBackoff(cur));
@@ -182,7 +183,7 @@ static inline void unspecialize(AlifCodeUnit* _instr, AlifIntT _reason) { // 721
 
 
 
-
+#ifdef ALIF_STATS
 static AlifIntT binaryOp_failKind(AlifIntT oparg,
 	AlifObject *lhs, AlifObject *rhs) { // 2246
 	switch (oparg) {
@@ -249,7 +250,7 @@ static AlifIntT binaryOp_failKind(AlifIntT oparg,
 	}
 	ALIF_UNREACHABLE();
 }
-
+#endif
 
 void _alifSpecialize_binaryOp(AlifStackRef _lhsSt, AlifStackRef _rhsSt,
 	AlifCodeUnit* _instr, AlifIntT _oparg, AlifStackRef* _locals) { // 2268
@@ -309,11 +310,12 @@ void _alifSpecialize_binaryOp(AlifStackRef _lhsSt, AlifStackRef _rhsSt,
 		}
 		break;
 	}
-	unspecialize(_instr, binaryOp_failKind(_oparg, lhs, rhs));
+	SPECIALIZATION_FAIL(BINARY_OP, binaryOp_failKind(_oparg, lhs, rhs));
+	unspecialize(_instr);
 }
 
 
-
+#ifdef ALIF_STATS
 static AlifIntT containsOp_failKind(AlifObject* value) { // 2763
 	if (ALIFUSTR_CHECKEXACT(value)) {
 		return SPEC_FAIL_CONTAINS_OP_STR;
@@ -329,6 +331,7 @@ static AlifIntT containsOp_failKind(AlifObject* value) { // 2763
 	}
 	return SPEC_FAIL_OTHER;
 }
+#endif
 
 void _alifSpecialize_containsOp(AlifStackRef _valueSt, AlifCodeUnit* _instr) { // 2780
 	AlifObject* value = alifStackRef_asAlifObjectBorrow(_valueSt);
@@ -342,6 +345,7 @@ void _alifSpecialize_containsOp(AlifStackRef _valueSt, AlifCodeUnit* _instr) { /
 		return;
 	}
 
-	unspecialize(_instr, containsOp_failKind(value));
+	SPECIALIZATION_FAIL(CONTAINS_OP, containsOp_failKind(value));
+	unspecialize(_instr);
 	return;
 }
