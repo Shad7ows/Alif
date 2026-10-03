@@ -99,7 +99,7 @@ extern AlifStatus _alifRuntime_initialize(); // 329
 
 
 
-extern void _alifRuntime_finalize(void);
+extern void _alifRuntime_finalize(void); // 220
 
 static inline AlifThread* alifRuntimeState_getFinalizing(AlifRuntime* _runtime) { // 383
 	return (AlifThread*)alifAtomic_loadPtrRelaxed(&_runtime->finalizing_);

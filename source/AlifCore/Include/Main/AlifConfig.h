@@ -72,6 +72,8 @@
 #define HAVE_WINDOWS_CONSOLE_IO 1
 #endif
 
+/*  All windows compilers that use this header support __declspec */
+#define HAVE_DECLSPEC_DLL
 
 #define PLATFORM "ويندوز32"
 

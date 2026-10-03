@@ -328,13 +328,15 @@ ALIFAPI_FUNC(AlifObject*) alif_getConstant(AlifUIntT); // 624
 
 
 
-ALIFAPI_DATA(AlifObject) _alifNoneClass_; // 623
+ALIFAPI_DATA(AlifObject) _alifNoneClass_; // 633
 
 #define ALIF_NONE (&_alifNoneClass_) // 628
 
 
 #define ALIF_ISNONE(_x) ALIF_IS((_x), ALIF_NONE) // 633
 
+/* Macro for returning ALIF_NONE from a function */
+#define ALIF_RETURN_NONE return ALIF_NONE
 
 ALIFAPI_DATA(AlifObject) _alifNotImplementedClass_;  // 642
 

@@ -1055,6 +1055,7 @@ AlifTypeObject _alifNoneType_ = { // 2049
 	.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTypeType_, 0),
 	.name = "عدم",
 	.repr = none_repr,
+	.flags = ALIF_TPFLAGS_DEFAULT,
 };
 
 AlifObject _alifNoneClass_ = ALIFOBJECT_HEAD_INIT(&_alifNoneType_); // 2090
