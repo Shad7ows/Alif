@@ -459,6 +459,22 @@ static AlifThread* new_thread(AlifInterpreter* _interpreter) { // 1533
 }
 
 
+AlifThread* alifThreadState_new(AlifInterpreter* interp) { // 1564
+	return _alifThreadState_newBound(interp);
+}
+
+AlifThread* _alifThreadState_newBound(AlifInterpreter* interp) { // 1570
+	AlifThread* tstate = new_thread(interp);
+	if (tstate) {
+		bind_thread(tstate);
+		if (GILSTATE_TSS_GET(tstate->interpreter->runtime) == NULL) {
+			bind_gilStateThread(tstate);
+		}
+	}
+	return tstate;
+}
+
+
 AlifThread* _alifThreadState_new(AlifInterpreter* _interpreter) { // 1622
 	return new_thread(_interpreter);
 }
@@ -693,6 +709,20 @@ AlifThread* alifThread_get() { // 2419
 	return thread;
 }
 
+AlifThread* _alifThreadState_swap(AlifRuntime* runtime, AlifThread* newts) { // 2400
+	AlifThread* oldts = current_fastGet();
+	if (oldts != NULL) {
+		_alifThread_detach(oldts);
+	}
+	if (newts != NULL) {
+		_alifThread_attach(newts);
+	}
+	return oldts;
+}
+
+AlifThread* alifThreadState_swap(AlifThread* newts) { // 2413
+	return _alifThreadState_swap(&_alifRuntime_, newts);
+}
 
 void alifThread_bind(AlifThread* _thread) { // 2447
 
@@ -717,6 +747,9 @@ AlifInterpreter* alifInterpreter_head() { // 2485
 }
 
 
+AlifInterpreter* alifInterpreterState_main(void) { // 2463
+	return _alifInterpreterState_main();
+}
 
 
 AlifStatus alifGILState_init(AlifInterpreter* _interp) { // 2652

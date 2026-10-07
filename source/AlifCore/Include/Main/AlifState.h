@@ -14,9 +14,14 @@ ALIFAPI_FUNC(AlifInterpreter*) alifInterpreter_get(); // 26
 
 ALIFAPI_FUNC(int64_t) alifInterpreter_getID(AlifInterpreter*); // 36
 
+
+ALIFAPI_FUNC(AlifThread*) alifThreadState_new(AlifInterpreter*); // 48
+
 ALIFAPI_FUNC(AlifThread*) alifThread_get(); // 60
 
 #define ALIFTHREADSTATE_GET() alifThread_get() // 63
+
+ALIFAPI_FUNC(AlifThread*) alifThreadState_swap(AlifThread*); // 65
 
 ALIFAPI_FUNC(AlifObject*) alifThreadState_getDict(); // 66
 
@@ -122,7 +127,7 @@ public:
 #define ALIFCPP_RECURSION_LIMIT 3000 // 214
 
 
-
+ALIFAPI_FUNC(AlifInterpreter*) alifInterpreterState_main(void); // 268
 ALIFAPI_FUNC(AlifInterpreter*) alifInterpreter_head(); // 269
 
 typedef AlifObject* (*AlifFrameEvalFunction)(AlifThread*,

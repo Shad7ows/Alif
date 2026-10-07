@@ -802,7 +802,7 @@ static AlifObject* map_next(MapObject* _lz) { // 1436
 		nargs++;
 	}
 
-	result = alifObject_vectorCallThread(tstate, _lz->func, stack, nargs, nullptr);
+	result = _alifObject_vectorCallThread(tstate, _lz->func, stack, nargs, nullptr);
 
 exit:
 	for (i = 0; i < nargs; i++) {

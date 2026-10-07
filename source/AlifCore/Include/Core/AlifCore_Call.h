@@ -39,7 +39,7 @@ static inline VectorCallFunc _alifVectorCall_functionInline(AlifObject* callable
 
 
 
-static inline AlifObject* alifObject_vectorCallThread(AlifThread* _thread,
+static inline AlifObject* _alifObject_vectorCallThread(AlifThread* _thread,
 	AlifObject* _callable, AlifObject* const* _args,
 	AlifUSizeT _nArgsF, AlifObject* _kWNames) {  // 151
 	VectorCallFunc func{};
@@ -55,12 +55,12 @@ static inline AlifObject* alifObject_vectorCallThread(AlifThread* _thread,
 }
 
 static inline AlifObject* _alifObject_callNoArgsThread(AlifThread* _thread, AlifObject* _func) { // 172
-	return alifObject_vectorCallThread(_thread, _func, nullptr, 0, nullptr);
+	return _alifObject_vectorCallThread(_thread, _func, nullptr, 0, nullptr);
 }
 
 static inline AlifObject* _alifObject_callNoArgs(AlifObject* _func) { // 179
 	AlifThread* thread = _alifThread_get();
-	return alifObject_vectorCallThread(thread, _func, nullptr, 0, nullptr);
+	return _alifObject_vectorCallThread(thread, _func, nullptr, 0, nullptr);
 }
 
 

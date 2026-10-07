@@ -176,14 +176,14 @@ static AlifIntT hashTable_uStrCompare(const void* _key1, const void* _key2) { //
 
 
 static bool hasShared_internDict(AlifInterpreter* _interp) { // 295
-	AlifInterpreter* mainInterp = alifInterpreter_main();
+	AlifInterpreter* mainInterp = _alifInterpreterState_main();
 	return _interp != mainInterp and _interp->featureFlags & ALIF_RTFLAGS_USE_ALIFMEM;
 }
 
 static AlifIntT init_internedDict(AlifInterpreter* interp) { // 302
 	AlifObject* interned{};
 	if (hasShared_internDict(interp)) {
-		interned = get_internedDict(alifInterpreter_main());
+		interned = get_internedDict(_alifInterpreterState_main());
 		ALIF_INCREF(interned);
 	}
 	else {

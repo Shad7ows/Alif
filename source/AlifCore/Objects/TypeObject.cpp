@@ -1038,7 +1038,7 @@ static inline AlifObject* vectorcall_unbound(AlifThread* _thread, AlifIntT _unbo
 		nargsf = nargsf - 1 + ALIF_VECTORCALL_ARGUMENTS_OFFSET;
 	}
 	//EVAL_CALL_STAT_INC_IF_FUNCTION(EVAL_CALL_SLOT, _func);
-	return alifObject_vectorCallThread(_thread, _func, _args, nargsf, nullptr);
+	return _alifObject_vectorCallThread(_thread, _func, _args, nargsf, nullptr);
 }
 
 

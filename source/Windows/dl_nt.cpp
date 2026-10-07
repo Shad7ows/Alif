@@ -13,7 +13,7 @@ forgotten) from the programmer.
 
 #ifdef ALIF_ENABLE_SHARED
 
-// Python Globals
+// Alif Globals
 HMODULE _alifWinDLLhModule_ = NULL;
 //const char *_alifWinDLLVersionString_ = MS_DLL_ID;
 const char* _alifWinDLLVersionString_ = "5.4"; //* alif //* todo

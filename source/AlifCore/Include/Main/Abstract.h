@@ -3,6 +3,7 @@
 
 ALIFAPI_FUNC(AlifObject*) alifObject_callOneArg(AlifObject*, AlifObject*); // 59
 
+ALIFAPI_FUNC(AlifObject*) alifObject_callNoArgs(AlifObject*); // 189
 
 ALIFAPI_FUNC(AlifObject*) alifObject_call(AlifObject*, AlifObject*, AlifObject*); // 201
 

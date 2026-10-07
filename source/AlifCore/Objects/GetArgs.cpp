@@ -1469,7 +1469,7 @@ static AlifIntT _parser_init(void* _arg) { // 1944
 		AlifThread* saveThread = nullptr;
 		AlifThread* tempThread = nullptr;
 		if (!alif_isMainInterpreter(alifInterpreter_get())) {
-			tempThread = _alifThreadState_new(alifInterpreter_main());
+			tempThread = _alifThreadState_new(_alifInterpreterState_main());
 			if (tempThread == nullptr) {
 				return -1;
 			}

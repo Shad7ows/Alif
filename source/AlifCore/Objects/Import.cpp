@@ -643,15 +643,13 @@ static AlifThread* switchTo_mainInterpreter(AlifThread* _thread) { // 1523
 		return _thread;
 	}
 
-	//* todo
-	//AlifThread* main_tstate = _alifThread_newBound(
-	//	alifInterpreter_main(), _ALIFTHREADSTATE_WHENCE_EXEC);
-	//if (main_tstate == nullptr) {
-	//	return nullptr;
-	//}
-	//(void)alifThread_swap(main_tstate);
-	//return main_tstate;
-	return _thread; //* alif //* delete
+	AlifThread* mainThread = _alifThreadState_newBound(
+		_alifInterpreterState_main()/*, _ALIFTHREADSTATE_WHENCE_EXEC*/);
+	if (mainThread == nullptr) {
+		return nullptr;
+	}
+	(void)alifThreadState_swap(mainThread);
+	return mainThread;
 }
 
 
@@ -909,7 +907,7 @@ static AlifObject* import_runExtension(AlifThread* tstate, AlifModInitFunction p
 
 main_finally:
 	if (switched) {
-		//switchBackFrom_mainInterpreter(tstate, main_tstate, mod);
+		switchBackFrom_mainInterpreter(tstate, main_tstate, mod);
 		mod = nullptr;
 	}
 

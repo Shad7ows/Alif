@@ -54,6 +54,15 @@ AlifObject* _alif_checkFunctionResult(AlifThread* _thread,
 	return _result;
 }
 
+/* --- Core AlifObject call functions ------------------------------- */
+
+/* Call a callable Alif object without any arguments */
+AlifObject* alifObject_callNoArgs(AlifObject* func) { // 101
+	//EVAL_CALL_STAT_INC_IF_FUNCTION(EVAL_CALL_API, func);
+	AlifThread* thread = _alifThread_get();
+	return _alifObject_vectorCallThread(thread, func, nullptr, 0, nullptr);
+}
+
 AlifObject* _alifObject_vectorCallDictThread(AlifThread* _thread, AlifObject* _callable,
 	AlifObject* const* _args, AlifUSizeT _nargsf, AlifObject* _kwargs) { // 110
 	AlifSizeT nargs = ALIFVECTORCALL_NARGS(_nargsf);
@@ -222,7 +231,7 @@ AlifObject* alifVectorCall_call(AlifObject* _callable,
 AlifObject* alifObject_vectorCall(AlifObject* _callable, AlifObject* const* _args,
 	AlifUSizeT _nArgsF, AlifObject* _kwNames) { // 322
 	AlifThread* thread = _alifThread_get();
-	return alifObject_vectorCallThread(thread, _callable,
+	return _alifObject_vectorCallThread(thread, _callable,
 		_args, _nArgsF, _kwNames);
 }
 
@@ -267,7 +276,7 @@ AlifObject* alifObject_callOneArg(AlifObject* _func, AlifObject* _arg) { // 386
 	args[0] = _arg;
 	AlifThread* thread = _alifThread_get();
 	AlifUSizeT nArgsF = 1 | ALIF_VECTORCALL_ARGUMENTS_OFFSET;
-	return alifObject_vectorCallThread(thread, _func, args, nArgsF, nullptr);
+	return _alifObject_vectorCallThread(thread, _func, args, nArgsF, nullptr);
 }
 
 
@@ -355,13 +364,13 @@ static AlifObject* alifObject_callFunctionVa(AlifThread* _thread, AlifObject* _c
 	}
 	if (nargs == 1 and ALIFTUPLE_CHECK(stack[0])) {
 		AlifObject* args = stack[0];
-		result = alifObject_vectorCallThread(_thread, _callable,
+		result = _alifObject_vectorCallThread(_thread, _callable,
 			ALIFTUPLE_ITEMS(args),
 			ALIFTUPLE_GET_SIZE(args),
 			nullptr);
 	}
 	else {
-		result = alifObject_vectorCallThread(_thread, _callable,
+		result = _alifObject_vectorCallThread(_thread, _callable,
 			stack, nargs, nullptr);
 	}
 
@@ -500,7 +509,7 @@ static AlifObject* object_vacall(AlifThread* _thread, AlifObject* _base,
 	}
 
 	/* Call the function */
-	result = alifObject_vectorCallThread(_thread, _callable, stack, nargs, nullptr);
+	result = _alifObject_vectorCallThread(_thread, _callable, stack, nargs, nullptr);
 
 	if (stack != small_stack) {
 		alifMem_dataFree(stack);
@@ -528,7 +537,7 @@ AlifObject* alifObject_vectorCallMethod(AlifObject* _name, AlifObject* const* _a
 		_args++;
 		_nargsf--;
 	}
-	AlifObject* result = alifObject_vectorCallThread(thread, callable,
+	AlifObject* result = _alifObject_vectorCallThread(thread, callable,
 		_args, _nargsf, _kwnames);
 	ALIF_DECREF(callable);
 	return result;

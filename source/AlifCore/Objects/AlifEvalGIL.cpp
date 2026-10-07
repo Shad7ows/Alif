@@ -270,7 +270,7 @@ static void init_ownGIL(AlifInterpreter* _interp, GILRuntimeState* _gil) { // 47
 
 void alifEval_initGIL(AlifThread* _thread, AlifIntT _ownGIL) { // 488
 	if (!_ownGIL) {
-		AlifInterpreter* main_interp = alifInterpreter_main();
+		AlifInterpreter* main_interp = _alifInterpreterState_main();
 		GILRuntimeState* gil = main_interp->eval.gil_;
 		init_sharedGIL(_thread->interpreter, gil);
 	}

@@ -17,12 +17,12 @@ static inline AlifIntT alif_isMainThread(void) { // 47
 }
 
 
-static inline AlifInterpreter* alifInterpreter_main(void) { // 55
+static inline AlifInterpreter* _alifInterpreterState_main(void) { // 55
 	return _alifRuntime_.interpreters.main;
 }
 
 static inline AlifIntT alif_isMainInterpreter(AlifInterpreter* _interpreter) { // 61
-	return (_interpreter == alifInterpreter_main());
+	return (_interpreter == _alifInterpreterState_main());
 }
 
 
@@ -95,6 +95,8 @@ static inline AlifInterpreter* _alifInterpreter_get() { // 207
 
 ALIFAPI_FUNC(AlifThread*) _alifThreadState_new(AlifInterpreter*); // 219
 extern void alifThread_bind(AlifThread*); // 222
+
+ALIFAPI_FUNC(AlifThread*) _alifThreadState_newBound(AlifInterpreter*); // 229
 
 ALIFAPI_FUNC(AlifObject*) _alifThreadState_getDict(AlifThread*); // 231
 
