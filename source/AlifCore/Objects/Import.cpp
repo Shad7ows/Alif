@@ -652,6 +652,24 @@ static AlifThread* switchTo_mainInterpreter(AlifThread* _thread) { // 1523
 	return mainThread;
 }
 
+static void switchBackFrom_mainInterpreter(AlifThread* _thread,
+	AlifThread* _mainThread, AlifObject* _tempObj) { // 1551
+	if (alifErr_occurred()) {
+		//if (alifErr_exceptionMatches(_alifExcMemoryError_)) {
+		//	alifErr_clear();
+		//}
+		//else {
+		//	alifErr_printEx(0);
+		//}
+		printf("حالة غير مكتملة");
+	}
+
+	ALIF_XDECREF(_tempObj);
+
+	alifThreadState_clear(_mainThread);
+	(void)alifThreadState_swap(_thread);
+	alifThreadState_delete(_mainThread);
+}
 
 static AlifObject* getCore_moduleDict(AlifInterpreter* _interp,
 	AlifObject* _name, AlifObject* _path) { // 1580
