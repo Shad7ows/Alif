@@ -421,19 +421,19 @@ static AlifIntT _ioBufferedRandom___init__Impl(Buffered*, AlifObject*, AlifSizeT
 static AlifIntT _ioBufferedRandom___init__(AlifObject *self,
 	AlifObject *args, AlifObject *kwargs) { // 1186
 	AlifIntT returnValue = -1;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 2
 	static struct {
-		AlifGCHead _thisIsNotUsed;
-		ALIFOBJECT_VAR_HEAD;
-		AlifObject *item[NUM_KEYWORDS];
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
 			.item = { &ALIF_STR(Raw), &ALIF_ID(bufferSize), },
 	};
 #undef NUM_KEYWORDS
-#define KWTUPLE (&_kwtuple.base.base)
+#define KWTUPLE (&_kwtuple.objBase.objBase)
 
 #else  // !ALIF_BUILD_CORE
 #  define KWTUPLE nullptr

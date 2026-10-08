@@ -29,16 +29,16 @@ static AlifObject* _imp_findFrozenImpl(AlifObject*, AlifObject*, AlifIntT);
 static AlifObject* _imp_findFrozen(AlifObject* module, AlifObject* const* args,
 	AlifSizeT nargs, AlifObject* kwnames) { // 192
 	AlifObject* returnValue = nullptr;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 1
 	static struct {
-		AlifGCHead _thisIsNotUsed;
-		ALIFOBJECT_VAR_HEAD;
-		AlifObject* item[NUM_KEYWORDS];
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-			.item = { &ALIF_ID(withdata), },
+			.item = { &ALIF_ID(WithData), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)

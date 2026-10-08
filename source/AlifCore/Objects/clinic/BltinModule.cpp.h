@@ -24,11 +24,11 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 	static class {
 	public:
 		AlifGCHead thisIsNotUsed{};
-		ALIFOBJECT_VAR_HEAD;
+		ALIFOBJECT_VAR_HEAD{};
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-		//.item = { &ALIF_ID(Name), &ALIF_ID(Globals), &ALIF_ID(Locals), &ALIF_ID(Fromlist), &ALIF_ID(Level), },
+		.item = { &ALIF_STR(Name), &ALIF_ID(Globals), &ALIF_ID(Locals), &ALIF_ID(Fromlist), &ALIF_ID(Level), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
@@ -305,13 +305,13 @@ static AlifObject* builtin_execImpl(AlifObject*, AlifObject*,
 static AlifObject* builtin_exec(AlifObject* module,
 	AlifObject* const* args, AlifSizeT nargs, AlifObject* kwnames) { // 497
 	AlifObject* returnValue = nullptr;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 3
 	static struct {
-		AlifGCHead _thisIsNotUsed;
-		ALIFOBJECT_VAR_HEAD;
-		AlifObject* item[NUM_KEYWORDS];
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
 			.item = { &ALIF_ID(Globals), &ALIF_ID(Locals), &ALIF_ID(Closure), },
@@ -649,16 +649,16 @@ static AlifObject* builtin_sumImpl(AlifObject*, AlifObject*, AlifObject*);
 static AlifObject* builtin_sum(AlifObject* _module, AlifObject *const* _args,
 	AlifSizeT _nargs, AlifObject* _kwNames) { // 1112
 	AlifObject* return_value = nullptr;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 1
 	static struct {
 		AlifGCHead thisIsNotUsed{};
-		ALIFOBJECT_VAR_HEAD;
-		AlifObject* item[NUM_KEYWORDS];
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-			.item = { &ALIF_ID(start), },
+			.item = { &ALIF_ID(Start), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)

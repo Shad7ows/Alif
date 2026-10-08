@@ -217,7 +217,7 @@ static AlifObject* _ioFileIO_write(FileIO* self, AlifTypeObject* cls,
 	AlifObject* const* args, AlifSizeT nargs, AlifObject* kwnames) {
 	AlifObject* return_value = nullptr;
 #if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
-#  define KWTUPLE (PyObject *)&_alifSingleton_(tupleEmpty)
+#  define KWTUPLE (AlifObject *)&ALIF_SINGLETON(tupleEmpty)
 #else
 #  define KWTUPLE nullptr
 #endif

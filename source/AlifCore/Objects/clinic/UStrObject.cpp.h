@@ -187,11 +187,11 @@ static AlifObject* unicode_replace(AlifObject* self, AlifObject* const* args,
 
 #define NUM_KEYWORDS 1
 	static struct {
-		AlifGCHead _thisIsNotUsed;
+		AlifGCHead thisIsNotUsed{};
 		ALIFOBJECT_VAR_HEAD;
-		AlifObject* item[NUM_KEYWORDS];
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
-		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS)
+		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
 		.item = { &ALIF_ID(Count), },
 	};
 #undef NUM_KEYWORDS
@@ -261,13 +261,13 @@ static AlifObject* uStr_splitImpl(AlifObject*, AlifObject*, AlifSizeT);
 static AlifObject* uStr_split(AlifObject* _self, AlifObject* const* _args,
 	AlifSizeT _nargs, AlifObject* _kwnames) { // 1251
 	AlifObject* returnValue = nullptr;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 2
 	static struct {
-		AlifGCHead thisIsNotUsed;
-		ALIFOBJECT_VAR_HEAD;
-		AlifObject* item[NUM_KEYWORDS];
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
 		.item = { &ALIF_STR(Sep), &ALIF_ID(MaxSplit), },
@@ -344,8 +344,8 @@ static AlifObject* uStr_rsplitImpl(AlifObject*, AlifObject*, AlifSizeT);
 static AlifObject* uStr_rsplit(AlifObject* self, AlifObject *const* args,
 	AlifSizeT nargs, AlifObject* kwnames) { // 1373
 	AlifObject* returnValue = nullptr;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 2
 	static struct {
 		AlifGCHead thisIsNotUsed{};
@@ -356,8 +356,7 @@ static AlifObject* uStr_rsplit(AlifObject* self, AlifObject *const* args,
 			.item = { &ALIF_STR(Sep), &ALIF_STR(MaxSplit), },
 	};
 #undef NUM_KEYWORDS
-#define KWTUPLE (&_kwtuple.ob_base.ob_base)
-
+#define KWTUPLE (&_kwtuple.objBase.objBase)
 #else 
 #  define KWTUPLE nullptr
 #endif
@@ -525,16 +524,16 @@ static AlifObject* uStr_newImpl(AlifTypeObject*, AlifObject*, const char*, const
 
 static AlifObject* uStr_new(AlifTypeObject* type, AlifObject* args, AlifObject* kwargs) { // 1810
 	AlifObject* returnValue = nullptr;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 3
 	static struct {
-		AlifGC_Head _thisIsNotUsed{};
+		AlifGCHead thisIsNotUsed{};
 		ALIFOBJECT_VAR_HEAD{};
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
-		.base = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS)
-		.item = { &ALIF_ID(object), &ALIF_ID(encoding), &ALIF_ID(errors), },
+		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
+		.item = { &ALIF_ID(object), &ALIF_ID(Encoding), &ALIF_ID(Errors), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)

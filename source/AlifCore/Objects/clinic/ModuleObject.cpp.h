@@ -8,13 +8,13 @@ static AlifIntT module___init__Impl(AlifModuleObject*, AlifObject*, AlifObject*)
 static AlifIntT module___init__(AlifObject* _self,
 	AlifObject* _args, AlifObject* _kwargs) {
 	AlifIntT returnValue = -1;
-#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 
+#if defined(ALIF_BUILD_CORE) and !defined(ALIF_BUILD_CORE_MODULE)
 #define NUM_KEYWORDS 2
 	static struct {
-		AlifGCHead _thisIsNotUsed;
-		ALIFOBJECT_VAR_HEAD;
-		AlifObject* item[NUM_KEYWORDS];
+		AlifGCHead thisIsNotUsed{};
+		ALIFOBJECT_VAR_HEAD{};
+		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
 			.item = { &ALIF_STR(Name), &ALIF_STR(Doc), },
