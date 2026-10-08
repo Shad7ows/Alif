@@ -171,7 +171,7 @@ public:
 		STRUCT_FOR_ID(_WindowsConsoleIO)
 		STRUCT_FOR_ID(Buffer)
 		STRUCT_FOR_ID(Buffering)
-		STRUCT_FOR_ID(buffersize)
+		STRUCT_FOR_ID(BufferSize)
 		STRUCT_FOR_ID(Closed)
 		STRUCT_FOR_ID(CloseFD)
 		STRUCT_FOR_ID(Code)

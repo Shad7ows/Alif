@@ -270,7 +270,7 @@ static AlifIntT _ioBufferedReader___init__(AlifObject* self, AlifObject* args, A
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-		.item = { &ALIF_STR(Raw), &ALIF_ID(buffersize), },
+		.item = { &ALIF_STR(Raw), &ALIF_ID(BufferSize), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
@@ -278,7 +278,7 @@ static AlifIntT _ioBufferedReader___init__(AlifObject* self, AlifObject* args, A
 	static const char* const _keywords[] = { "raw", "bufferSize", nullptr };
 	static AlifArgParser _parser = {
 		.keywords = _keywords,
-		.fname = "BufferedReader",
+		.fname = "قارئ_مخزن",
 		.kwTuple = KWTUPLE,
 	};
 #undef KWTUPLE
@@ -334,7 +334,7 @@ static AlifIntT _ioBufferedWriter___init__(AlifObject* _self,
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-		.item = { &ALIF_STR(Raw), &ALIF_ID(bufferSize), },
+		.item = { &ALIF_STR(Raw), &ALIF_ID(BufferSize), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
@@ -430,7 +430,7 @@ static AlifIntT _ioBufferedRandom___init__(AlifObject *self,
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-			.item = { &ALIF_STR(Raw), &ALIF_ID(bufferSize), },
+			.item = { &ALIF_STR(Raw), &ALIF_ID(BufferSize), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
