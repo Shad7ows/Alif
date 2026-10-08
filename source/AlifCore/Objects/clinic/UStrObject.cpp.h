@@ -353,7 +353,7 @@ static AlifObject* uStr_rsplit(AlifObject* self, AlifObject *const* args,
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-			.item = { &ALIF_STR(Sep), &ALIF_STR(MaxSplit), },
+			.item = { &ALIF_STR(Sep), &ALIF_ID(MaxSplit), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
@@ -533,7 +533,7 @@ static AlifObject* uStr_new(AlifTypeObject* type, AlifObject* args, AlifObject* 
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-		.item = { &ALIF_ID(object), &ALIF_ID(Encoding), &ALIF_ID(Errors), },
+		.item = { &ALIF_STR(Object), &ALIF_ID(Encoding), &ALIF_ID(Errors), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)

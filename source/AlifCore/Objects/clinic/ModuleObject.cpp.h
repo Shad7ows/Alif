@@ -17,7 +17,7 @@ static AlifIntT module___init__(AlifObject* _self,
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-			.item = { &ALIF_STR(Name), &ALIF_STR(Doc), },
+			.item = { &ALIF_STR(Name), &ALIF_ID(Doc), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)

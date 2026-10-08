@@ -709,11 +709,14 @@
     INIT_USTR(True, "صح"), /* //* alif */	\
     INIT_USTR(False, "خطأ"), /* //* alif */	\
     INIT_USTR(Flush, "مباشر"), /* //* alif */	\
+	INIT_USTR(Globals, "اسماء_عامة"), \
+	INIT_USTR(Locals, "اسماء_محلية"), \
     INIT_USTR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
     INIT_USTR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
     INIT_USTR(Name, "اسم"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\
+    INIT_USTR(Object, "كائن"), /* //* alif */	\
 	INIT_USTR(Open, "افتح"), /* //* alif */	\
 	INIT_USTR(ReadLine, "اقرا_سطر"), /* //* alif */	\
 	INIT_USTR(Read, "اقرا"), /* //* alif */	\
@@ -810,19 +813,23 @@
 	INIT_ID(_WindowsConsoleIO), \
 	INIT_ID(Buffer), \
 	INIT_ID(Buffering), \
-	INIT_ID(buffersize), \
+	INIT_ID(BufferSize), \
 	INIT_ID(Closed), \
 	INIT_ID(CloseFD), \
+	INIT_ID(Closure), \
 	INIT_ID(Code), \
+	INIT_ID(Count), \
 	INIT_ID(Decode), \
 	INIT_ID(Decoder), \
 	INIT_ID(DictComp), \
+	INIT_ID(Doc), \
 	INIT_ID(Encode), \
 	INIT_ID(Encoding), \
 	INIT_ID(Errors), \
 	INIT_ID(File), \
 	INIT_ID(Filename), \
 	INIT_ID(Fileno), \
+	INIT_ID(FromList), \
 	INIT_ID(GenExpr), \
 	INIT_ID(GetState), \
 	INIT_ID(HasLocation), \
@@ -833,8 +840,10 @@
 	INIT_ID(LastTraceback), \
 	INIT_ID(LastType), \
 	INIT_ID(LastValue), \
+	INIT_ID(Level), \
 	INIT_ID(LineBuffering), \
 	INIT_ID(ListComp), \
+	INIT_ID(MaxSplit), \
 	INIT_ID(MetaClass), \
 	INIT_ID(Mode), \
 	INIT_ID(Mro), \
@@ -854,11 +863,18 @@
 	INIT_ID(Reverse), \
 	INIT_ID(Seekable), \
 	INIT_ID(SetComp), \
+	INIT_ID(Start), \
 	INIT_ID(Stderr), \
 	INIT_ID(Stdin), \
 	INIT_ID(strict), \
+	INIT_ID(TBFrame), \
+	INIT_ID(TBLasti), \
+	INIT_ID(TBLineno), \
+	INIT_ID(TBNext), \
+	INIT_ID(Text), \
 	INIT_ID(Top), \
 	INIT_ID(Translate), \
+	INIT_ID(WithData), \
 	INIT_ID(Writable), \
 	INIT_ID(WriteThrough), \
 }

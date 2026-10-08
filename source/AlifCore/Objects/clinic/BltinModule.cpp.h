@@ -28,7 +28,7 @@ static AlifObject* builtin___import__(AlifObject* _module, AlifObject* const* _a
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 		.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-		.item = { &ALIF_STR(Name), &ALIF_ID(Globals), &ALIF_ID(Locals), &ALIF_ID(Fromlist), &ALIF_ID(Level), },
+		.item = { &ALIF_STR(Name), &ALIF_STR(Globals), &ALIF_STR(Locals), &ALIF_ID(FromList), &ALIF_ID(Level), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)
@@ -314,7 +314,7 @@ static AlifObject* builtin_exec(AlifObject* module,
 		AlifObject* item[NUM_KEYWORDS]{};
 	} _kwtuple = {
 			.objBase = ALIFVAROBJECT_HEAD_INIT(&_alifTupleType_, NUM_KEYWORDS),
-			.item = { &ALIF_ID(Globals), &ALIF_ID(Locals), &ALIF_ID(Closure), },
+			.item = { &ALIF_STR(Globals), &ALIF_STR(Locals), &ALIF_ID(Closure), },
 	};
 #undef NUM_KEYWORDS
 #define KWTUPLE (&_kwtuple.objBase.objBase)

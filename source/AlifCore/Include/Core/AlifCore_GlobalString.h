@@ -69,11 +69,14 @@ public:
 		STRUCT_FOR_USTR(True, "صح") //* alif
 		STRUCT_FOR_USTR(False, "خطأ") //* alif
 		STRUCT_FOR_USTR(Flush, "مباشر") //* alif
+		STRUCT_FOR_USTR(Globals, "اسماء_عامة") //* alif
+		STRUCT_FOR_USTR(Locals, "اسماء_محلية") //* alif
 		STRUCT_FOR_USTR(ListErr, "مؤشر المصفوفة خارج النطاق")
 		STRUCT_FOR_USTR(lambda, "خطية") //* alif
 		STRUCT_FOR_STR(Mode, "mode") //* alif
 		STRUCT_FOR_USTR(Name, "اسم") //* alif
 		STRUCT_FOR_STR(Obj, "obj") //* alif
+		STRUCT_FOR_USTR(Object, "كائن") //* alif
 		STRUCT_FOR_USTR(Open, "افتح") //* alif
 		STRUCT_FOR_USTR(ReadLine, "اقرا_سطر") //* alif
 		STRUCT_FOR_USTR(Read, "اقرا") //* alif
@@ -174,10 +177,13 @@ public:
 		STRUCT_FOR_ID(BufferSize)
 		STRUCT_FOR_ID(Closed)
 		STRUCT_FOR_ID(CloseFD)
+		STRUCT_FOR_ID(Closure)
 		STRUCT_FOR_ID(Code)
+		STRUCT_FOR_ID(Count)
 		STRUCT_FOR_ID(Decode)
 		STRUCT_FOR_ID(Decoder)
 		STRUCT_FOR_ID(DictComp)
+		STRUCT_FOR_ID(Doc)
 		STRUCT_FOR_ID(Encode)
 		STRUCT_FOR_ID(Encoding)
 		STRUCT_FOR_ID(EndColOffset)
@@ -187,6 +193,7 @@ public:
 		STRUCT_FOR_ID(File)
 		STRUCT_FOR_ID(Filename)
 		STRUCT_FOR_ID(Fileno)
+		STRUCT_FOR_ID(FromList)
 		STRUCT_FOR_ID(GenExpr)
 		STRUCT_FOR_ID(GetState)
 		STRUCT_FOR_ID(HasLocation)
@@ -197,9 +204,11 @@ public:
 		STRUCT_FOR_ID(LastTraceback)
 		STRUCT_FOR_ID(LastType)
 		STRUCT_FOR_ID(LastValue)
+		STRUCT_FOR_ID(Level)
 		STRUCT_FOR_ID(LineBuffering)
 		STRUCT_FOR_ID(Lineno)
 		STRUCT_FOR_ID(ListComp)
+		STRUCT_FOR_ID(MaxSplit)
 		STRUCT_FOR_ID(MetaClass)
 		STRUCT_FOR_ID(Mode)
 		STRUCT_FOR_ID(Mro)
@@ -221,12 +230,18 @@ public:
 		STRUCT_FOR_ID(Reverse)
 		STRUCT_FOR_ID(Seekable)
 		STRUCT_FOR_ID(SetComp)
+		STRUCT_FOR_ID(Start)
 		STRUCT_FOR_ID(Stderr)
 		STRUCT_FOR_ID(Stdin)
 		STRUCT_FOR_ID(strict)
+		STRUCT_FOR_ID(TBFrame)
+		STRUCT_FOR_ID(TBLasti)
+		STRUCT_FOR_ID(TBLineno)
+		STRUCT_FOR_ID(TBNext)
 		STRUCT_FOR_ID(Text)
 		STRUCT_FOR_ID(Top)
 		STRUCT_FOR_ID(Translate)
+		STRUCT_FOR_ID(WithData)
 		STRUCT_FOR_ID(Writable)
 		STRUCT_FOR_ID(WriteThrough)
 	} identifiers;
