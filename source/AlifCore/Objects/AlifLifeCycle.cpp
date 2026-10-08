@@ -24,7 +24,7 @@
 #endif
 
 
-//#define PUTS(_fd, _str) (void)_alifWrite_noRaise(_fd, _str, (AlifIntT)strlen(_str))
+#define PUTS(_fd, _str) (void)_alif_writeNoRaise(_fd, _str, (AlifIntT)strlen(_str))
 
 
 static AlifStatus init_setBuiltinsOpen(void); // 72
@@ -1068,18 +1068,18 @@ static void ALIF_NO_RETURN fatal_error(AlifIntT _fd, AlifIntT _header,
 	reEntrant = 1;
 
 	if (_header) {
-		//PUTS(_fd, "Fatal Alif error: ");
-		//if (_prefix) {
-		//	PUTS(_fd, _prefix);
-		//	PUTS(_fd, ": ");
-		//}
-		//if (_msg) {
-		//	PUTS(_fd, _msg);
-		//}
-		//else {
-		//	PUTS(_fd, "<message not set>");
-		//}
-		//PUTS(_fd, "\n");
+		PUTS(_fd, "Fatal Alif error: ");
+		if (_prefix) {
+			PUTS(_fd, _prefix);
+			PUTS(_fd, ": ");
+		}
+		if (_msg) {
+			PUTS(_fd, _msg);
+		}
+		else {
+			PUTS(_fd, "<message not set>");
+		}
+		PUTS(_fd, "\n");
 	}
 
 	//AlifRuntime* runtime = &_alifRuntime_;
@@ -1120,11 +1120,40 @@ static void ALIF_NO_RETURN fatal_error(AlifIntT _fd, AlifIntT _header,
 	fatalError_exit(_status);
 }
 
+#undef ALIF_FATALERROR
+
+
 void ALIF_NO_RETURN alif_fatalError(const char* _msg) { // 3252
 	fatal_error(fileno(stderr), 1, nullptr, _msg, -1);
 }
 
 
+void ALIF_NO_RETURN _alif_fatalErrorFormat(const char* func,
+	const char* format, ...) { // 3295
+	static int reentrant = 0;
+	if (reentrant) {
+		fatalError_exit(-1);
+	}
+	reentrant = 1;
+
+	FILE* stream = stderr;
+	const int fd = fileno(stream);
+	PUTS(fd, "Fatal Alif error: ");
+	if (func) {
+		PUTS(fd, func);
+		PUTS(fd, ": ");
+	}
+
+	va_list vargs;
+	va_start(vargs, format);
+	vfprintf(stream, format, vargs);
+	va_end(vargs);
+
+	fputs("\n", stream);
+	fflush(stream);
+
+	fatal_error(fd, 0, nullptr, nullptr, -1);
+}
 
 
 void ALIF_NO_RETURN alif_exitStatusException(AlifStatus _status) { // 3306

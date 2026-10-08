@@ -1172,6 +1172,11 @@ AlifSizeT _alif_write(AlifIntT _fd, const void* _buf, AlifUSizeT _count) { // 20
 	return _alif_writeImpl(_fd, _buf, _count, 1);
 }
 
+AlifSizeT _alif_writeNoRaise(AlifIntT _fd,
+	const void* _buf, AlifUSizeT _count) { // 2048
+	return _alif_writeImpl(_fd, _buf, _count, 0);
+}
+
 #ifdef HAVE_READLINK // 2054
 
 AlifIntT alif_wReadLink(const wchar_t* path, wchar_t* buf, AlifUSizeT buflen) { // 2061

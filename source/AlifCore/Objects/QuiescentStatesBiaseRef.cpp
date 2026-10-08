@@ -169,3 +169,20 @@ void alifQSBR_register(AlifThreadImpl* _thread,
 	_thread->qsbr = qsbr;
 	ALIFMUTEX_UNLOCK(&shared->mutex);
 }
+
+
+
+void _alifQSBR_unregister(AlifThread* _thread) { // 234
+	QSBRShared* shared = &_thread->interpreter->qsbr;
+	AlifThreadImpl* threadImp = (AlifThreadImpl*)_thread;
+
+	ALIFMUTEX_LOCK(&shared->mutex);
+	QSBRThreadState* qsbr = threadImp->qsbr;
+
+	threadImp->qsbr = nullptr;
+	qsbr->thread = nullptr;
+	qsbr->allocated = false;
+	qsbr->freeListNext = shared->freeList;
+	shared->freeList = qsbr;
+	ALIFMUTEX_UNLOCK(&shared->mutex);
+}

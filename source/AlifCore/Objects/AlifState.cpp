@@ -45,6 +45,12 @@ static inline void current_fastClear() { // 94
 	#endif
 }
 
+// 105
+#define THREAD_VERIFY_NOT_ACTIVE(_thread) \
+    if (_thread == current_fastGet()) { \
+        _alif_fatalErrorFormat(__func__, "الممر %p لا يزال الحالي (لم يتغير)", _thread); \
+    }
+
 AlifThread* alifThread_getCurrent() { // 110
 	return current_fastGet();
 }
@@ -103,6 +109,9 @@ static void bind_thread(AlifThread* _thread) { // 245
 
 
 
+static void unbind_thread(AlifThread* _thread) { // 277
+	_thread->status.unbound = 1;
+}
 
 
 static void bind_gilStateThread(AlifThread* tstate) { // 318
@@ -467,17 +476,155 @@ AlifThread* _alifThreadState_newBound(AlifInterpreter* interp) { // 1570
 	AlifThread* tstate = new_thread(interp);
 	if (tstate) {
 		bind_thread(tstate);
-		if (GILSTATE_TSS_GET(tstate->interpreter->runtime) == NULL) {
+		if (GILSTATE_TSS_GET(tstate->interpreter->runtime) == nullptr) {
 			bind_gilStateThread(tstate);
 		}
 	}
 	return tstate;
 }
 
+static void clear_dataStack(AlifThread* _thread) { // 1608
+	AlifStackChunk* chunk = _thread->dataStackChunk;
+	_thread->dataStackChunk = nullptr;
+	while (chunk != nullptr) {
+		AlifStackChunk* prev = chunk->previous;
+		//_alifMem_virtualMemFree(chunk, chunk->size);
+		chunk = prev;
+	}
+}
 
 AlifThread* _alifThreadState_new(AlifInterpreter* _interpreter) { // 1622
 	return new_thread(_interpreter);
 }
+
+
+static void thread_deleteCommon(AlifThread* _thread,
+	AlifIntT _releaseGIL) { // 1736
+	THREAD_VERIFY_NOT_ACTIVE(_thread);
+
+	AlifInterpreter* interp = _thread->interpreter;
+	if (interp == nullptr) {
+		alif_fatalError("مفسر فارغ");
+	}
+	AlifRuntime* runtime = interp->runtime;
+
+	HEAD_LOCK(runtime);
+	if (_thread->prev) {
+		_thread->prev->next = _thread->next;
+	}
+	else {
+		interp->threads.head = _thread->next;
+	}
+	if (_thread->next) {
+		_thread->next->prev = _thread->prev;
+	}
+	//if (_thread->state != ALIF_THREAD_SUSPENDED) {
+	//	if (interp->stopTheWorld.requested) {
+	//		decrement_stopTheWorldCountdown(&interp->stopTheWorld);
+	//	}
+	//	if (runtime->stopTheWorld.requested) {
+	//		decrement_stopTheWorldCountdown(&runtime->stopTheWorld);
+	//	}
+	//}
+
+//#if defined(ALIF_REF_DEBUG)
+//	AlifThreadImpl* threadImpl = (AlifThreadImpl*)_thread;
+//	_thread->interpreter->objectState.refTotal += threadImpl->refTotal;
+//	threadImpl->refTotal = 0;
+//#endif
+
+	HEAD_UNLOCK(runtime);
+
+	//if (_thread->status.boundGILState) {
+	//	unbind_gilStateThread(_thread);
+	//}
+	unbind_thread(_thread);
+
+	//clear_dataStack(_thread);
+
+	if (_releaseGIL) {
+		alifEval_releaseLock(_thread->interpreter, _thread, 1);
+	}
+
+	_alifQSBR_unregister(_thread);
+
+	_thread->status.finalized = 1;
+}
+
+
+void alifThreadState_clear(AlifThread* tstate) { // 1920
+	tstate->status.finalizing = 1; 
+
+	int verbose = _alifInterpreterState_getConfig(tstate->interpreter)->verbose;
+
+	if (verbose && tstate->currentFrame != nullptr) {
+		fprintf(stderr,
+			"alifThreadState_clear: تحذير: الممر لا يزال يمتلك إطار\n");
+	}
+
+	if (verbose && tstate->currentException != NULL) {
+		fprintf(stderr, "alifThreadState_clear: تحذير: الممر لا يمتلك ضابط خلل\n");
+		_alifErr_print(tstate);
+	}
+
+	//ALIF_CLEAR(tstate->threadingLocalKey);
+	//ALIF_CLEAR(tstate->threadingLocalSentinel);
+
+	//ALIF_CLEAR(((AlifThreadImpl*)tstate)->asyncIORunningLoop);
+
+	ALIF_CLEAR(tstate->dict);
+	//ALIF_CLEAR(tstate->asyncExc);
+
+	ALIF_CLEAR(tstate->currentException);
+
+	ALIF_CLEAR(tstate->excState.excValue);
+
+	if (verbose and tstate->excInfo != &tstate->excState) {
+		fprintf(stderr,
+			"alifThreadState_clear: تحذير: الممر لا يزال يملك مولد\n");
+	}
+
+	//if (tstate->cppProfileFunc != nullptr) {
+	//	tstate->interpreter->sysProfilingThreads--;
+	//	tstate->cppProfileFunc = nullptr;
+	//}
+	//if (tstate->cppTraceFunc != nullptr) {
+	//	tstate->interpreter->sysTracingThreads--;
+	//	tstate->cppTraceFunc = nullptr;
+	//}
+	//ALIF_CLEAR(tstate->cppProfileObj);
+	//ALIF_CLEAR(tstate->cppTraceObj);
+
+	//ALIF_CLEAR(tstate->asyncGenFirstiter);
+	//ALIF_CLEAR(tstate->asyncGenFinalizer);
+
+	//ALIF_CLEAR(tstate->context);
+
+	AlifFreeLists* freelists = _alifFreeLists_get();
+	//_alifObject_clearFreeLists(freelists, 1);
+
+	//_alifObject_finalizePerThreadRefCounts((AlifThreadImpl*)tstate);
+
+	//_alifBRC_removeThread(tstate);
+
+	_alif_clearTLBCIndex((AlifThreadImpl*)tstate);
+
+	//_alifMem_abandonDelayed(tstate);
+
+	//_alifThreadState_clearMimallocHeaps(tstate);
+
+	tstate->status.cleared = 1;
+}
+
+
+
+void alifThreadState_delete(AlifThread* _thread) { // 1815
+	ALIF_ENSURETHREADNOTNULL(_thread);
+	THREAD_VERIFY_NOT_ACTIVE(_thread);
+	thread_deleteCommon(_thread, 0);
+	free_thread((AlifThreadImpl*)_thread);
+}
+
 
 
 AlifObject* _alifThreadState_getDict(AlifThread* _thread) { // 1941

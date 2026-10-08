@@ -83,6 +83,8 @@ extern AlifSizeT _alif_read(AlifIntT, void*, AlifUSizeT); // 133
 
 ALIFAPI_FUNC(AlifSizeT) _alif_write(AlifIntT, const void*, AlifUSizeT); // 139
 
+ALIFAPI_FUNC(AlifSizeT) _alif_writeNoRaise(AlifIntT, const void*, AlifUSizeT); // 144
+
 #ifdef HAVE_READLINK
 extern int alif_wReadLink(const wchar_t*, wchar_t*, AlifUSizeT); // 151
 #endif

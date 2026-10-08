@@ -17,6 +17,8 @@ extern AlifIntT _alifException_addNote(AlifObject*, AlifObject*); // 32
 ALIFAPI_FUNC(AlifObject*) _alifErr_programDecodedTextObject(AlifObject*, AlifIntT, const char*); // 41
 
 
+extern void ALIF_NO_RETURN _alif_fatalErrorFormat(const char*, const char*, ...); // 53
+
 static inline AlifObject* _alifErr_occurred(AlifThread* _thread) { // 73
 	if (_thread->currentException == nullptr) {
 		return nullptr;

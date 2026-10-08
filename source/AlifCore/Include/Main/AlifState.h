@@ -16,6 +16,8 @@ ALIFAPI_FUNC(int64_t) alifInterpreter_getID(AlifInterpreter*); // 36
 
 
 ALIFAPI_FUNC(AlifThread*) alifThreadState_new(AlifInterpreter*); // 48
+ALIFAPI_FUNC(void) alifThreadState_clear(AlifThread*);
+ALIFAPI_FUNC(void) alifThreadState_delete(AlifThread*); // 50
 
 ALIFAPI_FUNC(AlifThread*) alifThread_get(); // 60
 
@@ -63,6 +65,7 @@ public:
 		AlifUIntT initialized : 1;
 
 		AlifUIntT bound : 1;
+		AlifUIntT unbound : 1;
 		AlifUIntT boundGILState : 1;
 		AlifUIntT active : 1;
 
@@ -71,7 +74,7 @@ public:
 		AlifUIntT finalized : 1;
 		AlifUIntT holdsGIL : 1;
 		/* padding to align to 4 bytes */
-		AlifUIntT : 4;
+		AlifUIntT : 23;
 	} status{};
 
 	AlifIntT state{};
