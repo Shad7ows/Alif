@@ -72,6 +72,12 @@
 #define HAVE_WINDOWS_CONSOLE_IO 1
 #endif
 
+
+#if !defined(MS_NO_COREDLL) && !defined(ALIF_NO_ENABLE_SHARED)
+#       define ALIF_ENABLE_SHARED 1 /* standard symbol for shared library */
+#       define MS_COREDLL       /* deprecated old symbol */
+#endif
+
 /*  All windows compilers that use this header support __declspec */
 #define HAVE_DECLSPEC_DLL
 
