@@ -6892,6 +6892,17 @@ static AlifObject* do_argStrip(AlifObject* _self,
 }
 
 
+static AlifObject* uStr_stripImpl(AlifObject* _self,
+	AlifObject* _chars) { // 12458
+	return do_argStrip(_self, BOTHSTRIP, _chars);
+}
+
+
+static AlifObject* uStr_lStripImpl(AlifObject* _self,
+	AlifObject* _chars) { // 12477
+	return do_argStrip(_self, LEFTSTRIP, _chars);
+}
+
 
 static AlifObject* uStr_rStripImpl(AlifObject* _self,
 	AlifObject* _chars) { // 12496
@@ -7714,8 +7725,8 @@ static AlifMethodDef _uStrMethods_[] = { // 13987
 	UNICODE_RSPLIT_METHODDEF
 	UNICODE_JOIN_METHODDEF
 	//UNICODE_RFIND_METHODDEF
-	//UNICODE_STRIP_METHODDEF
-	//UNICODE_LSTRIP_METHODDEF
+	UNICODE_STRIP_METHODDEF
+	UNICODE_LSTRIP_METHODDEF
 	UNICODE_RSTRIP_METHODDEF
 	UNICODE_ENDSWITH_METHODDEF
 	UNICODE_STARTSWITH_METHODDEF

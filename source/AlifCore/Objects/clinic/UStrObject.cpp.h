@@ -146,6 +146,56 @@ static AlifObject* uStr_lower(AlifObject* _self,
 }
 
 
+// 814
+#define UNICODE_STRIP_METHODDEF    \
+    {"جرد", ALIF_CPPFUNCTION_CAST(uStr_strip), METHOD_FASTCALL},
+
+static AlifObject* uStr_stripImpl(AlifObject*, AlifObject*);
+
+static AlifObject* uStr_strip(AlifObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 820
+	AlifObject* returnValue{};
+	AlifObject* chars = ALIF_NONE;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("جرد", _nargs, 0, 1)) {
+		goto exit;
+	}
+	if (_nargs < 1) {
+		goto skip_optional;
+	}
+	chars = _args[0];
+skip_optional:
+	returnValue = uStr_stripImpl(_self, chars);
+
+exit:
+	return returnValue;
+}
+
+// 848
+#define UNICODE_LSTRIP_METHODDEF    \
+    {"جرد_يسار", ALIF_CPPFUNCTION_CAST(uStr_lStrip), METHOD_FASTCALL},
+
+static AlifObject* uStr_lStripImpl(AlifObject*, AlifObject*);
+
+static AlifObject* uStr_lStrip(AlifObject* _self,
+	AlifObject* const* _args, AlifSizeT _nargs) { // 854
+	AlifObject* returnValue{};
+	AlifObject* chars = ALIF_NONE;
+
+	if (!_ALIFARG_CHECKPOSITIONAL("جرد_يسار", _nargs, 0, 1)) {
+		goto exit;
+	}
+	if (_nargs < 1) {
+		goto skip_optional;
+	}
+	chars = _args[0];
+skip_optional:
+	returnValue = uStr_lStripImpl(_self, chars);
+
+exit:
+	return returnValue;
+}
+
 // 882
 #define UNICODE_RSTRIP_METHODDEF    \
     {"جرد_يمين", ALIF_CPPFUNCTION_CAST(uStr_rStrip), METHOD_FASTCALL},
