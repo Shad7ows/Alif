@@ -714,6 +714,7 @@
     INIT_USTR(ListErr, "مؤشر المصفوفة خارج النطاق"), /* //* alif */	\
     INIT_USTR(lambda, "خطية"), /* //* alif */	\
     INIT_STR(Mode, "mode"), /* //* alif */	\
+    INIT_USTR(MaxSplit, "التكرار"), /* //* alif */	\
     INIT_USTR(Name, "اسم"), /* //* alif */	\
     INIT_STR(Obj, "obj"), /* //* alif */	\
     INIT_USTR(Object, "كائن"), /* //* alif */	\
@@ -843,7 +844,6 @@
 	INIT_ID(Level), \
 	INIT_ID(LineBuffering), \
 	INIT_ID(ListComp), \
-	INIT_ID(MaxSplit), \
 	INIT_ID(MetaClass), \
 	INIT_ID(Mode), \
 	INIT_ID(Mro), \

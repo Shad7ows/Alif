@@ -74,6 +74,7 @@ public:
 		STRUCT_FOR_USTR(ListErr, "مؤشر المصفوفة خارج النطاق")
 		STRUCT_FOR_USTR(lambda, "خطية") //* alif
 		STRUCT_FOR_STR(Mode, "mode") //* alif
+		STRUCT_FOR_USTR(MaxSplit, "التكرار")
 		STRUCT_FOR_USTR(Name, "اسم") //* alif
 		STRUCT_FOR_STR(Obj, "obj") //* alif
 		STRUCT_FOR_USTR(Object, "كائن") //* alif
@@ -208,7 +209,6 @@ public:
 		STRUCT_FOR_ID(LineBuffering)
 		STRUCT_FOR_ID(Lineno)
 		STRUCT_FOR_ID(ListComp)
-		STRUCT_FOR_ID(MaxSplit)
 		STRUCT_FOR_ID(MetaClass)
 		STRUCT_FOR_ID(Mode)
 		STRUCT_FOR_ID(Mro)

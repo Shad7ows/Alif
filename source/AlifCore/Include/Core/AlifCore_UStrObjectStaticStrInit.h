@@ -155,8 +155,6 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(ListComp);
 	_alifUStr_internStatic(interp, &string);
-	string = &ALIF_ID(MaxSplit);
-	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(MetaClass);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_ID(Mode);
@@ -290,6 +288,8 @@ static inline void _alifUStr_initStaticStrings(AlifInterpreter* interp) {
 	string = &ALIF_STR(lambda);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Mode);
+	_alifUStr_internStatic(interp, &string);
+	string = &ALIF_STR(MaxSplit);
 	_alifUStr_internStatic(interp, &string);
 	string = &ALIF_STR(Name);
 	_alifUStr_internStatic(interp, &string);
