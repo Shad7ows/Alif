@@ -661,7 +661,7 @@ static AlifIntT math_exec(AlifObject* _module) { // 4046 //* todo
 	if (alifModule_add(_module, "لانهائي", alifFloat_fromDouble(ALIF_INFINITY)) < 0) { // inf
 		return -1;
 	}
-	if (alifModule_add(_module, "لعدد", alifFloat_fromDouble(fabs(ALIF_NAN))) < 0) { // nan
+	if (alifModule_add(_module, "لاعدد", alifFloat_fromDouble(fabs(ALIF_NAN))) < 0) { // nan
 		return -1;
 	}
 	return 0;
