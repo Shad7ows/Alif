@@ -1704,9 +1704,48 @@ static AlifObject* longTo_decimalString(AlifObject* _aa) { // 2294
 	return v;
 }
 
+static AlifSizeT count_arabicDigits(AlifLongObject* _a,
+	AlifSizeT _size_a, AlifSizeT _ndigits) { //* alif
+
+	const digit* digits = _a->longValue.digit;
+	AlifSizeT count{};
+	AlifSizeT internalIndex{};
+	AlifIntT offset{};
+
+	for (AlifSizeT i = 0; i < _ndigits; i++) {
+		AlifUIntT digitVal{};
+
+		if (offset <= ALIFLONG_SHIFT - 4) {
+			/* Nibble lies entirely inside one internal digit. */
+			digitVal = (digits[internalIndex] >> offset) & 0xF;
+		}
+		else {
+			/* Nibble spans two internal digits. */
+			AlifUIntT low = digits[internalIndex] >> offset;
+			AlifUIntT high = (internalIndex + 1 < _size_a)
+				? digits[internalIndex + 1]
+				: 0;
+			digitVal = (low | (high << (ALIFLONG_SHIFT - offset))) & 0xF;
+		}
+
+		if (digitVal >= 10) {
+			count++;
+		}
+
+		/* Advance to the next nibble. */
+		offset += 4;
+		if (offset >= ALIFLONG_SHIFT) {
+			offset -= ALIFLONG_SHIFT;
+			internalIndex++;
+		}
+	}
+
+	return count;
+}
+
 static AlifIntT long_formatBinary(AlifObject* _aa, AlifIntT _base,
 	AlifIntT _alternate, AlifObject** _pOutput, AlifUStrWriter* _writer,
-	AlifBytesWriter* _bytesWriter, char** _bytesStr, AlifIntT _isAscii) { // 2312
+	AlifBytesWriter* _bytesWriter, char** _bytesStr, AlifIntT _isAscii) { // 2345
 	AlifLongObject* a = (AlifLongObject*)_aa;
 	AlifObject* v = nullptr;
 	AlifSizeT sz{};
@@ -1751,15 +1790,12 @@ static AlifIntT long_formatBinary(AlifObject* _aa, AlifIntT _base,
 		size_a_in_bits = (size_a - 1) * ALIFLONG_SHIFT +
 			bit_lengthDigit(a->longValue.digit[size_a - 1]);
 
-		// هذه من أجل حجز 2 بت للأحرف العربية
-		if (!_isAscii and _base == 16) { //* todo
-			// هذه تأخذ بالحسبان أسوء حالة وهي أن يظهر أحرف في جميع الخانات
-			// وبالتالي تقوم بحجز ضعف الحجم لإستيعاب الأحرف العربية كاملة في أسوء الحالات
-			size_a_in_bits = size_a_in_bits * 2;
-		}
-
 		/* Allow 1 character for a '-' sign. */
 		sz = negative + (size_a_in_bits + (bits - 1)) / bits;
+
+		if (!_isAscii and bits == 4) { //* review
+			sz += count_arabicDigits(a, size_a, sz);
+		}
 	}
 	if (_alternate) {
 		/* 2 characters for prefix  */
